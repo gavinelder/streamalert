@@ -1,0 +1,2525 @@
+[
+  {
+    "data": {
+      "@timestamp": 1626200415627,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "account.plan_change",
+      "actor": "example-actor",
+      "created_at": 1626200415627,
+      "org": "example-org"
+    },
+    "description": "account.plan_change",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1623759088258,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "commit_comment.destroy",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1623759088258,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "commit_comment.destroy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621259396519,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "commit_comment.update",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621259396519,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "commit_comment.update",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1628467207271,
+      "action": "git.clone",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "business": "example-org",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "repository": "example-org/example-repo",
+      "repository_public": false,
+      "transport_protocol": 2,
+      "transport_protocol_name": "ssh",
+      "user": ""
+    },
+    "description": "git.clone",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1628467352064,
+      "action": "git.fetch",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "business": "example-org",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "repository": "example-org/example-repo",
+      "repository_public": false,
+      "transport_protocol": 2,
+      "transport_protocol_name": "ssh",
+      "user": ""
+    },
+    "description": "git.fetch",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1628476144997,
+      "action": "git.push",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "HK"
+      },
+      "business": "example-org",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "repository": "example-org/platform-auth",
+      "repository_public": false,
+      "transport_protocol": 2,
+      "transport_protocol_name": "ssh",
+      "user": ""
+    },
+    "description": "git.push",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1623919125809,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "hook.active_changed",
+      "active": false,
+      "active_was": true,
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "LT"
+      },
+      "config": {
+        "content_type": "form",
+        "insecure_ssl": "0",
+        "url": "https://webhook.buildkite.com/deliver/aaaabbbbccc"
+      },
+      "created_at": 1623919125809,
+      "events": ["deployment", "pull_request", "push"],
+      "hook_id": 302983214,
+      "name": "webhook",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "hook.active_changed",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621129484198,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "hook.config_changed",
+      "active": true,
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "config": {
+        "content_type": "json",
+        "insecure_ssl": "0",
+        "name": "buildkite",
+        "url": "https://webhook.buildkite.com/deliver/aaaabbbbccc"
+      },
+      "config_was": {
+        "content_type": "json",
+        "insecure_ssl": "0",
+        "name": "buildkite",
+        "url": "https://webhook.buildkite.com/deliver/aaaabbbbccc"
+      },
+      "created_at": 1621129484198,
+      "events": ["deployment", "pull_request", "push"],
+      "hook_id": 259831246,
+      "name": "webhook",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "hook.config_changed",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621350868768,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "hook.create",
+      "active": true,
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "config": {
+        "content_type": "json",
+        "insecure_ssl": "0",
+        "url": "https://webhook.buildkite.com/deliver/aaaabbbbccc"
+      },
+      "created_at": 1621350868768,
+      "events": ["deployment", "pull_request", "push"],
+      "hook_id": 297965537,
+      "name": "webhook",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "hook.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621576700312,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "hook.destroy",
+      "active": true,
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "config": {
+        "content_type": "form",
+        "insecure_ssl": "0"
+      },
+      "created_at": 1621576700312,
+      "events": [],
+      "hook_id": 296893155,
+      "name": "webhook",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "hook.destroy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622216466938,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "hook.events_changed",
+      "active": true,
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "config": {
+        "content_type": "json",
+        "insecure_ssl": "0",
+        "url": "https://webhook.buildkite.com/deliver/aaaabbbbccc"
+      },
+      "created_at": 1622216466938,
+      "events": ["deployment", "pull_request", "push", "delete"],
+      "events_were": ["deployment", "pull_request", "push"],
+      "hook_id": 286776990,
+      "name": "webhook",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "hook.events_changed",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622190373051,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622190373051,
+      "name": "ghost",
+      "org": "example-org"
+    },
+    "description": "integration.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622563100017,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration.destroy",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622563100017,
+      "name": "Sonarqube CoreSec",
+      "org": "example-org"
+    },
+    "description": "integration.destroy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622190446469,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration.generate_client_secret",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622190446469,
+      "name": "user",
+      "org": "example-org"
+    },
+    "description": "integration.generate_client_secret",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622197981444,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration.remove_client_secret",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622197981444,
+      "name": "ghost",
+      "org": "example-org"
+    },
+    "description": "integration.remove_client_secret",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622197402479,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration_installation.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622197402479,
+      "name": "sonarqube.coresec.i8e.io",
+      "org": "example-org"
+    },
+    "description": "integration_installation.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334814424,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration_installation.repositories_added",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334814424,
+      "name": "Stale",
+      "org": "example-org"
+    },
+    "description": "integration_installation.repositories_added",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1623329179045,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration_installation.repositories_removed",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1623329179045,
+      "name": "Stale",
+      "org": "example-org"
+    },
+    "description": "integration_installation.repositories_removed",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621445223293,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration_installation.version_updated",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621445223293,
+      "name": "Netlify",
+      "org": "example-org"
+    },
+    "description": "integration_installation.version_updated",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622126014606,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration_installation_request.close",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622126014606,
+      "org": "example-org"
+    },
+    "description": "integration_installation_request.close",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624550580787,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "integration_installation_request.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1624550580787,
+      "org": "example-org"
+    },
+    "description": "integration_installation_request.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621219047730,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "issue_comment.destroy",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621219047730,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "issue_comment.destroy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621246302815,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "issue_comment.update",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "US"
+      },
+      "created_at": 1621246302815,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "issue_comment.update",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621220316158,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.add_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "HK"
+      },
+      "created_at": 1621220316158,
+      "org": "example-org",
+      "user": "cgx027"
+    },
+    "description": "org.add_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1625584111034,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.audit_log_export",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1625584111034,
+      "org": "example-org"
+    },
+    "description": "org.audit_log_export",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1625234883483,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.audit_log_git_event_export",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1625234883483,
+      "org": "example-org"
+    },
+    "description": "org.audit_log_git_event_export",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1627644277300,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.cancel_invitation",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1627644277300,
+      "org": "example-org"
+    },
+    "description": "org.cancel_invitation",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626281688564,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.create_actions_secret",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1626281688564,
+      "org": "example-org",
+      "visibility": "private"
+    },
+    "description": "org.create_actions_secret",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626704231309,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.invite_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1626704231309,
+      "org": "example-org"
+    },
+    "description": "org.invite_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1623208407027,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.oauth_app_access_approved",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "DE"
+      },
+      "created_at": 1623208407027,
+      "org": "example-org"
+    },
+    "description": "org.oauth_app_access_approved",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621255625100,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.remove_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621255625100,
+      "org": "example-org",
+      "user": "rodolfomelo-example-org"
+    },
+    "description": "org.remove_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621860777281,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.remove_outside_collaborator",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621860777281,
+      "org": "example-org",
+      "user": "marcoths"
+    },
+    "description": "org.remove_outside_collaborator",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1625472553216,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.restore_member",
+      "actor": "example-Actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1625472553216,
+      "org": "example-org",
+      "user": "Sakthi-Jayabalan"
+    },
+    "description": "org.restore_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622204209693,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.update_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622204209693,
+      "org": "example-org",
+      "user": "JenniferSalisbury-Jones"
+    },
+    "description": "org.update_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626786757362,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org.update_saml_provider_settings",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1626786757362,
+      "org": "example-org"
+    },
+    "description": "org.update_saml_provider_settings",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621175349197,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org_credential_authorization.deauthorize",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621175349197,
+      "org": "example-org"
+    },
+    "description": "org_credential_authorization.deauthorize",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621175349237,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org_credential_authorization.grant",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621175349237,
+      "org": "example-org"
+    },
+    "description": "org_credential_authorization.grant",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626085714372,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "org_credential_authorization.revoke",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1626085714372,
+      "org": "example-org"
+    },
+    "description": "org_credential_authorization.revoke",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626737910227,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "packages.package_deleted",
+      "actor": "example-actor",
+      "created_at": 1626737910227,
+      "org": "example-org"
+    },
+    "description": "packages.package_deleted",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621520218427,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "packages.package_version_published",
+      "actor": "example-actor",
+      "created_at": 1621520218427,
+      "org": "example-org",
+      "repo": ""
+    },
+    "description": "packages.package_version_published",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1627111970306,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "private_repository_forking.disable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "HK"
+      },
+      "created_at": 1627111970306,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "jayprobable"
+    },
+    "description": "private_repository_forking.disable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624020570588,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "private_repository_forking.enable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "DE"
+      },
+      "created_at": 1624020570588,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "cfstras"
+    },
+    "description": "private_repository_forking.enable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621357872933,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621357872933,
+      "name": "master",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "robot-repocop"
+    },
+    "description": "protected_branch.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622055154350,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.destroy",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1622055154350,
+      "name": "releases/15.1.0",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.destroy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621175429784,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.policy_override",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621175429784,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.policy_override",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "branch": "refs/heads/main",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "_document_id": "aaaabbbbccccddd",
+      "@timestamp": 1649691078435,
+      "created_at": 1649691078435,
+      "public_repo": false,
+      "actor": "example-actor",
+      "action": "protected_branch.rejected_ref_update",
+      "actor_location": {
+          "country_code": "GB"
+      }
+    },
+    "description": "protected_branch.rejected_ref_update",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621434979286,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_admin_enforced",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621434979286,
+      "name": "master",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_admin_enforced",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621941755117,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_allow_deletions_enforcement_level",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621941755117,
+      "name": "releases/15.1.0-preview-1",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_allow_deletions_enforcement_level",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621946200017,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_allow_force_pushes_enforcement_level",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621946200017,
+      "name": "0.13.1-rc",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_allow_force_pushes_enforcement_level",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621428411115,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_linear_history_requirement_enforcement_level",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621428411115,
+      "name": "master",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_linear_history_requirement_enforcement_level",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626341240036,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_name",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1626341240036,
+      "name": "master",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_name",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621434979258,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_pull_request_reviews_enforcement_level",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621434979258,
+      "name": "master",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_pull_request_reviews_enforcement_level",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622054562989,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_require_code_owner_review",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "US"
+      },
+      "created_at": 1622054562989,
+      "name": "main",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_require_code_owner_review",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621434979238,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_required_status_checks_enforcement_level",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621434979238,
+      "name": "master",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_required_status_checks_enforcement_level",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626261771211,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "protected_branch.update_strict_required_status_checks_policy",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1626261771211,
+      "name": "main",
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "protected_branch.update_strict_required_status_checks_policy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624548346930,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "public_key.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1624548346930,
+      "fingerprint": "SHA256:6ULkK5Aafk/EaR1mgqEYQeirSj2kQGYUVDp/CPKkrhM",
+      "read_only": "true",
+      "repo": "example-org/example-repo"
+    },
+    "description": "public_key.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621533659023,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "public_key.delete",
+      "created_at": 1621533659023,
+      "explanation": "stale",
+      "fingerprint": "SHA256:+ta17Rgq0900dTg41ozd/n0ORx4LpyzDQlPOjyUzu+U",
+      "read_only": "true",
+      "repo": "example-org/example-repo"
+    },
+    "description": "public_key.delete",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624548346958,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "public_key.verify",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1624548346958,
+      "fingerprint": "SHA256:6ULkK5Aafk/EaR1mgqEYQeirSj2kQGYUVDp/CPKkrhM",
+      "read_only": "true",
+      "repo": "example-org/example-repo"
+    },
+    "description": "public_key.verify",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621184665194,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.close",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621184665194
+    },
+    "description": "pull_request.close",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621269993195,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.converted_to_draft",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621269993195
+    },
+    "description": "pull_request.converted_to_draft",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621155458565,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621155458565
+    },
+    "description": "pull_request.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621155461234,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.create_review_request",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621155461234
+    },
+    "description": "pull_request.create_review_request",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621246685010,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.indirect_merge",
+      "actor": "example-actor",
+      "created_at": 1621246685010
+    },
+    "description": "pull_request.indirect_merge",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621156182609,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.merge",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621156182609
+    },
+    "description": "pull_request.merge",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621244416854,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.ready_for_review",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621244416854
+    },
+    "description": "pull_request.ready_for_review",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621261128105,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.remove_review_request",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "IN"
+      },
+      "created_at": 1621261128105
+    },
+    "description": "pull_request.remove_review_request",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621219943786,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request.reopen",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "HK"
+      },
+      "created_at": 1621219943786
+    },
+    "description": "pull_request.reopen",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621256573716,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request_review.delete",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621256573716
+    },
+    "description": "pull_request_review.delete",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621256028570,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request_review.dismiss",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621256028570
+    },
+    "description": "pull_request_review.dismiss",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621141790558,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request_review.submit",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621141790558
+    },
+    "description": "pull_request_review.submit",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621141784547,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request_review_comment.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621141784547
+    },
+    "description": "pull_request_review_comment.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621248739834,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request_review_comment.delete",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621248739834,
+      "repo": "example-org/example-repo"
+    },
+    "description": "pull_request_review_comment.delete",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621240535312,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "pull_request_review_comment.update",
+      "actor": null,
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621240535312
+    },
+    "description": "pull_request_review_comment.update",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334855836,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.access",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334855836,
+      "org": "example-org",
+      "previous_visibility": "internal",
+      "repo": "example-org/example-repo",
+      "visibility": "private"
+    },
+    "description": "repo.access",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621220899409,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.add_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "HK"
+      },
+      "created_at": 1621220899409,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "remiwu",
+      "visibility": "internal"
+    },
+    "description": "repo.add_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1623262583785,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.add_topic",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1623262583785,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "topic": "shrek",
+      "user": "gavinelder"
+    },
+    "description": "repo.add_topic",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334843613,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.archived",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334843613,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.archived",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621356053474,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.change_merge_setting",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621356053474,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.change_merge_setting",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334814700,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334814700,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622563701122,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.create_actions_secret",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622563701122,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": null
+    },
+    "description": "repo.create_actions_secret",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1623329178184,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.destroy",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1623329178184,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.destroy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624023678243,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.pages_create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1624023678243,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.pages_create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624023678334,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.pages_https_redirect_enabled",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1624023678334,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.pages_https_redirect_enabled",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624023678299,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.pages_private",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1624023678299,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.pages_private",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624023678287,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.pages_source",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1624023678287,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.pages_source",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622563818916,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.remove_actions_secret",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622563818916,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "repo.remove_actions_secret",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621255624833,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.remove_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621255624833,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "rodolfomelo-example-org",
+      "visibility": "private"
+    },
+    "description": "repo.remove_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621347536122,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.rename",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621347536122,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.rename",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622192113543,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.rename_branch",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622192113543,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "repo.rename_branch",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1628151901291,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.unarchived",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1628151901291,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.unarchived",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624474485020,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.update_actions_secret",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1624474485020,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": null
+    },
+    "description": "repo.update_actions_secret",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621252637987,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.update_default_branch",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "US"
+      },
+      "created_at": 1621252637987,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "visibility": "internal"
+    },
+    "description": "repo.update_default_branch",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621418139836,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repo.update_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621418139836,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "ClarksonCJ",
+      "visibility": "private"
+    },
+    "description": "repo.update_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334855492,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_content_analysis.disable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334855492,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "antonylucisano"
+    },
+    "description": "repository_content_analysis.disable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334813979,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_content_analysis.enable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334813979,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "antonylucisano"
+    },
+    "description": "repository_content_analysis.enable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334855581,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_dependency_graph.disable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334855581,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "antonylucisano"
+    },
+    "description": "repository_dependency_graph.disable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334814015,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_dependency_graph.enable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334814015,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "antonylucisano"
+    },
+    "description": "repository_dependency_graph.enable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1627392273981,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_image.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "content_type": "image/png",
+      "created_at": 1627392273981,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "repository_image.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621356053421,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_projects_change.disable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621356053421,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "robot-repocop"
+    },
+    "description": "repository_projects_change.disable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621354198678,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_vulnerability_alert.create",
+      "created_at": 1621354198678,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "repository_vulnerability_alert.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1623686278336,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_vulnerability_alert.dismiss",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "US"
+      },
+      "created_at": 1623686278336,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "ianlamb"
+    },
+    "description": "repository_vulnerability_alert.dismiss",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621220971076,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_vulnerability_alert.resolve",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "HK"
+      },
+      "created_at": 1621220971076,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "repository_vulnerability_alert.resolve",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621533000421,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_vulnerability_alerts.authorized_users_teams",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621533000421,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "repository_vulnerability_alerts.authorized_users_teams",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1623674024639,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_vulnerability_alerts.disable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1623674024639,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "andreadellacorte"
+    },
+    "description": "repository_vulnerability_alerts.disable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621334814097,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "repository_vulnerability_alerts.enable",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621334814097,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "user": "antonylucisano"
+    },
+    "description": "repository_vulnerability_alerts.enable",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621255162728,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "required_status_check.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "LT"
+      },
+      "created_at": 1621255162728,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "required_status_check.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621519413278,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "required_status_check.destroy",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621519413278,
+      "org": "example-org",
+      "repo": "example-org/example-repo"
+    },
+    "description": "required_status_check.destroy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621210210070,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.add_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621210210070,
+      "org": "example-org",
+      "team": "example-org/gen-loc-remote-uk",
+      "user": "io-ben"
+    },
+    "description": "team.add_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621347446457,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.add_repository",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1621347446457,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "team": "example-org/gen-dept-support"
+    },
+    "description": "team.add_repository",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621347328431,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.change_parent_team",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621347328431,
+      "org": "example-org",
+      "team": "example-org/perms-defence-uk-ff-engineer"
+    },
+    "description": "team.change_parent_team",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621347328468,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.create",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621347328468,
+      "org": "example-org",
+      "team": "example-org/perms-defence-uk-ff-engineer"
+    },
+    "description": "team.create",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626946571675,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.destroy",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1626946571675,
+      "org": "example-org",
+      "team": "example-org/ext-cyrex-pentesters"
+    },
+    "description": "team.destroy",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1622562734629,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.promote_maintainer",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1622562734629,
+      "org": "example-org",
+      "team": "example-org/ff-engineers",
+      "user": "condie-ms"
+    },
+    "description": "team.promote_maintainer",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621210210756,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.remove_member",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621210210756,
+      "org": "example-org",
+      "team": "example-org/sen-loc-london",
+      "user": "io-ben"
+    },
+    "description": "team.remove_member",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621356065645,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.remove_repository",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621356065645,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "team": "example-org/gen-eng"
+    },
+    "description": "team.remove_repository",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1621356060567,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "team.update_repository_permission",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "BE"
+      },
+      "created_at": 1621356060567,
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "team": "example-org/perms-techwriter-all"
+    },
+    "description": "team.update_repository_permission",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1626932174046,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "workflows.cancel_workflow_run",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "US"
+      },
+      "cancelled_at": "2021-07-21T22:36:14.000-07:00",
+      "created_at": 1626932174046,
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "70674ab65f5c6f30394a99ce2f91b1496c17ffed",
+      "name": "Skaffold build",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "started_at": "2021-07-21T22:35:45.000-07:00",
+      "trigger_id": 7569127641,
+      "workflow_id": 11336263,
+      "workflow_run_id": 1055053589
+    },
+    "description": "workflows.cancel_workflow_run",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624467276250,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "workflows.completed_workflow_run",
+      "actor": "example-actor",
+      "completed_at": "2021-06-23T16:54:36.000Z",
+      "conclusion": "failure",
+      "created_at": 1624467276250,
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "795e5ace85dd56513e7e52759ff9f0353352c528",
+      "name": ".github/workflows/bablefish-example.yml",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "started_at": "2021-06-23T16:54:36.000Z",
+      "trigger_id": 7386973156,
+      "workflow_id": 10702768,
+      "workflow_run_id": 965119388
+    },
+    "description": "workflows.completed_workflow_run",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624467276209,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "workflows.created_workflow_run",
+      "actor": "example-actor",
+      "created_at": 1624467276209,
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "795e5ace85dd56513e7e52759ff9f0353352c528",
+      "name": ".github/workflows/bablefish-example.yml",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "started_at": "2021-06-23T16:54:36.000Z",
+      "trigger_id": 7386973156,
+      "workflow_id": 10702768,
+      "workflow_run_id": 965119388
+    },
+    "description": "workflows.created_workflow_run",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624467464292,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "workflows.delete_workflow_run",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "GB"
+      },
+      "created_at": 1624467464292,
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "795e5ace85dd56513e7e52759ff9f0353352c528",
+      "name": ".github/workflows/bablefish-example.yml",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "started_at": "2021-06-23T17:54:36.000+01:00",
+      "trigger_id": 7386973156,
+      "workflow_id": 10702768,
+      "workflow_run_id": 965119388
+    },
+    "description": "workflows.delete_workflow_run",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1624467463445,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "workflows.prepared_workflow_job",
+      "created_at": 1624467463445,
+      "environment_name": "",
+      "is_hosted_runner": true,
+      "job_name": "Ubuntu-20_04",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "runner_labels": ["ubuntu-20.04"],
+      "secrets_passed": [],
+      "workflow_run_id": 965127004
+    },
+    "description": "workflows.prepared_workflow_job",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "@timestamp": 1625875247659,
+      "_document_id": "aaaabbbbccccddd",
+      "action": "workflows.rerun_workflow_run",
+      "actor": "example-actor",
+      "actor_location": {
+        "country_code": "US"
+      },
+      "created_at": 1625875247659,
+      "event": "pull_request",
+      "head_branch": "feat/metadata",
+      "head_sha": "895512aead98f9a1401fba40e50d0ccb9d3ba43f",
+      "name": "CI Workflow",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "started_at": "2021-07-09T17:00:47.000-07:00",
+      "trigger_id": 687085146,
+      "workflow_id": 11092387,
+      "workflow_run_id": 1016791204
+    },
+    "description": "workflows.rerun_workflow_run",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "branch": "refs/heads/main",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "_document_id": "aaaabbbbccccddd",
+      "@timestamp": 1649691047642,
+      "created_at": 1649691047642,
+      "public_repo": false,
+      "actor": "example-actor",
+      "action": "protected_branch.rejected_ref_update",
+      "actor_location": {
+          "country_code": "GB"
+      }
+    },
+    "description": "failed_classify_1",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "pull_request_url": "https://github.com/example-org/example-repo/pull/901",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "_document_id": "aaaabbbbccccddd",
+      "@timestamp": 1649691076027,
+      "created_at": 1649691076027,
+      "public_repo": false,
+      "actor": "example-actor",
+      "action": "pull_request_review.submit",
+      "pull_request_id": 906142676,
+      "actor_location": {
+          "country_code": "GB"
+      }
+    },
+    "description": "failed_classify_2",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "branch": "refs/heads/main",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "_document_id": "aaaabbbbccccddd",
+      "@timestamp": 1649691078435,
+      "created_at": 1649691078435,
+      "public_repo": false,
+      "actor": "example-actor",
+      "action": "protected_branch.rejected_ref_update",
+      "actor_location": {
+          "country_code": "GB"
+      }
+    },
+    "description": "failed_classify_3",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "branch": "refs/heads/main",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "_document_id": "aaaabbbbccccddd",
+      "@timestamp": 1649691377780,
+      "created_at": 1649691377780,
+      "public_repo": false,
+      "actor": "example-actor",
+      "action": "protected_branch.rejected_ref_update",
+      "actor_location": {
+          "country_code": "GB"
+      }
+    },
+    "description": "failed_classify_4",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  },
+  {
+    "data": {
+      "_document_id": "aaaabbbbccccddd",
+      "actor": "example-actor",
+      "created_at": 1648547450544,
+      "@timestamp": 1648547450544,
+      "branch": "refs/heads/develop",
+      "action": "protected_branch.rejected_ref_update",
+      "org": "example-org",
+      "repo": "example-org/example-repo",
+      "actor_location": {
+          "country_code": "BE"
+      }
+    },
+    "description": "failed_classify_5",
+    "log": "github",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "classify_only": true
+  }
+]
