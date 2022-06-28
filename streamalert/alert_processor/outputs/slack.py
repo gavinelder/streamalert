@@ -21,10 +21,9 @@ from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
     OutputRequestFailure,
-    StreamAlertOutput
+    StreamAlertOutput,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -32,7 +31,8 @@ LOGGER = get_logger(__name__)
 @StreamAlertOutput
 class SlackOutput(OutputDispatcher):
     """SlackOutput handles all alert dispatching for Slack"""
-    __service__ = 'slack'
+
+    __service__ = "slack"
     # Slack recommends no messages larger than 4000 bytes. This does not account for unicode
     MAX_MESSAGE_SIZE = 4000
     MAX_ATTACHMENTS = 20
@@ -53,16 +53,26 @@ class SlackOutput(OutputDispatcher):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for this Slack integration '
-                                        '(ie: channel, group, etc)')),
-            ('url',
-             OutputProperty(description='the full Slack webhook url, including the secret',
-                            mask_input=True,
-                            input_restrictions={' '},
-                            cred_requirement=True))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this Slack integration "
+                        "(ie: channel, group, etc)"
+                    ),
+                ),
+                (
+                    "url",
+                    OutputProperty(
+                        description="the full Slack webhook url, including the secret",
+                        mask_input=True,
+                        input_restrictions={" "},
+                        cred_requirement=True,
+                    ),
+                ),
+            ]
+        )
 
     @classmethod
     def _split_attachment_text(cls, alert_record):
@@ -76,7 +86,7 @@ class SlackOutput(OutputDispatcher):
             str: Properly split messages to be sent as attachments to slack
         """
         # Convert the alert we have to a nicely formatted string for slack
-        alert_text = '\n'.join(cls._json_to_slack_mrkdwn(alert_record, 0))
+        alert_text = "\n".join(cls._json_to_slack_mrkdwn(alert_record, 0))
 
         # Slack requires escaping the characters: '&', '>' and '<' and html does just that
         alert_text = html.escape(alert_text)
@@ -87,11 +97,11 @@ class SlackOutput(OutputDispatcher):
                 break
 
             # Find the closest line break prior to this index
-            index = alert_text[:cls.MAX_MESSAGE_SIZE+1].rfind('\n')
+            index = alert_text[: cls.MAX_MESSAGE_SIZE + 1].rfind("\n")
 
             # If a new line was not found, split on the closest space instead
             if index == -1:
-                index = alert_text[:cls.MAX_MESSAGE_SIZE+1].rfind(' ')
+                index = alert_text[: cls.MAX_MESSAGE_SIZE + 1].rfind(" ")
 
             # If there is no good place to split the message, just use the max index
             if index == -1:
@@ -99,7 +109,7 @@ class SlackOutput(OutputDispatcher):
 
             # Append the message part up until this index, and move to the next chunk
             yield alert_text[:index]
-            alert_text = alert_text[index+1:]
+            alert_text = alert_text[index + 1 :]
 
     @classmethod
     def _format_default_attachments(cls, alert, alert_publication, fallback_text):
@@ -122,28 +132,34 @@ class SlackOutput(OutputDispatcher):
 
         attachments = []
         for index, message in enumerate(messages, start=1):
-            title = 'Record:'
+            title = "Record:"
             if len(messages) > 1:
-                title = 'Record (Part {} of {}):'.format(index, len(messages))
-            rule_desc = ''
+                title = "Record (Part {} of {}):".format(index, len(messages))
+            rule_desc = ""
             # Only print the rule description on the first attachment
             if index == 1:
                 rule_desc = rule_description
-                rule_desc = '*Rule Description:*\n{}\n'.format(rule_desc)
+                rule_desc = "*Rule Description:*\n{}\n".format(rule_desc)
 
             # https://api.slack.com/docs/message-attachments#attachment_structure
-            attachments.append({
-                'fallback': fallback_text,
-                'color': '#b22222',
-                'pretext': rule_desc,
-                'title': title,
-                'text': message,
-                'mrkdwn_in': ['text', 'pretext']
-            })
+            attachments.append(
+                {
+                    "fallback": fallback_text,
+                    "color": "#b22222",
+                    "pretext": rule_desc,
+                    "title": title,
+                    "text": message,
+                    "mrkdwn_in": ["text", "pretext"],
+                }
+            )
 
             if index == cls.MAX_ATTACHMENTS:
-                LOGGER.warning('%s: %d-part message truncated to %d parts',
-                               alert_publication, len(messages), cls.MAX_ATTACHMENTS)
+                LOGGER.warning(
+                    "%s: %d-part message truncated to %d parts",
+                    alert_publication,
+                    len(messages),
+                    cls.MAX_ATTACHMENTS,
+                )
                 break
 
         return attachments
@@ -159,50 +175,41 @@ class SlackOutput(OutputDispatcher):
             # String
             # Plaintext summary of the attachment; renders in non-markdown compliant clients,
             # such as push notifications.
-            'fallback': '',
-
+            "fallback": "",
             # String, hex color
             # Colors the vertical bar to the left of the text.
-            'color': '#36a64f',
-
+            "color": "#36a64f",
             # String
             # Text that appears above the vertical bar to the left of the attachment.
             # Supports markdown if it's included in "mrkdwn_in"
-            'pretext': '',
-
+            "pretext": "",
             # String
             # The attachment's author name.
             # If this field is omitted, then the entire author row is omitted.
-            'author_name': '',
-
+            "author_name": "",
             # String, URL
             # Provide a URL; Adds a clickable link to the author name
-            'author_link': '',
-
+            "author_link": "",
             # String, URL of an image
             # The icon appears to the left of the author name
-            'author_icon': '',
-
+            "author_icon": "",
             # String
             # Appears as bold text above the attachment itself.
             # If this field is omitted, the entire title row is omitted.
-            'title': '',
-
+            "title": "",
             # String, URL
             # Adds a clickable link to the title
-            'title_link': '',
-
+            "title_link": "",
             # String
             # Raw text that appears in the attachment, below the title but above the fields
             # Supports markdown if it's included in "mrkdwn_in".
             # Use \n for newline characters.
             # This field has a field limit of cls.MAX_MESSAGE_SIZE
-            'text': '',
-
+            "text": "",
             # Array of dicts; Each dict should have keys "title", "value", "short"
             # An array of fields that appears below the text. These fields are clearly delineated
             # with title and value.
-            'fields': [
+            "fields": [
                 # Sample field:
                 # {
                 #     "title": "Priority",
@@ -210,36 +217,30 @@ class SlackOutput(OutputDispatcher):
                 #     "short": False
                 # }
             ],
-
             # String, URL of an image
             # Large image that appears as an attachment
-            'image_url': '',
-
+            "image_url": "",
             # String, URL of an image
             # When image_url is omitted, this one renders a smaller image to the right
-            'thumb_url': '',
-
+            "thumb_url": "",
             # String
             # Appears at the very bottom
             # If this field is omitted, also omits the footer icon
-            'footer': '',
-
+            "footer": "",
             # String, URL
             # This icon appears to the left of the footer
-            'footer_icon': '',
-
+            "footer_icon": "",
             # Integer, Unix timestamp
             # This will show up next to the footer at the bottom.
             # This timestamp does not change the time the message is actually sent.
-            'ts': '',
-
+            "ts": "",
             # List of strings
             # Defines which of the above fields will support Slack's simple markdown (with special
             # characters like *, ~, _, `, or ```... etc)
             # By default, we respect markdown in "text" and "pretext"
             "mrkdwn_in": [
-                'text',
-                'pretext',
+                "text",
+                "pretext",
             ],
         }
 
@@ -273,22 +274,24 @@ class SlackOutput(OutputDispatcher):
 
             # Enforce maximum text length; make sure to check size AFTER escaping in case
             # extra escape characters pushes it over the limit
-            if len(attachment['text']) > cls.MAX_MESSAGE_SIZE:
+            if len(attachment["text"]) > cls.MAX_MESSAGE_SIZE:
                 LOGGER.warning(
-                    'Custom attachment was truncated to length %d. Full message: %s',
+                    "Custom attachment was truncated to length %d. Full message: %s",
                     cls.MAX_MESSAGE_SIZE,
-                    attachment['text']
+                    attachment["text"],
                 )
-                attachment['text'] = elide_string_middle(attachment['text'], cls.MAX_MESSAGE_SIZE)
+                attachment["text"] = elide_string_middle(
+                    attachment["text"], cls.MAX_MESSAGE_SIZE
+                )
 
             attachments.append(attachment)
 
             # Enforce maximum number of attachments
             if len(attachments) >= cls.MAX_ATTACHMENTS:
                 LOGGER.warning(
-                    'Message with %d custom attachments was truncated to %d attachments',
+                    "Message with %d custom attachments was truncated to %d attachments",
                     len(custom_slack_attachments),
-                    cls.MAX_ATTACHMENTS
+                    cls.MAX_ATTACHMENTS,
                 )
                 break
 
@@ -312,22 +315,20 @@ class SlackOutput(OutputDispatcher):
                     Record (Part 1 of 2):
                     ...
         """
-        default_header_text = '*StreamAlert Rule Triggered: {}*'.format(alert.rule_name)
-        header_text = alert_publication.get('@slack.text', default_header_text)
+        default_header_text = "*StreamAlert Rule Triggered: {}*".format(alert.rule_name)
+        header_text = alert_publication.get("@slack.text", default_header_text)
 
-        if '@slack.attachments' in alert_publication:
+        if "@slack.attachments" in alert_publication:
             attachments = cls._standardize_custom_attachments(
-                alert_publication.get('@slack.attachments')
+                alert_publication.get("@slack.attachments")
             )
         else:
             # Default attachments
-            attachments = cls._format_default_attachments(alert, alert_publication, header_text)
+            attachments = cls._format_default_attachments(
+                alert, alert_publication, header_text
+            )
 
-        full_message = {
-            'text': header_text,
-            'mrkdwn': True,
-            'attachments': attachments
-        }
+        full_message = {"text": header_text, "mrkdwn": True, "attachments": attachments}
 
         # Return the json dict payload to be sent to slack
         return full_message
@@ -344,14 +345,14 @@ class SlackOutput(OutputDispatcher):
         Returns:
             list: strings that have been properly tabbed and formatted for printing
         """
-        tab = '\t'
+        tab = "\t"
         all_lines = []
         if isinstance(json_values, dict):
             all_lines = cls._json_map_to_text(json_values, tab, indent_count)
         elif isinstance(json_values, list):
             all_lines = cls._json_list_to_text(json_values, tab, indent_count)
         else:
-            all_lines.append('{}'.format(json_values))
+            all_lines.append("{}".format(json_values))
 
         return all_lines
 
@@ -371,17 +372,21 @@ class SlackOutput(OutputDispatcher):
         all_lines = []
         for key, value in sorted(json_values.items()):
             if isinstance(value, (dict, list)) and value:
-                all_lines.append('{}*{}:*'.format(tab*indent_count, key))
-                all_lines.extend(cls._json_to_slack_mrkdwn(value, indent_count+1))
+                all_lines.append("{}*{}:*".format(tab * indent_count, key))
+                all_lines.extend(cls._json_to_slack_mrkdwn(value, indent_count + 1))
             else:
-                new_lines = cls._json_to_slack_mrkdwn(value, indent_count+1)
+                new_lines = cls._json_to_slack_mrkdwn(value, indent_count + 1)
                 if len(new_lines) == 1:
-                    all_lines.append('{}*{}:* {}'.format(tab*indent_count, key, new_lines[0]))
+                    all_lines.append(
+                        "{}*{}:* {}".format(tab * indent_count, key, new_lines[0])
+                    )
                 elif new_lines:
-                    all_lines.append('{}*{}:*'.format(tab*indent_count, key))
+                    all_lines.append("{}*{}:*".format(tab * indent_count, key))
                     all_lines.extend(new_lines)
                 else:
-                    all_lines.append('{}*{}:* {}'.format(tab*indent_count, key, value))
+                    all_lines.append(
+                        "{}*{}:* {}".format(tab * indent_count, key, value)
+                    )
 
         return all_lines
 
@@ -401,17 +406,23 @@ class SlackOutput(OutputDispatcher):
         all_lines = []
         for index, value in enumerate(json_values):
             if isinstance(value, (dict, list)) and value:
-                all_lines.append('{}*[{}]*'.format(tab*indent_count, index+1))
-                all_lines.extend(cls._json_to_slack_mrkdwn(value, indent_count+1))
+                all_lines.append("{}*[{}]*".format(tab * indent_count, index + 1))
+                all_lines.extend(cls._json_to_slack_mrkdwn(value, indent_count + 1))
             else:
-                new_lines = cls._json_to_slack_mrkdwn(value, indent_count+1)
+                new_lines = cls._json_to_slack_mrkdwn(value, indent_count + 1)
                 if len(new_lines) == 1:
-                    all_lines.append('{}*[{}]* {}'.format(tab*indent_count, index+1, new_lines[0]))
+                    all_lines.append(
+                        "{}*[{}]* {}".format(
+                            tab * indent_count, index + 1, new_lines[0]
+                        )
+                    )
                 elif new_lines:
-                    all_lines.append('{}*[{}]*'.format(tab*indent_count, index+1))
+                    all_lines.append("{}*[{}]*".format(tab * indent_count, index + 1))
                     all_lines.extend(new_lines)
                 else:
-                    all_lines.append('{}*[{}]* {}'.format(tab*indent_count, index+1, value))
+                    all_lines.append(
+                        "{}*[{}]* {}".format(tab * indent_count, index + 1, value)
+                    )
 
         return all_lines
 
@@ -453,7 +464,7 @@ class SlackOutput(OutputDispatcher):
         slack_message = self._format_message(alert, publication)
 
         try:
-            self._post_request_retry(creds['url'], slack_message)
+            self._post_request_retry(creds["url"], slack_message)
         except OutputRequestFailure:
             return False
 

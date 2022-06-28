@@ -19,10 +19,10 @@ import os
 def get_streamquery_env_vars():
     """Returns environment variables pertinent to StreamQuery"""
     return {
-        'command_name': 'StreamQuery',
-        'aws_region': os.environ['REGION'],
-        'log_level': os.environ['LOGGER_LEVEL'],
-        'athena_database': os.environ['ATHENA_DATABASE'],
-        'athena_results_bucket': os.environ['ATHENA_RESULTS_BUCKET'],
-        'kinesis_stream': os.environ['KINESIS_STREAM'],
+        "command_name": "StreamQuery",
+        "aws_region": os.environ["REGION"],
+        "log_level": os.environ["LOGGER_LEVEL"],
+        "athena_database": os.environ["ATHENA_DATABASE"],
+        "athena_results_bucket": os.environ["ATHENA_RESULTS_BUCKET"],
+        "kinesis_stream": os.environ["KINESIS_STREAM"],
     }

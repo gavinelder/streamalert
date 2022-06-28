@@ -28,8 +28,8 @@ class MockLambdaClient:
     """http://boto3.readthedocs.io/en/latest/reference/services/lambda.html"""
 
     def __init__(self, name, **kwargs):
-        self.region = kwargs.get('region')
-        self.throw_exception = kwargs.get('throw_exception')
+        self.region = kwargs.get("region")
+        self.throw_exception = kwargs.get("throw_exception")
         self.current_version = 10
         self.name = name
 
@@ -37,25 +37,27 @@ class MockLambdaClient:
         """Publish a new version of the mock Lambda function."""
         # Test error handling
         if self.throw_exception:
-            raise ClientError({'Error': {}}, 'test')
+            raise ClientError({"Error": {}}, "test")
 
-        function_name = kwargs.get('FunctionName')
-        code_sha_256 = kwargs.get('CodeSha256')
-        description = kwargs.get('Description')
+        function_name = kwargs.get("FunctionName")
+        code_sha_256 = kwargs.get("CodeSha256")
+        description = kwargs.get("Description")
 
         return {
-            'FunctionName': function_name,
-            'FunctionArn': 'arn:aws:lambda:region:account-id:function:{}'.format(function_name),
-            'Runtime': 'python3.7',
-            'Role': 'string',
-            'Handler': 'main.handler',
-            'CodeSize': 128,
-            'Description': description,
-            'Timeout': 60,
-            'MemorySize': 128,
-            'LastModified': 'string',
-            'CodeSha256': code_sha_256,
-            'Version': self.current_version + 1
+            "FunctionName": function_name,
+            "FunctionArn": "arn:aws:lambda:region:account-id:function:{}".format(
+                function_name
+            ),
+            "Runtime": "python3.7",
+            "Role": "string",
+            "Handler": "main.handler",
+            "CodeSize": 128,
+            "Description": description,
+            "Timeout": 60,
+            "MemorySize": 128,
+            "LastModified": "string",
+            "CodeSha256": code_sha_256,
+            "Version": self.current_version + 1,
         }
 
 
@@ -64,6 +66,7 @@ class MockAthenaClient:
 
     class MockAthenaPaginator:
         """Mock class for paginating athena results"""
+
         def __init__(self, func, pages):
             self._func = func
             self._pages = pages
@@ -75,57 +78,57 @@ class MockAthenaClient:
 
     def __init__(self, **kwargs):
         self.query_executions = {}
-        self.results = kwargs.get('results', [{'test': 'test'}])
-        self.result_state = kwargs.get('result_state', 'SUCCEEDED')
+        self.results = kwargs.get("results", [{"test": "test"}])
+        self.result_state = kwargs.get("result_state", "SUCCEEDED")
         self.raise_exception = False
 
     @staticmethod
     def get_start_query_execution(**kwargs):
         """Get query start parameters."""
         return {
-            'QueryExecution': {
-                'QueryExecutionId': str(uuid.uuid4()),
-                'Query': kwargs.get('QueryString'),
-                'ResultConfiguration': {
-                    'OutputLocation': kwargs.get('OutputLocation', ''),
-                    'EncryptionConfiguration': kwargs.get('EncryptionConfiguration', {})
+            "QueryExecution": {
+                "QueryExecutionId": str(uuid.uuid4()),
+                "Query": kwargs.get("QueryString"),
+                "ResultConfiguration": {
+                    "OutputLocation": kwargs.get("OutputLocation", ""),
+                    "EncryptionConfiguration": kwargs.get(
+                        "EncryptionConfiguration", {}
+                    ),
                 },
-                'QueryExecutionContext': kwargs.get('QueryExecutionContext', {}),
-                'Status': {
-                    'State': 'QUEUED',
-                    'StateChangeReason': 'string',
-                    'SubmissionDateTime': datetime(2017, 1, 1),
-                    'CompletionDateTime': datetime(2017, 1, 1)
+                "QueryExecutionContext": kwargs.get("QueryExecutionContext", {}),
+                "Status": {
+                    "State": "QUEUED",
+                    "StateChangeReason": "string",
+                    "SubmissionDateTime": datetime(2017, 1, 1),
+                    "CompletionDateTime": datetime(2017, 1, 1),
                 },
-                'Statistics': {
-                    'EngineExecutionTimeInMillis': 123,
-                    'DataScannedInBytes': 123
-                }
+                "Statistics": {
+                    "EngineExecutionTimeInMillis": 123,
+                    "DataScannedInBytes": 123,
+                },
             }
         }
 
     def start_query_execution(self, **kwargs):
         """Start an Athena Query Execution."""
         if self.raise_exception:
-            raise ClientError({'Error': {'Code': 10}}, 'InvalidRequestException')
+            raise ClientError({"Error": {"Code": 10}}, "InvalidRequestException")
         new_query_execution = self.get_start_query_execution(**kwargs)
-        new_query_id = new_query_execution['QueryExecution']['QueryExecutionId']
+        new_query_id = new_query_execution["QueryExecution"]["QueryExecutionId"]
         self.query_executions[new_query_id] = new_query_execution
 
-        return {
-            'QueryExecutionId': new_query_id
-        }
+        return {"QueryExecutionId": new_query_id}
 
     def get_query_execution(self, **kwargs):
         """Get the status of an Athena Query Execution."""
-        query_execution = self.query_executions.get(kwargs['QueryExecutionId'])
-        query_execution['QueryExecution']['Status']['State'] = self.result_state
+        query_execution = self.query_executions.get(kwargs["QueryExecutionId"])
+        query_execution["QueryExecution"]["Status"]["State"] = self.result_state
 
         return query_execution
 
     def get_query_results(self, **kwargs):  # pylint: disable=unused-argument
         """Get the results of a executed query"""
-        return {'ResultSet': {'Rows': self.results if self.results else []}}
+        return {"ResultSet": {"Rows": self.results if self.results else []}}
 
     def get_paginator(self, func_name):
         """Return a MockAthenaPaginator to yield results"""
@@ -140,8 +143,8 @@ def handler(event, context):
     return event
 """
     package_output = BytesIO()
-    package = zipfile.ZipFile(package_output, 'w', zipfile.ZIP_DEFLATED)
-    package.writestr('function.zip', mock_lambda_function)
+    package = zipfile.ZipFile(package_output, "w", zipfile.ZIP_DEFLATED)
+    package.writestr("function.zip", mock_lambda_function)
     package.close()
     package_output.seek(0)
 
@@ -150,21 +153,19 @@ def handler(event, context):
 
 def create_lambda_function(function_name, region):
     """Helper function to create mock lambda function"""
-    if function_name.find(':') != -1:
-        function_name = function_name.split(':')[0]
+    if function_name.find(":") != -1:
+        function_name = function_name.split(":")[0]
 
-    boto3.client('lambda', region_name=region).create_function(
+    boto3.client("lambda", region_name=region).create_function(
         FunctionName=function_name,
-        Runtime='python3.7',
-        Role='test-iam-role',
-        Handler='function.handler',
-        Description='test lambda function',
+        Runtime="python3.7",
+        Role="test-iam-role",
+        Handler="function.handler",
+        Description="test lambda function",
         Timeout=3,
         MemorySize=128,
         Publish=True,
-        Code={
-            'ZipFile': _make_lambda_package()
-        }
+        Code={"ZipFile": _make_lambda_package()},
     )
 
 
@@ -173,28 +174,16 @@ def setup_mock_alerts_table(table_name):
     put_mock_dynamod_data(
         table_name,
         {
-            'AttributeDefinitions': [
-                {
-                    'AttributeName': 'RuleName',
-                    'AttributeType': 'S'
-                },
-                {
-                    'AttributeName': 'AlertID',
-                    'AttributeType': 'S'
-                }
+            "AttributeDefinitions": [
+                {"AttributeName": "RuleName", "AttributeType": "S"},
+                {"AttributeName": "AlertID", "AttributeType": "S"},
             ],
-            'KeySchema': [
-                {
-                    'AttributeName': 'RuleName',
-                    'KeyType': 'HASH'
-                },
-                {
-                    'AttributeName': 'AlertID',
-                    'KeyType': 'RANGE'
-                }
+            "KeySchema": [
+                {"AttributeName": "RuleName", "KeyType": "HASH"},
+                {"AttributeName": "AlertID", "KeyType": "RANGE"},
             ],
         },
-        []
+        [],
     )
 
 
@@ -203,20 +192,12 @@ def setup_mock_rules_table(table_name):
     put_mock_dynamod_data(
         table_name,
         {
-            'AttributeDefinitions': [
-                {
-                    'AttributeName': 'RuleName',
-                    'AttributeType': 'S'
-                }
+            "AttributeDefinitions": [
+                {"AttributeName": "RuleName", "AttributeType": "S"}
             ],
-            'KeySchema': [
-                {
-                    'AttributeName': 'RuleName',
-                    'KeyType': 'HASH'
-                }
-            ]
+            "KeySchema": [{"AttributeName": "RuleName", "KeyType": "HASH"}],
         },
-        []
+        [],
     )
 
 
@@ -238,21 +219,18 @@ def put_mock_dynamod_data(table_name, schema, data):
             A list of individual dict elements, mapping columns to values.
     """
 
-    schema['TableName'] = table_name
-    schema['ProvisionedThroughput'] = {
-        'ReadCapacityUnits': 5,
-        'WriteCapacityUnits': 5
-    }
+    schema["TableName"] = table_name
+    schema["ProvisionedThroughput"] = {"ReadCapacityUnits": 5, "WriteCapacityUnits": 5}
 
-    boto3.client('dynamodb', region_name='us-east-1').create_table(**schema)
+    boto3.client("dynamodb", region_name="us-east-1").create_table(**schema)
 
-    table = boto3.resource('dynamodb', region_name='us-east-1').Table(table_name)
+    table = boto3.resource("dynamodb", region_name="us-east-1").Table(table_name)
     with table.batch_writer() as batch:
         for datum in data:
             batch.put_item(Item=datum)
 
 
-def put_mock_s3_object(bucket, key, data, region='us-east-1'):
+def put_mock_s3_object(bucket, key, data, region="us-east-1"):
     """Create a mock AWS S3 object for testing
 
     Args:

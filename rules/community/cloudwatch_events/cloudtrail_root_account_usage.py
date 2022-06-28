@@ -2,11 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(
-    logs=['cloudwatch:events'],
-    req_subkeys={
-        'detail': ['userIdentity', 'eventType']
-    })
+@rule(logs=["cloudwatch:events"], req_subkeys={"detail": ["userIdentity", "eventType"]})
 def cloudtrail_root_account_usage(rec):
     """
     author:           airbnb_csirt
@@ -19,6 +15,8 @@ def cloudtrail_root_account_usage(rec):
                       (b) ping the individual to determine if intentional and/or legitimate
     """
     # reference_1 contains details on logic below
-    return (rec['detail']['userIdentity']['type'] == 'Root'
-            and rec['detail']['userIdentity'].get('invokedBy') is None
-            and rec['detail']['eventType'] != 'AwsServiceEvent')
+    return (
+        rec["detail"]["userIdentity"]["type"] == "Root"
+        and rec["detail"]["userIdentity"].get("invokedBy") is None
+        and rec["detail"]["eventType"] != "AwsServiceEvent"
+    )

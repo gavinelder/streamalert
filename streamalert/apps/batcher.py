@@ -21,12 +21,12 @@ from botocore.exceptions import ClientError
 
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
 class Batcher:
     """Batcher class to handle segmenting large messages going to the classifier lambda function"""
+
     # Max lambda input payload size is 128K for the 'event' invocation type
     MAX_LAMBDA_PAYLOAD_SIZE = 128 * 1000
     LAMBDA_CLIENT = None
@@ -34,7 +34,7 @@ class Batcher:
     def __init__(self, source_func, destination_func):
         # Create the lambda client if it does not exist
         if Batcher.LAMBDA_CLIENT is None:
-            Batcher.LAMBDA_CLIENT = boto3.client('lambda')
+            Batcher.LAMBDA_CLIENT = boto3.client("lambda")
         self._source_function = source_func
         # The classifier function name will look like:
         # <prefix>_<cluster>_streamalert_classifier
@@ -47,7 +47,9 @@ class Batcher:
             source_function (str): The app function name from which the logs came
             logs (list): List of the logs that have been gathered
         """
-        LOGGER.info('Starting batch send of %d logs to the classifier function', len(logs))
+        LOGGER.info(
+            "Starting batch send of %d logs to the classifier function", len(logs)
+        )
 
         # Try to send all of the logs in one fell swoop
         if self._send_logs_to_lambda(logs):
@@ -57,7 +59,9 @@ class Batcher:
         # if they could not be sent at once
         self._segment_and_send(logs)
 
-        LOGGER.info('Finished batch send of %d logs to the classifier function', len(logs))
+        LOGGER.info(
+            "Finished batch send of %d logs to the classifier function", len(logs)
+        )
 
     def _segment_and_send(self, logs):
         """Protected method for segmenting a list of logs into smaller lists
@@ -68,11 +72,11 @@ class Batcher:
             logs (list): List of the logs that have been gathered
         """
         log_count = len(logs)
-        LOGGER.debug('Segmenting %d logs into subsets', log_count)
+        LOGGER.debug("Segmenting %d logs into subsets", log_count)
 
         segment_size = int(math.ceil(log_count / 2.0))
         for index in range(0, log_count, segment_size):
-            subset = logs[index:segment_size + index]
+            subset = logs[index : segment_size + index]
             # Try to send this current subset to the classifier function
             # and segment again if they are too large to be sent at once
             if not self._send_logs_to_lambda(subset):
@@ -90,41 +94,57 @@ class Batcher:
         """
         # Create a payload to be sent to the classifier function that contains the
         # service these logs were collected from and the list of logs
-        payload = {'Records': [{'streamalert_app': self._source_function, 'logs': logs}]}
-        payload_json = json.dumps(payload, separators=(',', ':'))
+        payload = {
+            "Records": [{"streamalert_app": self._source_function, "logs": logs}]
+        }
+        payload_json = json.dumps(payload, separators=(",", ":"))
         if len(payload_json) > self.MAX_LAMBDA_PAYLOAD_SIZE:
             if len(logs) == 1:
-                LOGGER.error('Log payload size for single log exceeds input limit and will be '
-                             'dropped (%d > %d max).', len(payload_json),
-                             self.MAX_LAMBDA_PAYLOAD_SIZE)
+                LOGGER.error(
+                    "Log payload size for single log exceeds input limit and will be "
+                    "dropped (%d > %d max).",
+                    len(payload_json),
+                    self.MAX_LAMBDA_PAYLOAD_SIZE,
+                )
                 return True
 
-            LOGGER.debug('Log payload size for %d logs exceeds limit and will be '
-                         'segmented (%d > %d max).', len(logs), len(payload_json),
-                         self.MAX_LAMBDA_PAYLOAD_SIZE)
+            LOGGER.debug(
+                "Log payload size for %d logs exceeds limit and will be "
+                "segmented (%d > %d max).",
+                len(logs),
+                len(payload_json),
+                self.MAX_LAMBDA_PAYLOAD_SIZE,
+            )
             return False
 
-        LOGGER.debug('Sending %d logs to classifier function with payload size %d',
-                     len(logs), len(payload_json))
+        LOGGER.debug(
+            "Sending %d logs to classifier function with payload size %d",
+            len(logs),
+            len(payload_json),
+        )
 
         try:
             response = Batcher.LAMBDA_CLIENT.invoke(
                 FunctionName=self._destination_function,
-                InvocationType='Event',
+                InvocationType="Event",
                 Payload=payload_json,
-                Qualifier='production'
+                Qualifier="production",
             )
 
         except ClientError as err:
-            LOGGER.error('An error occurred while sending logs to '
-                         '\'%s:production\'. Error is: %s',
-                         self._destination_function,
-                         err.response)
+            LOGGER.error(
+                "An error occurred while sending logs to "
+                "'%s:production'. Error is: %s",
+                self._destination_function,
+                err.response,
+            )
             raise
 
-        LOGGER.info('Sent %d logs to \'%s\' with Lambda request ID \'%s\'',
-                    len(logs),
-                    self._destination_function,
-                    response['ResponseMetadata']['RequestId'])
+        LOGGER.info(
+            "Sent %d logs to '%s' with Lambda request ID '%s'",
+            len(logs),
+            self._destination_function,
+            response["ResponseMetadata"]["RequestId"],
+        )
 
         return True

@@ -3,7 +3,7 @@ from streamalert.shared.rule import rule
 from streamalert.shared.normalize import Normalizer
 
 
-@rule(datatypes=['command', 'path', 'file_name'])
+@rule(datatypes=["command", "path", "file_name"])
 def right_to_left_character(rec):
     """
     author:           @javutin
@@ -20,19 +20,19 @@ def right_to_left_character(rec):
     """
 
     # Unicode character U+202E, right-to-left-override (RLO)
-    rlo = '\u202e'
+    rlo = "\u202e"
 
-    commands = Normalizer.get_values_for_normalized_type(rec, 'command')
+    commands = Normalizer.get_values_for_normalized_type(rec, "command")
     for command in commands:
         if isinstance(command, str) and rlo in command:
             return True
 
-    paths = Normalizer.get_values_for_normalized_type(rec, 'path')
+    paths = Normalizer.get_values_for_normalized_type(rec, "path")
     for path in paths:
         if isinstance(path, str) and rlo in path:
             return True
 
-    file_names = Normalizer.get_values_for_normalized_type(rec, 'file_name')
+    file_names = Normalizer.get_values_for_normalized_type(rec, "file_name")
     for file_name in file_names:
         if isinstance(file_name, str) and rlo in file_name:
             return True

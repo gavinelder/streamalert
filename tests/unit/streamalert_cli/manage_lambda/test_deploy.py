@@ -17,7 +17,7 @@ limitations under the License.
 import unittest
 
 from mock import patch
-from nose.tools import assert_equal
+from pytest import assert_equal
 
 from streamalert_cli.manage_lambda import deploy
 from tests.unit.helpers.config import basic_streamalert_config
@@ -29,29 +29,28 @@ class DeployTest(unittest.TestCase):
     def test_lambda_terraform_targets(self):
         """CLI - Deploy, Lambda Terraform Targets"""
         config = basic_streamalert_config()
-        functions = ['rule', 'classifier']
-        clusters = ['prod']
+        functions = ["rule", "classifier"]
+        clusters = ["prod"]
         result = deploy._lambda_terraform_targets(config, functions, clusters)
         expected_result = {
-            'module.rules_engine_iam',
-            'module.rules_engine_lambda',
-            'module.classifier_prod_iam',
-            'module.classifier_prod_lambda',
+            "module.rules_engine_iam",
+            "module.rules_engine_lambda",
+            "module.classifier_prod_iam",
+            "module.classifier_prod_lambda",
         }
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
-    @patch('logging.Logger.warning')
+    @patch("logging.Logger.warning")
     def test_lambda_terraform_targets_invalid_target(self, log_mock):
         """CLI - Deploy, Lambda Terraform Targets, Invalid Target"""
         config = basic_streamalert_config()
 
         # The scheduled_queries function is not enabled
-        functions = ['scheduled_queries']
+        functions = ["scheduled_queries"]
         clusters = []
         result = deploy._lambda_terraform_targets(config, functions, clusters)
 
-        assert_equal(result, set())
+        assert result == set()
         log_mock.assert_called_with(
-            'Function is not enabled and will be ignored: %s',
-            'scheduled_queries'
+            "Function is not enabled and will be ignored: %s", "scheduled_queries"
         )

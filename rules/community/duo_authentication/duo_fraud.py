@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['duo:authentication'])
+@rule(logs=["duo:authentication"])
 def duo_fraud(rec):
     """
     author:       airbnb_csirt
@@ -10,4 +10,4 @@ def duo_fraud(rec):
     reference:    https://duo.com/docs/adminapi#authentication-logs
     playbook:     N/A
     """
-    return rec['result'] == 'FRAUD'
+    return rec["result"] == "FRAUD"

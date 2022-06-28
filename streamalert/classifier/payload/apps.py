@@ -16,7 +16,7 @@ limitations under the License.
 from streamalert.classifier.payload.payload_base import (
     PayloadRecord,
     RegisterInput,
-    StreamPayload
+    StreamPayload,
 )
 from streamalert.shared import CLASSIFIER_FUNCTION_NAME as FUNCTION_NAME
 from streamalert.shared.metrics import MetricLogger
@@ -28,7 +28,7 @@ class AppPayload(StreamPayload):
 
     @classmethod
     def service(cls):
-        return 'streamalert_app'
+        return "streamalert_app"
 
     def _pre_parse(self):
         """Pre-parsing method for incoming app records
@@ -38,8 +38,11 @@ class AppPayload(StreamPayload):
         Yields:
             Instances of PayloadRecord back to the caller containing the current log data
         """
-        for data in self.raw_record['logs']:
+        for data in self.raw_record["logs"]:
             yield PayloadRecord(data)
 
-        MetricLogger.log_metric(FUNCTION_NAME, MetricLogger.TOTAL_STREAMALERT_APP_RECORDS,
-                                len(self.raw_record['logs']))
+        MetricLogger.log_metric(
+            FUNCTION_NAME,
+            MetricLogger.TOTAL_STREAMALERT_APP_RECORDS,
+            len(self.raw_record["logs"]),
+        )

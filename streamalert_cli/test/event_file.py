@@ -34,7 +34,9 @@ class TestEventFile:
         return bool(self._results)
 
     def __str__(self):
-        output = [format_underline('\nFile: {file_name}\n'.format(file_name=self._full_path))]
+        output = [
+            format_underline("\nFile: {file_name}\n".format(file_name=self._full_path))
+        ]
 
         if self.error:
             output.append(format_red(self.error))
@@ -42,7 +44,7 @@ class TestEventFile:
             for result in self._results:
                 output.append(result)
 
-        return '\n'.join(str(item) for item in output)
+        return "\n".join(str(item) for item in output)
 
     @property
     def path(self):
@@ -58,11 +60,15 @@ class TestEventFile:
 
     @property
     def passed(self):
-        return sum(1 for result in self._results if not result.suppressed and result.passed)
+        return sum(
+            1 for result in self._results if not result.suppressed and result.passed
+        )
 
     @property
     def failed(self):
-        return sum(1 for result in self._results if not (result.suppressed or result.passed))
+        return sum(
+            1 for result in self._results if not (result.suppressed or result.passed)
+        )
 
     def load_file(self):
         """Helper to json load the contents of a file with some error handling
@@ -80,15 +86,15 @@ class TestEventFile:
         Returns:
             dict: Loaded JSON from test event file
         """
-        with open(self._full_path, 'r') as test_event_file:
+        with open(self._full_path, "r") as test_event_file:
             try:
                 data = json.load(test_event_file)
             except (ValueError, TypeError):
-                self.error = 'Test event file is not valid JSON'
+                self.error = "Test event file is not valid JSON"
                 return
 
             if not isinstance(data, list):
-                self.error = 'Test event file is improperly formatted; events should be in a list'
+                self.error = "Test event file is improperly formatted; events should be in a list"
                 return
 
             for event in data:

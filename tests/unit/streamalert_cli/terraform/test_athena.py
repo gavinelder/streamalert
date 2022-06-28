@@ -13,62 +13,60 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from nose.tools import assert_equal
+from pytest import assert_equal
 
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import athena
 
-CONFIG = CLIConfig(config_path='tests/unit/conf')
+CONFIG = CLIConfig(config_path="tests/unit/conf")
 
 
 def test_generate_athena():
     """CLI - Terraform Generate Athena Partitioner"""
 
-    CONFIG['lambda']['athena_partitioner_config'] = {
-        'timeout': 60,
-        'memory': 128,
+    CONFIG["lambda"]["athena_partitioner_config"] = {
+        "timeout": 60,
+        "memory": 128,
     }
 
-    prefix = CONFIG['global']['account']['prefix']
+    prefix = CONFIG["global"]["account"]["prefix"]
 
     expected_athena_config = {
-        'module': {
-            'athena_partitioner_iam': {
-                'source': './modules/tf_athena',
-                's3_logging_bucket': '{}-streamalert-s3-logging'.format(prefix),
-                'prefix': 'unit-test',
-                'account_id': '12345678910',
-                'database_name': '{}_streamalert'.format(prefix),
-                'queue_name': '{}_streamalert_athena_s3_notifications'.format(prefix),
-                'results_bucket': '{}-streamalert-athena-results'.format(prefix),
-                'athena_data_buckets': [
-                    '${aws_s3_bucket.streamalerts.bucket}',
-                    '${module.kinesis_firehose_setup.data_bucket_name}',
+        "module": {
+            "athena_partitioner_iam": {
+                "source": "./modules/tf_athena",
+                "s3_logging_bucket": "{}-streamalert-s3-logging".format(prefix),
+                "prefix": "unit-test",
+                "account_id": "12345678910",
+                "database_name": "{}_streamalert".format(prefix),
+                "queue_name": "{}_streamalert_athena_s3_notifications".format(prefix),
+                "results_bucket": "{}-streamalert-athena-results".format(prefix),
+                "athena_data_buckets": [
+                    "${aws_s3_bucket.streamalerts.bucket}",
+                    "${module.kinesis_firehose_setup.data_bucket_name}",
                 ],
-                'lambda_timeout': 60,
-                'kms_key_id': '${aws_kms_key.server_side_encryption.key_id}',
-                'function_role_id': '${module.athena_partitioner_lambda.role_id}',
-                'function_name': '${module.athena_partitioner_lambda.function_name}',
-                'function_alias_arn': '${module.athena_partitioner_lambda.function_alias_arn}',
+                "lambda_timeout": 60,
+                "kms_key_id": "${aws_kms_key.server_side_encryption.key_id}",
+                "function_role_id": "${module.athena_partitioner_lambda.role_id}",
+                "function_name": "${module.athena_partitioner_lambda.function_name}",
+                "function_alias_arn": "${module.athena_partitioner_lambda.function_alias_arn}",
             },
-            'athena_partitioner_lambda': {
-                'description': 'Unit-Test Streamalert Athena Partitioner',
-                'environment_variables': {
-                    'ENABLE_METRICS': '0',
-                    'LOGGER_LEVEL': 'info'
+            "athena_partitioner_lambda": {
+                "description": "Unit-Test Streamalert Athena Partitioner",
+                "environment_variables": {
+                    "ENABLE_METRICS": "0",
+                    "LOGGER_LEVEL": "info",
                 },
-                'tags': {
-                    'Subcomponent': 'AthenaPartitioner'
-                },
-                'function_name': 'unit-test_streamalert_athena_partitioner',
-                'handler': 'streamalert.athena_partitioner.main.handler',
-                'memory_size_mb': 128,
-                'source': './modules/tf_lambda',
-                'timeout_sec': 60,
-            }
+                "tags": {"Subcomponent": "AthenaPartitioner"},
+                "function_name": "unit-test_streamalert_athena_partitioner",
+                "handler": "streamalert.athena_partitioner.main.handler",
+                "memory_size_mb": 128,
+                "source": "./modules/tf_lambda",
+                "timeout_sec": 60,
+            },
         }
     }
 
     athena_config = athena.generate_athena(config=CONFIG)
 
-    assert_equal(athena_config, expected_athena_config)
+    assert athena_config == expected_athena_config

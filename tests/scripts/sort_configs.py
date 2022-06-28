@@ -6,7 +6,7 @@ import logging
 
 from collections import OrderedDict
 
-CONF_LOGS_FILE = os.path.join(os.path.dirname(__file__), '../../conf/logs.json')
+CONF_LOGS_FILE = os.path.join(os.path.dirname(__file__), "../../conf/logs.json")
 
 
 class JsonFileSorter:
@@ -19,9 +19,9 @@ class JsonFileSorter:
         self._logger = logging.getLogger()
 
     def sort_json_file(self, file_path):
-        self._logger.info('Sorting file: {}...'.format(file_path))
+        self._logger.info("Sorting file: {}...".format(file_path))
 
-        with open(file_path, 'r') as infile:
+        with open(file_path, "r") as infile:
             original_text = infile.read().strip()
 
         # Load the JSON document using OrderedDict, as it allows us to preserve the ordering
@@ -32,11 +32,11 @@ class JsonFileSorter:
         # Sort the loaded schema by top-level key. Preserve the ordering of internal keys.
         ordered_schema = OrderedDict(sorted(list(schema.items()), key=lambda k: k[0]))
 
-        with open(file_path, 'w') as outfile:
-            json.dump(ordered_schema, outfile, indent=2, separators=(',', ': '))
-            outfile.write('\n')
+        with open(file_path, "w") as outfile:
+            json.dump(ordered_schema, outfile, indent=2, separators=(",", ": "))
+            outfile.write("\n")
 
-        self._logger.info('Sorting completed.')
+        self._logger.info("Sorting completed.")
 
 
 if __name__ == "__main__":

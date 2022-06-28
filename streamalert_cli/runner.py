@@ -62,12 +62,12 @@ def cli_runner(args):
 
     set_logger_levels(args.debug)
 
-    LOGGER.info('Issues? Report here: https://github.com/airbnb/streamalert/issues')
+    LOGGER.info("Issues? Report here: https://github.com/airbnb/streamalert/issues")
 
     cmds = StreamAlertCLICommandRepository.command_handlers(config)
 
     result = cmds[args.command](args)
-    LOGGER.info('Completed')
+    LOGGER.info("Completed")
     return result
 
 
@@ -76,12 +76,13 @@ class StreamAlertCLICommandRepository:
     This repository class contains and manages all StreamAlert manage.py commands that are
     configured on this repository.
     """
+
     COMMANDS = {}
 
     @classmethod
     def register(cls, command, cli_command):
         if not issubclass(cli_command, CLICommand):
-            LOGGER.error('Invalid CLI Command in registry')
+            LOGGER.error("Invalid CLI Command in registry")
             return False
 
         cls.COMMANDS[command] = cli_command
@@ -89,27 +90,27 @@ class StreamAlertCLICommandRepository:
     @classmethod
     def register_all(cls):
         cmds = {
-            'app': AppCommand,
-            'athena': AthenaCommand,
-            'build': TerraformBuildCommand,
-            'configure': ConfigureCommand,
-            'create-alarm': CreateMetricAlarmCommand,
-            'create-cluster-alarm': CreateClusterMetricAlarmCommand,
-            'custom-metrics': CustomMetricsCommand,
-            'deploy': DeployCommand,
-            'destroy': TerraformDestroyCommand,
-            'generate': TerraformGenerateCommand,
-            'init': TerraformInitCommand,
-            'kinesis': KinesisCommand,
-            'list-targets': TerraformListTargetsCommand,
-            'lookup-tables': LookupTablesCommand,
-            'output': OutputCommand,
-            'rollback': RollbackCommand,
-            'rule-staging': RuleStagingCommand,
-            'status': StatusCommand,
-            'test': TestCommand,
-            'threat-intel': ThreatIntelCommand,
-            'threat-intel-downloader': ThreatIntelDownloaderCommand,
+            "app": AppCommand,
+            "athena": AthenaCommand,
+            "build": TerraformBuildCommand,
+            "configure": ConfigureCommand,
+            "create-alarm": CreateMetricAlarmCommand,
+            "create-cluster-alarm": CreateClusterMetricAlarmCommand,
+            "custom-metrics": CustomMetricsCommand,
+            "deploy": DeployCommand,
+            "destroy": TerraformDestroyCommand,
+            "generate": TerraformGenerateCommand,
+            "init": TerraformInitCommand,
+            "kinesis": KinesisCommand,
+            "list-targets": TerraformListTargetsCommand,
+            "lookup-tables": LookupTablesCommand,
+            "output": OutputCommand,
+            "rollback": RollbackCommand,
+            "rule-staging": RuleStagingCommand,
+            "status": StatusCommand,
+            "test": TestCommand,
+            "threat-intel": ThreatIntelCommand,
+            "threat-intel-downloader": ThreatIntelDownloaderCommand,
         }
 
         for command, cli_command in cmds.items():

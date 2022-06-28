@@ -21,11 +21,11 @@ import urllib.request, urllib.parse, urllib.error
 from streamalert.shared.publisher import AlertPublisher, Register
 from streamalert.shared.description import RuleDescriptionParser
 
-RAUSCH = '#ff5a5f'
-BABU = '#00d1c1'
-LIMA = '#8ce071'
-HACKBERRY = '#7b0051'
-BEACH = '#ffb400'
+RAUSCH = "#ff5a5f"
+BABU = "#00d1c1"
+LIMA = "#8ce071"
+HACKBERRY = "#7b0051"
+BEACH = "#ffb400"
 
 
 @Register
@@ -37,40 +37,41 @@ class Summary(AlertPublisher):
     the URL appropriate for the organization using StreamAlert.
     """
 
-    _GITHUB_REPO_URL = 'https://github.com/airbnb/streamalert'
-    _SEARCH_PATH = '/search'
-    _RULES_PATH = '/rules'
+    _GITHUB_REPO_URL = "https://github.com/airbnb/streamalert"
+    _SEARCH_PATH = "/search"
+    _RULES_PATH = "/rules"
 
     def publish(self, alert, publication):
         rule_name = alert.rule_name
         rule_description = alert.rule_description
         rule_presentation = RuleDescriptionParser.present(rule_description)
 
-        author = rule_presentation['author']
+        author = rule_presentation["author"]
 
         return {
-            '@slack.text': 'Rule triggered',
-            '@slack.attachments': [
+            "@slack.text": "Rule triggered",
+            "@slack.attachments": [
                 {
-                    'fallback': 'Rule triggered: {}'.format(rule_name),
-                    'color': self._color(),
-                    'author_name': author,
-                    'author_link': self._author_url(author),
-                    'author_icon': self._author_icon(author),
-                    'title': rule_name,
-                    'title_link': self._title_url(rule_name),
-                    'text': cgi.escape(rule_presentation['description']),
-                    'image_url': '',
-                    'thumb_url': '',
-                    'footer': '',
-                    'footer_icon': '',
-                    'ts': calendar.timegm(alert.created.timetuple()) if alert.created else '',
-                    'mrkdwn_in': [],
+                    "fallback": "Rule triggered: {}".format(rule_name),
+                    "color": self._color(),
+                    "author_name": author,
+                    "author_link": self._author_url(author),
+                    "author_icon": self._author_icon(author),
+                    "title": rule_name,
+                    "title_link": self._title_url(rule_name),
+                    "text": cgi.escape(rule_presentation["description"]),
+                    "image_url": "",
+                    "thumb_url": "",
+                    "footer": "",
+                    "footer_icon": "",
+                    "ts": calendar.timegm(alert.created.timetuple())
+                    if alert.created
+                    else "",
+                    "mrkdwn_in": [],
                 },
             ],
-
             # This information is passed-through to future publishers.
-            '@slack._previous_publication': publication,
+            "@slack._previous_publication": publication,
         }
 
     @staticmethod
@@ -81,12 +82,12 @@ class Summary(AlertPublisher):
     @classmethod
     def _author_url(cls, _):
         """When given an author name, returns a clickable link, if any"""
-        return ''
+        return ""
 
     @classmethod
     def _author_icon(cls, _):
         """When given an author name, returns a URL to an icon, if any"""
-        return ''
+        return ""
 
     @classmethod
     def _title_url(cls, rule_name):
@@ -99,12 +100,12 @@ class Summary(AlertPublisher):
         # find the correct file.
         #
         # If you do not want URLs to show up, simply override this method and return empty string.
-        return '{}{}?{}'.format(
+        return "{}{}?{}".format(
             cls._GITHUB_REPO_URL,
             cls._SEARCH_PATH,
-            urllib.parse.urlencode({
-                'q': '{} path:{}'.format(rule_name, cls._RULES_PATH)
-            })
+            urllib.parse.urlencode(
+                {"q": "{} path:{}".format(rule_name, cls._RULES_PATH)}
+            ),
         )
 
 
@@ -117,18 +118,23 @@ class AttachRuleInfo(AlertPublisher):
     """
 
     def publish(self, alert, publication):
-        publication['@slack.attachments'] = publication.get('@slack.attachments', [])
+        publication["@slack.attachments"] = publication.get("@slack.attachments", [])
 
         rule_description = alert.rule_description
         rule_presentation = RuleDescriptionParser.present(rule_description)
 
-        publication['@slack.attachments'].append({
-            'color': self._color(),
-            'fields': [
-                {'title': key.capitalize(), 'value': rule_presentation['fields'][key]}
-                for key in rule_presentation['fields'].keys()
-            ],
-        })
+        publication["@slack.attachments"].append(
+            {
+                "color": self._color(),
+                "fields": [
+                    {
+                        "title": key.capitalize(),
+                        "value": rule_presentation["fields"][key],
+                    }
+                    for key in rule_presentation["fields"].keys()
+                ],
+            }
+        )
 
         return publication
 
@@ -146,25 +152,30 @@ class AttachPublication(AlertPublisher):
     """
 
     def publish(self, alert, publication):
-        if '@slack._previous_publication' not in publication or '@slack.attachments' not in publication:
+        if (
+            "@slack._previous_publication" not in publication
+            or "@slack.attachments" not in publication
+        ):
             # This publisher cannot be run except immediately after the Summary publisher
             return publication
 
-        publication_block = '```\n{}\n```'.format(
+        publication_block = "```\n{}\n```".format(
             json.dumps(
                 self._get_publication(alert, publication),
                 indent=2,
                 sort_keys=True,
-                separators=(',', ': ')
+                separators=(",", ": "),
             )
         )
 
-        publication['@slack.attachments'].append({
-            'color': self._color(),
-            'title': 'Alert Data:',
-            'text': cgi.escape(publication_block),
-            'mrkdwn_in': ['text'],
-        })
+        publication["@slack.attachments"].append(
+            {
+                "color": self._color(),
+                "title": "Alert Data:",
+                "text": cgi.escape(publication_block),
+                "mrkdwn_in": ["text"],
+            }
+        )
 
         return publication
 
@@ -174,7 +185,7 @@ class AttachPublication(AlertPublisher):
 
     @staticmethod
     def _get_publication(_, publication):
-        return publication['@slack._previous_publication']
+        return publication["@slack._previous_publication"]
 
 
 @Register
@@ -196,11 +207,13 @@ class AttachStringTemplate(AlertPublisher):
     def publish(self, alert, publication):
         rendered_text = self._render_text(alert, publication)
 
-        publication['@slack.attachments'] = publication.get('@slack.attachments', [])
-        publication['@slack.attachments'].append({
-            'color': self._color(),
-            'text': cgi.escape(rendered_text),
-        })
+        publication["@slack.attachments"] = publication.get("@slack.attachments", [])
+        publication["@slack.attachments"].append(
+            {
+                "color": self._color(),
+                "text": cgi.escape(rendered_text),
+            }
+        )
 
         return publication
 
@@ -213,13 +226,13 @@ class AttachStringTemplate(AlertPublisher):
 
     @staticmethod
     def _get_format_template(alert, _):
-        return alert.context.get('slack_message_template', '[MISSING TEMPLATE]')
+        return alert.context.get("slack_message_template", "[MISSING TEMPLATE]")
 
     @staticmethod
     def _get_template_args(_, publication):
         return (
-            publication['@slack._previous_publication']
-            if '@slack._previous_publication' in publication
+            publication["@slack._previous_publication"]
+            if "@slack._previous_publication" in publication
             else publication
         )
 
@@ -240,51 +253,58 @@ class AttachFullRecord(AlertPublisher):
     The first attachment is slightly different as it includes the source entity where the
     record originated from. The last attachment includes a footer.
     """
+
     _SLACK_MAXIMUM_ATTACHMENT_CHARACTER_LENGTH = 4000
 
     # Reserve space at the beginning and end of the attachment text for backticks and newlines
     _LENGTH_PADDING = 10
 
     def publish(self, alert, publication):
-        publication['@slack.attachments'] = publication.get('@slack.attachments', [])
+        publication["@slack.attachments"] = publication.get("@slack.attachments", [])
 
         # Generate the record and then dice it up into parts
-        record_document = json.dumps(alert.record, indent=2, sort_keys=True, separators=(',', ': '))
+        record_document = json.dumps(
+            alert.record, indent=2, sort_keys=True, separators=(",", ": ")
+        )
 
         # Escape the document FIRST because it can increase character length which can throw off
         # document slicing
         record_document = cgi.escape(record_document)
-        record_document_lines = record_document.split('\n')
+        record_document_lines = record_document.split("\n")
 
         def make_attachment(document, is_first, is_last):
 
-            footer = ''
+            footer = ""
             if is_last:
                 footer_url = self._source_service_url(alert.source_service)
                 if footer_url:
-                    footer = 'via <{}|{}>'.format(footer_url, alert.source_service)
+                    footer = "via <{}|{}>".format(footer_url, alert.source_service)
                 else:
-                    'via {}'.format(alert.source_service)
+                    "via {}".format(alert.source_service)
 
             return {
-                'color': self._color(),
-                'author': alert.source_entity if is_first else '',
-                'title': 'Record' if is_first else '',
-                'text': '```\n{}\n```'.format(document),
-                'fields': [
+                "color": self._color(),
+                "author": alert.source_entity if is_first else "",
+                "title": "Record" if is_first else "",
+                "text": "```\n{}\n```".format(document),
+                "fields": [
                     {
                         "title": "Alert Id",
                         "value": alert.alert_id,
                     }
-                ] if is_last else [],
-                'footer': footer,
-                'footer_icon': self._footer_icon_from_service(alert.source_service),
-                'mrkdwn_in': ['text'],
+                ]
+                if is_last
+                else [],
+                "footer": footer,
+                "footer_icon": self._footer_icon_from_service(alert.source_service),
+                "mrkdwn_in": ["text"],
             }
 
-        character_limit = self._SLACK_MAXIMUM_ATTACHMENT_CHARACTER_LENGTH - self._LENGTH_PADDING
+        character_limit = (
+            self._SLACK_MAXIMUM_ATTACHMENT_CHARACTER_LENGTH - self._LENGTH_PADDING
+        )
         is_first_document = True
-        next_document = ''
+        next_document = ""
         while len(record_document_lines) > 0:
             # Loop, removing one line at a time and attempting to attach it to the next document
             # When the next document nears the maximum attachment size, it is flushed, generating
@@ -294,17 +314,17 @@ class AttachFullRecord(AlertPublisher):
             next_length = next_item_length + len(next_document)
             if next_document and next_length > character_limit:
                 # Do not pop off the item just yet.
-                publication['@slack.attachments'].append(
+                publication["@slack.attachments"].append(
                     make_attachment(next_document, is_first_document, False)
                 )
-                next_document = ''
+                next_document = ""
                 is_first_document = False
 
-            next_document += '\n' + record_document_lines.pop(0)
+            next_document += "\n" + record_document_lines.pop(0)
 
         # Attach last document, if any remains
         if next_document:
-            publication['@slack.attachments'].append(
+            publication["@slack.attachments"].append(
                 make_attachment(next_document, is_first_document, True)
             )
 
@@ -317,9 +337,9 @@ class AttachFullRecord(AlertPublisher):
     @staticmethod
     def _source_service_url(source_service):
         """A best-effort guess at the AWS dashboard link for the requested service."""
-        return 'https://console.aws.amazon.com/{}/home'.format(source_service)
+        return "https://console.aws.amazon.com/{}/home".format(source_service)
 
     @staticmethod
     def _footer_icon_from_service(_):
         """Returns the URL of an icon, given an AWS service"""
-        return ''
+        return ""

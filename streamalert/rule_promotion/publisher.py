@@ -17,14 +17,13 @@ import boto3
 
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
 class StatsPublisher:
     """Run queries to generate statistics on alerts."""
 
-    DEFAULT_STATS_SNS_TOPIC_SUFFIX = '{}_streamalert_rule_staging_stats'
+    DEFAULT_STATS_SNS_TOPIC_SUFFIX = "{}_streamalert_rule_staging_stats"
 
     def __init__(self, config, athena_client, current_time):
         self._topic_arn = self.formatted_sns_topic_arn(config)
@@ -41,15 +40,14 @@ class StatsPublisher:
         Return:
             str: Formatted SNS topic arn using either the config option or default topic
         """
-        prefix = config['global']['account']['prefix']
-        topic = config['lambda']['rule_promotion_config'].get(
-            'digest_sns_topic',
-            cls.DEFAULT_STATS_SNS_TOPIC_SUFFIX.format(prefix)
+        prefix = config["global"]["account"]["prefix"]
+        topic = config["lambda"]["rule_promotion_config"].get(
+            "digest_sns_topic", cls.DEFAULT_STATS_SNS_TOPIC_SUFFIX.format(prefix)
         )
-        return 'arn:aws:sns:{region}:{account_id}:{topic}'.format(
-            region=config['global']['account']['region'],
-            account_id=config['global']['account']['aws_account_id'],
-            topic=topic
+        return "arn:aws:sns:{region}:{account_id}:{topic}".format(
+            region=config["global"]["account"]["region"],
+            account_id=config["global"]["account"]["aws_account_id"],
+            topic=topic,
         )
 
     @staticmethod
@@ -65,9 +63,9 @@ class StatsPublisher:
                 that have the highest alert count at the top
         """
         if not stats:
-            return 'No currently staged rules to report on'
+            return "No currently staged rules to report on"
 
-        return '\n\n'.join(str(stat) for stat in sorted(stats, reverse=True))
+        return "\n\n".join(str(stat) for stat in sorted(stats, reverse=True))
 
     def _query_alerts(self, stat):
         """Execute a query for all alerts for a rule so the user can be sent the results
@@ -79,11 +77,13 @@ class StatsPublisher:
             str: Execution ID for running Athena query
         """
         info_statement = stat.sql_info_statement
-        LOGGER.debug('Querying alert info for rule \'%s\': %s', stat.rule_name, info_statement)
+        LOGGER.debug(
+            "Querying alert info for rule '%s': %s", stat.rule_name, info_statement
+        )
 
         response = self._athena_client.run_async_query(info_statement)
 
-        return response['QueryExecutionId']
+        return response["QueryExecutionId"]
 
     def _publish_message(self, stats):
         """Publish the alert statistics message to SNS
@@ -92,19 +92,15 @@ class StatsPublisher:
             stats (list<StagingStatistic>): Group of rule staging statistics
                 that are being reported on
         """
-        LOGGER.info('Sending daily message digest at %s', self._current_time)
+        LOGGER.info("Sending daily message digest at %s", self._current_time)
 
-        sns_client = boto3.resource('sns').Topic(self._topic_arn)
+        sns_client = boto3.resource("sns").Topic(self._topic_arn)
 
-        subject = 'Alert statistics for {} staged rule(s) [{} UTC]'.format(
-            len(stats),
-            self._current_time
+        subject = "Alert statistics for {} staged rule(s) [{} UTC]".format(
+            len(stats), self._current_time
         )
 
-        sns_client.publish(
-            Message=self._format_digest(stats),
-            Subject=subject
-        )
+        sns_client.publish(Message=self._format_digest(stats), Subject=subject)
 
     def publish(self, stats):
         """Public method for publishing alert statistics message to SNS

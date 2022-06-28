@@ -3,7 +3,7 @@ from matchers.default import AwsGuardDutyMatcher
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['cloudwatch:events'], matchers=[AwsGuardDutyMatcher.guard_duty])
+@rule(logs=["cloudwatch:events"], matchers=[AwsGuardDutyMatcher.guard_duty])
 def guard_duty_all(*_):
     """
     author:         spiper

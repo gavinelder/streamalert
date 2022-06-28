@@ -49,8 +49,9 @@ class S3Driver(PersistenceDriver):
     (!) NOTE: Tweaking the cache_refresh_minutes will likely not help memory performance of your
         LookupTable. If you are having memory issues on your Lambda, try using the DynamoDBDriver.
     """
+
     _DEFAULT_CACHE_REFRESH_MINUTES = 10
-    _MAGIC_CACHE_TTL_KEY = '____LAST_LOAD_TIME____'
+    _MAGIC_CACHE_TTL_KEY = "____LAST_LOAD_TIME____"
 
     def __init__(self, configuration):
         # Example configuration:
@@ -64,12 +65,11 @@ class S3Driver(PersistenceDriver):
 
         super(S3Driver, self).__init__(configuration)
 
-        self._s3_bucket = configuration['bucket']
-        self._s3_key = configuration['key']
-        self._compression = configuration.get('compression', False)
+        self._s3_bucket = configuration["bucket"]
+        self._s3_key = configuration["key"]
+        self._compression = configuration.get("compression", False)
         self._cache_refresh_minutes = configuration.get(
-            'cache_refresh_minutes',
-            self._DEFAULT_CACHE_REFRESH_MINUTES
+            "cache_refresh_minutes", self._DEFAULT_CACHE_REFRESH_MINUTES
         )
 
         self._cache = DriverCache(maximum_key_count=0)
@@ -84,9 +84,9 @@ class S3Driver(PersistenceDriver):
 
         self._s3_adapter = S3Adapter(
             self,
-            boto3.resource('s3', config=boto_config),
+            boto3.resource("s3", config=boto_config),
             self._s3_bucket,
-            self._s3_key
+            self._s3_key,
         )
 
     @property
@@ -95,15 +95,17 @@ class S3Driver(PersistenceDriver):
 
     @property
     def id(self):
-        return '{}:{}/{}'.format(self.driver_type, self._s3_bucket, self._s3_key)
+        return "{}:{}/{}".format(self.driver_type, self._s3_bucket, self._s3_key)
 
     def initialize(self):
-        LOGGER.info('LookupTable (%s): Running initialization routine', self.id)
+        LOGGER.info("LookupTable (%s): Running initialization routine", self.id)
         self._reload()
 
     def commit(self):
         if not self._dirty:
-            LOGGER.warning('LookupTable (%s): Empty commit; no records dirtied', self.id)
+            LOGGER.warning(
+                "LookupTable (%s): Empty commit; no records dirtied", self.id
+            )
             return
 
         data = Encoding.json_encode(self, self._cache.getall())
@@ -112,7 +114,7 @@ class S3Driver(PersistenceDriver):
         if self._compression:
             data = Compression.gz_compress(self, data)
         else:
-            LOGGER.debug('LookupTable (%s): File does not need decompression')
+            LOGGER.debug("LookupTable (%s): File does not need decompression")
 
         # Upload to S3
         self._s3_adapter.upload(data)
@@ -121,7 +123,7 @@ class S3Driver(PersistenceDriver):
         self._cache_clock.set(self._MAGIC_CACHE_TTL_KEY, False, 9999)
         self._dirty = False
 
-        LOGGER.info('LookupTable (%s): Successfully uploaded new data', self.id)
+        LOGGER.info("LookupTable (%s): Successfully uploaded new data", self.id)
 
     def get(self, key, default=None):
         self._reload_if_necessary()
@@ -139,19 +141,17 @@ class S3Driver(PersistenceDriver):
 
         If it needs a reload, this method will appropriately call reload.
         """
-        if self._cache_clock.has(self._MAGIC_CACHE_TTL_KEY) and \
-                self._cache_clock.get(self._MAGIC_CACHE_TTL_KEY, False):
+        if self._cache_clock.has(self._MAGIC_CACHE_TTL_KEY) and self._cache_clock.get(
+            self._MAGIC_CACHE_TTL_KEY, False
+        ):
             LOGGER.debug(
-                'LookupTable (%s): Does not need refresh. TTL: %s',
+                "LookupTable (%s): Does not need refresh. TTL: %s",
                 self.id,
-                self._cache_clock.ttl(self._MAGIC_CACHE_TTL_KEY)
+                self._cache_clock.ttl(self._MAGIC_CACHE_TTL_KEY),
             )
 
         else:
-            LOGGER.info(
-                'LookupTable (%s): Needs refresh, starting now.',
-                self.id
-            )
+            LOGGER.info("LookupTable (%s): Needs refresh, starting now.", self.id)
             self._reload()
 
     def _reload(self):
@@ -167,7 +167,7 @@ class S3Driver(PersistenceDriver):
         if self._compression:
             bytes_data = Compression.gz_decompress(self, bytes_data)
         else:
-            LOGGER.debug('LookupTable (%s): File does not need decompression')
+            LOGGER.debug("LookupTable (%s): File does not need decompression")
 
         # Decode the data; right now we make the assumption that the data is always encoded
         # as JSON.
@@ -176,12 +176,13 @@ class S3Driver(PersistenceDriver):
         # We don't do per-key cache TTLs; instead, we use a single global cache TTL that's set
         # as a "True" value in the magic key
         self._cache.setall(data, 9999)
-        self._cache_clock.set(self._MAGIC_CACHE_TTL_KEY, True, self._cache_refresh_minutes)
-        LOGGER.info('LookupTable (%s): Successfully loaded', self.id)
+        self._cache_clock.set(
+            self._MAGIC_CACHE_TTL_KEY, True, self._cache_refresh_minutes
+        )
+        LOGGER.info("LookupTable (%s): Successfully loaded", self.id)
 
 
 class Compression:
-
     @staticmethod
     def gz_decompress(driver, data):
         """
@@ -194,14 +195,14 @@ class Compression:
         try:
             data = zlib.decompress(data, 47)
             LOGGER.debug(
-                'LookupTable (%s): Object decompressed to %d byte payload',
+                "LookupTable (%s): Object decompressed to %d byte payload",
                 driver.id,
-                sys.getsizeof(data)
+                sys.getsizeof(data),
             )
         except zlib.error:
             LOGGER.warning(
-                'LookupTable (%s): Data is not compressed; defaulting to original payload',
-                driver.id
+                "LookupTable (%s): Data is not compressed; defaulting to original payload",
+                driver.id,
             )
         return data
 
@@ -218,14 +219,14 @@ class Compression:
             original_size = sys.getsizeof(data)
             data = zlib.compress(data, level=zlib.Z_BEST_COMPRESSION)
             LOGGER.debug(
-                'LookupTable (%s): Successfully compressed input data from %d to %d bytes',
+                "LookupTable (%s): Successfully compressed input data from %d to %d bytes",
                 driver.id,
                 original_size,
-                sys.getsizeof(data)
+                sys.getsizeof(data),
             )
             return data
         except zlib.error:
-            LOGGER.exception('LookupTable (%s): Data compression error.', driver.id)
+            LOGGER.exception("LookupTable (%s): Data compression error.", driver.id)
 
 
 class Encoding:
@@ -247,9 +248,7 @@ class Encoding:
         try:
             return json.dumps(data).encode()
         except (ValueError, TypeError):
-            LOGGER.exception(
-                'LookupTable (%s): Failed to json encode data', driver.id
-            )
+            LOGGER.exception("LookupTable (%s): Failed to json encode data", driver.id)
 
     @staticmethod
     def json_decode(driver, bytes_data):
@@ -263,15 +262,13 @@ class Encoding:
         try:
             data = json.loads(bytes_data)
             LOGGER.debug(
-                'LookupTable (%s): File successfully JSON decoded. Discovered %s keys.',
+                "LookupTable (%s): File successfully JSON decoded. Discovered %s keys.",
                 driver.id,
-                len(data)
+                len(data),
             )
             return data
         except ValueError:
-            LOGGER.exception(
-                'LookupTable (%s): Failed to json decode data', driver.id
-            )
+            LOGGER.exception("LookupTable (%s): Failed to json decode data", driver.id)
 
 
 class S3Adapter:
@@ -290,32 +287,27 @@ class S3Adapter:
         """
         try:
             self._s3_client.Bucket(self._s3_bucket).put_object(
-                Key=self._s3_key,
-                Body=bytes_data
+                Key=self._s3_key, Body=bytes_data
             )
             LOGGER.debug(
-                'LookupTable (%s): Object successfully uploaded to S3',
-                self._driver.id
+                "LookupTable (%s): Object successfully uploaded to S3", self._driver.id
             )
         except ClientError as err:
             LOGGER.error(
-                'LookupTable (%s): Failed to upload to S3. Error message: %s',
+                "LookupTable (%s): Failed to upload to S3. Error message: %s",
                 self._driver.id,
-                err.response['Error']['Message']
+                err.response["Error"]["Message"],
             )
             raise LookupTablesCommitError(
-                'LookupTable S3 Driver Failed with Message: {}'.format(
-                    err.response['Error']['Message']
+                "LookupTable S3 Driver Failed with Message: {}".format(
+                    err.response["Error"]["Message"]
                 )
             )
         except (ConnectTimeoutError, ReadTimeoutError):
             # Catching ConnectTimeoutError and ReadTimeoutError from botocore
-            LOGGER.error(
-                'LookupTable (%s): Reading from S3 timed out',
-                self._driver.id
-            )
+            LOGGER.error("LookupTable (%s): Reading from S3 timed out", self._driver.id)
             raise LookupTablesCommitError(
-                'LookupTable ({}): Reading from S3 timed out'.format(self._driver.id)
+                "LookupTable ({}): Reading from S3 timed out".format(self._driver.id)
             )
 
     def download(self):
@@ -325,39 +317,36 @@ class S3Adapter:
         try:
             start_time = time.time()
             s3_object = self._s3_client.Object(self._s3_bucket, self._s3_key).get()
-            bytes_data = s3_object.get('Body').read()
+            bytes_data = s3_object.get("Body").read()
 
             total_time = time.time() - start_time
-            size_kb = round(s3_object.get('ContentLength') / 1024.0, 2)
+            size_kb = round(s3_object.get("ContentLength") / 1024.0, 2)
             size_mb = round(size_kb / 1024.0, 2)
             LOGGER.debug(
-                'LookupTable (%s): Downloaded S3 file size %s in %s seconds',
+                "LookupTable (%s): Downloaded S3 file size %s in %s seconds",
                 self._driver.id,
-                '{}MB'.format(size_mb) if size_mb else '{}KB'.format(size_kb),
-                round(total_time, 2)
+                "{}MB".format(size_mb) if size_mb else "{}KB".format(size_kb),
+                round(total_time, 2),
             )
 
             return bytes_data
         except ClientError as err:
             LOGGER.error(
-                'LookupTable (%s): Encountered error while downloading %s from %s: %s',
+                "LookupTable (%s): Encountered error while downloading %s from %s: %s",
                 self._driver.id,
                 self._s3_key,
                 self._s3_bucket,
-                err.response['Error']['Message']
+                err.response["Error"]["Message"],
             )
             raise LookupTablesInitializationError(
-                'LookupTable S3 Driver Failed with Message: {}'.format(
-                    err.response['Error']['Message']
+                "LookupTable S3 Driver Failed with Message: {}".format(
+                    err.response["Error"]["Message"]
                 )
             )
 
         except (ConnectTimeoutError, ReadTimeoutError):
             # Catching ConnectTimeoutError and ReadTimeoutError from botocore
-            LOGGER.error(
-                'LookupTable (%s): Reading from S3 timed out',
-                self._driver.id
-            )
+            LOGGER.error("LookupTable (%s): Reading from S3 timed out", self._driver.id)
             raise LookupTablesInitializationError(
-                'LookupTable ({}): Reading from S3 timed out'.format(self._driver.id)
+                "LookupTable ({}): Reading from S3 timed out".format(self._driver.id)
             )

@@ -14,7 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from streamalert.shared import ATHENA_PARTITIONER_NAME
-from streamalert.shared.config import athena_partition_buckets_tf, athena_query_results_bucket
+from streamalert.shared.config import (
+    athena_partition_buckets_tf,
+    athena_query_results_bucket,
+)
 from streamalert_cli.terraform.common import (
     infinitedict,
     s3_access_logging_bucket,
@@ -33,47 +36,44 @@ def generate_athena(config):
     """
     result = infinitedict()
 
-    prefix = config['global']['account']['prefix']
-    athena_config = config['lambda']['athena_partitioner_config']
+    prefix = config["global"]["account"]["prefix"]
+    athena_config = config["lambda"]["athena_partitioner_config"]
 
     data_buckets = athena_partition_buckets_tf(config)
-    database = athena_config.get('database_name', '{}_streamalert'.format(prefix))
+    database = athena_config.get("database_name", "{}_streamalert".format(prefix))
 
     results_bucket_name = athena_query_results_bucket(config)
 
     queue_name = athena_config.get(
-        'queue_name',
-        '{}_streamalert_athena_s3_notifications'.format(prefix)
+        "queue_name", "{}_streamalert_athena_s3_notifications".format(prefix)
     ).strip()
 
     logging_bucket, _ = s3_access_logging_bucket(config)
 
     # Set variables for the athena partitioner's IAM permissions
-    result['module']['athena_partitioner_iam'] = {
-        'source': './modules/tf_athena',
-        'account_id': config['global']['account']['aws_account_id'],
-        'prefix': prefix,
-        's3_logging_bucket': logging_bucket,
-        'database_name': database,
-        'queue_name': queue_name,
-        'athena_data_buckets': data_buckets,
-        'results_bucket': results_bucket_name,
-        'lambda_timeout': athena_config['timeout'],
-        'kms_key_id': '${aws_kms_key.server_side_encryption.key_id}',
-        'function_role_id': '${module.athena_partitioner_lambda.role_id}',
-        'function_name': '${module.athena_partitioner_lambda.function_name}',
-        'function_alias_arn': '${module.athena_partitioner_lambda.function_alias_arn}',
+    result["module"]["athena_partitioner_iam"] = {
+        "source": "./modules/tf_athena",
+        "account_id": config["global"]["account"]["aws_account_id"],
+        "prefix": prefix,
+        "s3_logging_bucket": logging_bucket,
+        "database_name": database,
+        "queue_name": queue_name,
+        "athena_data_buckets": data_buckets,
+        "results_bucket": results_bucket_name,
+        "lambda_timeout": athena_config["timeout"],
+        "kms_key_id": "${aws_kms_key.server_side_encryption.key_id}",
+        "function_role_id": "${module.athena_partitioner_lambda.role_id}",
+        "function_name": "${module.athena_partitioner_lambda.function_name}",
+        "function_alias_arn": "${module.athena_partitioner_lambda.function_alias_arn}",
     }
 
     # Set variables for the Lambda module
-    result['module']['athena_partitioner_lambda'] = generate_lambda(
-        '{}_streamalert_{}'.format(prefix, ATHENA_PARTITIONER_NAME),
-        'streamalert.athena_partitioner.main.handler',
+    result["module"]["athena_partitioner_lambda"] = generate_lambda(
+        "{}_streamalert_{}".format(prefix, ATHENA_PARTITIONER_NAME),
+        "streamalert.athena_partitioner.main.handler",
         athena_config,
         config,
-        tags={
-            'Subcomponent': 'AthenaPartitioner'
-        }
+        tags={"Subcomponent": "AthenaPartitioner"},
     )
 
     return result

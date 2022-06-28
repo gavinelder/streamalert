@@ -28,12 +28,13 @@ def ignore_conditional_failure(func):
     Returns:
         function: Wrapped function which ignores failures due to conditional checks.
     """
+
     def inner(*args, **kwargs):
         """Ignore ConditionalCheckFailedException"""
         try:
             func(*args, **kwargs)
         except ClientError as error:
-            if error.response['Error']['Code'] != 'ConditionalCheckFailedException':
+            if error.response["Error"]["Code"] != "ConditionalCheckFailedException":
                 raise
 
     return inner

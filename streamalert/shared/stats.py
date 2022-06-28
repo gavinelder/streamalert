@@ -19,7 +19,6 @@ import time
 
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -60,21 +59,26 @@ class RuleStatisticTracker:
     def statistics_info(cls):
         """Return human-readable information on rule stats"""
         if not cls.STATS:
-            LOGGER.error('No rule statistics to return')
+            LOGGER.error("No rule statistics to return")
             return
 
         max_rule_name_len = max([len(rule) for rule in cls.STATS])
 
         stat_lines = [
-            '{rule: <{pad}}{stat}'.format(rule=rule, pad=max_rule_name_len+4, stat=stat)
-            for rule, stat in sorted(iter(cls.STATS.items()), key=lambda k_v: (k_v[1], k_v[0]))
+            "{rule: <{pad}}{stat}".format(
+                rule=rule, pad=max_rule_name_len + 4, stat=stat
+            )
+            for rule, stat in sorted(
+                iter(cls.STATS.items()), key=lambda k_v: (k_v[1], k_v[0])
+            )
         ]
 
-        return 'Rule statistics:\n\n{}'.format('\n'.join(stat_lines))
+        return "Rule statistics:\n\n{}".format("\n".join(stat_lines))
 
 
 class RuleStatistic:
     """Simple class for tracking rule times and call count"""
+
     def __init__(self, proc_time):
         self.calls = 0
         self.tracked_time = proc_time
@@ -88,10 +92,8 @@ class RuleStatistic:
         return self.tracked_time < other.tracked_time
 
     def __str__(self):
-        return '{:14.8f} ms  {:6d} calls  {:14.8f} avg'.format(
-            self.tracked_time,
-            self.calls,
-            self.tracked_time/self.calls
+        return "{:14.8f} ms  {:6d} calls  {:14.8f} avg".format(
+            self.tracked_time, self.calls, self.tracked_time / self.calls
         )
 
 
@@ -104,7 +106,7 @@ def time_me(func):
         result = func(*args, **kw)
         time_end = time.time()
 
-        message = '(module) {} (method) {} (time): {:>.4f}ms'.format(
+        message = "(module) {} (method) {} (time): {:>.4f}ms".format(
             func.__module__, func.__name__, (time_end - time_start) * 1000
         )
 

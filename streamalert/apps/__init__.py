@@ -8,6 +8,7 @@ from streamalert.apps.exceptions import AppException
 
 class StreamAlertApp:
     """Class to be used as a decorator to register all AppIntegration subclasses"""
+
     _apps = {}
 
     def __new__(cls, app):
@@ -32,7 +33,9 @@ class StreamAlertApp:
         try:
             return cls._apps[app_type]
         except KeyError:
-            raise AppException('App integration does not exist for type: {}'.format(app_type))
+            raise AppException(
+                "App integration does not exist for type: {}".format(app_type)
+            )
 
     @classmethod
     def get_all_apps(cls):
@@ -46,11 +49,11 @@ class StreamAlertApp:
 
 
 # Import all files containing subclasses of AppIntegration, skipping the common base class
-for app_file in os.listdir(os.path.join(os.path.dirname(__file__), '_apps')):
+for app_file in os.listdir(os.path.join(os.path.dirname(__file__), "_apps")):
     # Skip the common base file and any non-py files
-    if app_file.startswith('__init__') or not app_file.endswith('.py'):
+    if app_file.startswith("__init__") or not app_file.endswith(".py"):
         continue
 
-    full_import = ['streamalert', 'apps', '_apps', os.path.splitext(app_file)[0]]
+    full_import = ["streamalert", "apps", "_apps", os.path.splitext(app_file)[0]]
 
-    importlib.import_module('.'.join(full_import))
+    importlib.import_module(".".join(full_import))

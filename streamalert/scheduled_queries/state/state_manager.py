@@ -130,34 +130,41 @@ class StepFunctionStateManager:
         The "done" and "continue" flags at the stop of the event are
         """
         # pylint: disable=protected-access
-        self._state_manager._dangerously_set_all_data(event.get('step_function_state', {}))
-        self._logger.info('Successfully loaded from Step Function Event')
+        self._state_manager._dangerously_set_all_data(
+            event.get("step_function_state", {})
+        )
+        self._logger.info("Successfully loaded from Step Function Event")
 
         # Special; The first time we execute the function, our "step_function_state" is empty, so
         # we will not have the streamquery_configuration set up. This code loads it from the
         # input event. Henceforth, this "streamquery_configuration" will be saved to and loaded
         # from "step_function_state".
-        if 'streamquery_configuration' in event:
+        if "streamquery_configuration" in event:
             # We expect 2 keys to exist, passed in from the CloudWatch rule input transformer:
             #   - clock: ISO timestamp in UTC
             #   - tags:  Array of strings
-            self._logger.info('Loading configuration from first-run...')
-            self._state_manager.set('streamquery_configuration', event['streamquery_configuration'])
+            self._logger.info("Loading configuration from first-run...")
+            self._state_manager.set(
+                "streamquery_configuration", event["streamquery_configuration"]
+            )
 
         # Now, wind the clock to the correct time, based upon the configuration
-        isotime = self._state_manager.get('streamquery_configuration', {}).get('clock', False)
+        isotime = self._state_manager.get("streamquery_configuration", {}).get(
+            "clock", False
+        )
         if isotime:
             clock_datetime = datetime.strptime(isotime, "%Y-%m-%dT%H:%M:%SZ")
             self._clock.time_machine(clock_datetime)
-            self._logger.info('Winding clock to %s...', self._clock.now)
+            self._logger.info("Winding clock to %s...", self._clock.now)
         else:
             self._logger.warning(
-                'No clock configuration provided. Defaulting to %s',
-                self._clock.now
+                "No clock configuration provided. Defaulting to %s", self._clock.now
             )
 
     def write_to_step_function_response(self, response):
-        response.update({
-            # pylint: disable=protected-access
-            'step_function_state': self._state_manager._dangerously_get_all_data(),
-        })
+        response.update(
+            {
+                # pylint: disable=protected-access
+                "step_function_state": self._state_manager._dangerously_get_all_data(),
+            }
+        )

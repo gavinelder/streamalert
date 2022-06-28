@@ -20,7 +20,6 @@ import os
 
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
 
@@ -38,6 +37,7 @@ class PayloadRecord:
         invalid_records (list): If some records from this payload record parsed successfully,
             but others failed, this contains the list of failed records
     """
+
     def __init__(self, record_data):
         self._record_data = record_data
         self._parser = None
@@ -53,7 +53,7 @@ class PayloadRecord:
 
     def __len__(self):
         return (
-            len(json.dumps(self._record_data, separators=(',', ':')))
+            len(json.dumps(self._record_data, separators=(",", ":")))
             if isinstance(self._record_data, dict)
             else len(self._record_data)
         )
@@ -65,19 +65,17 @@ class PayloadRecord:
         except (TypeError, ValueError):
             record_data = self._record_data
             invalid_records = self.invalid_records
-            LOGGER.debug('A PayloadRecord has data that is not serializable as JSON')
+            LOGGER.debug("A PayloadRecord has data that is not serializable as JSON")
 
         if not self:
-            return '<{} valid:{}; raw record:{};>'.format(
-                self.__class__.__name__,
-                bool(self),
-                record_data
+            return "<{} valid:{}; raw record:{};>".format(
+                self.__class__.__name__, bool(self), record_data
             )
 
         if self.invalid_records:
             return (
-                '<{} valid:{}; log type:{}; parsed records:{}; invalid records:{} ({}); '
-                'raw record:{};>'
+                "<{} valid:{}; log type:{}; parsed records:{}; invalid records:{} ({}); "
+                "raw record:{};>"
             ).format(
                 self.__class__.__name__,
                 bool(self),
@@ -85,14 +83,14 @@ class PayloadRecord:
                 len(self.parsed_records),
                 len(self.invalid_records),
                 invalid_records,
-                record_data
+                record_data,
             )
 
-        return '<{} valid:{}; log type:{}; parsed records:{};>'.format(
+        return "<{} valid:{}; log type:{}; parsed records:{};>".format(
             self.__class__.__name__,
             bool(self),
             self.log_schema_type,
-            len(self.parsed_records)
+            len(self.parsed_records),
         )
 
     @property
@@ -121,11 +119,11 @@ class PayloadRecord:
 
     @property
     def log_type(self):
-        return self.parser.log_schema_type.split(':')[0] if self else None
+        return self.parser.log_schema_type.split(":")[0] if self else None
 
     @property
     def log_subtype(self):
-        return self.parser.log_schema_type.split(':')[-1] if self else None
+        return self.parser.log_schema_type.split(":")[-1] if self else None
 
     @property
     def data_type(self):
@@ -135,19 +133,21 @@ class PayloadRecord:
     def sqs_messages(self):
         """Return a dictionary for the SQS message. JSON serialization should be done by caller"""
         return [
-            {   # TODO: consider adding a record UUID to this payload
-                'cluster': os.environ['CLUSTER'],
-                'log_schema_type': self.log_schema_type,
-                'record': record,
-                'service': self.service,
-                'resource': self.resource,
-                'data_type': self.data_type,
-            } for record in self.parsed_records
+            {  # TODO: consider adding a record UUID to this payload
+                "cluster": os.environ["CLUSTER"],
+                "log_schema_type": self.log_schema_type,
+                "record": record,
+                "service": self.service,
+                "resource": self.resource,
+                "data_type": self.data_type,
+            }
+            for record in self.parsed_records
         ]
 
 
 class RegisterInput:
     """Class to be used as a decorator to register all StreamPayload subclasses"""
+
     _payload_classes = {}
 
     def __new__(cls, payload_class):
@@ -185,7 +185,7 @@ class RegisterInput:
         try:
             return cls._payload_classes[service]
         except KeyError:
-            LOGGER.error('Requested payload service [%s] does not exist', service)
+            LOGGER.error("Requested payload service [%s] does not exist", service)
 
 
 class StreamPayload(metaclass=ABCMeta):
@@ -209,22 +209,17 @@ class StreamPayload(metaclass=ABCMeta):
 
     def __repr__(self):
         if self:
-            return '<{} valid:{}; resource:{};>'.format(
-                self.__class__.__name__,
-                bool(self),
-                self.resource
+            return "<{} valid:{}; resource:{};>".format(
+                self.__class__.__name__, bool(self), self.resource
             )
         try:
             raw_record = json.dumps(self.raw_record)
         except (TypeError, ValueError):
             raw_record = self.raw_record
-            LOGGER.debug('A StreamPayload has data that is not serializable as JSON')
+            LOGGER.debug("A StreamPayload has data that is not serializable as JSON")
 
-        return '<{} valid:{}; resource:{}; raw record:{};>'.format(
-            self.__class__.__name__,
-            bool(self),
-            self.resource,
-            raw_record
+        return "<{} valid:{}; resource:{}; raw record:{};>".format(
+            self.__class__.__name__, bool(self), self.resource, raw_record
         )
 
     @classmethod
@@ -246,10 +241,10 @@ class StreamPayload(metaclass=ABCMeta):
         # Sns is capitalized below because this is how AWS stores it within the Record
         # Other services above, like s3, are not stored like this. Do not alter it!
         resource_mapper = {
-            'kinesis': lambda r: r['eventSourceARN'].split('/')[-1],
-            's3': lambda r: r['s3']['bucket']['name'],
-            'Sns': lambda r: r['Sns']['TopicArn'].split(':')[-1],
-            'streamalert_app': lambda r: r['streamalert_app']
+            "kinesis": lambda r: r["eventSourceARN"].split("/")[-1],
+            "s3": lambda r: r["s3"]["bucket"]["name"],
+            "Sns": lambda r: r["Sns"]["TopicArn"].split(":")[-1],
+            "streamalert_app": lambda r: r["streamalert_app"],
         }
 
         service, resource = None, None
@@ -262,19 +257,26 @@ class StreamPayload(metaclass=ABCMeta):
                 break
 
         # If this is an s3 event notification via SNS, extract the bucket from the record
-        if ('Sns' in raw_record and
-                raw_record['Sns'].get('Type') == 'Notification' and
-                raw_record['Sns'].get('Subject') == 'Amazon S3 Notification'):
+        if (
+            "Sns" in raw_record
+            and raw_record["Sns"].get("Type") == "Notification"
+            and raw_record["Sns"].get("Subject") == "Amazon S3 Notification"
+        ):
 
-            service = 's3'
+            service = "s3"
 
             # Assign the s3 event notification data to the raw_record and extract the resource
-            raw_record = json.loads(raw_record['Sns']['Message'])['Records'][0]
+            raw_record = json.loads(raw_record["Sns"]["Message"])["Records"][0]
             resource = resource_mapper[service](raw_record)
 
         if not (service and resource):
-            LOGGER.error('No valid service (%s) or resource (%s) found in payload\'s raw '
-                         'record, skipping: %s', service, resource, raw_record)
+            LOGGER.error(
+                "No valid service (%s) or resource (%s) found in payload's raw "
+                "record, skipping: %s",
+                service,
+                resource,
+                raw_record,
+            )
             return False
 
         return RegisterInput.load_for_service(service.lower(), resource, raw_record)

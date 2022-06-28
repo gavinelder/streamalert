@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['ghe:general'])
+@rule(logs=["ghe:general"])
 def github_disable_protect_this_branch(rec):
     """
     author:       @mimeframe
@@ -16,4 +16,4 @@ def github_disable_protect_this_branch(rec):
                   (c) Click 'Save Changes'
     reference:    https://help.github.com/articles/configuring-protected-branches/
     """
-    return rec['action'] == 'protected_branch.destroy'
+    return rec["action"] == "protected_branch.destroy"

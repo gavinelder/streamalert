@@ -23,7 +23,6 @@ import requests
 
 from . import AppIntegration, StreamAlertApp, get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -57,16 +56,22 @@ class SalesforceApp(AppIntegration):
     ReportExport:
         events contain details about reports that a user exported.
     """
-    _SALESFORCE_TOKEN_URL = 'https://login.salesforce.com/services/oauth2/token' # nosec
-    _SALESFORCE_QUERY_URL = ('{instance_url}/services/data/v{api_version}/'
-                             '{query}{start_time}{event_type}')
+
+    _SALESFORCE_TOKEN_URL = (
+        "https://login.salesforce.com/services/oauth2/token"  # nosec
+    )
+    _SALESFORCE_QUERY_URL = (
+        "{instance_url}/services/data/v{api_version}/" "{query}{start_time}{event_type}"
+    )
     # Use the Query resource to retrieve log files.
-    _SALESFORCE_QUERY_FILTERS = ('query?q=SELECT+Id+,+EventType+,+LogFile+,+LogDate+,'
-                                 '+LogFileLength+FROM+EventLogFile+')
+    _SALESFORCE_QUERY_FILTERS = (
+        "query?q=SELECT+Id+,+EventType+,+LogFile+,+LogDate+,"
+        "+LogFileLength+FROM+EventLogFile+"
+    )
 
     # Use "Where" and "LogDate" clause to filter log files which are generated after
     # last_timestamp.
-    _SALESFORCE_CREATE_AFTER = 'WHERE+LogDate+>+{}+'
+    _SALESFORCE_CREATE_AFTER = "WHERE+LogDate+>+{}+"
 
     _TIMEOUT = 15
     EXCEPTIONS_TO_BACKOFF = (SalesforceAppError,)
@@ -81,16 +86,16 @@ class SalesforceApp(AppIntegration):
 
     @classmethod
     def _type(cls):
-        raise NotImplementedError('Subclasses should implement the _type method')
+        raise NotImplementedError("Subclasses should implement the _type method")
 
     @classmethod
     def service(cls):
-        return 'salesforce'
+        return "salesforce"
 
     @classmethod
     def date_formatter(cls):
         """Salesforce API date format: YYYY-MM-DDTHH:MM:SSZ"""
-        return '%Y-%m-%dT%H:%M:%SZ'
+        return "%Y-%m-%dT%H:%M:%SZ"
 
     def _request_token(self):
         """Request OAuth token from salesforce
@@ -102,18 +107,18 @@ class SalesforceApp(AppIntegration):
         Returns:
             bool: Returns True if update auth headers and instance url successfully.
         """
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
         # required credentials when request for a token.
         data = {
-            'grant_type': 'password',
-            'client_id': self._config.auth['client_id'],
-            'client_secret': self._config.auth['client_secret'],
-            'username': self._config.auth['username'],
-            'password': '{}{}'.format(
-                self._config.auth['password'], self._config.auth['security_token']
+            "grant_type": "password",
+            "client_id": self._config.auth["client_id"],
+            "client_secret": self._config.auth["client_secret"],
+            "username": self._config.auth["username"],
+            "password": "{}{}".format(
+                self._config.auth["password"], self._config.auth["security_token"]
             ),
-            'response_type': 'code',
-            'redirect_uri': self._SALESFORCE_TOKEN_URL
+            "response_type": "code",
+            "redirect_uri": self._SALESFORCE_TOKEN_URL,
         }
         success, response = self._make_post_request(
             self._SALESFORCE_TOKEN_URL, headers, data, False
@@ -122,18 +127,19 @@ class SalesforceApp(AppIntegration):
         if not (success and response):
             return False
 
-        if not (response.get('access_token') and response.get('instance_url')):
-            LOGGER.error('Response invalid generating headers for service \'%s\'',
-                         self._type())
+        if not (response.get("access_token") and response.get("instance_url")):
+            LOGGER.error(
+                "Response invalid generating headers for service '%s'", self._type()
+            )
             return False
 
-        bearer = 'Bearer {}'.format(response.get('access_token'))
+        bearer = "Bearer {}".format(response.get("access_token"))
         self._auth_headers = {
-            'Content-Type': 'application/json',
-            'Authorization': bearer
+            "Content-Type": "application/json",
+            "Authorization": bearer,
         }
-        self._instance_url = response.get('instance_url')
-        LOGGER.debug('Successfully obtain OAuth token and instance URL')
+        self._instance_url = response.get("instance_url")
+        LOGGER.debug("Successfully obtain OAuth token and instance URL")
         return True
 
     def _sleep_seconds(self):
@@ -144,32 +150,42 @@ class SalesforceApp(AppIntegration):
     def _required_auth_info(cls):
         """Required credentials for requesting OAuth token"""
         return {
-            'client_id': {
-                'description': ('The consumer key from the Salesforce connected App. '
-                                'This should be a string of 85 alphanumeric and special '
-                                'characters'),
-                'format': re.compile(r'^[a-zA-Z0-9._#@]{85}$')
+            "client_id": {
+                "description": (
+                    "The consumer key from the Salesforce connected App. "
+                    "This should be a string of 85 alphanumeric and special "
+                    "characters"
+                ),
+                "format": re.compile(r"^[a-zA-Z0-9._#@]{85}$"),
             },
-            'client_secret': {
-                'description': ('The consumer secret from the Salesforce connected App. '
-                                'This should be a string of 19 numeric characters'),
-                'format': re.compile(r'^[0-9]{19}$')
+            "client_secret": {
+                "description": (
+                    "The consumer secret from the Salesforce connected App. "
+                    "This should be a string of 19 numeric characters"
+                ),
+                "format": re.compile(r"^[0-9]{19}$"),
             },
-            'username': {
-                'description': ('The username of a user account. This should be an '
-                                'Email address'),
-                'format': re.compile(r'^[A-Za-z0-9-_.+]+@[A-Za-z0-9-.]+\.[A-Za-z]{2,}$')
+            "username": {
+                "description": (
+                    "The username of a user account. This should be an " "Email address"
+                ),
+                "format": re.compile(
+                    r"^[A-Za-z0-9-_.+]+@[A-Za-z0-9-.]+\.[A-Za-z]{2,}$"
+                ),
             },
-            'password': {
-                'description': ('The password of a user account. This should be a '
-                                'random string'),
-                'format': re.compile(r'.*')
+            "password": {
+                "description": (
+                    "The password of a user account. This should be a " "random string"
+                ),
+                "format": re.compile(r".*"),
             },
-            'security_token': {
-                'description': ('The security token generated in user account. This '
-                                'should be a string of 24 alphanumeric characters'),
-                'format': re.compile(r'^[a-zA-Z0-9]{24}$')
-            }
+            "security_token": {
+                "description": (
+                    "The security token generated in user account. This "
+                    "should be a string of 24 alphanumeric characters"
+                ),
+                "format": re.compile(r"^[a-zA-Z0-9]{24}$"),
+            },
         }
 
     def _validate_status_code(self, resp):
@@ -187,25 +203,33 @@ class SalesforceApp(AppIntegration):
         if resp.status_code == 401:
             # The OAuth token used has expired or is invalid.
             # Retry to renew OAuth token
-            LOGGER.error('The OAuth token used has expired or is invalid. '
-                         'Error code %s, error message %s',
-                         resp.json().get('errorCode', None), resp.json().get('message', None))
+            LOGGER.error(
+                "The OAuth token used has expired or is invalid. "
+                "Error code %s, error message %s",
+                resp.json().get("errorCode", None),
+                resp.json().get("message", None),
+            )
             self._request_token()
 
             # Get request will retry when SalesforceAppError exception raised
             raise SalesforceAppError
-        if resp.status_code == 403 and resp.json().get('errorCode') == 'REQUEST_LIMIT_EXCEEDED':
+        if (
+            resp.status_code == 403
+            and resp.json().get("errorCode") == "REQUEST_LIMIT_EXCEEDED"
+        ):
             # Exceeded API request limits in your org. Log this information for
             # future reference.
-            LOGGER.error('Exceeded API request limits')
+            LOGGER.error("Exceeded API request limits")
             return False
         if resp.status_code == 500:
             # Server internal error. Get request will retry.
             raise SalesforceAppError
         if resp.status_code > 200:
-            LOGGER.error('Unexpected status code %d detected, error message %s',
-                         resp.status_code,
-                         resp.json())
+            LOGGER.error(
+                "Unexpected status code %d detected, error message %s",
+                resp.status_code,
+                resp.json(),
+            )
             return False
 
     def _make_get_request(self, full_url, headers, params=None):
@@ -227,16 +251,19 @@ class SalesforceApp(AppIntegration):
                 logs, it will return raw text which can be decoded by CSV DictReader
                 later. Otherwise it will return None.
         """
-        @backoff.on_exception(backoff.expo,
-                              self.EXCEPTIONS_TO_BACKOFF,
-                              max_tries=self.BACKOFF_MAX_RETRIES)
+
+        @backoff.on_exception(
+            backoff.expo, self.EXCEPTIONS_TO_BACKOFF, max_tries=self.BACKOFF_MAX_RETRIES
+        )
         def _make_get_request():
             # To use closure here is to make backoff logic patchable and testable.
             try:
                 # Log GET request URL for debugging purpose, especially useful when
                 # debugging query syntax
-                LOGGER.debug('URL of GET request is %s', full_url)
-                resp = requests.get(full_url, headers=headers, params=params, timeout=self._TIMEOUT)
+                LOGGER.debug("URL of GET request is %s", full_url)
+                resp = requests.get(
+                    full_url, headers=headers, params=params, timeout=self._TIMEOUT
+                )
 
                 # Return false if resp contains non-200 status code.
                 if not self._validate_status_code(resp):
@@ -246,7 +273,9 @@ class SalesforceApp(AppIntegration):
                 # json content.
                 return True, resp.json()
             except requests.exceptions.Timeout:
-                LOGGER.exception('Request timed out for when sending get request to %s', full_url)
+                LOGGER.exception(
+                    "Request timed out for when sending get request to %s", full_url
+                )
                 return False, None
             except ValueError:
                 # When fetch log events, Salesforce returns raw data in csv format, not json
@@ -279,20 +308,22 @@ class SalesforceApp(AppIntegration):
         Returns:
             bool: Return True if get latest api version successfully.
         """
-        url = '{}/services/data/'.format(self._instance_url)
+        url = "{}/services/data/".format(self._instance_url)
         success, response = self._make_get_request(url, self._auth_headers)
 
         if not (success and response):
-            LOGGER.error('Failed to fetch lastest api version')
+            LOGGER.error("Failed to fetch lastest api version")
             return False
 
-        versions = [float(version.get('version', 0)) for version in response]
+        versions = [float(version.get("version", 0)) for version in response]
         if versions:
             self._latest_api_version = str(sorted(versions)[-1])
-            if self._latest_api_version == '0.0':
-                LOGGER.error('Failed to obtain latest API version')
+            if self._latest_api_version == "0.0":
+                LOGGER.error("Failed to obtain latest API version")
                 return False
-            LOGGER.debug('Successfully obtain latest API version %s', self._latest_api_version)
+            LOGGER.debug(
+                "Successfully obtain latest API version %s", self._latest_api_version
+            )
             return True
 
     def _list_log_files(self):
@@ -340,19 +371,24 @@ class SalesforceApp(AppIntegration):
             api_version=self._latest_api_version,
             query=self._SALESFORCE_QUERY_FILTERS,
             start_time=self._SALESFORCE_CREATE_AFTER.format(self._last_timestamp),
-            event_type='AND+EventType+=+\'{}\''.format(self._type())
+            event_type="AND+EventType+=+'{}'".format(self._type()),
         )
         success, response = self._make_get_request(url, self._auth_headers)
         if not success:
-            LOGGER.error('Failed to get a list of log files.')
+            LOGGER.error("Failed to get a list of log files.")
             return
 
         log_files = []
-        if response.get('records'):
-            log_files.extend([record['LogFile'] for record in response['records']
-                              if record.get('LogFile')])
+        if response.get("records"):
+            log_files.extend(
+                [
+                    record["LogFile"]
+                    for record in response["records"]
+                    if record.get("LogFile")
+                ]
+            )
 
-        LOGGER.debug('Retrived %d log files', len(log_files))
+        LOGGER.debug("Retrived %d log files", len(log_files))
         return log_files
 
     def _fetch_event_logs(self, log_file_path):
@@ -364,15 +400,15 @@ class SalesforceApp(AppIntegration):
         Returns:
             list: a list of event logs or None.
         """
-        url = '{}/{}'.format(self._instance_url, log_file_path)
+        url = "{}/{}".format(self._instance_url, log_file_path)
         try:
             success, resp = self._make_get_request(url, self._auth_headers)
         except SalesforceAppError:
-            LOGGER.exception('Failed to get event logs')
+            LOGGER.exception("Failed to get event logs")
             return
 
         if not (success and resp):
-            LOGGER.error('Failed to get event logs')
+            LOGGER.error("Failed to get event logs")
             return
 
         # skip header line before passing to the classifier function
@@ -397,10 +433,11 @@ class SalesforceApp(AppIntegration):
             logs.extend(response)
 
         # Update last_timestamp to lambda function starting time
-        self._last_timestamp = datetime.utcfromtimestamp(
-            self._current_time
-        ).strftime(self.date_formatter())
+        self._last_timestamp = datetime.utcfromtimestamp(self._current_time).strftime(
+            self.date_formatter()
+        )
         return logs
+
 
 @StreamAlertApp
 class SalesforceConsole(SalesforceApp):
@@ -412,7 +449,8 @@ class SalesforceConsole(SalesforceApp):
 
     @classmethod
     def _type(cls):
-        return 'console'
+        return "console"
+
 
 @StreamAlertApp
 class SalesforceLogin(SalesforceApp):
@@ -423,7 +461,8 @@ class SalesforceLogin(SalesforceApp):
 
     @classmethod
     def _type(cls):
-        return 'login'
+        return "login"
+
 
 @StreamAlertApp
 class SalesforceLoginAs(SalesforceApp):
@@ -435,7 +474,8 @@ class SalesforceLoginAs(SalesforceApp):
 
     @classmethod
     def _type(cls):
-        return 'loginas'
+        return "loginas"
+
 
 @StreamAlertApp
 class SalesforceReport(SalesforceApp):
@@ -446,7 +486,8 @@ class SalesforceReport(SalesforceApp):
 
     @classmethod
     def _type(cls):
-        return 'report'
+        return "report"
+
 
 @StreamAlertApp
 class SalesforceReportExport(SalesforceApp):
@@ -457,4 +498,4 @@ class SalesforceReportExport(SalesforceApp):
 
     @classmethod
     def _type(cls):
-        return 'reportexport'
+        return "reportexport"

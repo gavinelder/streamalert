@@ -28,7 +28,7 @@ LOGGER = get_logger(__name__)
 
 
 class DeployCommand(CLICommand):
-    description = 'Deploy the specified AWS Lambda function(s)'
+    description = "Deploy the specified AWS Lambda function(s)"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -36,38 +36,38 @@ class DeployCommand(CLICommand):
         set_parser_epilog(
             subparser,
             epilog=(
-                '''\
+                """\
                 Example:
 
                     manage.py deploy --function rule alert
-                '''
-            )
+                """
+            ),
         )
 
         # Flag to manually bypass rule staging for new rules upon deploy
         # This only has an effect if rule staging is enabled
         subparser.add_argument(
-            '--skip-rule-staging',
-            action='store_true',
-            help='Skip staging of new rules so they go directly into production'
+            "--skip-rule-staging",
+            action="store_true",
+            help="Skip staging of new rules so they go directly into production",
         )
 
         # flag to manually demote specific rules to staging during deploy
         subparser.add_argument(
-            '--stage-rules',
+            "--stage-rules",
             action=MutuallyExclusiveStagingAction,
             default=set(),
-            help='Stage the rules provided in a space-separated list',
-            nargs='+'
+            help="Stage the rules provided in a space-separated list",
+            nargs="+",
         )
 
         # flag to manually bypass rule staging for specific rules during deploy
         subparser.add_argument(
-            '--unstage-rules',
+            "--unstage-rules",
             action=MutuallyExclusiveStagingAction,
             default=set(),
-            help='Unstage the rules provided in a space-separated list',
-            nargs='+'
+            help="Unstage the rules provided in a space-separated list",
+            nargs="+",
         )
 
         add_default_lambda_args(subparser)
@@ -91,7 +91,7 @@ class DeployCommand(CLICommand):
             return False
 
         # Update the rule table now if the rules engine is being deployed
-        if 'rule' in set(options.functions):
+        if "rule" in set(options.functions):
             _update_rule_table(options, config)
 
         return True
@@ -108,14 +108,14 @@ def deploy(config, functions, clusters=None):
     Returns:
         bool: False if errors occurred, True otherwise
     """
-    LOGGER.info('Deploying: %s', ', '.join(sorted(functions)))
+    LOGGER.info("Deploying: %s", ", ".join(sorted(functions)))
 
     # Terraform apply only to the module which contains our lambda functions
     clusters = clusters or config.clusters()
 
     deploy_targets = _lambda_terraform_targets(config, functions, clusters)
 
-    LOGGER.debug('Applying terraform targets: %s', ', '.join(sorted(deploy_targets)))
+    LOGGER.debug("Applying terraform targets: %s", ", ".join(sorted(deploy_targets)))
 
     # Terraform applies the new package and publishes a new version
     return terraform_runner(config, targets=deploy_targets)
@@ -129,13 +129,13 @@ def _update_rule_table(options, config):
         config (CLIConfig): The loaded StreamAlert config
     """
     # If rule staging is disabled, do not update the rules table
-    if not config['global']['infrastructure']['rule_staging'].get('enabled', False):
+    if not config["global"]["infrastructure"]["rule_staging"].get("enabled", False):
         return
 
     # Get the rule import paths to load
-    rule_import_paths = config['global']['general']['rule_locations']
+    rule_import_paths = config["global"]["general"]["rule_locations"]
 
-    table_name = '{}_streamalert_rules'.format(config['global']['account']['prefix'])
+    table_name = "{}_streamalert_rules".format(config["global"]["account"]["prefix"])
     table = rule_table.RuleTable(table_name, *rule_import_paths)
     table.update(options.skip_rule_staging)
 
@@ -163,85 +163,87 @@ def _lambda_terraform_targets(config, functions, clusters):
     """
 
     target_mapping = {
-        'alert': {
-            'targets': {
-                'module.alert_processor_iam',
-                'module.alert_processor_lambda',
+        "alert": {
+            "targets": {
+                "module.alert_processor_iam",
+                "module.alert_processor_lambda",
             },
-            'enabled': True  # required function
+            "enabled": True,  # required function
         },
-        'alert_merger': {
-            'targets': {
-                'module.alert_merger_iam',
-                'module.alert_merger_lambda',
+        "alert_merger": {
+            "targets": {
+                "module.alert_merger_iam",
+                "module.alert_merger_lambda",
             },
-            'enabled': True  # required function
+            "enabled": True,  # required function
         },
-        'athena': {
-            'targets': {
-                'module.athena_partitioner_iam',
-                'module.athena_partitioner_lambda',
+        "athena": {
+            "targets": {
+                "module.athena_partitioner_iam",
+                "module.athena_partitioner_lambda",
             },
-            'enabled': True  # required function
+            "enabled": True,  # required function
         },
-        'rule': {
-            'targets': {
-                'module.rules_engine_iam',
-                'module.rules_engine_lambda',
+        "rule": {
+            "targets": {
+                "module.rules_engine_iam",
+                "module.rules_engine_lambda",
             },
-            'enabled': True  # required function
+            "enabled": True,  # required function
         },
-        'classifier': {
-            'targets': {
-                'module.classifier_{}_{}'.format(cluster, suffix)
-                for suffix in {'lambda', 'iam'}
+        "classifier": {
+            "targets": {
+                "module.classifier_{}_{}".format(cluster, suffix)
+                for suffix in {"lambda", "iam"}
                 for cluster in clusters
             },
-            'enabled': bool(clusters)  # one cluster at least is required
+            "enabled": bool(clusters),  # one cluster at least is required
         },
-        'apps': {
-            'targets': {
-                'module.app_{}_{}_{}'.format(app_info['app_name'], cluster, suffix)
-                for suffix in {'lambda', 'iam'}
+        "apps": {
+            "targets": {
+                "module.app_{}_{}_{}".format(app_info["app_name"], cluster, suffix)
+                for suffix in {"lambda", "iam"}
                 for cluster in clusters
-                for app_info in config['clusters'][cluster]['modules'].get(
-                    'streamalert_apps', {}
-                ).values()
-                if 'app_name' in app_info
+                for app_info in config["clusters"][cluster]["modules"]
+                .get("streamalert_apps", {})
+                .values()
+                if "app_name" in app_info
             },
-            'enabled': any(
-                info['modules'].get('streamalert_apps')
-                for info in config['clusters'].values()
-            )
+            "enabled": any(
+                info["modules"].get("streamalert_apps")
+                for info in config["clusters"].values()
+            ),
         },
-        'rule_promo': {
-            'targets': {
-                'module.rule_promotion_iam',
-                'module.rule_promotion_lambda',
+        "rule_promo": {
+            "targets": {
+                "module.rule_promotion_iam",
+                "module.rule_promotion_lambda",
             },
-            'enabled': config['lambda'].get('rule_promotion_config', {}).get('enabled', False)
+            "enabled": config["lambda"]
+            .get("rule_promotion_config", {})
+            .get("enabled", False),
         },
-        'scheduled_queries': {
-            'targets': {
-                'module.scheduled_queries',
+        "scheduled_queries": {
+            "targets": {
+                "module.scheduled_queries",
             },
-            'enabled': config['scheduled_queries'].get('enabled', False),
+            "enabled": config["scheduled_queries"].get("enabled", False),
         },
-        'threat_intel_downloader': {
-            'targets': {
-                'module.threat_intel_downloader',
-                'module.threat_intel_downloader_iam',
+        "threat_intel_downloader": {
+            "targets": {
+                "module.threat_intel_downloader",
+                "module.threat_intel_downloader_iam",
             },
-            'enabled': config['lambda'].get('threat_intel_downloader_config', False),
-        }
+            "enabled": config["lambda"].get("threat_intel_downloader_config", False),
+        },
     }
 
     targets = set()
     for function in functions:
-        if not target_mapping[function]['enabled']:
-            LOGGER.warning('Function is not enabled and will be ignored: %s', function)
+        if not target_mapping[function]["enabled"]:
+            LOGGER.warning("Function is not enabled and will be ignored: %s", function)
             continue
 
-        targets.update(target_mapping[function]['targets'])
+        targets.update(target_mapping[function]["targets"])
 
     return targets

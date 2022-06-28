@@ -22,7 +22,6 @@ from streamalert.shared.alert_table import AlertTable
 from streamalert.shared.logger import get_logger
 from streamalert.shared.metrics import MetricLogger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -31,7 +30,7 @@ class AlertForwarder:
 
     def __init__(self):
         """Initialize the Forwarder with the boto3 clients and resource names."""
-        self._table = AlertTable(os.environ['ALERTS_TABLE'])
+        self._table = AlertTable(os.environ["ALERTS_TABLE"])
 
     def send_alerts(self, alerts):
         """Send alerts to the Dynamo table.
@@ -47,8 +46,10 @@ class AlertForwarder:
         except ClientError:
             # add_alerts() automatically retries transient errors - any raised ClientError
             # is likely unrecoverable. Log an exception and metric
-            LOGGER.exception('An error occurred when sending alerts to DynamoDB')
+            LOGGER.exception("An error occurred when sending alerts to DynamoDB")
             MetricLogger.log_metric(FUNCTION_NAME, MetricLogger.FAILED_DYNAMO_WRITES, 1)
             return
 
-        LOGGER.info('Successfully sent %d alert(s) to dynamo:%s', len(alerts), self._table.name)
+        LOGGER.info(
+            "Successfully sent %d alert(s) to dynamo:%s", len(alerts), self._table.name
+        )

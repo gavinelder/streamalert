@@ -23,7 +23,6 @@ from aliyunsdkactiontrail.request.v20171204 import LookupEventsRequest
 
 from . import AppIntegration, StreamAlertApp, get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -61,7 +60,9 @@ class AliyunApp(AppIntegration):
     def __init__(self, event, context):
         super(AliyunApp, self).__init__(event, context)
         auth = self._config.auth
-        self.client = AcsClient(auth['access_key_id'], auth['access_key_secret'], auth['region_id'])
+        self.client = AcsClient(
+            auth["access_key_id"], auth["access_key_secret"], auth["region_id"]
+        )
 
         self.request = LookupEventsRequest.LookupEventsRequest()
         self.request.set_MaxResults(self._MAX_RESULTS)
@@ -77,11 +78,11 @@ class AliyunApp(AppIntegration):
 
     @classmethod
     def _type(cls):
-        return 'actiontrail'
+        return "actiontrail"
 
     @classmethod
     def service(cls):
-        return 'aliyun'
+        return "aliyun"
 
     @classmethod
     def date_formatter(cls):
@@ -90,7 +91,7 @@ class AliyunApp(AppIntegration):
         This format is consistent with the format used by the Aliyun API:
             https://www.alibabacloud.com/help/doc-detail/28849.htm
         """
-        return '%Y-%m-%dT%H:%M:%SZ'
+        return "%Y-%m-%dT%H:%M:%SZ"
 
     def _gather_logs(self):
         """Fetch ActionTrail events and return a list of events
@@ -145,13 +146,13 @@ class AliyunApp(AppIntegration):
             #
             # To lower the data loss possibility, suggest to have longer timeout for lambda
             # function (aliyun app) and set app schedule more frequently, e.g. every 10 mins
-            self._last_timestamp = json_response['EndTime']
-            if 'NextToken' in json_response:
+            self._last_timestamp = json_response["EndTime"]
+            if "NextToken" in json_response:
                 self._more_to_poll = True
-                self.request.set_NextToken(json_response['NextToken'])
+                self.request.set_NextToken(json_response["NextToken"])
             else:
                 self._more_to_poll = False
-            return json_response['Events']
+            return json_response["Events"]
 
         except (ServerException, ClientException) as e:
             LOGGER.exception("%s error occurred", e.get_error_type())
@@ -164,29 +165,50 @@ class AliyunApp(AppIntegration):
         def region_validator(region):
             """Region names pulled from https://www.alibabacloud.com/help/doc-detail/40654.htm"""
 
-            if region in {'cn-qingdao', 'cn-beijing', 'cn-zhangjiakou', 'cn-huhehaote',
-                          'cn-hangzhou', 'cn-shanghai', 'cn-shenzhen', 'cn-hongkong',
-                          'ap-southeast-1', 'ap-southeast-2', 'ap-southeast-3', 'ap-southeast-5',
-                          'ap-northeast-1', 'ap-south-1', 'us-west-1', 'us-east-1',
-                          'eu-central-1', 'me-east-1'}:
+            if region in {
+                "cn-qingdao",
+                "cn-beijing",
+                "cn-zhangjiakou",
+                "cn-huhehaote",
+                "cn-hangzhou",
+                "cn-shanghai",
+                "cn-shenzhen",
+                "cn-hongkong",
+                "ap-southeast-1",
+                "ap-southeast-2",
+                "ap-southeast-3",
+                "ap-southeast-5",
+                "ap-northeast-1",
+                "ap-south-1",
+                "us-west-1",
+                "us-east-1",
+                "eu-central-1",
+                "me-east-1",
+            }:
                 return region
             return False
 
         return {
-            'access_key_id': {
-                'description': ('The access key id generated for a RAM user. This '
-                                'should be a string of alphanumeric characters.'),
-                'format': re.compile(r'.*')
+            "access_key_id": {
+                "description": (
+                    "The access key id generated for a RAM user. This "
+                    "should be a string of alphanumeric characters."
+                ),
+                "format": re.compile(r".*"),
             },
-            'access_key_secret': {
-                'description': ('The access key secret generated for a RAM user. This '
-                                'should be a string of alphanumeric characters.'),
-                'format': re.compile(r'.*')
+            "access_key_secret": {
+                "description": (
+                    "The access key secret generated for a RAM user. This "
+                    "should be a string of alphanumeric characters."
+                ),
+                "format": re.compile(r".*"),
             },
-            'region_id': {
-                'description': ('The region for the Aliyun API. This should be '
-                                'a string like \'ap-northeast-1\'.'),
-                'format': region_validator
+            "region_id": {
+                "description": (
+                    "The region for the Aliyun API. This should be "
+                    "a string like 'ap-northeast-1'."
+                ),
+                "format": region_validator,
             },
         }
 

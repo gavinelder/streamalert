@@ -28,34 +28,33 @@ def generate_kinesis_streams(cluster_name, cluster_dict, config):
     Returns:
         bool: Result of applying the kinesis module
     """
-    prefix = config['global']['account']['prefix']
-    kinesis_module = config['clusters'][cluster_name]['modules']['kinesis']['streams']
-    shard_level_metrics = kinesis_module.get('shard_level_metrics', [])
+    prefix = config["global"]["account"]["prefix"]
+    kinesis_module = config["clusters"][cluster_name]["modules"]["kinesis"]["streams"]
+    shard_level_metrics = kinesis_module.get("shard_level_metrics", [])
     stream_name = kinesis_module.get(
-        'stream_name',
-        '{}_{}_streamalert'.format(prefix, cluster_name)
+        "stream_name", "{}_{}_streamalert".format(prefix, cluster_name)
     )
 
-    module_name = 'kinesis_{}'.format(cluster_name)
-    cluster_dict['module'][module_name] = {
-        'source': './modules/tf_kinesis_streams',
-        'account_id': config['global']['account']['aws_account_id'],
+    module_name = "kinesis_{}".format(cluster_name)
+    cluster_dict["module"][module_name] = {
+        "source": "./modules/tf_kinesis_streams",
+        "account_id": config["global"]["account"]["aws_account_id"],
         # Lambda event source mappings do not support streams in other regions,
         # so force this to be the same region that all other resources exist in
         # NOTE: Fully regional clusters should be implemented at some point:
         #  https://github.com/airbnb/streamalert/issues/418
-        'region': config['global']['account']['region'],
-        'cluster': cluster_name,
-        'prefix': config['global']['account']['prefix'],
-        'stream_name': stream_name,
-        'shard_level_metrics': shard_level_metrics,
-        'shards': kinesis_module['shards'],
-        'retention': kinesis_module['retention'],
-        'create_user': kinesis_module.get('create_user', True),
-        'trusted_accounts': kinesis_module.get('trusted_accounts', [])
+        "region": config["global"]["account"]["region"],
+        "cluster": cluster_name,
+        "prefix": config["global"]["account"]["prefix"],
+        "stream_name": stream_name,
+        "shard_level_metrics": shard_level_metrics,
+        "shards": kinesis_module["shards"],
+        "retention": kinesis_module["retention"],
+        "create_user": kinesis_module.get("create_user", True),
+        "trusted_accounts": kinesis_module.get("trusted_accounts", []),
     }
 
-    outputs = kinesis_module.get('terraform_outputs')
+    outputs = kinesis_module.get("terraform_outputs")
     if outputs:
         generate_tf_outputs(cluster_dict, module_name, outputs)
 

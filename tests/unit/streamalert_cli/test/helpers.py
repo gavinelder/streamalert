@@ -15,7 +15,7 @@ limitations under the License.
 """
 import json
 
-from nose.tools import nottest
+from pytest import nottest
 
 
 @nottest
@@ -25,26 +25,23 @@ def basic_test_file_json(**kwargs):
 
 @nottest
 def basic_test_event_data(
-        log='misc_log_type',
-        service='unit-test-service',
-        source='unit-test-source',
-        override_data=None):
+    log="misc_log_type",
+    service="unit-test-service",
+    source="unit-test-source",
+    override_data=None,
+):
     result = {
-        'data': {
-            'key': 'value'
-        },
-        'description': 'Integration test event for unit testing',
-        'log': log,
-        'service': service,
-        'source': source,
-        'trigger_rules': [
-            'misc_rule'
-        ]
+        "data": {"key": "value"},
+        "description": "Integration test event for unit testing",
+        "log": log,
+        "service": service,
+        "source": source,
+        "trigger_rules": ["misc_rule"],
     }
 
     if override_data:
-        del result['data']
-        result['override_record'] = override_data
-        result['log'] = 'override_log_type'
+        del result["data"]
+        result["override_record"] = override_data
+        result["log"] = "override_log_type"
 
     return result

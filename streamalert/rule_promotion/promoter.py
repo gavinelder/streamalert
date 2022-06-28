@@ -23,34 +23,34 @@ from streamalert.shared.config import load_config
 from streamalert.shared.logger import get_logger
 from streamalert.shared.rule_table import RuleTable
 
-
 LOGGER = get_logger(__name__)
 
 
 class RulePromoter:
     """Run queries to generate statistics on alerts."""
 
-    ATHENA_S3_PREFIX = 'rule_promoter'
+    ATHENA_S3_PREFIX = "rule_promoter"
 
     def __init__(self):
         self._config = load_config()
-        prefix = self._config['global']['account']['prefix']
+        prefix = self._config["global"]["account"]["prefix"]
 
         # Create the rule table class for getting staging information
-        self._rule_table = RuleTable('{}_streamalert_rules'.format(prefix))
+        self._rule_table = RuleTable("{}_streamalert_rules".format(prefix))
 
-        athena_config = self._config['lambda']['athena_partitioner_config']
+        athena_config = self._config["lambda"]["athena_partitioner_config"]
 
         # Get the name of the athena database to access
-        db_name = athena_config.get('database_name', get_database_name(self._config))
+        db_name = athena_config.get("database_name", get_database_name(self._config))
 
         # Get the S3 bucket to store Athena query results
         results_bucket = athena_config.get(
-            'results_bucket',
-            's3://{}-streamalert-athena-results'.format(prefix)
+            "results_bucket", "s3://{}-streamalert-athena-results".format(prefix)
         )
 
-        self._athena_client = AthenaClient(db_name, results_bucket, self.ATHENA_S3_PREFIX)
+        self._athena_client = AthenaClient(
+            db_name, results_bucket, self.ATHENA_S3_PREFIX
+        )
         self._current_time = datetime.utcnow()
         self._staging_stats = dict()
 
@@ -70,14 +70,11 @@ class RulePromoter:
         for rule in sorted(self._rule_table.remote_rule_info):
             info = self._rule_table.remote_rule_info[rule]
             # If the rule is not staged, do not get stats on it
-            if not info['Staged']:
+            if not info["Staged"]:
                 continue
 
             self._staging_stats[rule] = StagingStatistic(
-                info['StagedAt'],
-                info['StagedUntil'],
-                self._current_time,
-                rule
+                info["StagedAt"], info["StagedUntil"], self._current_time, rule
             )
 
         return len(self._staging_stats) != 0
@@ -92,17 +89,21 @@ class RulePromoter:
             dict: Representation of alert counts, where key is the rule name
                 and value is the alert count (int) since this rule was staged
         """
-        query = StagingStatistic.construct_compound_count_query(list(self._staging_stats.values()))
-        LOGGER.debug('Running compound query for alert count: \'%s\'', query)
-        for page, results in enumerate(self._athena_client.query_result_paginator(query)):
-            for i, row in enumerate(results['ResultSet']['Rows']):
-                if page == 0 and i == 0: # skip header row included in first page only
+        query = StagingStatistic.construct_compound_count_query(
+            list(self._staging_stats.values())
+        )
+        LOGGER.debug("Running compound query for alert count: '%s'", query)
+        for page, results in enumerate(
+            self._athena_client.query_result_paginator(query)
+        ):
+            for i, row in enumerate(results["ResultSet"]["Rows"]):
+                if page == 0 and i == 0:  # skip header row included in first page only
                     continue
 
-                row_values = [list(data.values())[0] for data in row['Data']]
+                row_values = [list(data.values())[0] for data in row["Data"]]
                 rule_name, alert_count = row_values[0], int(row_values[1])
 
-                LOGGER.debug('Found %d alerts for rule \'%s\'', alert_count, rule_name)
+                LOGGER.debug("Found %d alerts for rule '%s'", alert_count, rule_name)
 
                 self._staging_stats[rule_name].alert_count = alert_count
 
@@ -114,7 +115,7 @@ class RulePromoter:
                 published, False otherwise
         """
         if not self._get_staging_info():
-            LOGGER.debug('No staged rules to promote')
+            LOGGER.debug("No staged rules to promote")
             return
 
         self._update_alert_count()
@@ -122,25 +123,31 @@ class RulePromoter:
         self._promote_rules()
 
         if send_digest:
-            publisher = StatsPublisher(self._config, self._athena_client, self._current_time)
+            publisher = StatsPublisher(
+                self._config, self._athena_client, self._current_time
+            )
             publisher.publish(list(self._staging_stats.values()))
         else:
-            LOGGER.debug('Staging statistics digest will not be sent')
+            LOGGER.debug("Staging statistics digest will not be sent")
 
     def _promote_rules(self):
         """Promote any rule that has not resulted in any alerts since being staged"""
         for rule in self._rules_to_be_promoted:
-            LOGGER.info('Promoting rule \'%s\' at %s', rule, self._current_time)
+            LOGGER.info("Promoting rule '%s' at %s", rule, self._current_time)
             self._rule_table.toggle_staged_state(rule, False)
 
     @property
     def _rules_to_be_promoted(self):
         """Returns a list of rules that are eligible for promotion"""
-        return [rule for rule, stat in self._staging_stats.items()
-                if self._current_time > stat.staged_until and stat.alert_count == 0]
+        return [
+            rule
+            for rule, stat in self._staging_stats.items()
+            if self._current_time > stat.staged_until and stat.alert_count == 0
+        ]
 
     @property
     def _rules_failing_promotion(self):
         """Returns a list of rules that are ineligible for promotion"""
-        return [rule for rule, stat in self._staging_stats.items()
-                if stat.alert_count != 0]
+        return [
+            rule for rule, stat in self._staging_stats.items() if stat.alert_count != 0
+        ]

@@ -13,33 +13,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from nose.tools import assert_equal, assert_true
+from pytest import assert_equal, assert_true
 
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import common, kinesis_events
 
-CONFIG = CLIConfig(config_path='tests/unit/conf')
+CONFIG = CLIConfig(config_path="tests/unit/conf")
 
 
 def test_kinesis_events():
     """CLI - Terraform Generate Kinesis Events"""
     cluster_dict = common.infinitedict()
-    result = kinesis_events.generate_kinesis_events('advanced', cluster_dict, CONFIG)
+    result = kinesis_events.generate_kinesis_events("advanced", cluster_dict, CONFIG)
 
     expected_result = {
-        'module': {
-            'kinesis_events_advanced': {
-                'source': './modules/tf_kinesis_events',
-                'batch_size': 100,
-                'lambda_production_enabled': True,
-                'lambda_role_id': '${module.classifier_advanced_lambda.role_id}',
-                'lambda_function_alias_arn': (
-                    '${module.classifier_advanced_lambda.function_alias_arn}'
+        "module": {
+            "kinesis_events_advanced": {
+                "source": "./modules/tf_kinesis_events",
+                "batch_size": 100,
+                "lambda_production_enabled": True,
+                "lambda_role_id": "${module.classifier_advanced_lambda.role_id}",
+                "lambda_function_alias_arn": (
+                    "${module.classifier_advanced_lambda.function_alias_arn}"
                 ),
-                'kinesis_stream_arn': '${module.kinesis_advanced.arn}',
+                "kinesis_stream_arn": "${module.kinesis_advanced.arn}",
             }
         }
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict, expected_result)
+    assert result
+    assert cluster_dict == expected_result

@@ -18,7 +18,7 @@ import os
 import importlib
 
 from mock import patch, ANY
-from nose.tools import assert_equal
+from pytest import assert_equal
 
 from streamalert import shared
 
@@ -28,45 +28,47 @@ class TestMetrics:
 
     def setup(self):
         """Setup before each method"""
-        os.environ['ENABLE_METRICS'] = '1'
+        os.environ["ENABLE_METRICS"] = "1"
         # Force reload the metrics package to trigger env var loading
         importlib.reload(shared.metrics)
 
-    @patch('logging.Logger.error')
+    @patch("logging.Logger.error")
     def test_invalid_metric_name(self, log_mock):
         """Metrics - Invalid Metric Name"""
-        shared.metrics.MetricLogger.log_metric('classifier', 'FailedParsed', '')
+        shared.metrics.MetricLogger.log_metric("classifier", "FailedParsed", "")
 
-        assert_equal(log_mock.call_args[0][0], 'Metric name (\'%s\') not defined for '
-                                               '\'%s\' function. Options are: %s')
-        assert_equal(log_mock.call_args[0][1], 'FailedParsed')
-        assert_equal(log_mock.call_args[0][2], 'classifier')
+        assert (
+            log_mock.call_args[0][0] == "Metric name ('%s') not defined for "
+            "'%s' function. Options are: %s"
+        )
+        assert log_mock.call_args[0][1] == "FailedParsed"
+        assert log_mock.call_args[0][2] == "classifier"
 
-    @patch('logging.Logger.info')
+    @patch("logging.Logger.info")
     def test_valid_metric(self, log_mock):
         """Metrics - Valid Metric"""
-        shared.metrics.MetricLogger.log_metric('classifier', 'FailedParses', 100)
+        shared.metrics.MetricLogger.log_metric("classifier", "FailedParses", 100)
 
         log_mock.assert_called_with(
-            '{"metric_name": "%s", "metric_value": %s}', 'FailedParses', 100
+            '{"metric_name": "%s", "metric_value": %s}', "FailedParses", 100
         )
 
-    @patch('logging.Logger.debug')
+    @patch("logging.Logger.debug")
     def test_disabled_metrics(self, log_mock):
         """Metrics - Metrics Disabled"""
-        with patch.dict('os.environ', {'ENABLE_METRICS': '0'}):
+        with patch.dict("os.environ", {"ENABLE_METRICS": "0"}):
             # Force reload the metrics package to trigger constant loading
             importlib.reload(shared.metrics)
 
-            log_mock.assert_called_with('Logging of metric data is currently disabled.')
+            log_mock.assert_called_with("Logging of metric data is currently disabled.")
 
-    @patch('logging.Logger.error')
+    @patch("logging.Logger.error")
     def test_disabled_metrics_error(self, log_mock):
         """Metrics - Bad Boolean Value"""
-        with patch.dict('os.environ', {'ENABLE_METRICS': 'bad'}):
+        with patch.dict("os.environ", {"ENABLE_METRICS": "bad"}):
             # Force reload the metrics package to trigger constant loading
             importlib.reload(shared.metrics)
 
-            log_mock.assert_called_with('Invalid value for metric toggling, '
-                                        'expected 0 or 1: %s',
-                                        ANY)
+            log_mock.assert_called_with(
+                "Invalid value for metric toggling, " "expected 0 or 1: %s", ANY
+            )

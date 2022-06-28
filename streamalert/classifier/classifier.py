@@ -28,7 +28,6 @@ from streamalert.shared.logger import get_logger
 from streamalert.shared.metrics import MetricLogger
 from streamalert.shared.normalize import Normalizer
 
-
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
 
@@ -44,17 +43,20 @@ class Classifier:
         # Create some objects to be cached if they have not already been created
         Classifier._config = Classifier._config or config.load_config(validate=True)
         Classifier._firehose_client = (
-            Classifier._firehose_client or FirehoseClient.load_from_config(
-                prefix=self.config['global']['account']['prefix'],
-                firehose_config=self.config['global'].get('infrastructure', {}).get('firehose', {}),
-                log_sources=self.config['logs']
+            Classifier._firehose_client
+            or FirehoseClient.load_from_config(
+                prefix=self.config["global"]["account"]["prefix"],
+                firehose_config=self.config["global"]
+                .get("infrastructure", {})
+                .get("firehose", {}),
+                log_sources=self.config["logs"],
             )
         )
         Classifier._sqs_client = Classifier._sqs_client or SQSClient()
 
         # Setup the normalization logic
         Normalizer.load_from_config(self.config)
-        self._cluster = os.environ['CLUSTER']
+        self._cluster = os.environ["CLUSTER"]
         self._payloads = []
         self._failed_record_count = 0
         self._processed_size = 0
@@ -90,27 +92,25 @@ class Classifier:
             bool: True if the resource's log sources loaded properly
         """
         # Get all logs for the configured service/entity (s3, kinesis, or sns)
-        resources = self._config['clusters'][self._cluster]['data_sources'].get(service)
+        resources = self._config["clusters"][self._cluster]["data_sources"].get(service)
         if not resources:
-            error = 'Service [{}] not declared in sources configuration for resource [{}]'.format(
-                service,
-                resource
+            error = "Service [{}] not declared in sources configuration for resource [{}]".format(
+                service, resource
             )
             raise ConfigError(error)
 
         source_config = resources.get(resource)
         if not source_config:
-            error = 'Resource [{}] not declared in sources configuration for service [{}]'.format(
-                resource,
-                service
+            error = "Resource [{}] not declared in sources configuration for service [{}]".format(
+                resource, service
             )
             raise ConfigError(error)
 
         # Get the log schemas for source(s)
         return OrderedDict(
-            (source, self.config['logs'][source])
-            for source in self.config['logs'].keys()
-            if source.split(':')[0] in source_config
+            (source, self.config["logs"][source])
+            for source in self.config["logs"].keys()
+            if source.split(":")[0] in source_config
         )
 
     @classmethod
@@ -129,17 +129,17 @@ class Classifier:
         """
         # Loop over all logs schemas declared for this source
         for log_type, options in logs_config.items():
-            LOGGER.debug('Trying schema \'%s\' with options: %s', log_type, options)
+            LOGGER.debug("Trying schema '%s' with options: %s", log_type, options)
 
             # Get the parser type to use for this log and set up the parser
-            parser = get_parser(options['parser'])(options, log_type=log_type)
+            parser = get_parser(options["parser"])(options, log_type=log_type)
 
             parsed = parser.parse(payload_record.data)
             if not parsed:
-                LOGGER.debug('Failed to classify data with schema: %s', log_type)
+                LOGGER.debug("Failed to classify data with schema: %s", log_type)
                 continue
 
-            LOGGER.debug('Log classified with schema: %s', log_type)
+            LOGGER.debug("Log classified with schema: %s", log_type)
 
             # Set the parser on successful parse
             payload_record.parser = parser
@@ -158,9 +158,9 @@ class Classifier:
         logs_config = self._load_logs_for_resource(payload.service(), payload.resource)
         if not logs_config:
             LOGGER.error(
-                'No log types defined for resource [%s] in sources configuration for service [%s]',
+                "No log types defined for resource [%s] in sources configuration for service [%s]",
                 payload.resource,
-                payload.service()
+                payload.service(),
             )
             return
 
@@ -171,7 +171,7 @@ class Classifier:
             # Get the parser for this data
             self._process_log_schemas(record, logs_config)
 
-            LOGGER.debug('Parsed and classified payload: %s', bool(record))
+            LOGGER.debug("Parsed and classified payload: %s", bool(record))
 
             payload.fully_classified = payload.fully_classified and record
             if not record:
@@ -179,9 +179,9 @@ class Classifier:
                 continue
 
             LOGGER.debug(
-                'Classified %d record(s) with schema: %s',
+                "Classified %d record(s) with schema: %s",
                 len(record.parsed_records),
-                record.log_schema_type
+                record.log_schema_type,
             )
 
             # Even if the parser was successful, there's a chance it
@@ -210,7 +210,7 @@ class Classifier:
         if not invalid_record_count:
             return  # don't log anything if the count of invalid records is not > 0
 
-        LOGGER.error('Record does not match any defined schemas: %s', payload_record)
+        LOGGER.error("Record does not match any defined schemas: %s", payload_record)
 
         self._failed_record_count += invalid_record_count
 
@@ -219,21 +219,23 @@ class Classifier:
         MetricLogger.log_metric(
             FUNCTION_NAME,
             MetricLogger.TOTAL_RECORDS,
-            sum(len(payload.parsed_records) for payload in self._payloads)
+            sum(len(payload.parsed_records) for payload in self._payloads),
         )
         MetricLogger.log_metric(
             FUNCTION_NAME,
             MetricLogger.NORMALIZED_RECORDS,
             sum(
-                1 for payload in self._payloads
-                for log in payload.parsed_records if log.get(Normalizer.NORMALIZATION_KEY)
-            )
+                1
+                for payload in self._payloads
+                for log in payload.parsed_records
+                if log.get(Normalizer.NORMALIZATION_KEY)
+            ),
         )
         MetricLogger.log_metric(
             FUNCTION_NAME, MetricLogger.TOTAL_PROCESSED_SIZE, self._processed_size
         )
 
-        LOGGER.debug('Invalid record count: %d', self._failed_record_count)
+        LOGGER.debug("Invalid record count: %d", self._failed_record_count)
         MetricLogger.log_metric(
             FUNCTION_NAME, MetricLogger.FAILED_PARSES, self._failed_record_count
         )
@@ -244,7 +246,7 @@ class Classifier:
         Args:
             records (list): An list of records received by Lambda
         """
-        LOGGER.debug('Number of incoming records: %d', len(records))
+        LOGGER.debug("Number of incoming records: %d", len(records))
         if not records:
             return
 

@@ -17,13 +17,7 @@ import os
 
 from mock import Mock, patch
 from moto import mock_ssm
-from nose.tools import (
-    assert_equal,
-    assert_false,
-    assert_true,
-    assert_count_equal,
-    raises
-)
+from pytest import assert_equal, assert_false, assert_true, assert_count_equal, raises
 from requests.exceptions import Timeout
 
 from streamalert.apps._apps.salesforce import SalesforceApp, SalesforceAppError
@@ -31,345 +25,376 @@ from tests.unit.streamalert.apps.test_helpers import (
     get_event,
     get_salesforce_log_files,
     list_salesforce_api_versions,
-    put_mock_params
+    put_mock_params,
 )
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 
 
 @mock_ssm
-@patch('time.sleep', Mock())
-@patch.object(SalesforceApp, '_type', Mock(return_value='Console'))
-@patch.object(SalesforceApp, 'type', Mock(return_value='type'))
+@patch("time.sleep", Mock())
+@patch.object(SalesforceApp, "_type", Mock(return_value="Console"))
+@patch.object(SalesforceApp, "type", Mock(return_value="type"))
 class TestSalesforceApp:
     """Test class for the SalesforceApp"""
+
     # pylint: disable=protected-access
 
-    @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
+    @patch.dict(os.environ, {"AWS_DEFAULT_REGION": "us-east-1"})
     def setup(self):
         """Setup before each method"""
         # pylint: disable=attribute-defined-outside-init
-        self._test_app_name = 'salesforce'
+        self._test_app_name = "salesforce"
         put_mock_params(self._test_app_name)
         self._event = get_event(self._test_app_name)
         self._context = get_mock_lambda_context(self._test_app_name)
         self._app = SalesforceApp(self._event, self._context)
 
-    def set_config_values(self, client_id, client_secret, username, password, security_token):
+    def set_config_values(
+        self, client_id, client_secret, username, password, security_token
+    ):
         """Helper function to setup the auth values"""
-        self._app._config.auth['client_id'] = client_id
-        self._app._config.auth['client_secret'] = client_secret
-        self._app._config.auth['username'] = username
-        self._app._config.auth['password'] = password
-        self._app._config.auth['security_token'] = security_token
+        self._app._config.auth["client_id"] = client_id
+        self._app._config.auth["client_secret"] = client_secret
+        self._app._config.auth["username"] = username
+        self._app._config.auth["password"] = password
+        self._app._config.auth["security_token"] = security_token
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_request_token_succeeded(self, mock_post):
         """SalesforceApp - Request auth token successfully"""
         self.set_config_values(
-            'CLIENT_ID', 'CLIENT_SECRET', 'USERNAME', 'PASSWORD', 'SECURITY_TOKEN'
+            "CLIENT_ID", "CLIENT_SECRET", "USERNAME", "PASSWORD", "SECURITY_TOKEN"
         )
 
         # request post is successful but return value is None.
-        mock_post.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=None)
-        )
-        assert_false(self._app._request_token())
+        mock_post.return_value = Mock(status_code=200, json=Mock(return_value=None))
+        assert not self._app._request_token()
 
         # request post is successful and returns auth token.
         mock_post.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'access_token': 'AUTH_TOKEN', 'instance_url': 'MY_URL'})
+            json=Mock(
+                return_value={"access_token": "AUTH_TOKEN", "instance_url": "MY_URL"}
+            ),
         )
-        assert_true(self._app._request_token())
-        assert_equal(
-            self._app._auth_headers,
-            {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer AUTH_TOKEN'
-            }
-        )
-        assert_equal(self._app._instance_url, 'MY_URL')
+        assert self._app._request_token()
+        assert self._app._auth_headers == {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer AUTH_TOKEN",
+        }
+        assert self._app._instance_url == "MY_URL"
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_request_token_failed(self, mock_post):
         """SalesforceApp - Failed to request auth token"""
         self.set_config_values(
-            'CLIENT_ID', 'BAD_SECRET', 'USERNAME', 'PASSWORD', 'SECURITY_TOKEN'
+            "CLIENT_ID", "BAD_SECRET", "USERNAME", "PASSWORD", "SECURITY_TOKEN"
         )
         # request post is failed.
         mock_post.return_value = Mock(
-            status_code=403,
-            json=Mock(return_value='ERROR CODE')
+            status_code=403, json=Mock(return_value="ERROR CODE")
         )
-        assert_false(self._app._request_token())
+        assert not self._app._request_token()
 
         mock_post.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'access_token': 'ACCESS_TOKEN', 'instance_url': ''})
+            json=Mock(
+                return_value={"access_token": "ACCESS_TOKEN", "instance_url": ""}
+            ),
         )
-        assert_false(self._app._request_token())
+        assert not self._app._request_token()
 
     def test_required_auth_info(self):
         """SalesforceApp - Required Auth Info"""
-        assert_count_equal(
-            list(self._app.required_auth_info().keys()),
-            {'client_id', 'client_secret', 'username', 'password', 'security_token'}
+        assert collections.Counter(
+            list(self._app.required_auth_info().keys())
+        ) == collections.Counter(
+            {"client_id", "client_secret", "username", "password", "security_token"}
         )
 
     @raises(SalesforceAppError)
-    @patch('requests.post')
+    @patch("requests.post")
     def test_validate_status_code_401(self, mock_post):
         """SalesforceApp - Validate status code 401"""
         resp = Mock(
             status_code=401,
-            json=Mock(return_value={'message': 'error message', 'errorCode': 'ERROR_CODE'})
+            json=Mock(
+                return_value={"message": "error message", "errorCode": "ERROR_CODE"}
+            ),
         )
         self.set_config_values(
-            'CLIENT_ID', 'CLIENT_SECRET', 'USERNAME', 'PASSWORD', 'SECURITY_TOKEN'
+            "CLIENT_ID", "CLIENT_SECRET", "USERNAME", "PASSWORD", "SECURITY_TOKEN"
         )
         mock_post.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'access_token': 'AUTH_TOKEN2', 'instance_url': 'MY_URL2'})
+            json=Mock(
+                return_value={"access_token": "AUTH_TOKEN2", "instance_url": "MY_URL2"}
+            ),
         )
         self._app._validate_status_code(resp)
 
-    @patch('streamalert.apps._apps.salesforce.LOGGER.error')
-    @patch('requests.post')
+    @patch("streamalert.apps._apps.salesforce.LOGGER.error")
+    @patch("requests.post")
     def test_validate_status_code_403(self, mock_post, mock_logger):
         """SalesforceApp - Validate status code 403"""
         resp = Mock(
             status_code=403,
-            json=Mock(return_value={'message': 'error message',
-                                    'errorCode': 'REQUEST_LIMIT_EXCEEDED'})
+            json=Mock(
+                return_value={
+                    "message": "error message",
+                    "errorCode": "REQUEST_LIMIT_EXCEEDED",
+                }
+            ),
         )
         self.set_config_values(
-            'CLIENT_ID', 'CLIENT_SECRET', 'USERNAME', 'PASSWORD', 'SECURITY_TOKEN'
+            "CLIENT_ID", "CLIENT_SECRET", "USERNAME", "PASSWORD", "SECURITY_TOKEN"
         )
         mock_post.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'access_token': 'AUTH_TOKEN2', 'instance_url': 'MY_URL2'})
+            json=Mock(
+                return_value={"access_token": "AUTH_TOKEN2", "instance_url": "MY_URL2"}
+            ),
         )
-        assert_false(self._app._validate_status_code(resp))
-        mock_logger.assert_called_with('Exceeded API request limits')
+        assert not self._app._validate_status_code(resp)
+        mock_logger.assert_called_with("Exceeded API request limits")
 
     @raises(SalesforceAppError)
-    @patch('requests.post')
+    @patch("requests.post")
     def test_validate_status_code_500(self, mock_post):
         """SalesforceApp - Validate status code 500"""
         resp = Mock(
             status_code=500,
-            json=Mock(return_value={'message': 'error message', 'errorCode': 'ERROR_CODE'})
+            json=Mock(
+                return_value={"message": "error message", "errorCode": "ERROR_CODE"}
+            ),
         )
         self.set_config_values(
-            'CLIENT_ID', 'CLIENT_SECRET', 'USERNAME', 'PASSWORD', 'SECURITY_TOKEN'
+            "CLIENT_ID", "CLIENT_SECRET", "USERNAME", "PASSWORD", "SECURITY_TOKEN"
         )
         mock_post.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'access_token': 'AUTH_TOKEN2', 'instance_url': 'MY_URL2'})
+            json=Mock(
+                return_value={"access_token": "AUTH_TOKEN2", "instance_url": "MY_URL2"}
+            ),
         )
         self._app._validate_status_code(resp)
 
-    @patch('streamalert.apps._apps.salesforce.LOGGER.error')
-    @patch('requests.post')
+    @patch("streamalert.apps._apps.salesforce.LOGGER.error")
+    @patch("requests.post")
     def test_validate_status_code_204(self, mock_post, mock_logger):
         """SalesforceApp - Validate status code 204"""
         resp = Mock(
             status_code=204,
-            json=Mock(return_value={'message': 'error message',
-                                    'errorCode': 'ERROR_CODE'})
+            json=Mock(
+                return_value={"message": "error message", "errorCode": "ERROR_CODE"}
+            ),
         )
         self.set_config_values(
-            'CLIENT_ID', 'CLIENT_SECRET', 'USERNAME', 'PASSWORD', 'SECURITY_TOKEN'
+            "CLIENT_ID", "CLIENT_SECRET", "USERNAME", "PASSWORD", "SECURITY_TOKEN"
         )
         mock_post.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'access_token': 'AUTH_TOKEN2', 'instance_url': 'MY_URL2'})
+            json=Mock(
+                return_value={"access_token": "AUTH_TOKEN2", "instance_url": "MY_URL2"}
+            ),
         )
-        assert_false(self._app._validate_status_code(resp))
+        assert not self._app._validate_status_code(resp)
         mock_logger.assert_called_with(
-            'Unexpected status code %d detected, error message %s',
-            204, {'errorCode': 'ERROR_CODE', 'message': 'error message'})
+            "Unexpected status code %d detected, error message %s",
+            204,
+            {"errorCode": "ERROR_CODE", "message": "error message"},
+        )
 
     def test_validate_status_code_200(self):
         """SalesforceApp - Validate status code 200"""
         resp = Mock(
             status_code=200,
-            json=Mock(return_value={'message': 'error message',
-                                    'errorCode': 'ERROR_CODE'})
+            json=Mock(
+                return_value={"message": "error message", "errorCode": "ERROR_CODE"}
+            ),
         )
-        assert_true(self._app._validate_status_code(resp))
+        assert self._app._validate_status_code(resp)
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_make_get_request_json(self, mock_get):
         """SalesforceApp - Make get request and return json content successfully"""
         mock_get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'foo': 'bar'})
+            status_code=200, json=Mock(return_value={"foo": "bar"})
         )
-        success, response = self._app._make_get_request('FULL_URL', {'headers': 'headers_data'})
-        assert_true(success)
-        assert_equal(response, {'foo': 'bar'})
+        success, response = self._app._make_get_request(
+            "FULL_URL", {"headers": "headers_data"}
+        )
+        assert success
+        assert response == {"foo": "bar"}
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_make_get_reques_text(self, mock_get):
         """SalesforceApp - Make get request and return raw content successfully"""
         mock_get.return_value = Mock(
-            status_code=200,
-            json=Mock(side_effect=ValueError),
-            text='TEXT CONTENT'
+            status_code=200, json=Mock(side_effect=ValueError), text="TEXT CONTENT"
         )
-        success, response = self._app._make_get_request('FULL_URL', {'headers': 'headers_data'})
-        assert_true(success)
-        assert_equal(response, 'TEXT CONTENT')
+        success, response = self._app._make_get_request(
+            "FULL_URL", {"headers": "headers_data"}
+        )
+        assert success
+        assert response == "TEXT CONTENT"
 
-    @patch('streamalert.apps._apps.salesforce.LOGGER.exception')
-    @patch('requests.get')
+    @patch("streamalert.apps._apps.salesforce.LOGGER.exception")
+    @patch("requests.get")
     def test_make_get_reques_timeout(self, mock_get, mock_logger):
         """SalesforceApp - Make get request and timed out"""
-        mock_get.return_value = Mock(
-            status_code=200,
-            json=Mock(side_effect=Timeout)
+        mock_get.return_value = Mock(status_code=200, json=Mock(side_effect=Timeout))
+        success, response = self._app._make_get_request(
+            "FULL_URL", {"headers": "headers_data"}
         )
-        success, response = self._app._make_get_request('FULL_URL', {'headers': 'headers_data'})
-        assert_false(success)
-        assert_equal(response, None)
-        mock_logger.assert_called_with('Request timed out for when sending get request to %s',
-                                       'FULL_URL')
+        assert not success
+        assert response == None
+        mock_logger.assert_called_with(
+            "Request timed out for when sending get request to %s", "FULL_URL"
+        )
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_get_latest_api_version(self, mock_get):
         """SalesforceApp - Get latest API version"""
         mock_get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=list_salesforce_api_versions())
+            status_code=200, json=Mock(return_value=list_salesforce_api_versions())
         )
-        self._app._instance_url = 'my_instance_url'
+        self._app._instance_url = "my_instance_url"
         self._app._get_latest_api_version()
-        assert_equal(self._app._latest_api_version, '26.0')
+        assert self._app._latest_api_version == "26.0"
 
-    @patch('streamalert.apps._apps.salesforce.LOGGER.error')
-    @patch('requests.get')
+    @patch("streamalert.apps._apps.salesforce.LOGGER.error")
+    @patch("requests.get")
     def test_get_latest_api_version_request_failed(self, mock_get, mock_logger):
         """SalesforceApp - Failed to get latest api versions"""
         mock_get.return_value = Mock(
             status_code=204,
-            json=Mock(return_value={'errorCode': 'ERROR_CODE', 'message': 'error message'})
+            json=Mock(
+                return_value={"errorCode": "ERROR_CODE", "message": "error message"}
+            ),
         )
-        self._app._instance_url = 'my_instance_url'
-        assert_false(self._app._get_latest_api_version())
-        mock_logger.assert_called_with('Failed to fetch lastest api version')
+        self._app._instance_url = "my_instance_url"
+        assert not self._app._get_latest_api_version()
+        mock_logger.assert_called_with("Failed to fetch lastest api version")
 
         mock_get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=[{'foo': 'bar'}])
+            status_code=200, json=Mock(return_value=[{"foo": "bar"}])
         )
-        self._app._instance_url = 'my_instance_url'
-        assert_false(self._app._get_latest_api_version())
-        mock_logger.assert_called_with('Failed to obtain latest API version')
+        self._app._instance_url = "my_instance_url"
+        assert not self._app._get_latest_api_version()
+        mock_logger.assert_called_with("Failed to obtain latest API version")
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_list_log_files(self, mock_get):
         """SalesforceApp - List log files"""
         mock_get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=get_salesforce_log_files())
+            status_code=200, json=Mock(return_value=get_salesforce_log_files())
         )
-        assert_equal(len(self._app._list_log_files()), 2)
+        assert len(self._app._list_log_files()) == 2
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_fetch_event_logs(self, mock_get):
         """SalesforceApp - Fetch event logs"""
         mock_get.return_value = Mock(
             status_code=200,
             json=Mock(side_effect=ValueError),
-            text='key1,key2\nvalue1a,value2a\nvalue1b,value2b'
+            text="key1,key2\nvalue1a,value2a\nvalue1b,value2b",
         )
-        assert_equal(self._app._fetch_event_logs('LOG_FILE_PATH'),
-                     ['value1a,value2a', 'value1b,value2b'])
+        assert self._app._fetch_event_logs("LOG_FILE_PATH") == [
+            "value1a,value2a",
+            "value1b,value2b",
+        ]
 
-    @patch('streamalert.apps._apps.salesforce.LOGGER.error')
-    @patch('requests.get', Mock(side_effect=SalesforceAppError))
+    @patch("streamalert.apps._apps.salesforce.LOGGER.error")
+    @patch("requests.get", Mock(side_effect=SalesforceAppError))
     def test_fetch_event_logs_exception(self, mock_logger):
         """SalesforceApp - Fetch event logs while SalesforceAppError raised"""
-        assert_equal(self._app._fetch_event_logs('LOG_FILE_PATH'), None)
-        mock_logger.assert_called_with('Failed to get event logs', exc_info=1)
+        assert self._app._fetch_event_logs("LOG_FILE_PATH") == None
+        mock_logger.assert_called_with("Failed to get event logs", exc_info=1)
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_fetch_event_logs_timeout(self, mock_get):
         """SalesforceApp - Fetch event logs while timeout"""
-        mock_get.return_value = Mock(
-            status_code=200,
-            json=Mock(side_effect=Timeout)
-        )
-        assert_equal(self._app._fetch_event_logs('LOG_FILE_PATH'), None)
+        mock_get.return_value = Mock(status_code=200, json=Mock(side_effect=Timeout))
+        assert self._app._fetch_event_logs("LOG_FILE_PATH") == None
 
-    @patch('requests.get')
-    @patch('requests.post')
+    @patch("requests.get")
+    @patch("requests.post")
     def test_gather_logs(self, mock_post, mock_get):
         """SalesforceApp - Gather event logs"""
         self.set_config_values(
-            'CLIENT_ID', 'CLIENT_SECRET', 'USERNAME', 'PASSWORD', 'SECURITY_TOKEN'
+            "CLIENT_ID", "CLIENT_SECRET", "USERNAME", "PASSWORD", "SECURITY_TOKEN"
         )
-        self._app._instance_url = 'MY_URL'
+        self._app._instance_url = "MY_URL"
 
         mock_post.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'access_token': 'AUTH_TOKEN', 'instance_url': 'MY_URL'})
+            json=Mock(
+                return_value={"access_token": "AUTH_TOKEN", "instance_url": "MY_URL"}
+            ),
         )
 
         mock_get.return_value = Mock(
             status_code=200,
-            json=Mock(side_effect=[list_salesforce_api_versions(),
-                                   get_salesforce_log_files(),
-                                   ValueError,
-                                   ValueError]),
-            text='key1,key2\nvalue1a,value2a\nvalue1b,value2b'
+            json=Mock(
+                side_effect=[
+                    list_salesforce_api_versions(),
+                    get_salesforce_log_files(),
+                    ValueError,
+                    ValueError,
+                ]
+            ),
+            text="key1,key2\nvalue1a,value2a\nvalue1b,value2b",
         )
 
-        assert_equal(len(self._app._gather_logs()), 4)
+        assert len(self._app._gather_logs()) == 4
 
-    @patch('streamalert.apps._apps.salesforce.LOGGER.exception')
-    @patch('requests.get')
-    @patch('requests.post')
+    @patch("streamalert.apps._apps.salesforce.LOGGER.exception")
+    @patch("requests.get")
+    @patch("requests.post")
     def test_gather_logs_failed(self, mock_post, mock_get, mock_logger):
         """SalesforceApp - Gather event logs but log files returns empty"""
         self.set_config_values(
-            'CLIENT_ID', 'CLIENT_SECRET', 'USERNAME', 'PASSWORD', 'SECURITY_TOKEN'
+            "CLIENT_ID", "CLIENT_SECRET", "USERNAME", "PASSWORD", "SECURITY_TOKEN"
         )
-        self._app._instance_url = 'MY_URL'
+        self._app._instance_url = "MY_URL"
 
         mock_post.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'access_token': 'AUTH_TOKEN', 'instance_url': 'MY_URL'})
+            json=Mock(
+                return_value={"access_token": "AUTH_TOKEN", "instance_url": "MY_URL"}
+            ),
         )
 
         mock_get.return_value = Mock(
             status_code=200,
-            json=Mock(side_effect=[list_salesforce_api_versions(), Timeout])
+            json=Mock(side_effect=[list_salesforce_api_versions(), Timeout]),
         )
 
-        assert_equal(self._app._gather_logs(), None)
+        assert self._app._gather_logs() == None
         mock_logger.assert_called_once()
 
         mock_get.return_value = Mock(
             status_code=204,
-            json=Mock(return_value={'errorCode': 'ERROR_CODE', 'message': 'error message'})
+            json=Mock(
+                return_value={"errorCode": "ERROR_CODE", "message": "error message"}
+            ),
         )
-        assert_equal(self._app._gather_logs(), None)
+        assert self._app._gather_logs() == None
 
     def test_sleep_seconds(self):
         """SalesforceApp - Verify sleep seconds"""
-        assert_equal(self._app._sleep_seconds(), 0)
+        assert self._app._sleep_seconds() == 0
 
     def test_date_formatter(self):
         """SalesforceApp - Verify date format"""
-        assert_equal(self._app.date_formatter(), '%Y-%m-%dT%H:%M:%SZ')
+        assert self._app.date_formatter() == "%Y-%m-%dT%H:%M:%SZ"
 
 
 @raises(NotImplementedError)
 def test_type_not_implemented():
     """SalesforceApp - Subclassmethod _type not implemented"""
+
     # pylint: disable=protected-access,abstract-method
     class SalesforceAppNoType(SalesforceApp):
         """Fake SalesforceApp that should raise a NotImplementedError"""

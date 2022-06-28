@@ -18,7 +18,7 @@ import zlib
 
 from mock import ANY, patch
 from moto import mock_s3, mock_dynamodb2
-from nose.tools import assert_equal
+from pytest import assert_equal
 
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.core import LookupTables
@@ -29,10 +29,12 @@ class TestLookupTablesCore:
     """
     Tests LookupTablesCore
     """
+
     # pylint: disable=protected-access,attribute-defined-outside-init,no-self-use
+
     def setup(self):
         """LookupTables - Setup S3 bucket mocking"""
-        self.config = load_config('tests/unit/conf')
+        self.config = load_config("tests/unit/conf")
 
         self.s3_mock = mock_s3()
         self.s3_mock.start()
@@ -42,58 +44,54 @@ class TestLookupTablesCore:
 
         self._put_mock_data()
 
-        self._lookup_tables = LookupTables.get_instance(
-            config=self.config,
-            reset=True
-        )
+        self._lookup_tables = LookupTables.get_instance(config=self.config, reset=True)
 
     def _put_mock_data(self):
         # S3 mock data
-        put_mock_s3_object('bucket_name', 'foo.json', json.dumps({
-            'key_1': 'foo_1',
-            'key_2': 'foo_2',
-        }))
         put_mock_s3_object(
-            'bucket_name', 'bar.json',
-            zlib.compress(json.dumps({
-                'key_1': 'compressed_bar_1',
-                'key_2': 'compressed_bar_2',
-            }).encode())
+            "bucket_name",
+            "foo.json",
+            json.dumps(
+                {
+                    "key_1": "foo_1",
+                    "key_2": "foo_2",
+                }
+            ),
+        )
+        put_mock_s3_object(
+            "bucket_name",
+            "bar.json",
+            zlib.compress(
+                json.dumps(
+                    {
+                        "key_1": "compressed_bar_1",
+                        "key_2": "compressed_bar_2",
+                    }
+                ).encode()
+            ),
         )
 
         # DynamoDB Mock data
         # Build a new dynamodb schema matching the tables configured
         put_mock_dynamod_data(
-            'table_name',
+            "table_name",
             {
-                'AttributeDefinitions': [
-                    {
-                        'AttributeName': 'MyPartitionKey',
-                        'AttributeType': 'S'
-                    },
-                    {
-                        'AttributeName': 'MySortKey',
-                        'AttributeType': 'S'
-                    }
+                "AttributeDefinitions": [
+                    {"AttributeName": "MyPartitionKey", "AttributeType": "S"},
+                    {"AttributeName": "MySortKey", "AttributeType": "S"},
                 ],
-                'KeySchema': [
-                    {
-                        'AttributeName': 'MyPartitionKey',
-                        'KeyType': 'HASH'
-                    },
-                    {
-                        'AttributeName': 'MySortKey',
-                        'KeyType': 'RANGE'
-                    }
+                "KeySchema": [
+                    {"AttributeName": "MyPartitionKey", "KeyType": "HASH"},
+                    {"AttributeName": "MySortKey", "KeyType": "RANGE"},
                 ],
             },
             [
                 {
-                    'MyPartitionKey': 'aaaa',
-                    'MySortKey': '1',
-                    'MyValueKey': 'Over 9000!',
+                    "MyPartitionKey": "aaaa",
+                    "MySortKey": "1",
+                    "MyValueKey": "Over 9000!",
                 }
-            ]
+            ],
         )
 
     def teardown(self):
@@ -102,29 +100,29 @@ class TestLookupTablesCore:
 
     def test_get(self):
         """LookupTables - Core - get()"""
-        assert_equal(self._lookup_tables.get('foo', 'key_1'), 'foo_1')
+        assert self._lookup_tables.get("foo", "key_1") == "foo_1"
 
     def test_get_table_s3(self):
         """LookupTables - Core - table() - S3"""
-        table = self._lookup_tables.table('foo')
-        assert_equal(table.get('key_2'), 'foo_2')
+        table = self._lookup_tables.table("foo")
+        assert table.get("key_2") == "foo_2"
 
     def test_get_table_dynamodb(self):
         """LookupTables - Core - table() - DynamoDB"""
-        table = self._lookup_tables.table('dinosaur')
-        assert_equal(table.get('aaaa:1'), 'Over 9000!')
+        table = self._lookup_tables.table("dinosaur")
+        assert table.get("aaaa:1") == "Over 9000!"
 
-    @patch('logging.Logger.error')
+    @patch("logging.Logger.error")
     def test_get_nonexistent_table(self, mock_logger):
         """LookupTables - Core - table()"""
-        table = self._lookup_tables.table('does-not-exist')
-        assert_equal(table.get('key_2'), None)
+        table = self._lookup_tables.table("does-not-exist")
+        assert table.get("key_2") == None
 
         mock_logger.assert_any_call(
             (
-                'Nonexistent LookupTable \'%s\' referenced. Defaulting to null table. '
-                'Valid tables were (%s)'
+                "Nonexistent LookupTable '%s' referenced. Defaulting to null table. "
+                "Valid tables were (%s)"
             ),
-            'does-not-exist',
-            ANY
+            "does-not-exist",
+            ANY,
         )

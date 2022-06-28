@@ -15,22 +15,25 @@ limitations under the License.
 """
 # pylint: disable=protected-access,attribute-defined-outside-init
 from mock import patch, Mock, MagicMock
-from nose.tools import assert_false, assert_true
+from pytest import assert_false, assert_true
 
 from streamalert.alert_processor.outputs.komand import KomandOutput
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 
 
-@patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS', 1)
+@patch(
+    "streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS",
+    1,
+)
 class TestKomandutput:
     """Test class for KomandOutput"""
-    DESCRIPTOR = 'unit_test_komand'
-    SERVICE = 'komand'
-    OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'url': 'http://komand.foo.bar',
-             'komand_auth_token': 'mocked_auth_token'}
 
-    @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
+    DESCRIPTOR = "unit_test_komand"
+    SERVICE = "komand"
+    OUTPUT = ":".join([SERVICE, DESCRIPTOR])
+    CREDS = {"url": "http://komand.foo.bar", "komand_auth_token": "mocked_auth_token"}
+
+    @patch("streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider")
     def setup(self, provider_constructor):
         """Setup before each method"""
         provider = MagicMock()
@@ -41,34 +44,39 @@ class TestKomandutput:
         self._provider = provider
         self._dispatcher = KomandOutput(None)
 
-    @patch('logging.Logger.info')
-    @patch('requests.post')
+    @patch("logging.Logger.info")
+    @patch("requests.post")
     def test_dispatch_existing_container(self, post_mock, log_mock):
         """KomandOutput - Dispatch Success"""
         post_mock.return_value.status_code = 200
 
-        assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with(
+            "Successfully sent alert to %s:%s", self.SERVICE, self.DESCRIPTOR
+        )
 
-    @patch('logging.Logger.error')
-    @patch('requests.post')
+    @patch("logging.Logger.error")
+    @patch("requests.post")
     def test_dispatch_container_failure(self, post_mock, log_mock):
         """KomandOutput - Dispatch Failure"""
         post_mock.return_value.status_code = 400
-        json_error = {'message': 'error message', 'errors': ['error1']}
+        json_error = {"message": "error message", "errors": ["error1"]}
         post_mock.return_value.json.return_value = json_error
 
-        assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert not self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
-        log_mock.assert_called_with('Failed to send alert to %s:%s', self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with(
+            "Failed to send alert to %s:%s", self.SERVICE, self.DESCRIPTOR
+        )
 
-    @patch('logging.Logger.error')
+    @patch("logging.Logger.error")
     def test_dispatch_bad_descriptor(self, log_error_mock):
         """KomandOutput - Dispatch Failure, Bad Descriptor"""
-        assert_false(
-            self._dispatcher.dispatch(get_alert(), ':'.join([self.SERVICE, 'bad_descriptor'])))
+        assert not self._dispatcher.dispatch(
+            get_alert(), ":".join([self.SERVICE, "bad_descriptor"])
+        )
 
-        log_error_mock.assert_called_with('Failed to send alert to %s:%s',
-                                          self.SERVICE, 'bad_descriptor')
+        log_error_mock.assert_called_with(
+            "Failed to send alert to %s:%s", self.SERVICE, "bad_descriptor"
+        )

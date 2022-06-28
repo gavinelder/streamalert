@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['ghe:general'])
+@rule(logs=["ghe:general"])
 def github_site_admin_action(rec):
     """
     author:       @mimeframe
@@ -11,4 +11,4 @@ def github_site_admin_action(rec):
                    "A site admin signed into GitHub Enterprise as another user.""
     reference:    https://help.github.com/enterprise/2.11/admin/articles/audited-actions/
     """
-    return rec['action'].startswith('staff.')
+    return rec["action"].startswith("staff.")

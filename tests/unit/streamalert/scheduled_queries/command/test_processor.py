@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from mock import MagicMock
-from nose.tools import assert_true, assert_false
+from pytest import assert_true, assert_false
 
 from streamalert.scheduled_queries.command.processor import CommandProcessor
 
@@ -28,10 +28,10 @@ class TestCommandProcessor:
         self._manager = None
 
     def setup(self):
-        self._logger = MagicMock(name='MockLogger')
-        self._kinesis = MagicMock(name='MockKinesis')
-        self._state_manager = MagicMock(name='MockStateManager')
-        self._manager = MagicMock(name='MockManagerFactory')
+        self._logger = MagicMock(name="MockLogger")
+        self._kinesis = MagicMock(name="MockKinesis")
+        self._state_manager = MagicMock(name="MockStateManager")
+        self._manager = MagicMock(name="MockManagerFactory")
 
         manager_factory = MagicMock()
         manager_factory.new_manager.return_value = self._manager
@@ -40,7 +40,7 @@ class TestCommandProcessor:
             logger=self._logger,
             kinesis=self._kinesis,
             state_manager=self._state_manager,
-            manager_factory=manager_factory
+            manager_factory=manager_factory,
         )
 
     def test_nonblocking_single_pass_not_finished(self):
@@ -50,59 +50,47 @@ class TestCommandProcessor:
 
         result = self._processor.nonblocking_single_pass()
 
-        assert_false(result)
+        assert not result
 
     def test_nonblocking_single_pass_finished_succeeded(self):
         """StreamQuery - CommandProcessor - nonblocking_single_pass - Finished"""
-        query_pack = MagicMock(name='MockQueryPack')
-        query_pack.query_execution_id = '1111-2222'
+        query_pack = MagicMock(name="MockQueryPack")
+        query_pack.query_execution_id = "1111-2222"
         query_pack.query_execution.is_succeeded.return_value = True
-        self._manager.finished_query_packs = [
-            query_pack
-        ]
+        self._manager.finished_query_packs = [query_pack]
         self._manager.num_registered_queries = 1
-        self._state_manager.get.return_value = {
-            'sent_to_streamalert': False
-        }
+        self._state_manager.get.return_value = {"sent_to_streamalert": False}
 
         result = self._processor.nonblocking_single_pass()
 
-        assert_true(result)
+        assert result
         self._kinesis.send_query_results.assert_called_with(query_pack)
 
     def test_nonblocking_single_pass_finished_failed(self):
         """StreamQuery - CommandProcessor - nonblocking_single_pass - Failed"""
-        query_pack = MagicMock(name='MockQueryPack')
-        query_pack.query_execution_id = '1111-2222'
+        query_pack = MagicMock(name="MockQueryPack")
+        query_pack.query_execution_id = "1111-2222"
         query_pack.query_execution.is_succeeded.return_value = False
-        self._manager.finished_query_packs = [
-            query_pack
-        ]
+        self._manager.finished_query_packs = [query_pack]
         self._manager.num_registered_queries = 1
-        self._state_manager.get.return_value = {
-            'sent_to_streamalert': False
-        }
+        self._state_manager.get.return_value = {"sent_to_streamalert": False}
 
         result = self._processor.nonblocking_single_pass()
 
-        assert_true(result)
+        assert result
         self._kinesis.send_query_results.assert_not_called()
 
     # pylint: disable=invalid-name
     def test_nonblocking_single_pass_finished_succeeded_already_sent(self):
         """StreamQuery - CommandProcessor - nonblocking_single_pass - Failed"""
-        query_pack = MagicMock(name='MockQueryPack')
-        query_pack.query_execution_id = '1111-2222'
+        query_pack = MagicMock(name="MockQueryPack")
+        query_pack.query_execution_id = "1111-2222"
         query_pack.query_execution.is_succeeded.return_value = True
-        self._manager.finished_query_packs = [
-            query_pack
-        ]
+        self._manager.finished_query_packs = [query_pack]
         self._manager.num_registered_queries = 1
-        self._state_manager.get.return_value = {
-            'sent_to_streamalert': True
-        }
+        self._state_manager.get.return_value = {"sent_to_streamalert": True}
 
         result = self._processor.nonblocking_single_pass()
 
-        assert_true(result)
+        assert result
         self._kinesis.send_query_results.assert_not_called()

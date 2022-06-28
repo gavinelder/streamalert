@@ -30,12 +30,12 @@ from streamalert.shared.rule import Rule
 from streamalert.shared.rule_table import RuleTable
 from streamalert.shared.stats import RuleStatisticTracker
 
-
 LOGGER = get_logger(__name__)
 
 
 class RulesEngine:
     """Rule engine to processes rules"""
+
     _RULE_TABLE_LAST_REFRESH = datetime(year=1970, month=1, day=1)
     _RULE_TABLE_DEFAULT_REFRESH_MIN = 10
 
@@ -58,15 +58,15 @@ class RulesEngine:
 
         # If no rule import paths are specified, default to the config
         rule_paths = rule_paths or [
-            item for location in {'rule_locations', 'matcher_locations'}
-            for item in self.config['global']['general'][location]
+            item
+            for location in {"rule_locations", "matcher_locations"}
+            for item in self.config["global"]["general"][location]
         ]
 
         import_folders(*rule_paths)
 
         self._rule_stat_tracker = RuleStatisticTracker(
-            'STREAMALERT_TRACK_RULE_STATS' in env,
-            'LAMBDA_RUNTIME_DIR' in env
+            "STREAMALERT_TRACK_RULE_STATS" in env, "LAMBDA_RUNTIME_DIR" in env
         )
         self._required_outputs_set = resources.get_required_outputs()
         self._load_rule_table(self.config)
@@ -105,15 +105,14 @@ class RulesEngine:
             rule_table.RuleTable: Loaded frontend for DynamoDB rules table
         """
         # Ensure the rules table is enabled
-        rule_staging_config = config['global']['infrastructure']['rule_staging']
-        if not rule_staging_config.get('enabled', False):
+        rule_staging_config = config["global"]["infrastructure"]["rule_staging"]
+        if not rule_staging_config.get("enabled", False):
             return
 
         now = datetime.utcnow()
         refresh_delta = timedelta(
             minutes=rule_staging_config.get(
-                'cache_refresh_minutes',
-                cls._RULE_TABLE_DEFAULT_REFRESH_MIN
+                "cache_refresh_minutes", cls._RULE_TABLE_DEFAULT_REFRESH_MIN
             )
         )
 
@@ -121,14 +120,21 @@ class RulesEngine:
         needs_refresh = cls._RULE_TABLE_LAST_REFRESH + refresh_delta < now
 
         if not needs_refresh:
-            LOGGER.debug('Rule table does not need refreshed (last refresh time: %s; '
-                         'current time: %s)', cls._RULE_TABLE_LAST_REFRESH, now)
+            LOGGER.debug(
+                "Rule table does not need refreshed (last refresh time: %s; "
+                "current time: %s)",
+                cls._RULE_TABLE_LAST_REFRESH,
+                now,
+            )
             return
 
-        LOGGER.info('Refreshing rule table (last refresh time: %s; current time: %s)',
-                    cls._RULE_TABLE_LAST_REFRESH, now)
+        LOGGER.info(
+            "Refreshing rule table (last refresh time: %s; current time: %s)",
+            cls._RULE_TABLE_LAST_REFRESH,
+            now,
+        )
 
-        table_name = '{}_streamalert_rules'.format(env['STREAMALERT_PREFIX'])
+        table_name = "{}_streamalert_rules".format(env["STREAMALERT_PREFIX"])
         cls._rule_table = RuleTable(table_name)
         cls._RULE_TABLE_LAST_REFRESH = now
 
@@ -156,13 +162,19 @@ class RulesEngine:
             # observed as either a map with subkeys, or null.
             if key not in record:
                 LOGGER.debug(
-                    'The required subkey %s is not found when trying to process %s: \n%s',
-                    key, rule.name, record)
+                    "The required subkey %s is not found when trying to process %s: \n%s",
+                    key,
+                    rule.name,
+                    record,
+                )
                 return False
             if not isinstance(record[key], dict):
                 LOGGER.debug(
-                    'The required subkey %s is not a dictionary when trying to process %s: \n%s',
-                    key, rule.name, record)
+                    "The required subkey %s is not a dictionary when trying to process %s: \n%s",
+                    key,
+                    rule.name,
+                    record,
+                )
                 return False
             if any(x not in record[key] for x in nested_keys):
                 return False
@@ -188,31 +200,39 @@ class RulesEngine:
             rule (rule.Rule): Attributes for the rule which triggered the alert
         """
         # Run the rule, using the statistic tracker in case stats are being tracked
-        rule_result = self._rule_stat_tracker.run_rule(rule, payload['record'])
+        rule_result = self._rule_stat_tracker.run_rule(rule, payload["record"])
         if not rule_result:
             return
 
         # Define the outputs
-        outputs = self._configure_outputs(payload['record'], rule)
+        outputs = self._configure_outputs(payload["record"], rule)
 
         alert = Alert(
-            rule.name, payload['record'], outputs,
-            cluster=payload['cluster'],
+            rule.name,
+            payload["record"],
+            outputs,
+            cluster=payload["cluster"],
             context=rule.context,
-            log_source=payload['log_schema_type'],
-            log_type=payload['data_type'],
+            log_source=payload["log_schema_type"],
+            log_type=payload["data_type"],
             merge_by_keys=rule.merge_by_keys,
             merge_window=timedelta(minutes=rule.merge_window_mins),
             publishers=self._configure_publishers(rule, outputs),
             rule_description=rule.description,
-            source_entity=payload['resource'],
-            source_service=payload['service'],
-            staged=rule.is_staged(self._rule_table)
+            source_entity=payload["resource"],
+            source_service=payload["service"],
+            staged=rule.is_staged(self._rule_table),
         )
 
-        LOGGER.info('Rule \'%s\' triggered alert \'%s\' on log type \'%s\' from resource \'%s\' '
-                    'in service \'%s\'', rule.name, alert.alert_id, payload['log_schema_type'],
-                    payload['resource'], payload['service'])
+        LOGGER.info(
+            "Rule '%s' triggered alert '%s' on log type '%s' from resource '%s' "
+            "in service '%s'",
+            rule.name,
+            alert.alert_id,
+            payload["log_schema_type"],
+            payload["resource"],
+            payload["service"],
+        )
 
         return alert
 
@@ -287,7 +307,8 @@ class RulesEngine:
             # Logger error and return []
             LOGGER.error(
                 "Exception when calling dynamic_output %s for rule %s",
-                function.__name__, rule_name
+                function.__name__,
+                rule_name,
             )
         else:
             LOGGER.debug("function %s returned: %s", function.__name__, outputs)
@@ -383,7 +404,7 @@ class RulesEngine:
                 #     - [Output]: Applies publishers to all outputs for a specific output type.
                 #     - [Output+Descriptor]: Applies publishers only to the specific output that
                 #           exactly matches the output+descriptor key.
-                output_service = output.split(':')[0]
+                output_service = output.split(":")[0]
 
                 # Order is important here; We load output-specific publishers first
                 if output_service in requested_publishers:
@@ -401,7 +422,7 @@ class RulesEngine:
                     elif isinstance(specific_publishers, list):
                         cls.add_publishers(specific_publishers, assigned_publishers)
             else:
-                LOGGER.error('Invalid publisher argument: %s', requested_publishers)
+                LOGGER.error("Invalid publisher argument: %s", requested_publishers)
 
             configured_publishers[output] = assigned_publishers
 
@@ -410,7 +431,9 @@ class RulesEngine:
     @classmethod
     def standardize_publisher_list(cls, list_of_references):
         """Standardizes a list of requested publishers"""
-        publisher_names = [cls.standardize_publisher_name(x) for x in list_of_references]
+        publisher_names = [
+            cls.standardize_publisher_name(x) for x in list_of_references
+        ]
 
         # Filter out None from the array
         return [x for x in publisher_names if x is not None]
@@ -423,7 +446,7 @@ class RulesEngine:
         direct reference to the function or class.
         """
         if not cls.is_publisher_declaration(string_or_reference):
-            LOGGER.error('Invalid publisher requested: %s', string_or_reference)
+            LOGGER.error("Invalid publisher requested: %s", string_or_reference)
             return None
 
         if isinstance(string_or_reference, str):
@@ -436,15 +459,16 @@ class RulesEngine:
         if AlertPublisherRepository.has_publisher(publisher_name):
             return publisher_name
 
-        LOGGER.warning('Requested publisher named (%s) is not registered.', publisher_name)
+        LOGGER.warning(
+            "Requested publisher named (%s) is not registered.", publisher_name
+        )
 
     @classmethod
     def is_publisher_declaration(cls, string_or_reference):
         """Returns TRUE if the requested publisher is valid (a string name or reference)"""
-        return (
-            isinstance(string_or_reference, str) or
-            AlertPublisherRepository.is_valid_publisher(string_or_reference)
-        )
+        return isinstance(
+            string_or_reference, str
+        ) or AlertPublisherRepository.is_valid_publisher(string_or_reference)
 
     @classmethod
     def add_publisher(cls, publisher_reference, current_list):
@@ -475,25 +499,25 @@ class RulesEngine:
         Returns:
             list: Alerts that have been triggered by this data
         """
-        LOGGER.info('Processing %d records', len(records))
+        LOGGER.info("Processing %d records", len(records))
 
         # Extract any threat intelligence matches from the records
         self._extract_threat_intel(records)
 
         alerts = []
         for payload in records:
-            rules = Rule.rules_for_log_type(payload['log_schema_type'])
+            rules = Rule.rules_for_log_type(payload["log_schema_type"])
             if not rules:
-                LOGGER.debug('No rules to process for %s', payload)
+                LOGGER.debug("No rules to process for %s", payload)
                 continue
 
             for rule in rules:
                 # subkey check
-                if not self._process_subkeys(payload['record'], rule):
+                if not self._process_subkeys(payload["record"], rule):
                     continue
 
                 # matcher check
-                if not rule.check_matchers(payload['record']):
+                if not rule.check_matchers(payload["record"]):
                     continue
 
                 alert = self._rule_analysis(payload, rule)
@@ -507,6 +531,8 @@ class RulesEngine:
         if self._rule_stat_tracker.enabled:
             LOGGER.info(RuleStatisticTracker.statistics_info())
 
-        MetricLogger.log_metric(FUNCTION_NAME, MetricLogger.TRIGGERED_ALERTS, len(alerts))
+        MetricLogger.log_metric(
+            FUNCTION_NAME, MetricLogger.TRIGGERED_ALERTS, len(alerts)
+        )
 
         return alerts

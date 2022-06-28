@@ -20,13 +20,9 @@ import backoff
 import boto3
 from botocore.exceptions import ClientError
 
-from streamalert.shared.backoff_handlers import (
-    backoff_handler,
-    success_handler
-)
+from streamalert.shared.backoff_handlers import backoff_handler, success_handler
 import streamalert.shared.helpers.boto as boto_helpers
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -50,14 +46,16 @@ class AthenaClient:
             results_bucket (str): S3 bucket in which to store Athena results
             results_prefix (str): S3 key prefix to prepend too results in the bucket
         """
-        self._client = boto3.client('athena', config=boto_helpers.default_config(region=region))
+        self._client = boto3.client(
+            "athena", config=boto_helpers.default_config(region=region)
+        )
         self.database = database_name.strip()
 
         results_bucket = results_bucket.strip()
 
         # Make sure the required 's3://' prefix is included
-        if not results_bucket.startswith('s3://'):
-            results_bucket = 's3://{}'.format(results_bucket)
+        if not results_bucket.startswith("s3://"):
+            results_bucket = "s3://{}".format(results_bucket)
 
         # Produces s3://<results_bucket_name>/<results_prefix>
         self._s3_results_path_prefix = posixpath.join(results_bucket, results_prefix)
@@ -66,8 +64,7 @@ class AthenaClient:
     def results_path(self):
         # Returns a path for the current hour: /YYYY/MM/DD/HH
         return posixpath.join(
-            self._s3_results_path_prefix,
-            datetime.utcnow().strftime('%Y/%m/%d/%H')
+            self._s3_results_path_prefix, datetime.utcnow().strftime("%Y/%m/%d/%H")
         )
 
     @staticmethod
@@ -84,7 +81,8 @@ class AthenaClient:
         """
         return {
             value
-            for row in query_result['ResultSet']['Rows'] for result in row['Data']
+            for row in query_result["ResultSet"]["Rows"]
+            for result in row["Data"]
             for value in result.values()
         }
 
@@ -103,7 +101,7 @@ class AthenaClient:
         """
         response = self._execute_query(query)
 
-        execution_id = response['QueryExecutionId']
+        execution_id = response["QueryExecutionId"]
 
         # This will block until the execution is complete, or raise an
         # AthenaQueryExecutionError exception if an error occurs
@@ -124,15 +122,15 @@ class AthenaClient:
             AthenaQueryExecutionError: If any failure occurs during the execution of the
                 query, this exception will be raised
         """
-        LOGGER.debug('Executing query: %s', query)
+        LOGGER.debug("Executing query: %s", query)
         try:
             return self._client.start_query_execution(
                 QueryString=query,
-                QueryExecutionContext={'Database': self.database},
-                ResultConfiguration={'OutputLocation': self.results_path}
+                QueryExecutionContext={"Database": self.database},
+                ResultConfiguration={"OutputLocation": self.results_path},
             )
         except ClientError as err:
-            raise AthenaQueryExecutionError('Athena query failed:\n{}'.format(err))
+            raise AthenaQueryExecutionError("Athena query failed:\n{}".format(err))
 
     def drop_all_tables(self):
         """Drop all table in the database
@@ -140,9 +138,9 @@ class AthenaClient:
         Returns:
             bool: True if all tables were dropped successfully, False otherwise
         """
-        result = self.run_query_for_results('SHOW TABLES')
+        result = self.run_query_for_results("SHOW TABLES")
         if not result:
-            LOGGER.error('There was an issue getting all tables')
+            LOGGER.error("There was an issue getting all tables")
             return False
 
         unique_tables = self._unique_values_from_query(result)
@@ -158,12 +156,12 @@ class AthenaClient:
         Returns:
             bool: True if the table was successfully dropped, False otherwise
         """
-        success = self.run_query('DROP TABLE {}'.format(table_name))
+        success = self.run_query("DROP TABLE {}".format(table_name))
         if not success:
-            LOGGER.error('Unable to drop table: %s', table_name)
+            LOGGER.error("Unable to drop table: %s", table_name)
             return False
 
-        LOGGER.info('Successfully dropped table: %s', table_name)
+        LOGGER.info("Successfully dropped table: %s", table_name)
         return True
 
     def get_table_partitions(self, table_name):
@@ -175,9 +173,9 @@ class AthenaClient:
         Returns:
             set: Unique set of partitions for the given table
         """
-        partitions = self.run_query_for_results('SHOW PARTITIONS {}'.format(table_name))
+        partitions = self.run_query_for_results("SHOW PARTITIONS {}".format(table_name))
         if not partitions:
-            LOGGER.error('An error occurred when loading partitions for %s', table_name)
+            LOGGER.error("An error occurred when loading partitions for %s", table_name)
             return
 
         return self._unique_values_from_query(partitions)
@@ -196,30 +194,32 @@ class AthenaClient:
             AthenaQueryExecutionError: If any failure occurs while checking the status of the
                 query, this exception will be raised
         """
-        LOGGER.debug('Checking status of query with execution ID: %s', execution_id)
+        LOGGER.debug("Checking status of query with execution ID: %s", execution_id)
 
-        states_to_backoff = {'QUEUED', 'RUNNING'}
-        @backoff.on_predicate(backoff.fibo,
-                              lambda resp: \
-                              resp['QueryExecution']['Status']['State'] in states_to_backoff,
-                              max_value=10,
-                              jitter=backoff.full_jitter,
-                              on_backoff=backoff_handler(),
-                              on_success=success_handler(True))
+        states_to_backoff = {"QUEUED", "RUNNING"}
+
+        @backoff.on_predicate(
+            backoff.fibo,
+            lambda resp: resp["QueryExecution"]["Status"]["State"] in states_to_backoff,
+            max_value=10,
+            jitter=backoff.full_jitter,
+            on_backoff=backoff_handler(),
+            on_success=success_handler(True),
+        )
         def _check_status(query_execution_id):
-            return self._client.get_query_execution(
-                QueryExecutionId=query_execution_id
-            )
+            return self._client.get_query_execution(QueryExecutionId=query_execution_id)
 
         execution_result = _check_status(execution_id)
-        state = execution_result['QueryExecution']['Status']['State']
-        if state == 'SUCCEEDED':
+        state = execution_result["QueryExecution"]["Status"]["State"]
+        if state == "SUCCEEDED":
             return
 
         # When the state is not SUCCEEDED, something bad must have occurred, so raise an exception
-        reason = execution_result['QueryExecution']['Status']['StateChangeReason']
+        reason = execution_result["QueryExecution"]["Status"]["StateChangeReason"]
         raise AthenaQueryExecutionError(
-            'Query \'{}\' {} with reason \'{}\', exiting'.format(execution_id, state, reason)
+            "Query '{}' {} with reason '{}', exiting".format(
+                execution_id, state, reason
+            )
         )
 
     def query_result_paginator(self, query):
@@ -237,7 +237,7 @@ class AthenaClient:
         """
         execution_id = self._execute_and_wait(query)
 
-        paginator = self._client.get_paginator('get_query_results')
+        paginator = self._client.get_paginator("get_query_results")
 
         result_iterator = paginator.paginate(QueryExecutionId=execution_id)
         for result in result_iterator:
@@ -294,16 +294,18 @@ class AthenaClient:
         # When handling the query result data, iterate over each element in the Row,
         # and parse the Data key.
         # Reference: https://bit.ly/2tWOQ2N
-        if not query_results['ResultSet']['Rows']:
-            LOGGER.debug('The query %s returned empty rows of data', query)
+        if not query_results["ResultSet"]["Rows"]:
+            LOGGER.debug("The query %s returned empty rows of data", query)
 
         return query_results
 
     def check_database_exists(self):
         """Verify the Athena database being used exists. This is a blocking operation"""
-        response = self.run_query_for_results('SHOW DATABASES LIKE \'{}\';'.format(self.database))
+        response = self.run_query_for_results(
+            "SHOW DATABASES LIKE '{}';".format(self.database)
+        )
 
-        return bool(response and response['ResultSet']['Rows'])
+        return bool(response and response["ResultSet"]["Rows"])
 
     def check_table_exists(self, table_name):
         """Verify a given Athena table exists within the database. This is a blocking operation
@@ -311,6 +313,6 @@ class AthenaClient:
         Args:
             table_name (str): Table name whose existence is being verified
         """
-        result = self.run_query_for_results('SHOW TABLES LIKE \'{}\';'.format(table_name))
+        result = self.run_query_for_results("SHOW TABLES LIKE '{}';".format(table_name))
 
-        return bool(result and result['ResultSet']['Rows'])
+        return bool(result and result["ResultSet"]["Rows"])

@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['ghe:general'])
+@rule(logs=["ghe:general"])
 def github_disable_required_pull_request_reviews(rec):
     """
     author:       @mimeframe
@@ -16,6 +16,8 @@ def github_disable_required_pull_request_reviews(rec):
     reference:    https://help.github.com/articles/enabling-required-reviews-for-pull-requests/
     """
     actor_ignorelist = {}
-    return (rec['action'] == 'protected_branch.dismissal_restricted_users_teams'
-            and rec['data'].get('authorized_actors_only') is True
-            and rec['actor'] not in actor_ignorelist)
+    return (
+        rec["action"] == "protected_branch.dismissal_restricted_users_teams"
+        and rec["data"].get("authorized_actors_only") is True
+        and rec["actor"] not in actor_ignorelist
+    )

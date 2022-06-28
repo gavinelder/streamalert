@@ -28,7 +28,7 @@ from streamalert.shared.metrics import MetricLogger
 from streamalert.shared.backoff_handlers import (
     backoff_handler,
     giveup_handler,
-    success_handler
+    success_handler,
 )
 
 LOGGER = get_logger(__name__)
@@ -40,6 +40,7 @@ class SQSClientError(Exception):
 
 class SQSClient:
     """SQSClient for sending batches of classified records to the Rules Engine function"""
+
     # Exception for which backoff operations should be performed
     EXCEPTIONS_TO_BACKOFF = (ClientError, BotocoreConnectionError, HTTPClientError)
 
@@ -52,15 +53,14 @@ class SQSClient:
     _queue = None
 
     def __init__(self):
-        queue_url = os.environ.get('SQS_QUEUE_URL', '')
+        queue_url = os.environ.get("SQS_QUEUE_URL", "")
         if not queue_url:
-            raise SQSClientError('No queue URL found in environment variables')
+            raise SQSClientError("No queue URL found in environment variables")
 
         # Only recreate the queue resource if it's not already cached
-        SQSClient._queue = (
-            SQSClient._queue or
-            boto3.resource('sqs', config=boto.default_config()).Queue(queue_url)
-        )
+        SQSClient._queue = SQSClient._queue or boto3.resource(
+            "sqs", config=boto.default_config()
+        ).Queue(queue_url)
 
     @property
     def queue(self):
@@ -76,8 +76,10 @@ class SQSClient:
             # for , between records
             size = len(record) + (1 if idx != record_count and batch else 0)
             if size + 2 > cls.MAX_SIZE:
-                LOGGER.error('Record is too large to send to SQS:\n%s', record)
-                MetricLogger.log_metric(FUNCTION_NAME, MetricLogger.SQS_FAILED_RECORDS, 1)
+                LOGGER.error("Record is too large to send to SQS:\n%s", record)
+                MetricLogger.log_metric(
+                    FUNCTION_NAME, MetricLogger.SQS_FAILED_RECORDS, 1
+                )
                 continue
 
             if idx == record_count or size + batch_size >= cls.MAX_SIZE:
@@ -85,7 +87,9 @@ class SQSClient:
                     yield batch[:], len(batch)
 
                 if idx == record_count:  # the end of the records
-                    if size + batch_size < cls.MAX_SIZE:  # this record fits on current batch
+                    if (
+                        size + batch_size < cls.MAX_SIZE
+                    ):  # this record fits on current batch
                         batch.append(record)
                         yield batch[:], len(batch)
                     else:
@@ -106,16 +110,18 @@ class SQSClient:
             count (int): The size of the batch being sent to be logged as successful or failed
         """
         if not response:  # Could happen in the case of backoff failing entirely
-            MetricLogger.log_metric(FUNCTION_NAME, MetricLogger.SQS_FAILED_RECORDS, count)
+            MetricLogger.log_metric(
+                FUNCTION_NAME, MetricLogger.SQS_FAILED_RECORDS, count
+            )
             return
 
         MetricLogger.log_metric(FUNCTION_NAME, MetricLogger.SQS_RECORDS_SENT, count)
 
         LOGGER.debug(
-            'Successfully sent message with %d records to %s with MessageId %s',
+            "Successfully sent message with %d records to %s with MessageId %s",
             count,
             self.queue.url,
-            response
+            response,
         )
 
     def _send_message(self, records):
@@ -127,12 +133,15 @@ class SQSClient:
         Returns:
             string|bool: The MessageId if the request was successful, False otherwise
         """
-        @backoff.on_exception(backoff.expo,
-                              self.EXCEPTIONS_TO_BACKOFF,
-                              max_tries=self.MAX_BACKOFF_ATTEMPTS,
-                              on_backoff=backoff_handler(debug_only=False),
-                              on_success=success_handler(),
-                              on_giveup=giveup_handler())
+
+        @backoff.on_exception(
+            backoff.expo,
+            self.EXCEPTIONS_TO_BACKOFF,
+            max_tries=self.MAX_BACKOFF_ATTEMPTS,
+            on_backoff=backoff_handler(debug_only=False),
+            on_success=success_handler(),
+            on_giveup=giveup_handler(),
+        )
         def _send_message_helper(request):
             """Inner helper function for sending a single message with backoff
 
@@ -142,14 +151,14 @@ class SQSClient:
             return self.queue.send_message(**request)
 
         # Prepare the request now to save time during retries
-        request = {'MessageBody': '[{}]'.format(','.join(records))}
+        request = {"MessageBody": "[{}]".format(",".join(records))}
 
         # The try/except here is to catch any raised errors at the end of the backoff
         try:
             response = _send_message_helper(request)
-            return response['MessageId']
+            return response["MessageId"]
         except self.EXCEPTIONS_TO_BACKOFF:
-            LOGGER.exception('SQS request failed')
+            LOGGER.exception("SQS request failed")
             return False
 
     @staticmethod
@@ -163,7 +172,8 @@ class SQSClient:
             list<dict>: All messages formatted for ingestion by the Rules Engine function
         """
         return [
-            json.dumps(message, separators=(',', ':')) for payload in payloads
+            json.dumps(message, separators=(",", ":"))
+            for payload in payloads
             for message in payload.sqs_messages
         ]
 
@@ -179,6 +189,6 @@ class SQSClient:
         """
         records = self._payload_messages(payloads)
         for records, count in self._segment_records(records):
-            LOGGER.info('Sending %d record(s) to %s', count, self.queue.url)
+            LOGGER.info("Sending %d record(s) to %s", count, self.queue.url)
             response = self._send_message(records)
             self._finalize(response, count)

@@ -40,7 +40,7 @@ class LookupTablesMagic:
             raise RuntimeError("Cannot use lookup_table helper on non-S3 table.")
 
         # Make a single dummy call to force the table to initialize
-        table.get('dummy', None)
+        table.get("dummy", None)
 
         # Do some black magic tomfoolery
         return table._driver._cache._data

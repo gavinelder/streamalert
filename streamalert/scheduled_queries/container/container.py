@@ -41,7 +41,9 @@ class ServiceContainer:
     def get_parameter(self, parameter_name):
         """Returns a parameter registered in the service container"""
         if parameter_name not in self._parameters:
-            raise ValueError('ServiceContainer no such parameter: "{}"'.format(parameter_name))
+            raise ValueError(
+                'ServiceContainer no such parameter: "{}"'.format(parameter_name)
+            )
 
         return self._parameters[parameter_name]
 
@@ -58,7 +60,9 @@ class ServiceContainer:
         service_id = definition.service_id
         if service_id in self._definitions:
             raise ValueError(
-                'ServiceContainer registering duplicate definition: "{}"'.format(service_id)
+                'ServiceContainer registering duplicate definition: "{}"'.format(
+                    service_id
+                )
             )
 
         self._definitions[service_id] = definition

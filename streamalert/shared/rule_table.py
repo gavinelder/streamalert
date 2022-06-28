@@ -22,14 +22,14 @@ from streamalert.shared.importer import import_folders
 from streamalert.shared.logger import get_logger
 from streamalert.shared.rule import Rule
 
-
 LOGGER = get_logger(__name__)
 
 
 class RuleTable:
     """Provides convenience methods for accessing and modifying the rules table."""
+
     DEFAULT_STAGING_HOURS = 48
-    DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
     def __init__(self, table_name, *rule_import_paths):
         """Load the given table to be used for rule information updates
@@ -42,43 +42,47 @@ class RuleTable:
                 can be ommitted if instantiated from a caller that has already
                 loaded the rules files.
         """
-        self._table = boto3.resource('dynamodb').Table(table_name)
+        self._table = boto3.resource("dynamodb").Table(table_name)
         import_folders(*rule_import_paths)
         self._remote_rule_info = None
 
     def __str__(self, verbose=False):
         """Return a human-readable respresentation of the table's data"""
         if not self.remote_rule_names:
-            return 'Rule table is empty'
+            return "Rule table is empty"
 
         pad_size = max([len(rule) for rule in list(self.remote_rule_info.keys())]) + 4
-        output = ['{rule:<{pad}}Staged?'.format(rule='Rule', pad=pad_size+5)]
+        output = ["{rule:<{pad}}Staged?".format(rule="Rule", pad=pad_size + 5)]
         for index, rule in enumerate(sorted(self.remote_rule_info.keys()), start=1):
             output.append(
-                '{index:>3d}: {rule: <{pad}}{staged}'.format(
+                "{index:>3d}: {rule: <{pad}}{staged}".format(
                     index=index,
                     rule=rule,
                     pad=pad_size,
-                    staged=self.remote_rule_info[rule]['Staged']
+                    staged=self.remote_rule_info[rule]["Staged"],
                 )
             )
             # Append additional information if verbose is enabled
             if verbose:
-                details_pad_size = max([len(prop)
-                                        for prop in list(self.remote_rule_info[rule].keys())]) + 4
+                details_pad_size = (
+                    max(
+                        [len(prop) for prop in list(self.remote_rule_info[rule].keys())]
+                    )
+                    + 4
+                )
                 output.extend(
-                    '{prefix:>{left_pad}}{property: <{internal_pad}}{value}'.format(
-                        prefix='- ',
+                    "{prefix:>{left_pad}}{property: <{internal_pad}}{value}".format(
+                        prefix="- ",
                         left_pad=7,
-                        property='{}:'.format(prop),
+                        property="{}:".format(prop),
                         internal_pad=details_pad_size,
-                        value=self.remote_rule_info[rule][prop]
+                        value=self.remote_rule_info[rule][prop],
                     )
                     for prop in sorted(self.remote_rule_info[rule].keys())
-                    if prop != 'Staged'
+                    if prop != "Staged"
                 )
 
-        return '\n'.join(output)
+        return "\n".join(output)
 
     def _add_new_rules(self, skip_staging=False):
         """Add any new local rules (renamed rules included) to the remote database"""
@@ -88,15 +92,17 @@ class RuleTable:
         skip_staging = skip_staging or (len(self.remote_rule_names) == 0)
         with self._table.batch_writer() as batch:
             for rule_name in self.local_not_remote:
-                LOGGER.debug('Adding rule \'%s\' (skip staging=%s)', rule_name, skip_staging)
+                LOGGER.debug(
+                    "Adding rule '%s' (skip staging=%s)", rule_name, skip_staging
+                )
                 batch.put_item(self._dynamo_record(rule_name, skip_staging))
 
     def _del_old_rules(self):
         """Delete any rules that exist in the rule database but not locally"""
         with self._table.batch_writer() as batch:
             for rule_name in self.remote_not_local:
-                LOGGER.debug('Deleting rule \'%s\'', rule_name)
-                batch.delete_item(Key={'RuleName': rule_name})
+                LOGGER.debug("Deleting rule '%s'", rule_name)
+                batch.delete_item(Key={"RuleName": rule_name})
 
     @classmethod
     def _cast_value(cls, key, value):
@@ -110,7 +116,7 @@ class RuleTable:
             object: Variant type object in the expected type
         """
         # Handle date casting from string to datetime object
-        if key in {'StagedAt', 'StagedUntil'}:
+        if key in {"StagedAt", "StagedUntil"}:
             return datetime.strptime(value, cls.DATETIME_FORMAT)
 
         return value
@@ -130,23 +136,23 @@ class RuleTable:
                             }
                     }
         """
-        paginator = self._table.meta.client.get_paginator('scan')
+        paginator = self._table.meta.client.get_paginator("scan")
         page_iterator = paginator.paginate(TableName=self.name, ConsistentRead=True)
         return {
-            item['RuleName']: {
+            item["RuleName"]: {
                 key: self._cast_value(key, value)
                 for key, value in item.items()
-                if key != 'RuleName'
+                if key != "RuleName"
             }
             for page in page_iterator
-            for item in page['Items']
+            for item in page["Items"]
         }
 
     @staticmethod
     def _default_dynamo_kwargs(rule_name):
         return {
-            'Key': {'RuleName': rule_name},
-            'ConditionExpression': 'attribute_exists(RuleName)'
+            "Key": {"RuleName": rule_name},
+            "ConditionExpression": "attribute_exists(RuleName)",
         }
 
     @staticmethod
@@ -162,10 +168,7 @@ class RuleTable:
                 argument can also be used to during the deploy process to
                 immediately put new rules into production.
         """
-        item = {
-            'RuleName': rule_name,
-            'Staged': not skip_staging
-        }
+        item = {"RuleName": rule_name, "Staged": not skip_staging}
 
         # We may want to skip staging if the database is empty (ie: newly created)
         # or if the user is manually bypassing staging for this rule
@@ -173,10 +176,7 @@ class RuleTable:
             return item
 
         staged_at, staged_until = RuleTable._staged_window()
-        item.update({
-            'StagedAt': staged_at,
-            'StagedUntil': staged_until
-        })
+        item.update({"StagedAt": staged_at, "StagedUntil": staged_until})
 
         return item
 
@@ -191,7 +191,7 @@ class RuleTable:
         staged_until = staged_at + timedelta(hours=RuleTable.DEFAULT_STAGING_HOURS)
         return (
             staged_at.strftime(RuleTable.DATETIME_FORMAT),
-            staged_until.strftime(RuleTable.DATETIME_FORMAT)
+            staged_until.strftime(RuleTable.DATETIME_FORMAT),
         )
 
     def update_local_cache(self):
@@ -217,32 +217,37 @@ class RuleTable:
         """
         if rule_name not in self.remote_rule_info:
             LOGGER.error(
-                'Staging status for rule \'%s\' cannot be set to %s; rule does not exist',
-                rule_name, stage
+                "Staging status for rule '%s' cannot be set to %s; rule does not exist",
+                rule_name,
+                stage,
             )
             return
 
-        if self.remote_rule_info[rule_name]['Staged'] and stage:
+        if self.remote_rule_info[rule_name]["Staged"] and stage:
             LOGGER.info(
-                'Rule \'%s\' is already staged and will have its staging window updated',
-                rule_name
+                "Rule '%s' is already staged and will have its staging window updated",
+                rule_name,
             )
 
-        LOGGER.debug('Toggling staged state for rule \'%s\' to: %s', rule_name, stage)
+        LOGGER.debug("Toggling staged state for rule '%s' to: %s", rule_name, stage)
 
-        update_expressions = ['set Staged = :staged']
-        expression_attributes = [':staged']
+        update_expressions = ["set Staged = :staged"]
+        expression_attributes = [":staged"]
         expression_values = [stage]
 
         # If staging, add some additonal staging context to the expression
         if stage:
-            update_expressions.extend(['StagedAt = :staged_at', 'StagedUntil = :staged_until'])
-            expression_attributes.extend([':staged_at', ':staged_until'])
+            update_expressions.extend(
+                ["StagedAt = :staged_at", "StagedUntil = :staged_until"]
+            )
+            expression_attributes.extend([":staged_at", ":staged_until"])
             expression_values.extend(self._staged_window())
 
         args = {
-            'UpdateExpression': ','.join(update_expressions),
-            'ExpressionAttributeValues': dict(list(zip(expression_attributes, expression_values)))
+            "UpdateExpression": ",".join(update_expressions),
+            "ExpressionAttributeValues": dict(
+                list(zip(expression_attributes, expression_values))
+            ),
         }
         args.update(self._default_dynamo_kwargs(rule_name))
 

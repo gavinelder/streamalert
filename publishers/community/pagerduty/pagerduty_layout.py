@@ -31,9 +31,9 @@ class ShortenTitle(AlertPublisher):
 
     def publish(self, alert, publication):
 
-        publication['@pagerduty-v2.summary'] = alert.rule_name
-        publication['@pagerduty-incident.incident_title'] = alert.rule_name
-        publication['@pagerduty.description'] = alert.rule_name
+        publication["@pagerduty-v2.summary"] = alert.rule_name
+        publication["@pagerduty-incident.incident_title"] = alert.rule_name
+        publication["@pagerduty.description"] = alert.rule_name
 
         return publication
 
@@ -44,15 +44,16 @@ def as_custom_details(_, publication):
 
     It does this for all fields EXCEPT the pagerduty special fields.
     """
+
     def _is_custom_field(key):
-        return key.startswith('@pagerduty')
+        return key.startswith("@pagerduty")
 
     custom_details = {
         key: value for key, value in publication.items() if not _is_custom_field(key)
     }
 
-    publication['@pagerduty.details'] = custom_details
-    publication['@pagerduty-v2.custom_details'] = custom_details
+    publication["@pagerduty.details"] = custom_details
+    publication["@pagerduty-v2.custom_details"] = custom_details
 
     return publication
 
@@ -64,8 +65,8 @@ def v2_high_urgency(_, publication):
     This only works for pagerduty-v2 and pagerduty-incident Outputs. The original pagerduty
     integration uses the Events v1 API which does not support urgency.
     """
-    publication['@pagerduty-v2.severity'] = 'critical'
-    publication['@pagerduty-incident.urgency'] = 'high'
+    publication["@pagerduty-v2.severity"] = "critical"
+    publication["@pagerduty-incident.urgency"] = "high"
     return publication
 
 
@@ -76,8 +77,8 @@ def v2_low_urgency(_, publication):
     This only works for pagerduty-v2 and pagerduty-incident Outputs. The original pagerduty
     integration uses the Events v1 API which does not support urgency.
     """
-    publication['@pagerduty-v2.severity'] = 'warning'
-    publication['@pagerduty-incident.urgency'] = 'low'
+    publication["@pagerduty-v2.severity"] = "warning"
+    publication["@pagerduty-incident.urgency"] = "low"
     return publication
 
 
@@ -105,7 +106,8 @@ class PrettyPrintArrays(StringifyArrays):
         hello world
         hello world
     """
-    DELIMITER = '\n\n----------\n\n'
+
+    DELIMITER = "\n\n----------\n\n"
 
 
 @Register
@@ -117,23 +119,30 @@ class AttachImage(StringifyArrays):
     It is recommended to subclass this class with your own implementation of _image_url(),
     _click_url() and _alt_text() so that you can customize your own image.
     """
-    IMAGE_URL = 'https://streamalert.io/en/stable/_images/sa-banner.png'
-    IMAGE_CLICK_URL = 'https://streamalert.io/en/stable/'
-    IMAGE_ALT_TEXT = 'StreamAlert Docs'
+
+    IMAGE_URL = "https://streamalert.io/en/stable/_images/sa-banner.png"
+    IMAGE_CLICK_URL = "https://streamalert.io/en/stable/"
+    IMAGE_ALT_TEXT = "StreamAlert Docs"
 
     def publish(self, alert, publication):
-        publication['@pagerduty-v2.images'] = publication.get('@pagerduty-v2.images', [])
-        publication['@pagerduty-v2.images'].append({
-            'src': self._image_url(),
-            'href': self._click_url(),
-            'alt': self._alt_text(),
-        })
+        publication["@pagerduty-v2.images"] = publication.get(
+            "@pagerduty-v2.images", []
+        )
+        publication["@pagerduty-v2.images"].append(
+            {
+                "src": self._image_url(),
+                "href": self._click_url(),
+                "alt": self._alt_text(),
+            }
+        )
 
-        publication['@pagerduty.contexts'] = publication.get('@pagerduty.contexts', [])
-        publication['@pagerduty.contexts'].append({
-            'type': 'image',
-            'src': self._image_url(),
-        })
+        publication["@pagerduty.contexts"] = publication.get("@pagerduty.contexts", [])
+        publication["@pagerduty.contexts"].append(
+            {
+                "type": "image",
+                "src": self._image_url(),
+            }
+        )
 
         return publication
 

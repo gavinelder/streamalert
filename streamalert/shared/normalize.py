@@ -22,22 +22,22 @@ from streamalert.shared.config import TopLevelConfigKeys
 from streamalert.shared.exceptions import ConfigError
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
 
-CONST_FUNCTION = 'function'
-CONST_PATH = 'path'
-CONST_CONDITION = 'condition'
-CONST_VALUES = 'values'
-CONST_ARTIFACTS_FLAG = 'send_to_artifacts'
+CONST_FUNCTION = "function"
+CONST_PATH = "path"
+CONST_CONDITION = "condition"
+CONST_VALUES = "values"
+CONST_ARTIFACTS_FLAG = "send_to_artifacts"
+
 
 class NormalizedType:
     """The class encapsulates normalization information for each normalized type"""
 
     VALID_KEYS = {CONST_PATH, CONST_FUNCTION, CONST_CONDITION, CONST_ARTIFACTS_FLAG}
-    CONST_STR = 'str'
-    CONST_DICT = 'dict'
+    CONST_STR = "str"
+    CONST_DICT = "dict"
 
     def __init__(self, log_type, normalized_type, params):
         """Init NormalizatedType
@@ -63,7 +63,7 @@ class NormalizedType:
                     ]
         """
         self._log_type = log_type
-        self._log_source = log_type.split(':')[0]
+        self._log_source = log_type.split(":")[0]
         self._normalized_type = normalized_type
         self._parsed_params = self._parse_params(params)
 
@@ -71,16 +71,21 @@ class NormalizedType:
         """Compare two NormalizedType instances and it is very helpful in unit test when use
         assert_equal
         """
-        if not (self._log_type == other.log_type
-                and self._log_source == other.log_source
-                and self._normalized_type == other.normalized_type):
+        if not (
+            self._log_type == other.log_type
+            and self._log_source == other.log_source
+            and self._normalized_type == other.normalized_type
+        ):
             return False
 
         if len(self._parsed_params) != len(other.parsed_params):
             return False
 
         for idx in range(len(self._parsed_params)):
-            if self._parsed_params[idx][CONST_PATH] == other.parsed_params[idx][CONST_PATH]:
+            if (
+                self._parsed_params[idx][CONST_PATH]
+                == other.parsed_params[idx][CONST_PATH]
+            ):
                 continue
 
             return False
@@ -105,25 +110,25 @@ class NormalizedType:
     @property
     def parsed_params(self):
         """Return the normalization configuration which is a list of dict, e.g.
-            [
-                {
-                    'path': ['path', 'to', 'the', 'key'],
-                    'function': None
-                }
-            ]
+        [
+            {
+                'path': ['path', 'to', 'the', 'key'],
+                'function': None
+            }
+        ]
 
-            or
-            [
-                {
-                    'path': ['detail', 'sourceIPAddress'],
-                    'function': 'source ip address',
-                    'send_to_artifacts': False
-                },
-                {
-                    'path': ['path', 'to', 'the', 'destination', 'ip'],
-                    'function': 'destination ip address'
-                }
-            ]
+        or
+        [
+            {
+                'path': ['detail', 'sourceIPAddress'],
+                'function': 'source ip address',
+                'send_to_artifacts': False
+            },
+            {
+                'path': ['path', 'to', 'the', 'destination', 'ip'],
+                'function': 'destination ip address'
+            }
+        ]
         """
         return self._parsed_params
 
@@ -137,12 +142,7 @@ class NormalizedType:
 
         if param_type == self.CONST_STR:
             # Format params to include 'function' field which is set to None.
-            return [
-                {
-                    CONST_PATH: params,
-                    CONST_FUNCTION: None
-                }
-            ]
+            return [{CONST_PATH: params, CONST_FUNCTION: None}]
 
         return params
 
@@ -154,29 +154,34 @@ class NormalizedType:
         """
         if not isinstance(params, list):
             raise ConfigError(
-                'Unsupported params {} for normalization. Convert params to a list'.format(params)
+                "Unsupported params {} for normalization. Convert params to a list".format(
+                    params
+                )
             )
 
         if all(isinstance(param, str) for param in params):
             return self.CONST_STR
 
-        if all(isinstance(param, dict) and set(param.keys()).issubset(self.VALID_KEYS)
-               for param in params
-              ):
+        if all(
+            isinstance(param, dict) and set(param.keys()).issubset(self.VALID_KEYS)
+            for param in params
+        ):
             return self.CONST_DICT
 
         # FIXME: should we raise exception here? Or may just return False and log a warming message
         raise ConfigError(
-            ('Unsupported type(s) used in {} or missing keys. Valid types are str or dict and '
-             'valid keys are {}').format(params, self.VALID_KEYS)
+            (
+                "Unsupported type(s) used in {} or missing keys. Valid types are str or dict and "
+                "valid keys are {}"
+            ).format(params, self.VALID_KEYS)
         )
 
 
 class Normalizer:
     """Normalizer class to handle log key normalization in payloads"""
 
-    NORMALIZATION_KEY = 'streamalert_normalization'
-    RECORD_ID_KEY = 'streamalert_record_id'
+    NORMALIZATION_KEY = "streamalert_normalization"
+    RECORD_ID_KEY = "streamalert_record_id"
 
     # Store the normalized types mapping to original keys from the records
     _types_config = dict()
@@ -253,8 +258,8 @@ class Normalizer:
         """
         for param in paths_to_normalize.parsed_params:
             if param.get(CONST_CONDITION) and not cls._match_condition(
-                    record, param[CONST_CONDITION]
-                ):
+                record, param[CONST_CONDITION]
+            ):
                 # If optional 'condition' block is configured, it will only extract values if
                 # condition is matched.
                 continue
@@ -266,7 +271,7 @@ class Normalizer:
                     CONST_FUNCTION: param.get(CONST_FUNCTION) or None,
                     # if value not a list, it will be cast to a str even it is a dict or other
                     # types
-                    CONST_VALUES: value if isinstance(value, list) else [str(value)]
+                    CONST_VALUES: value if isinstance(value, list) else [str(value)],
                 }
 
                 # Add "send_to_artifacts" flag to the normalized field when it explicitly sets the
@@ -297,23 +302,23 @@ class Normalizer:
         # Only support extract one condition. The result is not quaranteed if multiple conditions
         # configured.
         # FIXME: log a warning if more than one condition configured.
-        if condition.get('is'):
-            return value == condition['is']
+        if condition.get("is"):
+            return value == condition["is"]
 
-        if condition.get('is_not'):
-            return value != condition['is_not']
+        if condition.get("is_not"):
+            return value != condition["is_not"]
 
-        if condition.get('in'):
-            return value in condition['in']
+        if condition.get("in"):
+            return value in condition["in"]
 
-        if condition.get('not_in'):
-            return value not in condition['not_in']
+        if condition.get("not_in"):
+            return value not in condition["not_in"]
 
-        if condition.get('contains'):
-            return condition['contains'] in value
+        if condition.get("contains"):
+            return condition["contains"] in value
 
-        if condition.get('not_contains'):
-            return condition['not_contains'] not in value
+        if condition.get("not_contains"):
+            return condition["not_contains"] not in value
 
         return False
 
@@ -325,13 +330,17 @@ class Normalizer:
             record (dict): The parsed log without data normalization
             log_type (str): Type of log for which to apply normalizaiton
         """
-        log_normalized_types = cls._types_config.get(log_type) if cls._types_config else None
+        log_normalized_types = (
+            cls._types_config.get(log_type) if cls._types_config else None
+        )
         if not log_normalized_types:
-            LOGGER.debug('No normalized types defined for log type: %s', log_type)
+            LOGGER.debug("No normalized types defined for log type: %s", log_type)
             return
 
         # Add normalized keys to the record
-        record.update({cls.NORMALIZATION_KEY: cls.match_types(record, log_normalized_types)})
+        record.update(
+            {cls.NORMALIZATION_KEY: cls.match_types(record, log_normalized_types)}
+        )
 
     @classmethod
     def get_values_for_normalized_type(cls, record, datatype):
@@ -349,7 +358,11 @@ class Normalizer:
             # Return an empty set to be compatible existing rules calling this method which doesn't
             # check if the return value is None or empty set.
             return set()
-        return set(itertools.chain(*[result.get(CONST_VALUES) for result in normalization_results]))
+        return set(
+            itertools.chain(
+                *[result.get(CONST_VALUES) for result in normalization_results]
+            )
+        )
 
     @classmethod
     def load_from_config(cls, config):
@@ -413,11 +426,15 @@ class Normalizer:
         for log_type, val in config.get(TopLevelConfigKeys.LOGS, {}).items():
             result = defaultdict(dict)
 
-            log_type_normalization = val.get('configuration', {}).get('normalization', {})
+            log_type_normalization = val.get("configuration", {}).get(
+                "normalization", {}
+            )
 
             for normalized_type, params in log_type_normalization.items():
                 # add normalization info if it is defined in log type configuration field
-                result[normalized_type] = NormalizedType(log_type, normalized_type, params)
+                result[normalized_type] = NormalizedType(
+                    log_type, normalized_type, params
+                )
 
             if result:
                 normalized_config[log_type] = result

@@ -15,52 +15,43 @@ limitations under the License.
 """
 import json
 
-from nose.tools import assert_equal
+from pytest import assert_equal
 
 from streamalert.classifier.payload.kinesis import KinesisPayload
 
 
 class TestKinesisPayload:
     """KinesisPayload tests"""
+
     # pylint: disable=no-self-use,protected-access
 
     @classmethod
     def _record_data(cls, data):
         """Helper for getting record data"""
         return {
-            'kinesis': {
-                'data': data
-            },
-            'eventID': 'test_event_id',
-            'eventSourceARN': (
-                'arn:aws:kinesis:us-east-1:123456789012:stream/test_stream_name'
-            )
+            "kinesis": {"data": data},
+            "eventID": "test_event_id",
+            "eventSourceARN": (
+                "arn:aws:kinesis:us-east-1:123456789012:stream/test_stream_name"
+            ),
         }
 
     def test_pre_parse(self):
         """KinesisPayload - Pre Parse, Uncompressed"""
         # Base64 encoded uncompressed json
-        record = self._record_data('eyJrZXkiOiAidmFsdWUifQ==')
-        expected_result = [
-            json.dumps({
-                'key': 'value'
-            }).encode()
-        ]
+        record = self._record_data("eyJrZXkiOiAidmFsdWUifQ==")
+        expected_result = [json.dumps({"key": "value"}).encode()]
 
         payload = KinesisPayload(None, record)
         result = [rec._record_data for rec in list(payload.pre_parse())]
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     def test_pre_parse_compressed(self):
         """KinesisPayload - Pre Parse, GZIP Compressed"""
         # Base64 encoded GZIP compressed json
-        record = self._record_data('H4sIAPdArVsAA6tWyk6tVLJSUCpLzClNVaoFABtINTMQAAAA')
-        expected_result = [
-            json.dumps({
-                'key': 'value'
-            }).encode()
-        ]
+        record = self._record_data("H4sIAPdArVsAA6tWyk6tVLJSUCpLzClNVaoFABtINTMQAAAA")
+        expected_result = [json.dumps({"key": "value"}).encode()]
 
         payload = KinesisPayload(None, record)
         result = [rec._record_data for rec in list(payload.pre_parse())]
-        assert_equal(result, expected_result)
+        assert result == expected_result

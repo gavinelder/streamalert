@@ -18,7 +18,7 @@ from streamalert_cli.utils import CLICommand
 
 
 class StatusCommand(CLICommand):
-    description = 'Output information on currently configured infrastructure'
+    description = "Output information on currently configured infrastructure"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -34,35 +34,38 @@ class StatusCommand(CLICommand):
         Returns:
             bool: False if errors occurred, True otherwise
         """
+
         def _format_key(key):
-            return key.replace('_', ' ').title()
+            return key.replace("_", " ").title()
 
         def _format_header(value, section_header=False):
-            char = '=' if section_header else '+'
+            char = "=" if section_header else "+"
             value = value if section_header else _format_key(value)
-            return '\n{value:{char}^60}'.format(char=char, value='  {}  '.format(value))
+            return "\n{value:{char}^60}".format(char=char, value="  {}  ".format(value))
 
         def _print_row(key, value):
             key = _format_key(key)
-            print('{}: {}'.format(key, value))
+            print("{}: {}".format(key, value))
 
-        print(_format_header('Global Account Settings', True))
-        for key in sorted(['aws_account_id', 'prefix', 'region']):
-            value = config['global']['account'][key]
+        print(_format_header("Global Account Settings", True))
+        for key in sorted(["aws_account_id", "prefix", "region"]):
+            value = config["global"]["account"][key]
             _print_row(key, value)
 
-        lambda_keys = sorted([
-            'concurrency_limit',
-            'enable_custom_metrics',
-            'log_level',
-            'log_retention_days',
-            'memory',
-            'timeout',
-            'schedule_expression'
-        ])
-        for name in set((config['lambda'])):
-            config_value = config['lambda'][name]
-            name = name.replace('_config', '')
+        lambda_keys = sorted(
+            [
+                "concurrency_limit",
+                "enable_custom_metrics",
+                "log_level",
+                "log_retention_days",
+                "memory",
+                "timeout",
+                "schedule_expression",
+            ]
+        )
+        for name in set((config["lambda"])):
+            config_value = config["lambda"][name]
+            name = name.replace("_config", "")
             if name in CLUSTERED_FUNCTIONS:
                 continue
 
@@ -70,16 +73,16 @@ class StatusCommand(CLICommand):
             for key in lambda_keys:
                 _print_row(key, config_value.get(key))
 
-        cluster_non_func_keys = sorted(['enable_threat_intel'])
-        for cluster in sorted(config['clusters']):
-            sa_config = config['clusters'][cluster]
+        cluster_non_func_keys = sorted(["enable_threat_intel"])
+        for cluster in sorted(config["clusters"]):
+            sa_config = config["clusters"][cluster]
 
-            print(_format_header('Cluster: {}'.format(cluster), True))
+            print(_format_header("Cluster: {}".format(cluster), True))
             for key in cluster_non_func_keys:
                 _print_row(key, sa_config.get(key))
 
             for function in CLUSTERED_FUNCTIONS:
-                config_value = sa_config['{}_config'.format(function)]
+                config_value = sa_config["{}_config".format(function)]
 
                 print(_format_header(function))
                 for key in lambda_keys:

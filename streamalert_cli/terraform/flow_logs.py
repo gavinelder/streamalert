@@ -20,7 +20,7 @@ from streamalert_cli.terraform.cloudwatch_destinations import (
 
 LOGGER = get_logger(__name__)
 
-DEFAULT_FLOW_LOG_TYPES = ['vpcs', 'subnets', 'enis']
+DEFAULT_FLOW_LOG_TYPES = ["vpcs", "subnets", "enis"]
 
 
 def generate_flow_logs(cluster_name, cluster_dict, config):
@@ -34,48 +34,50 @@ def generate_flow_logs(cluster_name, cluster_dict, config):
     Returns:
         bool: Result of applying the flow_logs module
     """
-    modules = config['clusters'][cluster_name]['modules']
-    if not modules['flow_logs'].get('enabled', True):
-        LOGGER.debug('Flow logs disabled, nothing to do')
+    modules = config["clusters"][cluster_name]["modules"]
+    if not modules["flow_logs"].get("enabled", True):
+        LOGGER.debug("Flow logs disabled, nothing to do")
         return True  # not an error
 
-    prefix = config['global']['account']['prefix']
-    region = config['global']['account']['region']
+    prefix = config["global"]["account"]["prefix"]
+    region = config["global"]["account"]["region"]
 
     # If 'vpcs', 'subnets', or 'enis' is defined within the config, we should create
     # flow logs for these values
     create_flow_logs = any(
-        modules['flow_logs'].get(flow_log_type)
+        modules["flow_logs"].get(flow_log_type)
         for flow_log_type in DEFAULT_FLOW_LOG_TYPES
     )
 
     if not create_flow_logs:
         LOGGER.error(
-            'Flow logs is enabled for cluster \'%s\', but none of the following are specified: %s',
+            "Flow logs is enabled for cluster '%s', but none of the following are specified: %s",
             cluster_name,
-            DEFAULT_FLOW_LOG_TYPES
+            DEFAULT_FLOW_LOG_TYPES,
         )
         return False
 
-    dest_fmt = '${{module.cloudwatch_logs_destination_{}_{}.cloudwatch_logs_destination_arn}}'
+    dest_fmt = (
+        "${{module.cloudwatch_logs_destination_{}_{}.cloudwatch_logs_destination_arn}}"
+    )
     flow_logs_settings = {
-        'source': './modules/tf_flow_logs',
-        'prefix': prefix,
-        'cluster': cluster_name,
-        'cloudwatch_logs_destination_arn': dest_fmt.format(cluster_name, region),
+        "source": "./modules/tf_flow_logs",
+        "prefix": prefix,
+        "cluster": cluster_name,
+        "cloudwatch_logs_destination_arn": dest_fmt.format(cluster_name, region),
     }
 
-    variables_with_defaults = ['log_retention', 'flow_log_filter']
+    variables_with_defaults = ["log_retention", "flow_log_filter"]
     for variable in variables_with_defaults:
-        if variable in modules['flow_logs']:
-            flow_logs_settings[variable] = modules['flow_logs'][variable]
+        if variable in modules["flow_logs"]:
+            flow_logs_settings[variable] = modules["flow_logs"][variable]
 
     for flow_log_type in DEFAULT_FLOW_LOG_TYPES:
-        values = modules['flow_logs'].get(flow_log_type)
+        values = modules["flow_logs"].get(flow_log_type)
         if values:
             flow_logs_settings[flow_log_type] = values
 
-    cluster_dict['module']['flow_logs_{}'.format(cluster_name)] = flow_logs_settings
+    cluster_dict["module"]["flow_logs_{}".format(cluster_name)] = flow_logs_settings
 
     # Add the additional settings to allow for internal flow log sending
     return generate_cloudwatch_destinations_internal(cluster_name, cluster_dict, config)

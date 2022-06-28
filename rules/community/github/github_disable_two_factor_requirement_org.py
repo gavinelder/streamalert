@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['ghe:general'])
+@rule(logs=["ghe:general"])
 def github_disable_two_factor_requirement_org(rec):
     """
     author:       @mimeframe
@@ -13,4 +13,4 @@ def github_disable_two_factor_requirement_org(rec):
     reference:    https://help.github.com/
                   articles/requiring-two-factor-authentication-in-your-organization/
     """
-    return rec['action'] == 'org.disable_two_factor_requirement'
+    return rec["action"] == "org.disable_two_factor_requirement"

@@ -24,13 +24,13 @@ def handler(event, _):
     """Main Lambda handler function"""
     try:
         records = []
-        for record in event.get('Records', []):
-            body = json.loads(record['body'])
+        for record in event.get("Records", []):
+            body = json.loads(record["body"])
             if isinstance(body, list):
                 records.extend(body)
             else:
                 records.append(body)
         RulesEngine().run(records)
     except Exception:
-        logger.get_logger(__name__).exception('Invocation event: %s', json.dumps(event))
+        logger.get_logger(__name__).exception("Invocation event: %s", json.dumps(event))
         raise

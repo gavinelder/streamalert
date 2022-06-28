@@ -20,10 +20,7 @@ import boto3
 
 def put_mock_params(key, value):
     """Helper function to put mock parameters in parameter store"""
-    ssm_client = boto3.client('ssm')
+    ssm_client = boto3.client("ssm")
     ssm_client.put_parameter(
-        Name=key,
-        Value=json.dumps(value),
-        Type='SecureString',
-        Overwrite=True
+        Name=key, Value=json.dumps(value), Type="SecureString", Overwrite=True
     )

@@ -30,7 +30,7 @@ from streamalert.shared.metrics import MetricLogger
 from streamalert.shared.backoff_handlers import (
     backoff_handler,
     giveup_handler,
-    success_handler
+    success_handler,
 )
 
 LOGGER = get_logger(__name__)
@@ -38,10 +38,11 @@ LOGGER = get_logger(__name__)
 
 class FirehoseClient:
     """Handles preparing and sending data from the classifier function to Kinesis Firehose"""
+
     # Used to detect special characters in payload keys.
     # This is necessary for sanitization of data prior to searching in Athena.
-    SPECIAL_CHAR_REGEX = re.compile(r'\W')
-    SPECIAL_CHAR_SUB = '_'
+    SPECIAL_CHAR_REGEX = re.compile(r"\W")
+    SPECIAL_CHAR_SUB = "_"
     # For PutRecordBatch backoff
     MAX_BACKOFF_ATTEMPTS = 10
     # Adds a max of 20 seconds more to the Lambda function
@@ -53,7 +54,7 @@ class FirehoseClient:
     MAX_RECORD_SIZE = 1000 * 1000 - 2
 
     # Default firehose name format, should be formatted with deployment prefix
-    DEFAULT_FIREHOSE_FMT = '{}streamalert_{}'
+    DEFAULT_FIREHOSE_FMT = "{}streamalert_{}"
 
     # Exception for which backoff operations should be performed
     EXCEPTIONS_TO_BACKOFF = (ClientError, BotocoreConnectionError, HTTPClientError)
@@ -69,8 +70,12 @@ class FirehoseClient:
     FIREHOSE_NAME_MIN_HASH_LEN = 8
 
     def __init__(self, prefix, firehose_config=None, log_sources=None):
-        self._prefix = prefix if firehose_config and firehose_config.get('use_prefix', True) else ''
-        self._client = boto3.client('firehose', config=boto_helpers.default_config())
+        self._prefix = (
+            prefix
+            if firehose_config and firehose_config.get("use_prefix", True)
+            else ""
+        )
+        self._client = boto3.client("firehose", config=boto_helpers.default_config())
         self.load_enabled_log_sources(firehose_config, log_sources, force_load=True)
 
     @classmethod
@@ -84,9 +89,7 @@ class FirehoseClient:
             list: JSON serialized records
         """
         # Write the json lines to the object in minimal form
-        return [
-            json.dumps(record, separators=(',', ':')) + '\n' for record in records
-        ]
+        return [json.dumps(record, separators=(",", ":")) + "\n" for record in records]
 
     @classmethod
     def _record_batches(cls, records, function_name):
@@ -108,14 +111,18 @@ class FirehoseClient:
             line_len = len(record)
             # Check if the max size of the batch has been reached or if the current
             # record will exceed the max batch size and start a new batch
-            if ((len(current_batch) == cls.MAX_BATCH_COUNT) or
-                    (current_batch_size + line_len > cls.MAX_BATCH_SIZE)) and current_batch:
+            if (
+                (len(current_batch) == cls.MAX_BATCH_COUNT)
+                or (current_batch_size + line_len > cls.MAX_BATCH_SIZE)
+            ) and current_batch:
                 yield current_batch[:]
                 current_batch_size = 0
                 del current_batch[:]
 
             if line_len > cls.MAX_RECORD_SIZE:
-                LOGGER.error('Record too large (%d) to send to Firehose:\n%s', line_len, record)
+                LOGGER.error(
+                    "Record too large (%d) to send to Firehose:\n%s", line_len, record
+                )
                 cls._log_failed(1, function_name)
                 continue
 
@@ -178,8 +185,11 @@ class FirehoseClient:
             response (dict): Response object from the boto3.client.put_record_batch call
                 that contains metadata on the success status of the call
         """
-        success_indices = [idx for idx, rec in enumerate(response['RequestResponses'])
-                           if rec.get('RecordId')]
+        success_indices = [
+            idx
+            for idx, rec in enumerate(response["RequestResponses"])
+            if rec.get("RecordId")
+        ]
 
         for idx in sorted(success_indices, reverse=True):
             del batch[idx]
@@ -218,27 +228,28 @@ class FirehoseClient:
             return  # Could happen in the case of backoff failing entirely
 
         # Check for failures that occurred in PutRecordBatch after several backoff attempts
-        if response.get('FailedPutCount'):
+        if response.get("FailedPutCount"):
             failed_records = [
-                failed for failed in response['RequestResponses']
-                if failed.get('ErrorCode')
+                failed
+                for failed in response["RequestResponses"]
+                if failed.get("ErrorCode")
             ]
-            cls._log_failed(response['FailedPutCount'], function_name)
+            cls._log_failed(response["FailedPutCount"], function_name)
 
             # Only print the first 100 failed records to Cloudwatch logs
             LOGGER.error(
-                'Failed to put the following records to firehose %s: %s',
+                "Failed to put the following records to firehose %s: %s",
                 stream_name,
-                json.dumps(failed_records[:1024], indent=2)
+                json.dumps(failed_records[:1024], indent=2),
             )
             return
 
         MetricLogger.log_metric(function_name, MetricLogger.FIREHOSE_RECORDS_SENT, size)
         LOGGER.info(
-            'Successfully sent %d message(s) to firehose %s with RequestId \'%s\'',
+            "Successfully sent %d message(s) to firehose %s with RequestId '%s'",
             size,
             stream_name,
-            response.get('ResponseMetadata', {}).get('RequestId', '')
+            response.get("ResponseMetadata", {}).get("RequestId", ""),
         )
 
     @classmethod
@@ -248,7 +259,9 @@ class FirehoseClient:
         Args:
             count (int): Number of failed records
         """
-        MetricLogger.log_metric(function_name, MetricLogger.FIREHOSE_FAILED_RECORDS, count)
+        MetricLogger.log_metric(
+            function_name, MetricLogger.FIREHOSE_FAILED_RECORDS, count
+        )
 
     def _send_batch(self, stream_name, record_batch, function_name):
         """Send record batches to Firehose
@@ -257,29 +270,38 @@ class FirehoseClient:
             stream_name (str): The name of the Delivery Stream to send to
             record_batch (list): The records to send
         """
-        @backoff.on_predicate(backoff.fibo,
-                              lambda resp: resp['FailedPutCount'] > 0,
-                              max_tries=self.MAX_BACKOFF_ATTEMPTS,
-                              max_value=self.MAX_BACKOFF_FIBO_VALUE,
-                              on_backoff=backoff_handler(debug_only=False),
-                              on_success=success_handler(),
-                              on_giveup=giveup_handler())
-        @backoff.on_exception(backoff.fibo,
-                              self.EXCEPTIONS_TO_BACKOFF,
-                              max_tries=self.MAX_BACKOFF_ATTEMPTS,
-                              on_backoff=backoff_handler(debug_only=False),
-                              on_success=success_handler(),
-                              on_giveup=giveup_handler())
+
+        @backoff.on_predicate(
+            backoff.fibo,
+            lambda resp: resp["FailedPutCount"] > 0,
+            max_tries=self.MAX_BACKOFF_ATTEMPTS,
+            max_value=self.MAX_BACKOFF_FIBO_VALUE,
+            on_backoff=backoff_handler(debug_only=False),
+            on_success=success_handler(),
+            on_giveup=giveup_handler(),
+        )
+        @backoff.on_exception(
+            backoff.fibo,
+            self.EXCEPTIONS_TO_BACKOFF,
+            max_tries=self.MAX_BACKOFF_ATTEMPTS,
+            on_backoff=backoff_handler(debug_only=False),
+            on_success=success_handler(),
+            on_giveup=giveup_handler(),
+        )
         def _firehose_request_helper(data):
             """Firehose request wrapper to use with backoff"""
             # Use the current length of data here so we can track failed records that are retried
-            LOGGER.debug('Sending %d records to firehose %s', len(data), stream_name)
+            LOGGER.debug("Sending %d records to firehose %s", len(data), stream_name)
 
-            response = self._client.put_record_batch(DeliveryStreamName=stream_name, Records=data)
+            response = self._client.put_record_batch(
+                DeliveryStreamName=stream_name, Records=data
+            )
 
             # Log this as an error for now so it can be picked up in logs
-            if response['FailedPutCount'] > 0:
-                LOGGER.warning('Received non-zero FailedPutCount: %d', response['FailedPutCount'])
+            if response["FailedPutCount"] > 0:
+                LOGGER.warning(
+                    "Received non-zero FailedPutCount: %d", response["FailedPutCount"]
+                )
                 # Strip out the successful records so only the failed ones are retried. This happens
                 # to the list of dictionary objects, so the called function sees the updated list
                 self._strip_successful_records(data, response)
@@ -287,16 +309,13 @@ class FirehoseClient:
             return response
 
         # The record here already contains a newline, so do not append one
-        records_data = [
-            {'Data': record}
-            for record in record_batch
-        ]
+        records_data = [{"Data": record} for record in record_batch]
 
         # The try/except here is to catch the raised error at the end of the backoff
         try:
             return _firehose_request_helper(records_data)
         except self.EXCEPTIONS_TO_BACKOFF:
-            LOGGER.exception('Firehose request failed')
+            LOGGER.exception("Firehose request failed")
             # Use the current length of the records_data in case some records were
             # successful but others were not
             self._log_failed(len(records_data), function_name)
@@ -314,25 +333,31 @@ class FirehoseClient:
             str: suffix of stream name
         """
         if prefix:
-            prefix += '_'
+            prefix += "_"
 
         # This same substitution method is used when naming the Delivery Streams
-        stream_name = cls.sanitized_value(cls.DEFAULT_FIREHOSE_FMT.format(prefix, log_stream_name))
+        stream_name = cls.sanitized_value(
+            cls.DEFAULT_FIREHOSE_FMT.format(prefix, log_stream_name)
+        )
         if len(stream_name) <= cls.AWS_FIREHOSE_NAME_MAX_LEN:
             return stream_name
 
-        base_name = stream_name[:cls.AWS_FIREHOSE_NAME_MAX_LEN - cls.FIREHOSE_NAME_MIN_HASH_LEN]
-        if not base_name.endswith('_'):
+        base_name = stream_name[
+            : cls.AWS_FIREHOSE_NAME_MAX_LEN - cls.FIREHOSE_NAME_MIN_HASH_LEN
+        ]
+        if not base_name.endswith("_"):
             # make sure this ends in an underscore, but not 2
-            base_name = '{}_'.format(
-                base_name[:-1]
-            ) if base_name[-2] != '_' else '{}_'.format(base_name[:-2])
+            base_name = (
+                "{}_".format(base_name[:-1])
+                if base_name[-2] != "_"
+                else "{}_".format(base_name[:-2])
+            )
 
         # combine the base_name and first 8 chars of hash result together as new
         # stream name.
-        return '{}{}'.format(
+        return "{}{}".format(
             base_name, hashlib.md5(stream_name.encode()).hexdigest()  # nosec
-        )[:cls.AWS_FIREHOSE_NAME_MAX_LEN]
+        )[: cls.AWS_FIREHOSE_NAME_MAX_LEN]
 
     @classmethod
     def artifacts_firehose_stream_name(cls, config):
@@ -348,15 +373,15 @@ class FirehoseClient:
         # the custom firehose name is no longer than 64 chars, otherwise the firehose will be
         # failed to create. StreamAlert is not responsible for checking for custom firehose name
         # since it should not change custom settings.
-        stream_name = config.get('lambda', {}).get(
-            'artifact_extractor_config', {}
-        ).get('firehose_stream_name')
-
-        return stream_name or cls.generate_firehose_name(
-            prefix=config['global']['account']['prefix'],
-            log_stream_name='artifacts'
+        stream_name = (
+            config.get("lambda", {})
+            .get("artifact_extractor_config", {})
+            .get("firehose_stream_name")
         )
 
+        return stream_name or cls.generate_firehose_name(
+            prefix=config["global"]["account"]["prefix"], log_stream_name="artifacts"
+        )
 
     @classmethod
     def enabled_log_source(cls, log_source_name):
@@ -369,7 +394,7 @@ class FirehoseClient:
             bool: Whether or not the log source is enabled to send to Firehose
         """
         if not cls._ENABLED_LOGS:
-            LOGGER.error('Enabled logs not loaded')
+            LOGGER.error("Enabled logs not loaded")
             return False
 
         return cls.sanitized_value(log_source_name) in cls._ENABLED_LOGS
@@ -396,26 +421,30 @@ class FirehoseClient:
             return cls._ENABLED_LOGS
 
         # Expand enabled logs into specific subtypes
-        for enabled_log in firehose_config.get('enabled_logs', {}):
-            enabled_log_parts = enabled_log.split(':')
+        for enabled_log in firehose_config.get("enabled_logs", {}):
+            enabled_log_parts = enabled_log.split(":")
 
             # Expand to all subtypes
             if len(enabled_log_parts) == 1:
                 expanded_logs = {
                     cls.sanitized_value(log_name): log_name
                     for log_name in log_sources
-                    if log_name.split(':')[0] == enabled_log_parts[0]
+                    if log_name.split(":")[0] == enabled_log_parts[0]
                 }
 
                 if not expanded_logs:
-                    LOGGER.error('Enabled Firehose log %s not declared in logs.json', enabled_log)
+                    LOGGER.error(
+                        "Enabled Firehose log %s not declared in logs.json", enabled_log
+                    )
                     continue
 
                 cls._ENABLED_LOGS.update(expanded_logs)
 
             elif len(enabled_log_parts) == 2:
                 if enabled_log not in log_sources:
-                    LOGGER.error('Enabled Firehose log %s not declared in logs.json', enabled_log)
+                    LOGGER.error(
+                        "Enabled Firehose log %s not declared in logs.json", enabled_log
+                    )
                     continue
 
                 cls._ENABLED_LOGS[cls.sanitized_value(enabled_log)] = enabled_log
@@ -434,9 +463,11 @@ class FirehoseClient:
             FirehoseClient or None: If disabled, this returns None, otherwise it returns an
                 instanec of FirehoseClient
         """
-        if not firehose_config.get('enabled'):
+        if not firehose_config.get("enabled"):
             return
-        return cls(prefix=prefix, firehose_config=firehose_config, log_sources=log_sources)
+        return cls(
+            prefix=prefix, firehose_config=firehose_config, log_sources=log_sources
+        )
 
     @classmethod
     def get_client(cls, prefix, artifact_extractor_config):
@@ -450,7 +481,7 @@ class FirehoseClient:
             FirehoseClient or None: If disabled, this returns None, otherwise it returns an
                 instanec of FirehoseClient
         """
-        if not artifact_extractor_config.get('enabled'):
+        if not artifact_extractor_config.get("enabled"):
             return
         return cls(prefix=prefix)
 
@@ -473,16 +504,14 @@ class FirehoseClient:
             for record_batch in self._record_batches(records, CLASSIFIER_FUNCTION_NAME):
                 batch_size = len(record_batch)
                 response = self._send_batch(
-                    formatted_stream_name,
-                    record_batch,
-                    CLASSIFIER_FUNCTION_NAME
+                    formatted_stream_name, record_batch, CLASSIFIER_FUNCTION_NAME
                 )
 
                 self._finalize(
                     response,
                     formatted_stream_name,
                     batch_size,
-                    CLASSIFIER_FUNCTION_NAME
+                    CLASSIFIER_FUNCTION_NAME,
                 )
 
         # return categorized records for extracting artifacts if the feature is enabled
@@ -496,10 +525,7 @@ class FirehoseClient:
         """
         for artifact_batch in self._record_batches(artifacts, CLASSIFIER_FUNCTION_NAME):
             batch_size = len(artifact_batch)
-            response = self._send_batch(stream_name, artifact_batch, CLASSIFIER_FUNCTION_NAME)
-            self._finalize(
-                response,
-                stream_name,
-                batch_size,
-                CLASSIFIER_FUNCTION_NAME
+            response = self._send_batch(
+                stream_name, artifact_batch, CLASSIFIER_FUNCTION_NAME
             )
+            self._finalize(response, stream_name, batch_size, CLASSIFIER_FUNCTION_NAME)

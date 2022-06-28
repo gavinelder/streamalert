@@ -41,8 +41,8 @@ class ThreatIntelMocks:
         # Clear out any old fixtures
         cls._MOCKS.clear()
 
-        LOGGER.debug('Setting up threat intel fixture: %s', fixtures)
-        cls._MOCKS = {value['ioc_value']: value for value in fixtures}
+        LOGGER.debug("Setting up threat intel fixture: %s", fixtures)
+        cls._MOCKS = {value["ioc_value"]: value for value in fixtures}
 
     @classmethod
     def get_mock_values(cls, values):
@@ -52,9 +52,7 @@ class ThreatIntelMocks:
         This simply returns values from the log that are in the mock_ioc_values
         based on fixtures that match the provided rule_path
         """
-        return [
-            cls._MOCKS[item] for item in cls._MOCKS if item in values
-        ]
+        return [cls._MOCKS[item] for item in cls._MOCKS if item in values]
 
 
 class LookupTableMocks:
@@ -75,7 +73,7 @@ class LookupTableMocks:
               }
             }
         """
-        LOGGER.debug('Setting up lookup table fixtures')
+        LOGGER.debug("Setting up lookup table fixtures")
         cls._MOCKS = fixtures
 
     @classmethod

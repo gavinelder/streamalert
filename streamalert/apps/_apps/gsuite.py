@@ -26,17 +26,16 @@ from google.auth.exceptions import GoogleAuthError
 
 from . import AppIntegration, StreamAlertApp, get_logger
 
-
 LOGGER = get_logger(__name__)
 
-
 # Disable noisy google api client logger
-logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.ERROR)
 
 
 class GSuiteReportsApp(AppIntegration):
     """G Suite Reports base app integration. This is subclassed for various endpoints"""
-    _SCOPES = ['https://www.googleapis.com/auth/admin.reports.audit.readonly']
+
+    _SCOPES = ["https://www.googleapis.com/auth/admin.reports.audit.readonly"]
     # A tuple of uncaught exceptions that the googleapiclient can raise
     _GOOGLE_API_EXCEPTIONS = (
         googleapiclient.errors.Error,
@@ -59,16 +58,16 @@ class GSuiteReportsApp(AppIntegration):
 
     @classmethod
     def _type(cls):
-        raise NotImplementedError('Subclasses should implement the _type method')
+        raise NotImplementedError("Subclasses should implement the _type method")
 
     @classmethod
     def service(cls):
-        return 'gsuite'
+        return "gsuite"
 
     @classmethod
     def date_formatter(cls):
         """Return a format string for a date, ie: 2010-10-28T10:26:35.000Z"""
-        return '%Y-%m-%dT%H:%M:%S.%fZ'
+        return "%Y-%m-%dT%H:%M:%S.%fZ"
 
     @classmethod
     def _load_credentials(cls, keydata):
@@ -89,7 +88,9 @@ class GSuiteReportsApp(AppIntegration):
             )
         except (ValueError, KeyError):
             # This has the potential to raise errors. See: https://tinyurl.com/y8q5e9rm
-            LOGGER.exception('[%s] Could not generate credentials from keyfile', cls.type())
+            LOGGER.exception(
+                "[%s] Could not generate credentials from keyfile", cls.type()
+            )
             return False
 
         return creds
@@ -101,25 +102,23 @@ class GSuiteReportsApp(AppIntegration):
             bool: True if the Google API discovery service was successfully established or False
                 if any errors occurred during the creation of the Google discovery service,
         """
-        LOGGER.debug('[%s] Creating activities service', self)
+        LOGGER.debug("[%s] Creating activities service", self)
 
         if self._activities_service:
-            LOGGER.debug('[%s] Service already instantiated', self)
+            LOGGER.debug("[%s] Service already instantiated", self)
             return True
 
-        creds = self._load_credentials(self._config.auth['keyfile'])
+        creds = self._load_credentials(self._config.auth["keyfile"])
         if not creds:
             return False
 
-        delegation = creds.with_subject(self._config.auth['delegation_email'])
+        delegation = creds.with_subject(self._config.auth["delegation_email"])
         try:
             resource = googleapiclient.discovery.build(
-                'admin',
-                'reports_v1',
-                credentials=delegation
+                "admin", "reports_v1", credentials=delegation
             )
         except self._GOOGLE_API_EXCEPTIONS:
-            LOGGER.exception('[%s] Failed to build discovery service', self)
+            LOGGER.exception("[%s] Failed to build discovery service", self)
             return False
 
         # The google discovery service 'Resource' class that is returned by
@@ -142,56 +141,63 @@ class GSuiteReportsApp(AppIntegration):
         # Cache the last event timestamp so it can be used for future requests
         if not self._next_page_token:
             self._last_event_timestamp = self._last_timestamp
-            self._last_run_event_ids = self._context.get('last_event_ids', [])
+            self._last_run_event_ids = self._context.get("last_event_ids", [])
 
-        LOGGER.debug('[%s] Querying activities since %s', self, self._last_event_timestamp)
-        LOGGER.debug('[%s] Using next page token: %s', self, self._next_page_token)
-        LOGGER.debug('[%s] Last run event ids: %s', self, self._last_run_event_ids)
+        LOGGER.debug(
+            "[%s] Querying activities since %s", self, self._last_event_timestamp
+        )
+        LOGGER.debug("[%s] Using next page token: %s", self, self._next_page_token)
+        LOGGER.debug("[%s] Last run event ids: %s", self, self._last_run_event_ids)
 
         activities_list = self._activities_service.list(
-            userKey='all',
+            userKey="all",
             applicationName=self._type(),
             startTime=self._last_event_timestamp,
-            pageToken=self._next_page_token
+            pageToken=self._next_page_token,
         )
 
         try:
             results = activities_list.execute()
         except self._GOOGLE_API_EXCEPTIONS:
-            LOGGER.exception('[%s] Failed to execute activities listing', self)
+            LOGGER.exception("[%s] Failed to execute activities listing", self)
             return False
 
         if not results:
-            LOGGER.error('[%s] No results received from the G Suite API request', self)
+            LOGGER.error("[%s] No results received from the G Suite API request", self)
             return False
 
         # Remove duplicate events present in the last time period.
         activities = [
-            activity for activity in results.get('items', [])
-            if activity['id']['uniqueQualifier'] not in set(self._last_run_event_ids)
+            activity
+            for activity in results.get("items", [])
+            if activity["id"]["uniqueQualifier"] not in set(self._last_run_event_ids)
         ]
         if not activities:
-            LOGGER.info('[%s] No logs in response from G Suite API request', self)
+            LOGGER.info("[%s] No logs in response from G Suite API request", self)
             return False
 
         # The activity api returns logs in reverse chronological order, for some reason, and
         # therefore the newest log will be first in the list. This should only be updated
         # once during the first poll
         if not self._next_page_token:
-            self._last_timestamp = activities[0]['id']['time']
-            LOGGER.debug('[%s] Caching last timestamp: %s', self, self._last_timestamp)
+            self._last_timestamp = activities[0]["id"]["time"]
+            LOGGER.debug("[%s] Caching last timestamp: %s", self, self._last_timestamp)
             # Store the event ids with the most recent timestamp to de-duplicate them next time
             next_run_event_ids = [
-                activity['id']['uniqueQualifier']
+                activity["id"]["uniqueQualifier"]
                 for activity in activities
-                if activity['id']['time'] == self._last_timestamp
+                if activity["id"]["time"] == self._last_timestamp
             ]
-            self._context['last_event_ids'] = next_run_event_ids[:self._MAX_EVENT_IDS]
+            self._context["last_event_ids"] = next_run_event_ids[: self._MAX_EVENT_IDS]
             if len(next_run_event_ids) > self._MAX_EVENT_IDS:
-                LOGGER.warning('[%s] More than %d next_run_event_ids. Unable to de-duplicate: %s',
-                               self, self._MAX_EVENT_IDS, next_run_event_ids[self._MAX_EVENT_IDS:])
+                LOGGER.warning(
+                    "[%s] More than %d next_run_event_ids. Unable to de-duplicate: %s",
+                    self,
+                    self._MAX_EVENT_IDS,
+                    next_run_event_ids[self._MAX_EVENT_IDS :],
+                )
 
-        self._next_page_token = results.get('nextPageToken')
+        self._next_page_token = results.get("nextPageToken")
         self._more_to_poll = bool(self._next_page_token)
 
         return activities
@@ -202,7 +208,7 @@ class GSuiteReportsApp(AppIntegration):
         def keyfile_validator(keyfile):
             """A JSON formatted (not p12) Google service account private key file key"""
             try:
-                with open(keyfile.strip(), 'r') as json_keyfile:
+                with open(keyfile.strip(), "r") as json_keyfile:
                     keydata = json.load(json_keyfile)
             except (IOError, ValueError):
                 return False
@@ -213,18 +219,20 @@ class GSuiteReportsApp(AppIntegration):
             return keydata
 
         return {
-            'keyfile':
-                {
-                    'description': ('the path on disk to the JSON formatted Google '
-                                    'service account private key file'),
-                    'format': keyfile_validator
-                },
-            'delegation_email':
-                {
-                    'description': 'the service account user email to delegate access to',
-                    'format': re.compile(r'^[A-Za-z0-9-_.+]+@[A-Za-z0-9-.]+\.[A-Za-z]{2,}$')
-                }
-            }
+            "keyfile": {
+                "description": (
+                    "the path on disk to the JSON formatted Google "
+                    "service account private key file"
+                ),
+                "format": keyfile_validator,
+            },
+            "delegation_email": {
+                "description": "the service account user email to delegate access to",
+                "format": re.compile(
+                    r"^[A-Za-z0-9-_.+]+@[A-Za-z0-9-.]+\.[A-Za-z]{2,}$"
+                ),
+            },
+        }
 
     def _sleep_seconds(self):
         """Return the number of seconds this polling function should sleep for
@@ -247,7 +255,7 @@ class GSuiteAccessTransparencyReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'access_transparency'
+        return "access_transparency"
 
 
 @StreamAlertApp
@@ -256,7 +264,7 @@ class GSuiteAdminReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'admin'
+        return "admin"
 
 
 @StreamAlertApp
@@ -265,7 +273,7 @@ class GSuiteCalendarReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'calendar'
+        return "calendar"
 
 
 @StreamAlertApp
@@ -274,7 +282,8 @@ class GSuiteDriveReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'drive'
+        return "drive"
+
 
 @StreamAlertApp
 class GSuiteUserGCPReports(GSuiteReportsApp):
@@ -282,7 +291,8 @@ class GSuiteUserGCPReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'gcp'
+        return "gcp"
+
 
 @StreamAlertApp
 class GSuiteGroupReports(GSuiteReportsApp):
@@ -290,7 +300,7 @@ class GSuiteGroupReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'groups'
+        return "groups"
 
 
 @StreamAlertApp
@@ -299,7 +309,7 @@ class GSuiteGroupEnterpriseReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'groups_enterprise'
+        return "groups_enterprise"
 
 
 @StreamAlertApp
@@ -308,7 +318,7 @@ class GSuiteGPlusReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'gplus'
+        return "gplus"
 
 
 @StreamAlertApp
@@ -317,7 +327,8 @@ class GSuiteLoginReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'login'
+        return "login"
+
 
 @StreamAlertApp
 class GSuiteMeetGCPReports(GSuiteReportsApp):
@@ -325,7 +336,8 @@ class GSuiteMeetGCPReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'meet'
+        return "meet"
+
 
 @StreamAlertApp
 class GSuiteMobileReports(GSuiteReportsApp):
@@ -333,7 +345,7 @@ class GSuiteMobileReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'mobile'
+        return "mobile"
 
 
 @StreamAlertApp
@@ -342,7 +354,8 @@ class GSuiteRulesReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'rules'
+        return "rules"
+
 
 @StreamAlertApp
 class GSuiteSAMLGCPReports(GSuiteReportsApp):
@@ -350,7 +363,7 @@ class GSuiteSAMLGCPReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'saml'
+        return "saml"
 
 
 @StreamAlertApp
@@ -359,7 +372,7 @@ class GSuiteTokenReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'token'
+        return "token"
 
 
 @StreamAlertApp
@@ -368,4 +381,4 @@ class GSuiteUserAccountsReports(GSuiteReportsApp):
 
     @classmethod
     def _type(cls):
-        return 'user_accounts'
+        return "user_accounts"

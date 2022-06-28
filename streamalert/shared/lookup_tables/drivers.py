@@ -6,10 +6,10 @@ LOGGER = get_logger(__name__)
 
 class PersistenceDriver:
 
-    TYPE_S3 = 's3'
-    TYPE_DYNAMODB = 'dynamodb'
-    TYPE_NULL = 'null'
-    TYPE_EPHEMERAL = 'ephemeral'
+    TYPE_S3 = "s3"
+    TYPE_DYNAMODB = "dynamodb"
+    TYPE_NULL = "null"
+    TYPE_EPHEMERAL = "ephemeral"
 
     __metaclass__ = ABCMeta
 
@@ -77,7 +77,7 @@ class EphemeralDriver(PersistenceDriver):
 
     @property
     def id(self):
-        return '{}:{}'.format(self.driver_type, 1)
+        return "{}:{}".format(self.driver_type, 1)
 
     def get(self, key, default=None):
         return self._cache.get(key, default)
@@ -99,7 +99,7 @@ class NullDriver(PersistenceDriver):
 
     @property
     def id(self):
-        return '{}:{}'.format(self.driver_type, 1)
+        return "{}:{}".format(self.driver_type, 1)
 
     def initialize(self):
         pass

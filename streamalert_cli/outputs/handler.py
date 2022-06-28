@@ -18,18 +18,18 @@ import json
 from streamalert.shared.logger import get_logger
 from streamalert.alert_processor.outputs.output_base import (
     StreamAlertOutput,
-    OutputCredentialsProvider
+    OutputCredentialsProvider,
 )
 from streamalert_cli.helpers import user_input, response_is_valid
 from streamalert_cli.outputs.helpers import output_exists
 from streamalert_cli.utils import CLICommand, generate_subparser
 
 LOGGER = get_logger(__name__)
-OUTPUTS_FILE = 'outputs_to_configure.json'
+OUTPUTS_FILE = "outputs_to_configure.json"
 
 
 class OutputCommand(CLICommand):
-    description = 'Describe and manage StreamAlert outputs'
+    description = "Describe and manage StreamAlert outputs"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -46,16 +46,16 @@ class OutputCommand(CLICommand):
         if options.subcommand in subcommands:
             return subcommands[options.subcommand].handler(options, config)
 
-        LOGGER.error('Unhandled output subcommand %s', options.subcommand)
+        LOGGER.error("Unhandled output subcommand %s", options.subcommand)
 
     @staticmethod
     def _subcommands():
         return {
-            'set': OutputSetSubCommand,
-            'set-from-file': OutputSetFromFileSubCommand,
-            'generate-skeleton': OutputGenerateSkeletonSubCommand,
-            'get': OutputGetSubCommand,
-            'list': OutputListSubCommand
+            "set": OutputSetSubCommand,
+            "set-from-file": OutputSetFromFileSubCommand,
+            "generate-skeleton": OutputGenerateSkeletonSubCommand,
+            "get": OutputGetSubCommand,
+            "list": OutputListSubCommand,
         }
 
 
@@ -71,26 +71,30 @@ class OutputSharedMethods:
         Returns:
             bool: False if errors occurred, True otherwise
         """
-        account_config = config['global']['account']
-        region = account_config['region']
-        prefix = account_config['prefix']
+        account_config = config["global"]["account"]
+        region = account_config["region"]
+        prefix = account_config["prefix"]
         kms_key_alias = account_config.get(
-            'kms_key_alias',
-            '{}_streamalert_secrets'.format(prefix)
+            "kms_key_alias", "{}_streamalert_secrets".format(prefix)
         )
         # Verify that the word alias is not in the config.
         # It is interpolated when the API call is made.
-        if 'alias/' in kms_key_alias:
-            kms_key_alias = kms_key_alias.split('/')[1]
+        if "alias/" in kms_key_alias:
+            kms_key_alias = kms_key_alias.split("/")[1]
 
-        provider = OutputCredentialsProvider(service, config=config, region=region, prefix=prefix)
+        provider = OutputCredentialsProvider(
+            service, config=config, region=region, prefix=prefix
+        )
         result = provider.save_credentials(
-            properties['descriptor'].value, kms_key_alias, properties
+            properties["descriptor"].value, kms_key_alias, properties
         )
         if not result:
-            LOGGER.error('An error occurred while saving \'%s\' '
-                         'output configuration for service \'%s\'', properties['descriptor'].value,
-                         service)
+            LOGGER.error(
+                "An error occurred while saving '%s' "
+                "output configuration for service '%s'",
+                properties["descriptor"].value,
+                service,
+            )
         return result
 
     @staticmethod
@@ -104,26 +108,32 @@ class OutputSharedMethods:
             output (StreamAlert.OutputDispatcher): The output to update
             service (str): The name of the service the output belongs too
         """
-        output_config = config['outputs']
-        descriptor = properties['descriptor'].value
+        output_config = config["outputs"]
+        descriptor = properties["descriptor"].value
 
-        if options.update and output_exists(output_config, properties, service, log_message=False):
+        if options.update and output_exists(
+            output_config, properties, service, log_message=False
+        ):
             # Don't update the config if the output already existed, this will prevent duplicates
             LOGGER.debug(
-                'Output already exists, don\'t update the config for descriptor %s and service %s',
-                descriptor, service
-                )
+                "Output already exists, don't update the config for descriptor %s and service %s",
+                descriptor,
+                service,
+            )
         else:
             updated_config = output.format_output_config(output_config, properties)
             output_config[service] = updated_config
             config.write()
 
-            LOGGER.debug('Successfully saved \'%s\' output configuration for service \'%s\'',
-                         descriptor, service)
+            LOGGER.debug(
+                "Successfully saved '%s' output configuration for service '%s'",
+                descriptor,
+                service,
+            )
 
 
 class OutputSetSubCommand(CLICommand, OutputSharedMethods):
-    description = 'Set a single output'
+    description = "Set a single output"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -136,29 +146,29 @@ class OutputSetSubCommand(CLICommand, OutputSharedMethods):
 
         set_parser = generate_subparser(
             subparser,
-            'set',
+            "set",
             description=cls.description,
             help=cls.description,
-            subcommand=True
+            subcommand=True,
         )
 
         # Add the required positional arg of service
         set_parser.add_argument(
-            'service',
+            "service",
             choices=outputs,
-            metavar='SERVICE',
-            help='Create a new StreamAlert output for one of the available services: {}'.format(
-                ', '.join(outputs)
-            )
+            metavar="SERVICE",
+            help="Create a new StreamAlert output for one of the available services: {}".format(
+                ", ".join(outputs)
+            ),
         )
 
         # Add the optional update flag, which allows existing outputs to be updated
         set_parser.add_argument(
-            '--update',
-            '-u',
-            action='store_true',
+            "--update",
+            "-u",
+            action="store_true",
             default=False,
-            help='If the output already exists, overwrite it'
+            help="If the output already exists, overwrite it",
         )
 
     @classmethod
@@ -184,11 +194,14 @@ class OutputSetSubCommand(CLICommand, OutputSharedMethods):
         for name, prop in properties.items():
             # pylint: disable=protected-access
             properties[name] = prop._replace(
-                value=user_input(prop.description, prop.mask_input, prop.input_restrictions))
+                value=user_input(
+                    prop.description, prop.mask_input, prop.input_restrictions
+                )
+            )
 
         service = output.__service__
 
-        if not options.update and output_exists(config['outputs'], properties, service):
+        if not options.update and output_exists(config["outputs"], properties, service):
             # If the output already exists and update is not set
             # ask for user input again for a unique configuration
             return cls.handler(options, config)
@@ -199,13 +212,16 @@ class OutputSetSubCommand(CLICommand, OutputSharedMethods):
 
         cls.update_config(options, config, properties, output, service)
 
-        LOGGER.info('Successfully saved \'%s\' output configuration for service \'%s\'',
-                    properties['descriptor'].value, service)
+        LOGGER.info(
+            "Successfully saved '%s' output configuration for service '%s'",
+            properties["descriptor"].value,
+            service,
+        )
         return True
 
 
 class OutputSetFromFileSubCommand(CLICommand, OutputSharedMethods):
-    description = 'Set numerous outputs from a file'
+    description = "Set numerous outputs from a file"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -216,27 +232,27 @@ class OutputSetFromFileSubCommand(CLICommand, OutputSharedMethods):
         """
         set_from_file_parser = generate_subparser(
             subparser,
-            'set-from-file',
+            "set-from-file",
             description=cls.description,
             help=cls.description,
-            subcommand=True
+            subcommand=True,
         )
 
         # Add the optional file flag
         set_from_file_parser.add_argument(
-            '--file',
-            '-f',
+            "--file",
+            "-f",
             default=OUTPUTS_FILE,
-            help='Path to the json file, relative to the current working directory'
+            help="Path to the json file, relative to the current working directory",
         )
 
         # Add the optional update flag, which allows existing outputs to be updated
         set_from_file_parser.add_argument(
-            '--update',
-            '-u',
-            action='store_true',
+            "--update",
+            "-u",
+            action="store_true",
             default=False,
-            help='Allow existing outputs to be overwritten'
+            help="Allow existing outputs to be overwritten",
         )
 
     @classmethod
@@ -249,28 +265,32 @@ class OutputSetFromFileSubCommand(CLICommand, OutputSharedMethods):
             bool: False if errors occurred, True otherwise
         """
         try:
-            with open(options.file, 'r') as json_file_fp:
+            with open(options.file, "r") as json_file_fp:
                 file_contents = json.load(json_file_fp)
         except Exception:  # pylint: disable=broad-except
             LOGGER.error("Error opening file %s", options.file)
             return False
 
         if not file_contents:
-            LOGGER.error('File %s is empty', options.file)
+            LOGGER.error("File %s is empty", options.file)
             return False
 
         for service, configurations in file_contents.items():
-            LOGGER.debug('Setting outputs for service %s', service)
+            LOGGER.debug("Setting outputs for service %s", service)
             # Retrieve the proper service class to handle dispatching the alerts of this service
             output = StreamAlertOutput.get_dispatcher(service)
 
             for configuration in configurations:
-                properties = cls.convert_configuration_to_properties(configuration, output)
+                properties = cls.convert_configuration_to_properties(
+                    configuration, output
+                )
                 if not properties:
                     # Configuration was not valid
                     return False
 
-                if not options.update and output_exists(config['outputs'], properties, service):
+                if not options.update and output_exists(
+                    config["outputs"], properties, service
+                ):
                     # If the output already exists and update is not set
                     # return early
                     return False
@@ -280,9 +300,13 @@ class OutputSetFromFileSubCommand(CLICommand, OutputSharedMethods):
                     return False
                 cls.update_config(options, config, properties, output, service)
 
-            LOGGER.info('Saved %s configurations for service: %s', len(configurations), service)
+            LOGGER.info(
+                "Saved %s configurations for service: %s", len(configurations), service
+            )
 
-        LOGGER.info('Finished setting all configurations for services: %s', file_contents.keys())
+        LOGGER.info(
+            "Finished setting all configurations for services: %s", file_contents.keys()
+        )
         return True
 
     @staticmethod
@@ -299,7 +323,9 @@ class OutputSetFromFileSubCommand(CLICommand, OutputSharedMethods):
 
         for name, value in configuration.items():
             if name not in properties:
-                LOGGER.error('unknown key %s passed for service: %s', name, output.__service__)
+                LOGGER.error(
+                    "unknown key %s passed for service: %s", name, output.__service__
+                )
                 break
 
             prop = properties[name]
@@ -313,7 +339,7 @@ class OutputSetFromFileSubCommand(CLICommand, OutputSharedMethods):
 
 
 class OutputGenerateSkeletonSubCommand(CLICommand):
-    description = 'Generate the skeleton file for use with set-from-file'
+    description = "Generate the skeleton file for use with set-from-file"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -323,30 +349,30 @@ class OutputGenerateSkeletonSubCommand(CLICommand):
         # Create the generate-skeleton parser
         generate_skeleton_parser = generate_subparser(
             subparser,
-            'generate-skeleton',
+            "generate-skeleton",
             description=cls.description,
             help=cls.description,
-            subcommand=True
+            subcommand=True,
         )
 
         # Add the optional ability to pass services
         generate_skeleton_parser.add_argument(
-            '--services',
+            "--services",
             choices=outputs,
-            nargs='+',
-            metavar='SERVICE',
+            nargs="+",
+            metavar="SERVICE",
             default=outputs,
-            help='Pass the services to generate the skeleton for from services: {}'.format(
-                ', '.join(outputs)
-            )
+            help="Pass the services to generate the skeleton for from services: {}".format(
+                ", ".join(outputs)
+            ),
         )
 
         # Add the optional file flag
         generate_skeleton_parser.add_argument(
-            '--file',
-            '-f',
+            "--file",
+            "-f",
             default=OUTPUTS_FILE,
-            help='File to write to, relative to the current working directory'
+            help="File to write to, relative to the current working directory",
         )
 
     @classmethod
@@ -369,7 +395,7 @@ class OutputGenerateSkeletonSubCommand(CLICommand):
             properties = output.get_user_defined_properties()
             skeleton[service] = [
                 {
-                    name: 'desc: {}, restrictions: {}'.format(
+                    name: "desc: {}, restrictions: {}".format(
                         prop.description, prop.input_restrictions
                     )
                     for name, prop in properties.items()
@@ -377,22 +403,22 @@ class OutputGenerateSkeletonSubCommand(CLICommand):
             ]
 
         try:
-            with open(options.file, 'w') as json_file_fp:
+            with open(options.file, "w") as json_file_fp:
                 json.dump(skeleton, json_file_fp, indent=2, sort_keys=True)
         except Exception as err:  # pylint: disable=broad-except
             LOGGER.error(err)
             return False
 
         LOGGER.info(
-            'Successfully generated the Skeleton file %s for services: %s',
+            "Successfully generated the Skeleton file %s for services: %s",
             options.file,
-            options.services
+            options.services,
         )
         return True
 
 
 class OutputGetSubCommand(CLICommand):
-    description = 'Get the existing configuration for outputs'
+    description = "Get the existing configuration for outputs"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -401,7 +427,7 @@ class OutputGetSubCommand(CLICommand):
 
         get_parser = generate_subparser(
             subparser,
-            'get',
+            "get",
             description=cls.description,
             help=cls.description,
             subcommand=True,
@@ -409,21 +435,21 @@ class OutputGetSubCommand(CLICommand):
 
         # Add the positional arg of service
         get_parser.add_argument(
-            'service',
+            "service",
             choices=outputs,
-            metavar='SERVICE',
-            help='Service to pull configured outputs and their secrets, select from: {}'.format(
-                ', '.join(outputs)
-            )
+            metavar="SERVICE",
+            help="Service to pull configured outputs and their secrets, select from: {}".format(
+                ", ".join(outputs)
+            ),
         )
 
         # Add the optional ability to pass multiple descriptors
         get_parser.add_argument(
-            '--descriptors',
-            '-d',
-            nargs='+',
+            "--descriptors",
+            "-d",
+            nargs="+",
             default=False,
-            help='Pass descriptor and service to pull back the relevant configuration'
+            help="Pass descriptor and service to pull back the relevant configuration",
         )
 
         # Add the optional ability to pass service
@@ -443,30 +469,36 @@ class OutputGetSubCommand(CLICommand):
         # Get the descriptors for the service. No need to check service
         # as this is handled by argparse choices
         configured_descriptors = [
-            descriptor for descriptor in config["outputs"][service] if 'sample' not in descriptor
+            descriptor
+            for descriptor in config["outputs"][service]
+            if "sample" not in descriptor
         ]
 
         # Set the descriptors to get the secrets for
-        descriptors = options.descriptors if options.descriptors else configured_descriptors
+        descriptors = (
+            options.descriptors if options.descriptors else configured_descriptors
+        )
 
-        LOGGER.debug('Getting secrets for service %s and descriptors %s', service, descriptors)
+        LOGGER.debug(
+            "Getting secrets for service %s and descriptors %s", service, descriptors
+        )
 
         credentials = []
         for descriptor in descriptors:
             if descriptor not in configured_descriptors:
-                LOGGER.error('Invalid descriptor %s, it doesn\'t exist', descriptor)
+                LOGGER.error("Invalid descriptor %s, it doesn't exist", descriptor)
                 return False
 
             creds = output._load_creds(descriptor)  # pylint: disable=protected-access
-            creds['descriptor'] = descriptor
+            creds["descriptor"] = descriptor
             credentials.append(creds)
 
-        print('\nService Name:', service)
-        print(json.dumps(credentials, indent=2, sort_keys=True), '\n')
+        print("\nService Name:", service)
+        print(json.dumps(credentials, indent=2, sort_keys=True), "\n")
 
 
 class OutputListSubCommand(CLICommand):
-    description = 'List the currently configured outputs'
+    description = "List the currently configured outputs"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -475,7 +507,7 @@ class OutputListSubCommand(CLICommand):
 
         list_parser = generate_subparser(
             subparser,
-            'list',
+            "list",
             description=cls.description,
             help=cls.description,
             subcommand=True,
@@ -483,15 +515,15 @@ class OutputListSubCommand(CLICommand):
 
         # Add the optional arg of service
         list_parser.add_argument(
-            '--service',
-            '-s',
+            "--service",
+            "-s",
             choices=outputs,
             default=outputs,
-            nargs='*',
-            metavar='SERVICE',
-            help='Pass Services to list configured output descriptors, select from: {}'.format(
-                ', '.join(outputs)
-            )
+            nargs="*",
+            metavar="SERVICE",
+            help="Pass Services to list configured output descriptors, select from: {}".format(
+                ", ".join(outputs)
+            ),
         )
 
     @classmethod

@@ -20,7 +20,8 @@ from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
     StreamAlertOutput,
-    OutputRequestFailure)
+    OutputRequestFailure,
+)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)
@@ -29,7 +30,8 @@ LOGGER = get_logger(__name__)
 @StreamAlertOutput
 class DemistoOutput(OutputDispatcher):
     """DemistoOutput handles all alert dispatching to Demisto"""
-    __service__ = 'demisto'
+
+    __service__ = "demisto"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -42,20 +44,34 @@ class DemistoOutput(OutputDispatcher):
         Returns:
           OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for this'
-                                        ' demisto output')),
-            ('url',
-             OutputProperty(description='URL to the Demisto server [https://hostname]',
-                            mask_input=False,
-                            input_restrictions={' '},
-                            cred_requirement=True)),
-            ('token',
-             OutputProperty(description='Demisto API token',
-                            mask_input=True,
-                            cred_requirement=True)),
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this"
+                        " demisto output"
+                    ),
+                ),
+                (
+                    "url",
+                    OutputProperty(
+                        description="URL to the Demisto server [https://hostname]",
+                        mask_input=False,
+                        input_restrictions={" "},
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "token",
+                    OutputProperty(
+                        description="Demisto API token",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send a new Incident to Demisto
@@ -104,16 +120,18 @@ class DemistoOutput(OutputDispatcher):
         if not creds:
             return False
 
-        request = DemistoRequestAssembler.assemble(alert, compose_alert(alert, self, descriptor))
+        request = DemistoRequestAssembler.assemble(
+            alert, compose_alert(alert, self, descriptor)
+        )
         integration = DemistoApiIntegration(creds, self)
 
-        LOGGER.debug('Sending alert to Demisto: %s', creds['url'])
+        LOGGER.debug("Sending alert to Demisto: %s", creds["url"])
 
         try:
             integration.send(request)
             return True
         except OutputRequestFailure as e:
-            LOGGER.exception('Failed to create Demisto incident: %s.', e)
+            LOGGER.exception("Failed to create Demisto incident: %s.", e)
             return False
 
 
@@ -134,36 +152,37 @@ class DemistoApiIntegration:
             requests.exceptions.RequestException
         """
         request_data = {
-            'type': request.incident_type,
-            'name': request.incident_name,
-            'owner': request.owner,
-            'playbook': request.playbook,
-            'severity': request.severity,
-            'labels': request.labels,
-            'customFields': request.custom_fields,
-            'details': request.details,
+            "type": request.incident_type,
+            "name": request.incident_name,
+            "owner": request.owner,
+            "playbook": request.playbook,
+            "severity": request.severity,
+            "labels": request.labels,
+            "customFields": request.custom_fields,
+            "details": request.details,
         }
         if request.create_investigation:
-            request_data['createInvestigation'] = True
+            request_data["createInvestigation"] = True
 
-        create_incident_endpoint = '{}/incident'.format(self._creds['url'])
+        create_incident_endpoint = "{}/incident".format(self._creds["url"])
 
-        #pylint: disable=protected-access
+        # pylint: disable=protected-access
         # This is somewhat of a breach in abstraction, but is acceptable as-is for now.
         self._dispatcher._post_request_retry(
             create_incident_endpoint,
             data=request_data,
             headers={
-                'Accept': 'application/json',
-                'Content-type': 'application/json',
-                'Authorization': self._creds['token'],
+                "Accept": "application/json",
+                "Content-type": "application/json",
+                "Authorization": self._creds["token"],
             },
-            verify=False
+            verify=False,
         )
 
 
 class DemistoCreateIncidentRequest:
     """Encapsulation of a request to Demisto to create an incident."""
+
     SEVERITY_UNKNOWN = 0
     SEVERITY_INFORMATIONAL = 0.5
     SEVERITY_LOW = 1
@@ -171,14 +190,16 @@ class DemistoCreateIncidentRequest:
     SEVERITY_HIGH = 3
     SEVERITY_CRITICAL = 4
 
-    def __init__(self,
-                 incident_name='Unnamed StreamAlert Alert',
-                 incident_type='Unclassified',
-                 playbook='',
-                 severity=SEVERITY_UNKNOWN,
-                 owner='StreamAlert',
-                 details='Details not specified.',
-                 create_investigation=False):
+    def __init__(
+        self,
+        incident_name="Unnamed StreamAlert Alert",
+        incident_type="Unclassified",
+        playbook="",
+        severity=SEVERITY_UNKNOWN,
+        owner="StreamAlert",
+        details="Details not specified.",
+        create_investigation=False,
+    ):
         # Default request parameters
         self._incident_name = str(incident_name)
 
@@ -213,10 +234,12 @@ class DemistoCreateIncidentRequest:
 
     def add_label(self, label, value):
         # Demisto rejects non-string values; so type-cast everything to strings first
-        self._labels.append({
-            "type": str(label),
-            "value": str(value),
-        })
+        self._labels.append(
+            {
+                "type": str(label),
+                "value": str(value),
+            }
+        )
         self._labels.sort(key=lambda x: x["type"])
 
     @property
@@ -261,15 +284,15 @@ class DemistoCreateIncidentRequest:
             return cls.SEVERITY_UNKNOWN
 
         lc_severity_string = severity_string.lower()
-        if lc_severity_string in {'info', 'informational'}:
+        if lc_severity_string in {"info", "informational"}:
             return cls.SEVERITY_INFORMATIONAL
-        if lc_severity_string == 'low':
+        if lc_severity_string == "low":
             return cls.SEVERITY_LOW
-        if lc_severity_string in {'med', 'medium'}:
+        if lc_severity_string in {"med", "medium"}:
             return cls.SEVERITY_MEDIUM
-        if lc_severity_string == 'high':
+        if lc_severity_string == "high":
             return cls.SEVERITY_HIGH
-        if lc_severity_string == 'critical':
+        if lc_severity_string == "critical":
             return cls.SEVERITY_CRITICAL
 
         return cls.SEVERITY_UNKNOWN
@@ -290,23 +313,27 @@ class DemistoRequestAssembler:
         """
         # Default presentation values
         default_incident_name = alert.rule_name
-        default_incident_type = 'Unclassified'
-        default_playbook = 'Unknown'
-        default_severity = 'unknown'
-        default_owner = 'StreamAlert'
+        default_incident_type = "Unclassified"
+        default_playbook = "Unknown"
+        default_severity = "unknown"
+        default_owner = "StreamAlert"
         default_details = alert.rule_description
         default_label_data = alert_publication
 
         # Special keys that publishers can use to modify default presentation
-        incident_type = alert_publication.get('@demisto.incident_type', default_incident_type)
-        playbook = alert_publication.get('@demisto.playbook', default_playbook)
-        severity = DemistoCreateIncidentRequest.map_severity_string_to_severity_value(
-            alert_publication.get('@demisto.severity', default_severity)
+        incident_type = alert_publication.get(
+            "@demisto.incident_type", default_incident_type
         )
-        owner = alert_publication.get('@demisto.owner', default_owner)
-        details = alert_publication.get('@demisto.details', default_details)
-        incident_name = alert_publication.get('@demisto.incident_name', default_incident_name)
-        label_data = alert_publication.get('@demisto.label_data', default_label_data)
+        playbook = alert_publication.get("@demisto.playbook", default_playbook)
+        severity = DemistoCreateIncidentRequest.map_severity_string_to_severity_value(
+            alert_publication.get("@demisto.severity", default_severity)
+        )
+        owner = alert_publication.get("@demisto.owner", default_owner)
+        details = alert_publication.get("@demisto.details", default_details)
+        incident_name = alert_publication.get(
+            "@demisto.incident_name", default_incident_name
+        )
+        label_data = alert_publication.get("@demisto.label_data", default_label_data)
 
         request = DemistoCreateIncidentRequest(
             incident_name=incident_name,
@@ -315,22 +342,27 @@ class DemistoRequestAssembler:
             owner=owner,
             details=details,
             playbook=playbook,
-            create_investigation=True  # Important: Trigger workbooks automatically
+            create_investigation=True,  # Important: Trigger workbooks automatically
         )
 
         # The alert is a nested JSON structure which does not render well on
         # Demisto's UI; flatten it into a series of discrete key-values.
-        def enumerate_fields(record, path=''):
+        def enumerate_fields(record, path=""):
             if isinstance(record, list):
                 for index, item in enumerate(record):
-                    enumerate_fields(item, '{}[{}]'.format(path, index))
+                    enumerate_fields(item, "{}[{}]".format(path, index))
 
             elif isinstance(record, dict):
                 for key in record:
-                    enumerate_fields(record[key], '{prefix}{key}'.format(
-                        prefix='{}.'.format(path) if path else '',  # Omit first period
-                        key=key
-                    ))
+                    enumerate_fields(
+                        record[key],
+                        "{prefix}{key}".format(
+                            prefix="{}.".format(path)
+                            if path
+                            else "",  # Omit first period
+                            key=key,
+                        ),
+                    )
 
             else:
                 request.add_label(path, record)

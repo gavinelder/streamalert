@@ -2,7 +2,6 @@
 from matchers.default import AwsConfigMatcher
 from streamalert.shared.rule import rule
 
-
 # Populate this list to alert on specific Config Rules, otherwise all rules will be in-scope
 # Also consider the use of Lookup-Tables
 RULES_TO_ALERT_ON = []

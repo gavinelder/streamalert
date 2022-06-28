@@ -85,7 +85,7 @@ class CompositePublisher(AlertPublisher):
 
         for publisher in self._publishers:
             if not isinstance(publisher, AlertPublisher):
-                LOGGER.error('CompositePublisher given invalid publisher')
+                LOGGER.error("CompositePublisher given invalid publisher")
 
     def publish(self, alert, publication):
         for publisher in self._publishers:
@@ -94,8 +94,8 @@ class CompositePublisher(AlertPublisher):
                 publication = publisher.publish(alert, publication)
             except KeyError:
                 LOGGER.exception(
-                    'CompositePublisher encountered KeyError with publisher: %s',
-                    publisher.__class__.__name__
+                    "CompositePublisher encountered KeyError with publisher: %s",
+                    publisher.__class__.__name__,
                 )
                 raise
 
@@ -118,6 +118,7 @@ class AlertPublisherRepository:
     As a usability optimization, using this Repository will eagerly load and register all
     publishers in the application.
     """
+
     _publishers = {}
     _is_imported = False
 
@@ -125,7 +126,7 @@ class AlertPublisherRepository:
     def import_publishers(cls):
         if not cls._is_imported:
             config = load_config()
-            import_folders(*config['global']['general'].get('publisher_locations', []))
+            import_folders(*config["global"]["general"].get("publisher_locations", []))
             cls._is_imported = True
 
     @staticmethod
@@ -160,7 +161,7 @@ class AlertPublisherRepository:
         Returns:
             string
         """
-        return '{}.{}'.format(class_or_function.__module__, class_or_function.__name__)
+        return "{}.{}".format(class_or_function.__module__, class_or_function.__name__)
 
     @classmethod
     def register_publisher(cls, publisher):
@@ -175,7 +176,7 @@ class AlertPublisherRepository:
         """
         if not AlertPublisherRepository.is_valid_publisher(publisher):
             error = (
-                'Could not register publisher {}; Not callable nor subclass of AlertPublisher'
+                "Could not register publisher {}; Not callable nor subclass of AlertPublisher"
             ).format(publisher)
             raise PublisherRegistrationError(error)
 
@@ -191,7 +192,7 @@ class AlertPublisherRepository:
         name = AlertPublisherRepository.get_publisher_name(publisher)
 
         if name in cls._publishers:
-            error = 'Publisher with name [{}] has already been registered.'.format(name)
+            error = "Publisher with name [{}] has already been registered.".format(name)
             raise PublisherRegistrationError(error)
 
         cls._publishers[name] = publisher_instance
@@ -209,12 +210,11 @@ class AlertPublisherRepository:
         if cls.has_publisher(name):
             return cls._publishers[name]
 
-        LOGGER.error('Publisher [%s] does not exist', name)
+        LOGGER.error("Publisher [%s] does not exist", name)
 
     @classmethod
     def has_publisher(cls, name):
-        """Returns true if the given publisher name has been registered in this Repository
-        """
+        """Returns true if the given publisher name has been registered in this Repository"""
         cls.import_publishers()
         return name in cls._publishers
 

@@ -16,19 +16,18 @@ limitations under the License.
 import logging
 import os
 
-LOCAL_LOGGER_FMT = '[%(levelname)s %(asctime)s (%(name)s:%(lineno)d)]: %(message)s'
+LOCAL_LOGGER_FMT = "[%(levelname)s %(asctime)s (%(name)s:%(lineno)d)]: %(message)s"
 
 logging.basicConfig(level=logging.INFO, format=LOCAL_LOGGER_FMT)
 
 
 class LogFormatter(logging.Formatter):
-
     def formatException(self, ei):
         """Override the default exception logger so it looks nice in CloudWatch Logs"""
         value = super().formatException(ei)
 
         # Replace the newlines with carriage returns
-        return value.replace('\n', '\r')
+        return value.replace("\n", "\r")
 
 
 def set_formatter(logger):
@@ -66,7 +65,7 @@ def get_logger(name, level=None):
 
     """
     if not level:
-        level = os.environ.get('LOGGER_LEVEL', 'INFO')
+        level = os.environ.get("LOGGER_LEVEL", "INFO")
 
     logger = logging.getLogger(name)
 
@@ -75,7 +74,7 @@ def get_logger(name, level=None):
     try:
         logger.setLevel(level.upper())
     except (TypeError, ValueError) as err:
-        logger.setLevel('INFO')
-        logger.error('Defaulting to INFO logging: %s', str(err))
+        logger.setLevel("INFO")
+        logger.error("Defaulting to INFO logging: %s", str(err))
 
     return logger

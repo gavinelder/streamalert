@@ -19,7 +19,6 @@ from streamalert.shared.metrics import MetricLogger
 from streamalert.shared.normalize import Normalizer, CONST_ARTIFACTS_FLAG
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -56,11 +55,11 @@ class Artifact:
             dict: A dictionary contains artifact information.
         """
         return {
-            'function': self._function,
+            "function": self._function,
             Normalizer.RECORD_ID_KEY: self._record_id,
-            'source_type': self._source_type,
-            'type': self._type,
-            'value': self._value,
+            "source_type": self._source_type,
+            "type": self._type,
+            "value": self._value,
         }
 
 
@@ -79,14 +78,17 @@ class ArtifactExtractor:
         self._dst_firehose_stream_name = artifacts_fh_stream_name
         self._artifacts = list()
 
-        ArtifactExtractor._config = ArtifactExtractor._config or config.load_config(validate=True)
+        ArtifactExtractor._config = ArtifactExtractor._config or config.load_config(
+            validate=True
+        )
 
         ArtifactExtractor._firehose_client = (
-            ArtifactExtractor._firehose_client or FirehoseClient.get_client(
-                prefix=self.config['global']['account']['prefix'],
-                artifact_extractor_config=self.config['global'].get(
-                    'infrastructure', {}
-                ).get('artifact_extractor', {})
+            ArtifactExtractor._firehose_client
+            or FirehoseClient.get_client(
+                prefix=self.config["global"]["account"]["prefix"],
+                artifact_extractor_config=self.config["global"]
+                .get("infrastructure", {})
+                .get("artifact_extractor", {}),
             )
         )
 
@@ -134,8 +136,9 @@ class ArtifactExtractor:
             if not record.get(Normalizer.NORMALIZATION_KEY):
                 continue
 
-            record_id = (record[Normalizer.NORMALIZATION_KEY].get(Normalizer.RECORD_ID_KEY)
-                         or str(uuid.uuid4()))
+            record_id = record[Normalizer.NORMALIZATION_KEY].get(
+                Normalizer.RECORD_ID_KEY
+            ) or str(uuid.uuid4())
             for key, values in record[Normalizer.NORMALIZATION_KEY].items():
                 if key == Normalizer.RECORD_ID_KEY:
                     continue
@@ -146,15 +149,17 @@ class ArtifactExtractor:
                     if not value.get(CONST_ARTIFACTS_FLAG, True):
                         continue
 
-                    for val in value.get('values', []):
-                        artifacts.append(Artifact(
-                            function=value.get('function'),
-                            record_id=record_id,
-                            # source_type=self._source_type,
-                            source_type=source_type,
-                            normalized_type=key,
-                            value=val
-                        ))
+                    for val in value.get("values", []):
+                        artifacts.append(
+                            Artifact(
+                                function=value.get("function"),
+                                record_id=record_id,
+                                # source_type=self._source_type,
+                                source_type=source_type,
+                                normalized_type=key,
+                                value=val,
+                            )
+                        )
 
         return artifacts
 
@@ -173,16 +178,18 @@ class ArtifactExtractor:
         """
 
         for source_type, records in categorized_records.items():
-            LOGGER.debug('Extracting artifacts from %d %s logs', len(records), source_type)
+            LOGGER.debug(
+                "Extracting artifacts from %d %s logs", len(records), source_type
+            )
             for artifact in self._extract_artifacts(source_type, records):
                 self._artifacts.append(artifact.artifact)
 
-        LOGGER.debug('Extracted %d artifact(s)', len(self._artifacts))
+        LOGGER.debug("Extracted %d artifact(s)", len(self._artifacts))
 
         MetricLogger.log_metric(
             CLASSIFIER_FUNCTION_NAME,
             MetricLogger.EXTRACTED_ARTIFACTS,
-            len(self._artifacts)
+            len(self._artifacts),
         )
 
         self.firehose.send_artifacts(self._artifacts, self._dst_firehose_stream_name)

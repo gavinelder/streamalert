@@ -19,10 +19,9 @@ from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
-    StreamAlertOutput
+    StreamAlertOutput,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -30,7 +29,8 @@ LOGGER = get_logger(__name__)
 @StreamAlertOutput
 class KomandOutput(OutputDispatcher):
     """KomandOutput handles all alert dispatching for Komand"""
-    __service__ = 'komand'
+
+    __service__ = "komand"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -44,21 +44,35 @@ class KomandOutput(OutputDispatcher):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for this '
-                                        'Komand integration')),
-            ('komand_auth_token',
-             OutputProperty(description='the auth token for this Komand integration. '
-                            'Example: 00000000-0000-0000-0000-000000000000',
-                            mask_input=True,
-                            cred_requirement=True)),
-            ('url',
-             OutputProperty(description='the endpoint url for this Komand integration. '
-                            'Example: https://YOUR-KOMAND-HOST.com/v2/triggers/GUID/events',
-                            mask_input=True,
-                            cred_requirement=True))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this "
+                        "Komand integration"
+                    ),
+                ),
+                (
+                    "komand_auth_token",
+                    OutputProperty(
+                        description="the auth token for this Komand integration. "
+                        "Example: 00000000-0000-0000-0000-000000000000",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "url",
+                    OutputProperty(
+                        description="the endpoint url for this Komand integration. "
+                        "Example: https://YOUR-KOMAND-HOST.com/v2/triggers/GUID/events",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send alert to Komand
@@ -78,11 +92,11 @@ class KomandOutput(OutputDispatcher):
         if not creds:
             return False
 
-        headers = {'Authorization': creds['komand_auth_token']}
+        headers = {"Authorization": creds["komand_auth_token"]}
 
-        LOGGER.debug('sending alert to Komand')
+        LOGGER.debug("sending alert to Komand")
 
         publication = compose_alert(alert, self, descriptor)
-        resp = self._post_request(creds['url'], {'data': publication}, headers, False)
+        resp = self._post_request(creds["url"], {"data": publication}, headers, False)
 
         return self._check_http_response(resp)

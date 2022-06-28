@@ -27,37 +27,44 @@ from botocore.exceptions import ClientError
 from streamalert.apps.exceptions import AppAuthError, AppConfigError, AppStateError
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
-AWS_RATE_RE = re.compile(r'^rate\(((1) (minute|hour|day)|'
-                         r'([2-9]+|[1-9]\d+) (minutes|hours|days))\)$')
-AWS_RATE_HELPER = 'http://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html'
+AWS_RATE_RE = re.compile(
+    r"^rate\(((1) (minute|hour|day)|" r"([2-9]+|[1-9]\d+) (minutes|hours|days))\)$"
+)
+AWS_RATE_HELPER = (
+    "http://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html"
+)
 
 
 class AppConfig:
     """Centralized config for handling configuration loading/parsing"""
+
     MAX_STATE_SAVE_TRIES = 5
     BOTO_TIMEOUT = 5
     SSM_CLIENT = None
 
-    AUTH_CONFIG_SUFFIX = 'auth'
-    STATE_CONFIG_SUFFIX = 'state'
+    AUTH_CONFIG_SUFFIX = "auth"
+    STATE_CONFIG_SUFFIX = "state"
 
-    _STATE_KEY = 'current_state'
-    _TIME_KEY = 'last_timestamp'
-    _CONTEXT_KEY = 'context'
-    _STATE_DESCRIPTION = 'State information for the \'{}\' app for use in the \'{}\' function'
+    _STATE_KEY = "current_state"
+    _TIME_KEY = "last_timestamp"
+    _CONTEXT_KEY = "context"
+    _STATE_DESCRIPTION = (
+        "State information for the '{}' app for use in the '{}' function"
+    )
 
     class States:
         """States object to encapsulate various acceptable states"""
-        PARTIAL = 'partial'
-        RUNNING = 'running'
-        SUCCEEDED = 'succeeded'
-        FAILED = 'failed'
+
+        PARTIAL = "partial"
+        RUNNING = "running"
+        SUCCEEDED = "succeeded"
+        FAILED = "failed"
 
     class Events:
         """Events object to encapsulate various acceptable events"""
-        SUCCESSIVE_INVOKE = 'successive'
+
+        SUCCESSIVE_INVOKE = "successive"
 
     def __init__(self, auth_config, state_config, event, func_name, func_version):
         self._validate_event(event)
@@ -76,34 +83,34 @@ class AppConfig:
     @property
     def successive_event(self):
         """Return formatted json for event representing a successive invocation"""
-        event = {'invocation_type': self.Events.SUCCESSIVE_INVOKE}
+        event = {"invocation_type": self.Events.SUCCESSIVE_INVOKE}
         event.update(self._event)
         return json.dumps(event)
 
     @property
     def _app_type(self):
         """The app type for this config"""
-        return self._event['app_type']
+        return self._event["app_type"]
 
     @property
     def _schedule(self):
         """The rate schedule on which this app runs"""
-        return self._event['schedule_expression']
+        return self._event["schedule_expression"]
 
     @property
     def destination_function(self):
         """The destination function name where logs should be sent"""
-        return self._event['destination_function_name']
+        return self._event["destination_function_name"]
 
     @property
     def _invocation_type(self):
         """The invocation type for this function, can be None"""
-        return self._event.get('invocation_type')
+        return self._event.get("invocation_type")
 
     @property
     def _state_name(self):
         """The name of the state parameter in ssm"""
-        return '{}_{}'.format(self.function_name, self.STATE_CONFIG_SUFFIX)
+        return "{}_{}".format(self.function_name, self.STATE_CONFIG_SUFFIX)
 
     @staticmethod
     def remaining_ms():
@@ -120,7 +127,7 @@ class AppConfig:
         Returns:
             set: Set of required keys
         """
-        return {'app_type', 'destination_function_name', 'schedule_expression'}
+        return {"app_type", "destination_function_name", "schedule_expression"}
 
     @classmethod
     def load_config(cls, event, context):
@@ -139,21 +146,27 @@ class AppConfig:
         func_version = context.function_version
 
         # Get full parameter names for authentication and state parameters
-        auth_param_name = '_'.join([func_name, cls.AUTH_CONFIG_SUFFIX])
-        state_param_name = '_'.join([func_name, cls.STATE_CONFIG_SUFFIX])
+        auth_param_name = "_".join([func_name, cls.AUTH_CONFIG_SUFFIX])
+        state_param_name = "_".join([func_name, cls.STATE_CONFIG_SUFFIX])
 
         # Get the loaded parameters and a list of any invalid ones from parameter store
         params, invalid_params = cls._get_parameters(auth_param_name, state_param_name)
 
         # Check to see if the authentication param is in the invalid params list
         if auth_param_name in invalid_params:
-            raise AppConfigError('Could not load authentication parameter required for this '
-                                 'app: {}'.format(auth_param_name))
+            raise AppConfigError(
+                "Could not load authentication parameter required for this "
+                "app: {}".format(auth_param_name)
+            )
 
-        LOGGER.debug('Retrieved parameters from parameter store: %s',
-                     cls._scrub_auth_info(params, auth_param_name))
-        LOGGER.debug('Invalid parameters could not be retrieved from parameter store: %s',
-                     invalid_params)
+        LOGGER.debug(
+            "Retrieved parameters from parameter store: %s",
+            cls._scrub_auth_info(params, auth_param_name),
+        )
+        LOGGER.debug(
+            "Invalid parameters could not be retrieved from parameter store: %s",
+            invalid_params,
+        )
 
         # Load the authentication info. This data can vary from service to service
         auth_config = {
@@ -180,8 +193,9 @@ class AppConfig:
                 information scrubbed with an asterisk for each character
         """
         info = param_info.copy()
-        info[auth_param_name] = {key: '*' * len(str(value))
-                                 for key, value in info[auth_param_name].items()}
+        info[auth_param_name] = {
+            key: "*" * len(str(value)) for key, value in info[auth_param_name].items()
+        }
 
         return info
 
@@ -196,15 +210,17 @@ class AppConfig:
         """
         # The config validates that the 'auth' dict was loaded, but do a safety check here
         if not self.auth:
-            raise AppAuthError('[{}] Auth config is empty'.format(self))
+            raise AppAuthError("[{}] Auth config is empty".format(self))
 
         auth_key_diff = required_keys.difference(set(self.auth))
         if not auth_key_diff:
             return True
 
-        missing_auth_keys = ', '.join('\'{}\''.format(key) for key in auth_key_diff)
-        raise AppAuthError('[{}] Auth config is missing the following '
-                           'required keys: {}'.format(self, missing_auth_keys))
+        missing_auth_keys = ", ".join("'{}'".format(key) for key in auth_key_diff)
+        raise AppAuthError(
+            "[{}] Auth config is missing the following "
+            "required keys: {}".format(self, missing_auth_keys)
+        )
 
     @classmethod
     def _get_parameters(cls, *names):
@@ -223,33 +239,37 @@ class AppConfig:
         # if one does not exist already
         if AppConfig.SSM_CLIENT is None:
             boto_config = client.Config(
-                connect_timeout=cls.BOTO_TIMEOUT,
-                read_timeout=cls.BOTO_TIMEOUT
+                connect_timeout=cls.BOTO_TIMEOUT, read_timeout=cls.BOTO_TIMEOUT
             )
-            AppConfig.SSM_CLIENT = boto3.client('ssm', config=boto_config)
+            AppConfig.SSM_CLIENT = boto3.client("ssm", config=boto_config)
 
-        LOGGER.debug('Retrieving values from parameter store with names: %s',
-                     ', '.join('\'{}\''.format(name) for name in names))
+        LOGGER.debug(
+            "Retrieving values from parameter store with names: %s",
+            ", ".join("'{}'".format(name) for name in names),
+        )
         try:
             parameters = AppConfig.SSM_CLIENT.get_parameters(
-                Names=list(names),
-                WithDecryption=True
+                Names=list(names), WithDecryption=True
             )
         except ClientError as err:
-            joined_names = ', '.join('\'{}\''.format(name) for name in names)
-            raise AppConfigError('Could not get parameter with names {}. Error: '
-                                 '{}'.format(joined_names, err.response['Error']['Message']))
+            joined_names = ", ".join("'{}'".format(name) for name in names)
+            raise AppConfigError(
+                "Could not get parameter with names {}. Error: "
+                "{}".format(joined_names, err.response["Error"]["Message"])
+            )
 
         decoded_params = {}
-        for param in parameters['Parameters']:
+        for param in parameters["Parameters"]:
             try:
-                decoded_params[param['Name']] = json.loads(param['Value'])
+                decoded_params[param["Name"]] = json.loads(param["Value"])
             except ValueError:
-                raise AppConfigError('Could not load value for parameter with '
-                                     'name \'{}\'. The value is not valid json: '
-                                     '\'{}\''.format(param['Name'], param['Value']))
+                raise AppConfigError(
+                    "Could not load value for parameter with "
+                    "name '{}'. The value is not valid json: "
+                    "'{}'".format(param["Name"], param["Value"])
+                )
 
-        return decoded_params, parameters['InvalidParameters']
+        return decoded_params, parameters["InvalidParameters"]
 
     def _determine_last_time(self, date_format):
         """Determine the last time this function was executed and fallback on
@@ -262,17 +282,22 @@ class AppConfig:
             interval_time = self._evaluate_interval()
             current_time = int(calendar.timegm(time.gmtime()))
             time_delta = current_time - interval_time
-            LOGGER.debug('Current timestamp: %s seconds. Calculated delta: %s seconds',
-                         current_time, time_delta)
+            LOGGER.debug(
+                "Current timestamp: %s seconds. Calculated delta: %s seconds",
+                current_time,
+                time_delta,
+            )
 
             # Request the date format from the app since some services expect different types
             # Using init=False will return the class without instantiating it
             if date_format:
-                self.last_timestamp = datetime.utcfromtimestamp(time_delta).strftime(date_format)
+                self.last_timestamp = datetime.utcfromtimestamp(time_delta).strftime(
+                    date_format
+                )
             else:
                 self.last_timestamp = time_delta
 
-        LOGGER.info('Starting last timestamp set to: %s', self.last_timestamp)
+        LOGGER.info("Starting last timestamp set to: %s", self.last_timestamp)
 
         return self.last_timestamp
 
@@ -283,34 +308,45 @@ class AppConfig:
             AppStateError: If the parameter is not able to be saved
         """
         try:
-            param_value = json.dumps({
-                self._TIME_KEY: self.last_timestamp,
-                self._STATE_KEY: self.current_state,
-                self._CONTEXT_KEY: self.context,
-            })
+            param_value = json.dumps(
+                {
+                    self._TIME_KEY: self.last_timestamp,
+                    self._STATE_KEY: self.current_state,
+                    self._CONTEXT_KEY: self.context,
+                }
+            )
         except TypeError as err:
-            raise AppStateError('Could not serialize state for name \'{}\'. Error: '
-                                '{}'.format(self._state_name, str(err)))
+            raise AppStateError(
+                "Could not serialize state for name '{}'. Error: "
+                "{}".format(self._state_name, str(err))
+            )
 
-        @backoff.on_exception(backoff.expo,
-                              ClientError,
-                              max_tries=self.MAX_STATE_SAVE_TRIES,
-                              jitter=backoff.full_jitter)
+        @backoff.on_exception(
+            backoff.expo,
+            ClientError,
+            max_tries=self.MAX_STATE_SAVE_TRIES,
+            jitter=backoff.full_jitter,
+        )
         def save():
             """Function to save the value of the state dictionary to parameter store"""
             self.SSM_CLIENT.put_parameter(
                 Name=self._state_name,
-                Description=self._STATE_DESCRIPTION.format(self._app_type, self.function_name),
+                Description=self._STATE_DESCRIPTION.format(
+                    self._app_type, self.function_name
+                ),
                 Value=param_value,
-                Type='SecureString',
-                Overwrite=True
+                Type="SecureString",
+                Overwrite=True,
             )
+
         try:
             save()
         except ClientError as err:
-            raise AppStateError('Could not save current state to parameter '
-                                'store with name \'{}\'. Response: '
-                                '{}'.format(self._state_name, err.response))
+            raise AppStateError(
+                "Could not save current state to parameter "
+                "store with name '{}'. Response: "
+                "{}".format(self._state_name, err.response)
+            )
 
     @classmethod
     def _validate_event(cls, event):
@@ -323,9 +359,11 @@ class AppConfig:
         if not event_key_diff:
             return
 
-        missing_event_keys = ', '.join('\'{}\''.format(key) for key in event_key_diff)
-        raise AppConfigError('App event is missing the following required '
-                             'keys: {}'.format(missing_event_keys))
+        missing_event_keys = ", ".join("'{}'".format(key) for key in event_key_diff)
+        raise AppConfigError(
+            "App event is missing the following required "
+            "keys: {}".format(missing_event_keys)
+        )
 
     def _evaluate_interval(self):
         """Get the interval at which this function is executing. This translates
@@ -334,26 +372,25 @@ class AppConfig:
         rate_match = AWS_RATE_RE.match(self._schedule)
 
         if not rate_match:
-            raise AppConfigError('Invalid \'rate\' interval value: '
-                                 '{}'.format(self._schedule))
+            raise AppConfigError(
+                "Invalid 'rate' interval value: " "{}".format(self._schedule)
+            )
 
         value = rate_match.group(2) or rate_match.group(4)
-        unit = rate_match.group(3) or rate_match.group(5).replace('s', '')
+        unit = rate_match.group(3) or rate_match.group(5).replace("s", "")
 
-        translate_to_seconds = {'minute': 60,
-                                'hour': 60*60,
-                                'day': 60*60*24}
+        translate_to_seconds = {"minute": 60, "hour": 60 * 60, "day": 60 * 60 * 24}
 
         interval = int(value) * translate_to_seconds[unit]
 
-        LOGGER.debug('Evaluated rate interval: %d seconds', interval)
+        LOGGER.debug("Evaluated rate interval: %d seconds", interval)
 
         # Get the total seconds that this rate evaluates to
         return interval
 
     def report_remaining_seconds(self):
         """Log the remaining seconds"""
-        LOGGER.info('Lambda remaining seconds: %.2f', self.remaining_ms() / 1000.0)
+        LOGGER.info("Lambda remaining seconds: %.2f", self.remaining_ms() / 1000.0)
 
     @property
     def auth(self):
@@ -363,21 +400,21 @@ class AppConfig:
     @property
     def current_state(self):
         """Get the current state of the execution"""
-        LOGGER.debug('Getting current_state: %s', self._current_state)
+        LOGGER.debug("Getting current_state: %s", self._current_state)
         return self._current_state
 
     @current_state.setter
     def current_state(self, state):
         """Set the current state of the execution"""
         if not getattr(self.States, str(state).upper(), None):
-            LOGGER.error('Current state cannot be saved with value \'%s\'', state)
+            LOGGER.error("Current state cannot be saved with value '%s'", state)
             return
 
         if self._current_state == state:
-            LOGGER.debug('State is unchanged and will not be saved: %s', state)
+            LOGGER.debug("State is unchanged and will not be saved: %s", state)
             return
 
-        LOGGER.debug('Setting current state to: %s', state)
+        LOGGER.debug("Setting current state to: %s", state)
 
         self._current_state = state
         self._save_state()
@@ -385,17 +422,17 @@ class AppConfig:
     @property
     def last_timestamp(self):
         """Get the last timestamp"""
-        LOGGER.debug('Getting last_timestamp as: %s', self._last_timestamp)
+        LOGGER.debug("Getting last_timestamp as: %s", self._last_timestamp)
         return self._last_timestamp
 
     @last_timestamp.setter
     def last_timestamp(self, timestamp):
         """Set the last timestamp"""
         if self._last_timestamp == timestamp:
-            LOGGER.debug('Timestamp is unchanged and will not be saved: %s', timestamp)
+            LOGGER.debug("Timestamp is unchanged and will not be saved: %s", timestamp)
             return
 
-        LOGGER.debug('Setting last timestamp to: %s', timestamp)
+        LOGGER.debug("Setting last timestamp to: %s", timestamp)
 
         self._last_timestamp = timestamp
         self._save_state()
@@ -403,20 +440,22 @@ class AppConfig:
     @property
     def context(self):
         """Get an additional context dictionary specific to each app"""
-        LOGGER.debug('Getting context: %s', self._context)
+        LOGGER.debug("Getting context: %s", self._context)
         return self._context
 
     @context.setter
     def context(self, context):
         """Set an additional context dictionary specific to each app"""
         if self._context == context:
-            LOGGER.debug('App context is unchanged and will not be saved: %s', context)
+            LOGGER.debug("App context is unchanged and will not be saved: %s", context)
             return
 
         if not isinstance(context, dict):
-            raise AppStateError('Unable to set context, must be a dict: {}'.format(context))
+            raise AppStateError(
+                "Unable to set context, must be a dict: {}".format(context)
+            )
 
-        LOGGER.debug('Setting context to: %s', context)
+        LOGGER.debug("Setting context to: %s", context)
 
         self._context = context
         self._save_state()
@@ -426,7 +465,7 @@ class AppConfig:
         """Check if this invocation is a successive invoke from a previous execution"""
         is_successive = self._invocation_type == self.Events.SUCCESSIVE_INVOKE
 
-        LOGGER.debug('Is successive invocation: %s', is_successive)
+        LOGGER.debug("Is successive invocation: %s", is_successive)
         return is_successive
 
     @property
@@ -451,20 +490,20 @@ class AppConfig:
 
     def mark_partial(self):
         """Helper method to mark the state as 'partial'"""
-        LOGGER.debug('Marking current_state as: %s', self.States.PARTIAL)
+        LOGGER.debug("Marking current_state as: %s", self.States.PARTIAL)
         self.current_state = self.States.PARTIAL
 
     def mark_running(self):
         """Helper method to mark the state as 'running'"""
-        LOGGER.debug('Marking current_state as: %s', self.States.RUNNING)
+        LOGGER.debug("Marking current_state as: %s", self.States.RUNNING)
         self.current_state = self.States.RUNNING
 
     def mark_success(self):
         """Helper method to mark the state as 'succeeded'"""
-        LOGGER.debug('Marking current_state as: %s', self.States.SUCCEEDED)
+        LOGGER.debug("Marking current_state as: %s", self.States.SUCCEEDED)
         self.current_state = self.States.SUCCEEDED
 
     def mark_failure(self):
         """Helper method to mark the state as 'failed'"""
-        LOGGER.debug('Marking current_state as: %s', self.States.FAILED)
+        LOGGER.debug("Marking current_state as: %s", self.States.FAILED)
         self.current_state = self.States.FAILED

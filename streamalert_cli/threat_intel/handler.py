@@ -17,7 +17,9 @@ from streamalert_cli.utils import CLICommand, set_parser_epilog
 
 
 class ThreatIntelCommand(CLICommand):
-    description = 'Enable/disable and configure the StreamAlert Threat Intelligence feature'
+    description = (
+        "Enable/disable and configure the StreamAlert Threat Intelligence feature"
+    )
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -25,28 +27,30 @@ class ThreatIntelCommand(CLICommand):
         set_parser_epilog(
             subparser,
             epilog=(
-                '''\
+                """\
                 Examples:
 
                     manage.py threat-intel \\
                       enable \\
                       --dynamodb-table my_ioc_table
-                '''
-            )
+                """
+            ),
         )
 
-        actions = ['disable', 'enable']
+        actions = ["disable", "enable"]
         subparser.add_argument(
-            'action',
-            metavar='ACTION',
+            "action",
+            metavar="ACTION",
             choices=actions,
-            help='One of the following actions to be performed: {}'.format(', '.join(actions))
+            help="One of the following actions to be performed: {}".format(
+                ", ".join(actions)
+            ),
         )
 
         subparser.add_argument(
-            '--dynamodb-table',
-            dest='dynamodb_table_name',
-            help='DynamoDB table name where IOC information is stored'
+            "--dynamodb-table",
+            dest="dynamodb_table_name",
+            help="DynamoDB table name where IOC information is stored",
         )
 
     @classmethod

@@ -13,12 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from streamalert.scheduled_queries.query_packs.configuration import QueryPackConfiguration
+from streamalert.scheduled_queries.query_packs.configuration import (
+    QueryPackConfiguration,
+)
 
 QueryPackConfiguration(
-    name='athena_any_query',
-    description='This query returns all Athena queries... how meta!',
-
+    name="athena_any_query",
+    description="This query returns all Athena queries... how meta!",
     # Make sure to edit the database name properly or this query will error with some
     # "insufficient privileges errors"
     query="""
@@ -45,6 +46,6 @@ WHERE
   -- by API clients, and ALTER queries are run commonly by the Athena partition function.
   AND upper(substr(requestparameters['querystring'], 1, 5)) NOT IN ('ALTER', 'SHOW ')
 """,
-    params=['utcdatehour_minus1hour'],
-    tags=['sample']
+    params=["utcdatehour_minus1hour"],
+    tags=["sample"],
 )

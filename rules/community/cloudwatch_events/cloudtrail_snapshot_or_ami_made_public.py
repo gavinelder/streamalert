@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['cloudtrail:events'])
+@rule(logs=["cloudtrail:events"])
 def cloudtrail_snapshot_or_ami_made_public(rec):
     """
     author:           spiper
@@ -17,30 +17,30 @@ def cloudtrail_snapshot_or_ami_made_public(rec):
     # if this is adding permissions for 'all'
 
     # Check AMIs
-    if rec['eventName'] == 'ModifyImageAttribute':
+    if rec["eventName"] == "ModifyImageAttribute":
         # For AMIs
-        params = rec.get('requestParameters', {})
-        if params.get('attributeType', '') == 'launchPermission':
-            if 'add' in params.get('launchPermission', {}):
-                items = params['launchPermission']['add'].get('items', [])
+        params = rec.get("requestParameters", {})
+        if params.get("attributeType", "") == "launchPermission":
+            if "add" in params.get("launchPermission", {}):
+                items = params["launchPermission"]["add"].get("items", [])
                 for item in items:
-                    if item.get('group', '') == 'all':
+                    if item.get("group", "") == "all":
                         return True
 
     # Check EBS snapshots
-    if rec['eventName'] == 'ModifySnapshotAttribute':
-        params = rec.get('requestParameters', {})
-        if params.get('attributeType', '') == 'CREATE_VOLUME_PERMISSION':
-            if 'add' in params.get('createVolumePermission', {}):
-                items = params['createVolumePermission']['add'].get('items', [])
+    if rec["eventName"] == "ModifySnapshotAttribute":
+        params = rec.get("requestParameters", {})
+        if params.get("attributeType", "") == "CREATE_VOLUME_PERMISSION":
+            if "add" in params.get("createVolumePermission", {}):
+                items = params["createVolumePermission"]["add"].get("items", [])
                 for item in items:
-                    if item.get('group', '') == 'all':
+                    if item.get("group", "") == "all":
                         return True
 
     # Check RDS snapshots
-    if rec['eventName'] == 'ModifyDBClusterSnapshotAttribute':
-        params = rec.get('requestParameters', {})
-        if 'all' in params.get('valuesToAdd', []):
+    if rec["eventName"] == "ModifyDBClusterSnapshotAttribute":
+        params = rec.get("requestParameters", {})
+        if "all" in params.get("valuesToAdd", []):
             return True
 
     return False

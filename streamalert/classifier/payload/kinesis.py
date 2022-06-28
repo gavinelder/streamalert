@@ -20,10 +20,9 @@ import zlib
 from streamalert.classifier.payload.payload_base import (
     PayloadRecord,
     RegisterInput,
-    StreamPayload
+    StreamPayload,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
@@ -35,7 +34,7 @@ class KinesisPayload(StreamPayload):
 
     @classmethod
     def service(cls):
-        return 'kinesis'
+        return "kinesis"
 
     def _pre_parse(self):
         """Pre-parsing method for Kinesis records
@@ -46,11 +45,14 @@ class KinesisPayload(StreamPayload):
         Yields:
             Instances of PayloadRecord back to the caller containing the current log data
         """
-        LOGGER.debug('Pre-parsing record from Kinesis. eventID: %s, eventSourceARN: %s',
-                     self.raw_record['eventID'], self.raw_record['eventSourceARN'])
+        LOGGER.debug(
+            "Pre-parsing record from Kinesis. eventID: %s, eventSourceARN: %s",
+            self.raw_record["eventID"],
+            self.raw_record["eventSourceARN"],
+        )
 
         # Kinesis records have to potential to be gzipped, so try to decompress
-        record = base64.b64decode(self.raw_record['kinesis']['data'])
+        record = base64.b64decode(self.raw_record["kinesis"]["data"])
         try:
             record = zlib.decompress(record, 47)
         except zlib.error:

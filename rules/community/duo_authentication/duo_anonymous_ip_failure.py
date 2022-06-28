@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['duo:authentication'])
+@rule(logs=["duo:authentication"])
 def duo_anonymous_ip_failure(rec):
     """
     author:       airbnb_csirt
@@ -10,4 +10,4 @@ def duo_anonymous_ip_failure(rec):
     reference:    https://duo.com/docs/policy#anonymous-networks
     playbook:     N/A
     """
-    return rec['result'] == 'FAILURE' and rec['reason'] == 'Anonymous IP'
+    return rec["result"] == "FAILURE" and rec["reason"] == "Anonymous IP"

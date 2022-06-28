@@ -17,46 +17,48 @@ import logging
 import os
 
 from mock import patch
-from nose.tools import assert_equal, assert_is_instance
+from pytest import assert_equal, assert_is_instance
 
 from streamalert.shared.logger import get_logger, LogFormatter, set_formatter
 
 
 def test_get_logger():
     """Shared - Get Logger, Defaults"""
-    logger_name = 'unittest'
+    logger_name = "unittest"
     logger = get_logger(logger_name)
-    assert_equal(logger.name, logger_name)
-    assert_equal(logging.getLevelName(logger.getEffectiveLevel()), 'INFO')
+    assert logger.name == logger_name
+    assert logging.getLevelName(logger.getEffectiveLevel()) == "INFO"
 
 
 def test_get_logger_env_level():
     """Shared - Get Logger, Environment Level"""
-    level = 'DEBUG'
-    with patch.dict(os.environ, {'LOGGER_LEVEL': level}):
-        logger = get_logger('test')
+    level = "DEBUG"
+    with patch.dict(os.environ, {"LOGGER_LEVEL": level}):
+        logger = get_logger("test")
 
-    assert_equal(logging.getLevelName(logger.getEffectiveLevel()), level)
+    assert logging.getLevelName(logger.getEffectiveLevel()) == level
 
 
 def test_get_logger_user_level():
     """Shared - Get Logger, User Defined Level"""
-    level = 'CRITICAL'
-    logger = get_logger('test', level)
-    assert_equal(logging.getLevelName(logger.getEffectiveLevel()), level)
+    level = "CRITICAL"
+    logger = get_logger("test", level)
+    assert logging.getLevelName(logger.getEffectiveLevel()) == level
 
 
-@patch('logging.Logger.error')
+@patch("logging.Logger.error")
 def test_get_logger_bad_level(log_mock):
     """Shared - Get Logger, Bad Level"""
-    logger = get_logger('test', 'foo')
-    assert_equal(logging.getLevelName(logger.getEffectiveLevel()), 'INFO')
-    log_mock.assert_called_with('Defaulting to INFO logging: %s', 'Unknown level: \'FOO\'')
+    logger = get_logger("test", "foo")
+    assert logging.getLevelName(logger.getEffectiveLevel()) == "INFO"
+    log_mock.assert_called_with(
+        "Defaulting to INFO logging: %s", "Unknown level: 'FOO'"
+    )
 
 
 def test_set_logger_formatter_existing_handler():
     """Shared - Set Logger Formatter, Existing Handler"""
-    logger = logging.getLogger('test')  # non-root logger
+    logger = logging.getLogger("test")  # non-root logger
 
     # Create handler to be added
     # This simulates what happens in the Lambda execution environment
@@ -66,13 +68,13 @@ def test_set_logger_formatter_existing_handler():
     # Now set the formatter on the logger that already has a handler
     set_formatter(logger)
 
-    assert_is_instance(handler.formatter, LogFormatter)
+    assert isinstance(handler.formatter, LogFormatter)
 
 
-@patch('logging.Logger.hasHandlers')
+@patch("logging.Logger.hasHandlers")
 def test_set_logger_formatter_new_handler(log_mock):
     """Shared - Set Logger Formatter, New Handler"""
-    logger = logging.getLogger('test')  # non-root logger
+    logger = logging.getLogger("test")  # non-root logger
 
     # Hack because nosetests uses a `MyMemoryHandler` that is attached to loggers
     log_mock.return_value = False
@@ -80,4 +82,4 @@ def test_set_logger_formatter_new_handler(log_mock):
     # Set the formatter on the logger that does not have any existing handlers
     set_formatter(logger)
 
-    assert_is_instance(logger.handlers[0].formatter, LogFormatter)
+    assert isinstance(logger.handlers[0].formatter, LogFormatter)

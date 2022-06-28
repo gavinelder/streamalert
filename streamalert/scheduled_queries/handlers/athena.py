@@ -55,23 +55,24 @@ class AthenaClient:
             AthenaQueryExecutionError: If any failure occurs during the execution of the
                 query, this exception will be raised
         """
-        self._logger.debug('Executing query: %s', query)
+        self._logger.debug("Executing query: %s", query)
         try:
-            output_location = 's3://{bucket}/{key}.csv'.format(
-                bucket=self._s3_results_bucket,
-                key=uuid.uuid4()
+            output_location = "s3://{bucket}/{key}.csv".format(
+                bucket=self._s3_results_bucket, key=uuid.uuid4()
             )
             result = self._client.start_query_execution(
                 QueryString=query,
-                QueryExecutionContext={'Database': options.get('database', self._database)},
-                ResultConfiguration={'OutputLocation': output_location}
+                QueryExecutionContext={
+                    "Database": options.get("database", self._database)
+                },
+                ResultConfiguration={"OutputLocation": output_location},
             )
-            query_execution_id = result['QueryExecutionId']
-            self._logger.debug('Query dispatched. ID returned: %s', query_execution_id)
+            query_execution_id = result["QueryExecutionId"]
+            self._logger.debug("Query dispatched. ID returned: %s", query_execution_id)
 
             return query_execution_id
         except ClientError as err:
-            raise AthenaQueryExecutionError('Athena query failed:\n{}'.format(err))
+            raise AthenaQueryExecutionError("Athena query failed:\n{}".format(err))
 
     def get_query_execution(self, query_execution_id):
         """Gets an AthenaQueryExecution object encapsulating the result of a query
@@ -85,9 +86,9 @@ class AthenaClient:
         Returns:
             AthenaQueryExecution
         """
-        return AthenaQueryExecution(self._client.get_query_execution(
-            QueryExecutionId=query_execution_id
-        ))
+        return AthenaQueryExecution(
+            self._client.get_query_execution(QueryExecutionId=query_execution_id)
+        )
 
     def get_query_result(self, query_execution):
         """Returns a query result payload, wrapped in a AthenaQueryResult object
@@ -103,7 +104,9 @@ class AthenaClient:
             return None
         return AthenaQueryResult(
             query_execution,
-            self._client.get_query_results(QueryExecutionId=query_execution.query_execution_id)
+            self._client.get_query_results(
+                QueryExecutionId=query_execution.query_execution_id
+            ),
         )
 
     def run_async_query(self, query, options=None):
@@ -138,45 +141,47 @@ class AthenaQueryExecution:
 
     @property
     def query_execution_id(self):
-        return self._response['QueryExecution']['QueryExecutionId']
+        return self._response["QueryExecution"]["QueryExecutionId"]
 
     @property
     def database(self):
-        return self._response['QueryExecution']['QueryExecutionContext']['Database']
+        return self._response["QueryExecution"]["QueryExecutionContext"]["Database"]
 
     @property
     def status(self):
-        return self._response['QueryExecution']['Status']['State']
+        return self._response["QueryExecution"]["Status"]["State"]
 
     @property
     def status_description(self):
-        return self._response['QueryExecution']['Status'].get('StateChangeReason', None)
+        return self._response["QueryExecution"]["Status"].get("StateChangeReason", None)
 
     @property
     def completion_datetime(self):
-        return self._response['QueryExecution']['Status']['CompletionDateTime']
+        return self._response["QueryExecution"]["Status"]["CompletionDateTime"]
 
     @property
     def data_scanned_in_bytes(self):
-        return self._response['QueryExecution']['Statistics']['DataScannedInBytes']
+        return self._response["QueryExecution"]["Statistics"]["DataScannedInBytes"]
 
     @property
     def engine_execution_time_in_millis(self):
-        return self._response['QueryExecution']['Statistics']['EngineExecutionTimeInMillis']
+        return self._response["QueryExecution"]["Statistics"][
+            "EngineExecutionTimeInMillis"
+        ]
 
     @property
     def output_location(self):
-        return self._response['QueryExecution']['ResultConfiguration']['OutputLocation']
+        return self._response["QueryExecution"]["ResultConfiguration"]["OutputLocation"]
 
     @property
     def query(self):
-        return self._response['QueryExecution']['Query']
+        return self._response["QueryExecution"]["Query"]
 
     def is_still_running(self):
-        return self.status in {'QUEUED', 'RUNNING'}
+        return self.status in {"QUEUED", "RUNNING"}
 
     def is_succeeded(self):
-        return self.status == 'SUCCEEDED'
+        return self.status == "SUCCEEDED"
 
 
 class AthenaQueryResult:
@@ -241,18 +246,20 @@ class AthenaQueryResult:
 
     @property
     def data_as_human_string(self):
-        return json.dumps(self.data_as_dicts, indent=2, separators=(',', ': '))
+        return json.dumps(self.data_as_dicts, indent=2, separators=(",", ": "))
 
     @property
     def raw_rows(self):
-        return self._result['ResultSet']['Rows']
+        return self._result["ResultSet"]["Rows"]
 
     @property
     def count(self):
         """Returns the number of rows in the result set"""
-        return len(self.raw_rows) - 1  # Remove 1 to account for the header, which is always around
+        return (
+            len(self.raw_rows) - 1
+        )  # Remove 1 to account for the header, which is always around
 
     @staticmethod
     def _raw_row_to_list(row):
         # For empty cells, there is no VarCharValue key
-        return [cell.get('VarCharValue', None) for cell in row['Data']]
+        return [cell.get("VarCharValue", None) for cell in row["Data"]]

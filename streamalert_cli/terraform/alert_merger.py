@@ -22,30 +22,34 @@ def generate_alert_merger(config):
     Returns:
         dict: Alert Merger Terraform definition to be marshaled to JSON
     """
-    prefix = config['global']['account']['prefix']
+    prefix = config["global"]["account"]["prefix"]
 
     result = infinitedict()
 
     # Set variables for the alert merger's IAM permissions
-    result['module']['alert_merger_iam'] = {
-        'source': './modules/tf_alert_merger_iam',
-        'account_id': config['global']['account']['aws_account_id'],
-        'region': config['global']['account']['region'],
-        'prefix': config['global']['account']['prefix'],
-        'role_id': '${module.alert_merger_lambda.role_id}'
+    result["module"]["alert_merger_iam"] = {
+        "source": "./modules/tf_alert_merger_iam",
+        "account_id": config["global"]["account"]["aws_account_id"],
+        "region": config["global"]["account"]["region"],
+        "prefix": config["global"]["account"]["prefix"],
+        "role_id": "${module.alert_merger_lambda.role_id}",
     }
 
     # Set variables for the Lambda module
-    result['module']['alert_merger_lambda'] = generate_lambda(
-        '{}_streamalert_{}'.format(config['global']['account']['prefix'], ALERT_MERGER_NAME),
-        'streamalert.alert_merger.main.handler',
-        config['lambda']['alert_merger_config'],
+    result["module"]["alert_merger_lambda"] = generate_lambda(
+        "{}_streamalert_{}".format(
+            config["global"]["account"]["prefix"], ALERT_MERGER_NAME
+        ),
+        "streamalert.alert_merger.main.handler",
+        config["lambda"]["alert_merger_config"],
         config,
         environment={
-            'ALERTS_TABLE': '{}_streamalert_alerts'.format(prefix),
-            'ALERT_PROCESSOR': '{}_streamalert_alert_processor'.format(prefix),
-            'ALERT_PROCESSOR_TIMEOUT_SEC': config['lambda']['alert_processor_config']['timeout'],
-        }
+            "ALERTS_TABLE": "{}_streamalert_alerts".format(prefix),
+            "ALERT_PROCESSOR": "{}_streamalert_alert_processor".format(prefix),
+            "ALERT_PROCESSOR_TIMEOUT_SEC": config["lambda"]["alert_processor_config"][
+                "timeout"
+            ],
+        },
     )
 
     return result

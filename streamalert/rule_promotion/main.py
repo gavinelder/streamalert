@@ -18,4 +18,4 @@ from streamalert.rule_promotion.promoter import RulePromoter
 
 
 def handler(event, _):
-    RulePromoter().run(event.get('send_digest', False))
+    RulePromoter().run(event.get("send_digest", False))

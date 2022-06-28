@@ -20,18 +20,21 @@ class StagingStatistic:
 
     _ALERT_COUNT_UNKOWN = -1
 
-    _COUNT_QUERY_TEMPLATE = (
-        "SELECT rule_name, count(*) AS count FROM alerts WHERE {where_clause} GROUP BY rule_name"
+    _COUNT_QUERY_TEMPLATE = "SELECT rule_name, count(*) AS count FROM alerts WHERE {where_clause} GROUP BY rule_name"
+
+    _COUNT_QUERY_WHERE_FRAGMENT = (
+        "(dt >= '{date}-{hour:02}' AND rule_name = '{rule_name}')"
     )
 
-    _COUNT_QUERY_WHERE_FRAGMENT = "(dt >= '{date}-{hour:02}' AND rule_name = '{rule_name}')"
+    _INFO_QUERY_TEMPLATE = (
+        "SELECT id, rule_name, created, cluster, log_source, source_entity, "
+        "record FROM alerts WHERE dt >= '{date}-{hour:02}' AND "
+        "rule_name = '{rule_name}' ORDER BY created DESC"
+    )
 
-    _INFO_QUERY_TEMPLATE = ("SELECT id, rule_name, created, cluster, log_source, source_entity, "
-                            "record FROM alerts WHERE dt >= '{date}-{hour:02}' AND "
-                            "rule_name = '{rule_name}' ORDER BY created DESC")
-
-    _QUERY_EXECUTION_LINK_TEMPLATE = ('https://console.aws.amazon.com/athena/home'
-                                      '#query/history/{execution_id}')
+    _QUERY_EXECUTION_LINK_TEMPLATE = (
+        "https://console.aws.amazon.com/athena/home" "#query/history/{execution_id}"
+    )
 
     def __init__(self, staged_at, staged_until, current_time, rule):
         self._rule_name = rule
@@ -58,7 +61,7 @@ class StagingStatistic:
         Returns:
             list: SQL statement for counting alerts created by staged rules
         """
-        where_clause = ' OR '.join(stat.sql_where_fragment for stat in stats)
+        where_clause = " OR ".join(stat.sql_where_fragment for stat in stats)
         return cls._COUNT_QUERY_TEMPLATE.format(where_clause=where_clause)
 
     @property
@@ -66,7 +69,7 @@ class StagingStatistic:
         return self._COUNT_QUERY_WHERE_FRAGMENT.format(
             date=self._staged_at.date().isoformat(),
             hour=self._staged_at.hour,
-            rule_name=self._rule_name
+            rule_name=self._rule_name,
         )
 
     @property
@@ -75,7 +78,7 @@ class StagingStatistic:
         return self._INFO_QUERY_TEMPLATE.format(
             date=self._staged_at.date().isoformat(),
             hour=self._staged_at.hour,
-            rule_name=self._rule_name
+            rule_name=self._rule_name,
         )
 
     @property
@@ -87,41 +90,45 @@ class StagingStatistic:
         """Return a human-readable respresentation of the stat's data"""
         info = self.__dict__.copy()
 
-        info.update({
-            'staged_at_label': 'Staged At',
-            'staged_until_label': 'Staged Until',
-            'alert_count_label': 'Alert Count',
-            'alert_info_label': 'Alert Info',
-            'pad': 34
-        })
+        info.update(
+            {
+                "staged_at_label": "Staged At",
+                "staged_until_label": "Staged Until",
+                "alert_count_label": "Alert Count",
+                "alert_info_label": "Alert Info",
+                "pad": 34,
+            }
+        )
 
-        info['staged_time_label'] = (
-            'Remaining Stage Time:'
+        info["staged_time_label"] = (
+            "Remaining Stage Time:"
             if self.staged_until > self._current_time
-            else 'Time Past Staging:\t'
+            else "Time Past Staging:\t"
         )
 
         staged_diff = abs(self._current_time - self.staged_until)
-        info['staged_delta'] = '{}d {}h {}m'.format(
+        info["staged_delta"] = "{}d {}h {}m".format(
             staged_diff.days,
             staged_diff.seconds // 3600,
-            (staged_diff.seconds // 60) % 60
+            (staged_diff.seconds // 60) % 60,
         )
 
-        info['info_link'] = (
+        info["info_link"] = (
             self._QUERY_EXECUTION_LINK_TEMPLATE.format(execution_id=self.execution_id)
             if self.execution_id
-            else 'n/a'
+            else "n/a"
         )
 
-        info['alert_count'] = 'unknown' if info['alert_count'] == -1 else info['alert_count']
+        info["alert_count"] = (
+            "unknown" if info["alert_count"] == -1 else info["alert_count"]
+        )
 
         # \u25E6 is unicode for a bullet
         return (
-            '\u25E6 {_rule_name}\n'
-            '\t- {staged_at_label}:\t\t\t\t\t{_staged_at} UTC\n'
-            '\t- {staged_until_label}:\t\t\t\t\t{staged_until} UTC\n'
-            '\t- {staged_time_label}\t\t{staged_delta}\n'
-            '\t- {alert_count_label}:\t\t\t\t\t{alert_count}\n'
-            '\t- {alert_info_label}:\t\t\t\t\t{info_link}'
+            "\u25E6 {_rule_name}\n"
+            "\t- {staged_at_label}:\t\t\t\t\t{_staged_at} UTC\n"
+            "\t- {staged_until_label}:\t\t\t\t\t{staged_until} UTC\n"
+            "\t- {staged_time_label}\t\t{staged_delta}\n"
+            "\t- {alert_count_label}:\t\t\t\t\t{alert_count}\n"
+            "\t- {alert_info_label}:\t\t\t\t\t{info_link}"
         ).format(**info)

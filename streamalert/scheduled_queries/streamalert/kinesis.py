@@ -19,7 +19,7 @@ import json
 class KinesisClient:
     """Encapsulation of all communication with and data structures sent to StreamAlert Kinesis"""
 
-    STREAMQUERY_SCHEMA_VERSION = '1.0.0'
+    STREAMQUERY_SCHEMA_VERSION = "1.0.0"
 
     def __init__(self, logger, client=None, kinesis_stream=None):
         self._logger = logger
@@ -37,8 +37,8 @@ class KinesisClient:
 
         query_execution_id = query_pack.query_execution.query_execution_id
         console_link = (
-            'https://us-east-1.console.aws.amazon.com/athena/home'
-            '?region=us-east-1#query/history/{}'
+            "https://us-east-1.console.aws.amazon.com/athena/home"
+            "?region=us-east-1#query/history/{}"
         ).format(query_execution_id)
         streamquery_result = {
             "streamquery_schema_version": self.STREAMQUERY_SCHEMA_VERSION,
@@ -61,27 +61,31 @@ class KinesisClient:
         }
 
         self._logger.info(
-            'Sending StreamQuery record to kinesis stream: {}'.format(self._kinesis_stream)
+            "Sending StreamQuery record to kinesis stream: {}".format(
+                self._kinesis_stream
+            )
         )
-        self._logger.debug(json.dumps(streamquery_result, indent=2, separators=(', ', ': ')))
+        self._logger.debug(
+            json.dumps(streamquery_result, indent=2, separators=(", ", ": "))
+        )
 
         response = self._client.put_records(
             Records=[
                 {
-                    'Data': json.dumps(streamquery_result),
-                    'PartitionKey': 'partitionKeyFoo'
+                    "Data": json.dumps(streamquery_result),
+                    "PartitionKey": "partitionKeyFoo",
                 },
             ],
-            StreamName=self._kinesis_stream
+            StreamName=self._kinesis_stream,
         )
         self._logger.debug(response)
 
-        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-            self._logger.info('  Success.')
+        if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+            self._logger.info("  Success.")
         else:
-            self._logger.info('  ERROR!')
+            self._logger.info("  ERROR!")
 
-        self._logger.info('Done.')
+        self._logger.info("Done.")
 
     def send_error_results(self, query_pack):
         """Send Kinesis record to StreamAlert upon query failure
@@ -95,8 +99,8 @@ class KinesisClient:
 
         query_execution_id = query_pack.query_execution.query_execution_id
         console_link = (
-            'https://us-east-1.console.aws.amazon.com/athena/home'
-            '?region=us-east-1#query/history/{}'
+            "https://us-east-1.console.aws.amazon.com/athena/home"
+            "?region=us-east-1#query/history/{}"
         ).format(query_execution_id)
         streamquery_result = {
             "streamquery_schema_version": self.STREAMQUERY_SCHEMA_VERSION,
@@ -110,9 +114,7 @@ class KinesisClient:
                 "tags": query.tags,
                 "query_execution_id": query_execution_id,
                 "console_link": console_link,
-                "error": {
-                    "description": query_pack.query_execution.status_description
-                },
+                "error": {"description": query_pack.query_execution.status_description},
             },
             "data": {
                 "headers": [],
@@ -122,24 +124,28 @@ class KinesisClient:
         }
 
         self._logger.info(
-            'Sending StreamQuery record to kinesis stream: {}'.format(self._kinesis_stream)
+            "Sending StreamQuery record to kinesis stream: {}".format(
+                self._kinesis_stream
+            )
         )
-        self._logger.debug(json.dumps(streamquery_result, indent=2, separators=(', ', ': ')))
+        self._logger.debug(
+            json.dumps(streamquery_result, indent=2, separators=(", ", ": "))
+        )
 
         response = self._client.put_records(
             Records=[
                 {
-                    'Data': json.dumps(streamquery_result),
-                    'PartitionKey': 'partitionKeyFoo'
+                    "Data": json.dumps(streamquery_result),
+                    "PartitionKey": "partitionKeyFoo",
                 },
             ],
-            StreamName=self._kinesis_stream
+            StreamName=self._kinesis_stream,
         )
         self._logger.debug(response)
 
-        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-            self._logger.info('  Success.')
+        if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+            self._logger.info("  Success.")
         else:
-            self._logger.info('  ERROR!')
+            self._logger.info("  ERROR!")
 
-        self._logger.info('Done.')
+        self._logger.info("Done.")

@@ -28,36 +28,41 @@ def generate_apps(cluster_name, cluster_dict, config):
     Returns:
         bool: Result of applying the app integration module
     """
-    prefix = config['global']['account']['prefix']
+    prefix = config["global"]["account"]["prefix"]
 
-    for function_name, app_info in config['clusters'][cluster_name]['modules'].get(
-            'streamalert_apps', {}).items():
+    for function_name, app_info in (
+        config["clusters"][cluster_name]["modules"].get("streamalert_apps", {}).items()
+    ):
 
-        tf_module_prefix = 'app_{}_{}'.format(app_info['app_name'], cluster_name)
+        tf_module_prefix = "app_{}_{}".format(app_info["app_name"], cluster_name)
 
-        destination_func = '{}_{}_streamalert_classifier'.format(prefix, cluster_name)
+        destination_func = "{}_{}_streamalert_classifier".format(prefix, cluster_name)
 
         app_config = {
-            'app_type': app_info['type'],
-            'destination_function_name': destination_func,
-            'schedule_expression': app_info['schedule_expression']
+            "app_type": app_info["type"],
+            "destination_function_name": destination_func,
+            "schedule_expression": app_info["schedule_expression"],
         }
 
         # Format the iam module with 'app_<app_name_<cluster>_iam'
-        cluster_dict['module']['{}_iam'.format(tf_module_prefix)] = {
-            'account_id': config['global']['account']['aws_account_id'],
-            'destination_function_name': destination_func,
-            'function_name': function_name,
-            'region': config['global']['account']['region'],
-            'function_role_id': '${{module.{}_lambda.role_id}}'.format(tf_module_prefix),
-            'source': './modules/tf_app_iam'
+        cluster_dict["module"]["{}_iam".format(tf_module_prefix)] = {
+            "account_id": config["global"]["account"]["aws_account_id"],
+            "destination_function_name": destination_func,
+            "function_name": function_name,
+            "region": config["global"]["account"]["region"],
+            "function_role_id": "${{module.{}_lambda.role_id}}".format(
+                tf_module_prefix
+            ),
+            "source": "./modules/tf_app_iam",
         }
 
         # Format the lambda module with 'app_<app_name_<cluster>_lambda'
-        cluster_dict['module']['{}_lambda'.format(tf_module_prefix)] = generate_lambda(
+        cluster_dict["module"]["{}_lambda".format(tf_module_prefix)] = generate_lambda(
             function_name,
-            'streamalert.apps.main.handler',
-            config['clusters'][cluster_name]['modules']['streamalert_apps'][function_name],
+            "streamalert.apps.main.handler",
+            config["clusters"][cluster_name]["modules"]["streamalert_apps"][
+                function_name
+            ],
             config,
             input_event=app_config,
             include_layers=True,

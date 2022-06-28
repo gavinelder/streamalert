@@ -17,7 +17,7 @@ from streamalert_cli.utils import CLICommand, set_parser_epilog
 
 
 class ConfigureCommand(CLICommand):
-    description = 'Configure global StreamAlert settings'
+    description = "Configure global StreamAlert settings"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -25,37 +25,34 @@ class ConfigureCommand(CLICommand):
         set_parser_epilog(
             subparser,
             epilog=(
-                '''\
+                """\
                 Example:
 
                     manage.py configure prefix orgname
-                '''
-            )
+                """
+            ),
         )
 
         subparser.add_argument(
-            'key',
-            choices=['prefix', 'aws_account_id'],
-            help='Value of key being configured'
+            "key",
+            choices=["prefix", "aws_account_id"],
+            help="Value of key being configured",
         )
 
-        subparser.add_argument(
-            'value',
-            help='Value to assign to key being configured'
-        )
+        subparser.add_argument("value", help="Value to assign to key being configured")
 
     @classmethod
     def handler(cls, options, config):
         """Configure StreamAlert main settings
 
-            Args:
-                options (argparse.Namespace): ArgParse command result
+        Args:
+            options (argparse.Namespace): ArgParse command result
 
-            Returns:
-                bool: False if errors occurred, True otherwise
-            """
-        if options.key == 'prefix':
+        Returns:
+            bool: False if errors occurred, True otherwise
+        """
+        if options.key == "prefix":
             return config.set_prefix(options.value)
 
-        if options.key == 'aws_account_id':
+        if options.key == "aws_account_id":
             return config.set_aws_account_id(options.value)

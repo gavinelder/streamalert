@@ -65,10 +65,10 @@ class RuleDescriptionParser:
     # Match alphanumeric, plus underscores, dashes, spaces, and & signs
     # Labels are a maximum of 20 characters long. They also never start with http or https
     _FIELD_REGEX = re.compile(
-        r'^(?!http:|https:)(?P<field>[a-zA-Z\d\-_&\s]{0,20}):(?P<remainder>.*)$'
+        r"^(?!http:|https:)(?P<field>[a-zA-Z\d\-_&\s]{0,20}):(?P<remainder>.*)$"
     )
     _URL_REGEX = re.compile(
-        r'^(?:http(s)?://)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&\'\(\)\*\+,;=.]+$'
+        r"^(?:http(s)?://)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&\'\(\)\*\+,;=.]+$"
     )
 
     @classmethod
@@ -82,19 +82,19 @@ class RuleDescriptionParser:
             dict: A dict mapping fields to lists of strings, each corresponding to a line belonging
                   to that field. All field names are lowercase.
         """
-        rule_description = '' if not rule_description else rule_description
-        tokens = [line.strip() for line in rule_description.strip().split('\n')]
+        rule_description = "" if not rule_description else rule_description
+        tokens = [line.strip() for line in rule_description.strip().split("\n")]
 
         field_lines = {}
 
-        current_field = 'description'
+        current_field = "description"
         for token in tokens:
             if current_field not in field_lines:
                 field_lines[current_field] = []
 
             if not token:
                 # preserve an empty line
-                field_lines[current_field].append('')
+                field_lines[current_field].append("")
                 continue
 
             # Python regex does not support possessive qualifiers, which means it not easy
@@ -104,8 +104,8 @@ class RuleDescriptionParser:
             match = cls._FIELD_REGEX.match(token)
 
             if match is not None:
-                current_field = match.group('field').strip().lower()
-                value = match.group('remainder').strip()
+                current_field = match.group("field").strip().lower()
+                value = match.group("remainder").strip()
             else:
                 value = token
 
@@ -119,46 +119,46 @@ class RuleDescriptionParser:
     def present(cls, rule_description):
         def join_lines(lines):
             if not isinstance(lines, list) or not lines:
-                return ''
+                return ""
 
             document = None
-            buffered_newlines = ''
+            buffered_newlines = ""
             for line in lines:
                 if not line:
-                    buffered_newlines += '\n'
+                    buffered_newlines += "\n"
                     continue
 
                 if document is None:
-                    buffered_newlines = ''
+                    buffered_newlines = ""
                     document = line
                 else:
                     match = cls._URL_REGEX.match(document + line)
                     if match is not None:
                         document += line
                     else:
-                        space = buffered_newlines if buffered_newlines else ' '
-                        buffered_newlines = ''
+                        space = buffered_newlines if buffered_newlines else " "
+                        buffered_newlines = ""
                         document += space + line
 
             if document is None:
-                document = ''
+                document = ""
 
             return document
 
         fragments = cls.parse(rule_description)
 
         presentation = {
-            'author': '',
-            'description': '',
-            'fields': {},
+            "author": "",
+            "description": "",
+            "fields": {},
         }
 
         for key, value in fragments.items():
-            if key in ['author', 'maintainer']:
-                presentation['author'] = join_lines(value)
-            elif key in ['description']:
-                presentation['description'] = join_lines(value)
+            if key in ["author", "maintainer"]:
+                presentation["author"] = join_lines(value)
+            elif key in ["description"]:
+                presentation["description"] = join_lines(value)
             else:
-                presentation['fields'][key] = join_lines(value)
+                presentation["fields"][key] = join_lines(value)
 
         return presentation

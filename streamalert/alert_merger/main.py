@@ -24,12 +24,12 @@ from streamalert.shared.alert_table import AlertTable
 from streamalert.shared.logger import get_logger
 from streamalert.shared.metrics import ALERT_MERGER_NAME, MetricLogger
 
-
 LOGGER = get_logger(__name__)
 
 
 class AlertMergeGroup:
     """A list of alerts within a single merge window which match on their merge keys."""
+
     # In order to limit the size of a merged alert, cap the maximum number that can be merged.
     MAX_ALERTS_PER_GROUP = 50
 
@@ -54,7 +54,10 @@ class AlertMergeGroup:
 
 class AlertMerger:
     """Dispatch alerts to the alert processor."""
-    ALERT_MERGER = None  # AlertMerger instance which can be re-used across Lambda invocations
+
+    ALERT_MERGER = (
+        None  # AlertMerger instance which can be re-used across Lambda invocations
+    )
 
     # Async invocations of Lambda functions are capped at 128KB.
     # Set the max payload size to slightly under that to account for the rest of the message.
@@ -72,10 +75,10 @@ class AlertMerger:
         return cls.ALERT_MERGER
 
     def __init__(self):
-        self.table = AlertTable(os.environ['ALERTS_TABLE'])
-        self.alert_proc = os.environ['ALERT_PROCESSOR']
-        self.alert_proc_timeout = int(os.environ['ALERT_PROCESSOR_TIMEOUT_SEC'])
-        self.lambda_client = boto3.client('lambda')
+        self.table = AlertTable(os.environ["ALERTS_TABLE"])
+        self.alert_proc = os.environ["ALERT_PROCESSOR"]
+        self.alert_proc_timeout = int(os.environ["ALERT_PROCESSOR_TIMEOUT_SEC"])
+        self.lambda_client = boto3.client("lambda")
 
         # FIXME (derek.wang) Maybe make this configurable in the future
         self._alert_generator_limit = self.ALERT_GENERATOR_DEFAULT_LIMIT
@@ -92,14 +95,14 @@ class AlertMerger:
             try:
                 yield Alert.create_from_dynamo_record(record)
             except AlertCreationError:
-                LOGGER.exception('Invalid alert record %s', record)
+                LOGGER.exception("Invalid alert record %s", record)
                 continue
 
             if idx >= self._alert_generator_limit:
                 LOGGER.warning(
                     'Alert Merger reached alert limit of %d for rule "%s"',
                     self._alert_generator_limit,
-                    rule_name
+                    rule_name,
                 )
                 return
 
@@ -134,10 +137,16 @@ class AlertMerger:
     def _dispatch_alert(self, alert):
         """Dispatch a single alert to the alert processor."""
         alert.attempts += 1
-        LOGGER.info('Dispatching %s to %s (attempt %d)', alert, self.alert_proc, alert.attempts)
-        MetricLogger.log_metric(ALERT_MERGER_NAME, MetricLogger.ALERT_ATTEMPTS, alert.attempts)
+        LOGGER.info(
+            "Dispatching %s to %s (attempt %d)", alert, self.alert_proc, alert.attempts
+        )
+        MetricLogger.log_metric(
+            ALERT_MERGER_NAME, MetricLogger.ALERT_ATTEMPTS, alert.attempts
+        )
 
-        record_payload = json.dumps(alert.dynamo_record(), default=list, separators=(',', ':'))
+        record_payload = json.dumps(
+            alert.dynamo_record(), default=list, separators=(",", ":")
+        )
 
         if len(record_payload) <= self.MAX_LAMBDA_PAYLOAD_SIZE:
             # The entire alert fits in the Lambda payload - send it all
@@ -148,9 +157,9 @@ class AlertMerger:
 
         self.lambda_client.invoke(
             FunctionName=self.alert_proc,
-            InvocationType='Event',
+            InvocationType="Event",
             Payload=payload,
-            Qualifier='production'
+            Qualifier="production",
         )
 
         alert.dispatched = datetime.utcnow()
@@ -182,8 +191,11 @@ class AlertMerger:
             for group in self._merge_groups(merge_enabled_alerts):
                 # Create a new merged Alert.
                 new_alert = Alert.merge(group.alerts)
-                LOGGER.info('Merged %d alerts into a new alert with ID %s',
-                            len(group.alerts), new_alert.alert_id)
+                LOGGER.info(
+                    "Merged %d alerts into a new alert with ID %s",
+                    len(group.alerts),
+                    new_alert.alert_id,
+                )
                 merged_alerts.append(new_alert)
 
                 # Since we already guaranteed that the original alerts have sent to the unmerged
@@ -197,9 +209,9 @@ class AlertMerger:
                 self._dispatch_alert(alert)
 
         if alerts_to_delete:
-            self.table.delete_alerts([
-                (alert.rule_name, alert.alert_id) for alert in alerts_to_delete
-            ])
+            self.table.delete_alerts(
+                [(alert.rule_name, alert.alert_id) for alert in alerts_to_delete]
+            )
 
 
 def handler(event, context):  # pylint: disable=unused-argument

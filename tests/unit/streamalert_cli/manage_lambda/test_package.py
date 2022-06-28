@@ -25,24 +25,25 @@ from streamalert_cli.manage_lambda import package
 
 class PackageTest(fake_filesystem_unittest.TestCase):
     """Test the packaging logic for the Lambda package"""
-    TEST_CONFIG_PATH = 'tests/unit/conf'
-    MOCK_TEMP_PATH = '/tmp/test_packaging'
 
-    @patch('streamalert_cli.config.CLIConfig._copy_terraform_files', Mock())
+    TEST_CONFIG_PATH = "tests/unit/conf"
+    MOCK_TEMP_PATH = "/tmp/test_packaging"
+
+    @patch("streamalert_cli.config.CLIConfig._copy_terraform_files", Mock())
     def setUp(self):
         self.setUpPyfakefs()
         self.fs.add_real_directory(self.TEST_CONFIG_PATH)
 
         config = CLIConfig(self.TEST_CONFIG_PATH)
 
-        with patch('tempfile.gettempdir') as temp_dir_mock:
+        with patch("tempfile.gettempdir") as temp_dir_mock:
             temp_dir_mock.return_value = self.MOCK_TEMP_PATH
             self.packager = package.LambdaPackage(config)
 
     def test_copy_directory_destination(self):
         """CLI - LambdaPackage copy directory using destination"""
-        self.packager._copy_directory(self.TEST_CONFIG_PATH, destination='conf_test')
+        self.packager._copy_directory(self.TEST_CONFIG_PATH, destination="conf_test")
 
         # Ensure the specified destination exists and not the default
-        self.assertTrue(os.path.exists(self.MOCK_TEMP_PATH + '/streamalert/conf_test'))
-        self.assertFalse(os.path.exists(self.MOCK_TEMP_PATH + '/streamalert/conf'))
+        self.assertTrue(os.path.exists(self.MOCK_TEMP_PATH + "/streamalert/conf_test"))
+        self.assertFalse(os.path.exists(self.MOCK_TEMP_PATH + "/streamalert/conf"))

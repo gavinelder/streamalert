@@ -20,10 +20,9 @@ from cbapi.response import BannedHash, Binary, CbResponseAPI
 from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
-    StreamAlertOutput
+    StreamAlertOutput,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -31,7 +30,8 @@ LOGGER = get_logger(__name__)
 @StreamAlertOutput
 class CarbonBlackOutput(OutputDispatcher):
     """CarbonBlackOutput handles all alert dispatching for CarbonBlack"""
-    __service__ = 'carbonblack'
+
+    __service__ = "carbonblack"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -42,20 +42,34 @@ class CarbonBlackOutput(OutputDispatcher):
         Returns:
           OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for this'
-                                        ' carbonblack output')),
-            ('url',
-             OutputProperty(description='URL to the CB Response server [https://hostname]',
-                            mask_input=False,
-                            input_restrictions={' '},
-                            cred_requirement=True)),
-            ('token',
-             OutputProperty(description='API token (if unknown, leave blank)',
-                            mask_input=True,
-                            cred_requirement=True)),
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this"
+                        " carbonblack output"
+                    ),
+                ),
+                (
+                    "url",
+                    OutputProperty(
+                        description="URL to the CB Response server [https://hostname]",
+                        mask_input=False,
+                        input_restrictions={" "},
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "token",
+                    OutputProperty(
+                        description="API token (if unknown, leave blank)",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send ban hash command to CarbonBlack
@@ -71,7 +85,9 @@ class CarbonBlackOutput(OutputDispatcher):
             bool: True if alert was sent successfully, False otherwise
         """
         if not alert.context:
-            LOGGER.error('[%s] Alert must contain context to run actions', self.__service__)
+            LOGGER.error(
+                "[%s] Alert must contain context to run actions", self.__service__
+            )
             return False
 
         creds = self._load_creds(descriptor)
@@ -79,12 +95,12 @@ class CarbonBlackOutput(OutputDispatcher):
             return False
 
         client = CbResponseAPI(**creds)
-        carbonblack_context = alert.context.get('carbonblack', {})
+        carbonblack_context = alert.context.get("carbonblack", {})
 
         # Get md5 hash 'value' passed from the rules engine function
-        action = carbonblack_context.get('action')
-        if action == 'ban':
-            binary_hash = carbonblack_context.get('value')
+        action = carbonblack_context.get("action")
+        if action == "ban":
+            binary_hash = carbonblack_context.get("value")
             # The binary should already exist in CarbonBlack
             binary = client.select(Binary, binary_hash)
             # Determine if the binary is currently listed as banned
@@ -106,5 +122,5 @@ class CarbonBlackOutput(OutputDispatcher):
                 banned_hash.save()
 
             return banned_hash.enabled is True
-        LOGGER.error('[%s] Action not supported: %s', self.__service__, action)
+        LOGGER.error("[%s] Action not supported: %s", self.__service__, action)
         return False

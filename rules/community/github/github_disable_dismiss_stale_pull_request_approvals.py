@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['ghe:general'])
+@rule(logs=["ghe:general"])
 def github_disable_dismiss_stale_pull_request_approvals(rec):
     """
     author:       @mimeframe
@@ -14,4 +14,4 @@ def github_disable_dismiss_stale_pull_request_approvals(rec):
                   (c) Click 'Save Changes'
     reference:    https://help.github.com/articles/configuring-protected-branches/
     """
-    return rec['action'] == 'protected_branch.dismiss_stale_reviews'
+    return rec["action"] == "protected_branch.dismiss_stale_reviews"

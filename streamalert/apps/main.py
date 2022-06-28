@@ -27,4 +27,4 @@ def handler(event, context):
             the future, support for historical invocations)
         context (LambdaContxt): AWS LambdaContext object
     """
-    StreamAlertApp.get_app(event['app_type'])(event, context).gather()
+    StreamAlertApp.get_app(event["app_type"])(event, context).gather()

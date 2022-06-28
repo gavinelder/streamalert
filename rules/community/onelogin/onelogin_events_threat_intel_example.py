@@ -11,7 +11,7 @@ from streamalert.rules_engine.threat_intel import ThreatIntel
 #   https://github.com/airbnb/streamalert/blob/
 #      791abf892983eedbaf30ff5aeb1f55e46e20d82a/conf/clusters/prod.json#L80
 @disable
-@rule(logs=['onelogin:events'])
+@rule(logs=["onelogin:events"])
 def onelogin_events_threat_intel_example(rec):
     """
     description: Alert on OneLogin activity from a malicious IP address using threat intel
@@ -21,4 +21,4 @@ def onelogin_events_threat_intel_example(rec):
     # mocks out the threat intel values used by this rule
 
     # In this case, the rec['ipaddr'] value is a "known" malicious IP, so this will alert
-    return ThreatIntel.IOC_KEY in rec and 'ip' in rec[ThreatIntel.IOC_KEY]
+    return ThreatIntel.IOC_KEY in rec and "ip" in rec[ThreatIntel.IOC_KEY]

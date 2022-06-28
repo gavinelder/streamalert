@@ -21,10 +21,9 @@ from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
     OutputRequestFailure,
-    StreamAlertOutput
+    StreamAlertOutput,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -32,9 +31,10 @@ LOGGER = get_logger(__name__)
 @StreamAlertOutput
 class PhantomOutput(OutputDispatcher):
     """PhantomOutput handles all alert dispatching for Phantom"""
-    __service__ = 'phantom'
-    CONTAINER_ENDPOINT = 'rest/container'
-    ARTIFACT_ENDPOINT = 'rest/artifact'
+
+    __service__ = "phantom"
+    CONTAINER_ENDPOINT = "rest/container"
+    ARTIFACT_ENDPOINT = "rest/artifact"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -52,20 +52,34 @@ class PhantomOutput(OutputDispatcher):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for this '
-                                        'Phantom integration')),
-            ('ph_auth_token',
-             OutputProperty(description='the auth token for this Phantom integration',
-                            mask_input=True,
-                            cred_requirement=True)),
-            ('url',
-             OutputProperty(description='the endpoint url for this Phantom integration',
-                            mask_input=True,
-                            input_restrictions={' '},
-                            cred_requirement=True))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this "
+                        "Phantom integration"
+                    ),
+                ),
+                (
+                    "ph_auth_token",
+                    OutputProperty(
+                        description="the auth token for this Phantom integration",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "url",
+                    OutputProperty(
+                        description="the endpoint url for this Phantom integration",
+                        mask_input=True,
+                        input_restrictions={" "},
+                        cred_requirement=True,
+                    ),
+                ),
+            ]
+        )
 
     @classmethod
     def _check_container_exists(cls, rule_name, container_url, headers):
@@ -82,10 +96,7 @@ class PhantomOutput(OutputDispatcher):
         """
         # Limit the query to 1 page, since we only care if one container exists with
         # this name.
-        params = {
-            '_filter_name': '"{}"'.format(rule_name),
-            'page_size': 1
-        }
+        params = {"_filter_name": '"{}"'.format(rule_name), "page_size": 1}
         try:
             resp = cls._get_request_retry(container_url, params, headers, False)
         except OutputRequestFailure:
@@ -98,7 +109,7 @@ class PhantomOutput(OutputDispatcher):
         # If the count == 0 then we know there are no containers with this name and this
         # will evaluate to False. Otherwise there is at least one item in the list
         # of 'data' with a container id we can use
-        return response and response.get('count') and response.get('data')[0]['id']
+        return response and response.get("count") and response.get("data")[0]["id"]
 
     @classmethod
     def _setup_container(cls, rule_name, rule_description, base_url, headers):
@@ -122,7 +133,7 @@ class PhantomOutput(OutputDispatcher):
             return existing_id
 
         # Try to use the rule_description from the rule as the container description
-        ph_container = {'name': rule_name, 'description': rule_description}
+        ph_container = {"name": rule_name, "description": rule_description}
         try:
             resp = cls._post_request_retry(container_url, ph_container, headers, False)
         except OutputRequestFailure:
@@ -132,7 +143,7 @@ class PhantomOutput(OutputDispatcher):
         if not response:
             return False
 
-        return response and response.get('id')
+        return response and response.get("id")
 
     def _dispatch(self, alert, descriptor):
         """Send alert to Phantom
@@ -155,25 +166,24 @@ class PhantomOutput(OutputDispatcher):
         publication = compose_alert(alert, self, descriptor)
         record = alert.record
 
-        headers = {"ph-auth-token": creds['ph_auth_token']}
+        headers = {"ph-auth-token": creds["ph_auth_token"]}
         container_id = self._setup_container(
-            alert.rule_name,
-            alert.rule_description,
-            creds['url'],
-            headers
+            alert.rule_name, alert.rule_description, creds["url"], headers
         )
 
-        LOGGER.debug('sending alert to Phantom container with id %s', container_id)
+        LOGGER.debug("sending alert to Phantom container with id %s", container_id)
 
         if not container_id:
             return False
 
-        artifact = {'cef': record,
-                    'container_id': container_id,
-                    'data': publication,
-                    'name': 'Phantom Artifact',
-                    'label': 'Alert'}
-        artifact_url = os.path.join(creds['url'], self.ARTIFACT_ENDPOINT)
+        artifact = {
+            "cef": record,
+            "container_id": container_id,
+            "data": publication,
+            "name": "Phantom Artifact",
+            "label": "Alert",
+        }
+        artifact_url = os.path.join(creds["url"], self.ARTIFACT_ENDPOINT)
         try:
             self._post_request_retry(artifact_url, artifact, headers, False)
         except OutputRequestFailure:

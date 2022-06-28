@@ -17,11 +17,9 @@ from streamalert.shared.importer import import_folders
 
 
 class QueryPackConfiguration:
-
-    def __init__(self, query=None, params=None, name=None,
-                 description=None, tags=None):
+    def __init__(self, query=None, params=None, name=None, description=None, tags=None):
         if not name:
-            raise RuntimeError('Query Pack missing name')
+            raise RuntimeError("Query Pack missing name")
 
         if not query:
             raise RuntimeError('Query Pack "{}" missing query template'.format(name))
@@ -42,14 +40,16 @@ class QueryPackConfiguration:
         try:
             return self.query_template.format(**kwargs)
         except KeyError as e:
-            msg = '''
+            msg = """
 Failed to generate query for pack: "{name}"
 The provided query parameters were:
 {kwargs}
 
 Error:
 {error}
-'''.strip().format(name=self.name, error=e, kwargs=kwargs)
+""".strip().format(
+                name=self.name, error=e, kwargs=kwargs
+            )
             raise KeyError(msg)
 
     @property
@@ -86,6 +86,7 @@ Error:
 
 class QueryPackRepository:
     """A repository of all packs"""
+
     QUERY_PACKS = {}
 
     @classmethod

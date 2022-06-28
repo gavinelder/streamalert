@@ -24,26 +24,27 @@ from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)
 
-SUPPORTED_SOURCES = {'kinesis', 's3', 'sns', 'streamalert_app'}
+SUPPORTED_SOURCES = {"kinesis", "s3", "sns", "streamalert_app"}
 
 # Used to detect special characters in log names. Log names can not contain special
 # characters except "_" (underscore) because the log names will be referenced when
 # create Athena tables and Firehose.
-SPECIAL_CHAR_REGEX = re.compile(r'\W')
-SPECIAL_CHAR_SUB = '_'
+SPECIAL_CHAR_REGEX = re.compile(r"\W")
+SPECIAL_CHAR_SUB = "_"
 
 
 class TopLevelConfigKeys:
     """Define the available top level keys in the loaded config"""
-    CLUSTERS = 'clusters'
-    GLOBAL = 'global'
-    LAMBDA = 'lambda'
-    LOGS = 'logs'
-    NORMALIZED_TYPES = 'normalized_types'
-    OUTPUTS = 'outputs'
-    SCHEMAS = 'schemas'
-    THREAT_INTEL = 'threat_intel'
-    LOOKUP_TABLES = 'lookup_tables'
+
+    CLUSTERS = "clusters"
+    GLOBAL = "global"
+    LAMBDA = "lambda"
+    LOGS = "logs"
+    NORMALIZED_TYPES = "normalized_types"
+    OUTPUTS = "outputs"
+    SCHEMAS = "schemas"
+    THREAT_INTEL = "threat_intel"
+    LOOKUP_TABLES = "lookup_tables"
 
 
 class SchemaSorter:
@@ -64,7 +65,7 @@ class SchemaSorter:
         Return each schemas priority or the max encountered priority if none was specified.
         """
         dict_value = key_and_value_tuple[1]
-        value = int(dict_value.get('configuration', {}).get('priority', -1))
+        value = int(dict_value.get("configuration", {}).get("priority", -1))
 
         # Update the index to the max of the current index or cached one
         self.max_index = max(self.max_index, value)
@@ -85,16 +86,16 @@ def firehose_data_bucket(config):
             False if firehose is not configured
     """
     # The default name is <prefix>-streamalert-data but can be overridden
-    firehose_config = config['global']['infrastructure'].get('firehose')
+    firehose_config = config["global"]["infrastructure"].get("firehose")
     if not firehose_config:
         return False
 
-    if not firehose_config.get('enabled'):
+    if not firehose_config.get("enabled"):
         return False
 
     return firehose_config.get(
-        'bucket_name',
-        '{}-streamalert-data'.format(config['global']['account']['prefix'])
+        "bucket_name",
+        "{}-streamalert-data".format(config["global"]["account"]["prefix"]),
     )
 
 
@@ -109,9 +110,13 @@ def firehose_alerts_bucket(config):
     """
     # The default name is <prefix>-streamalerts but can be overridden
     # The alerts firehose is not optional, so this should always return a value
-    return config['global']['infrastructure'].get('alerts_firehose', {}).get(
-        'bucket_name',
-        '{}-streamalerts'.format(config['global']['account']['prefix'])
+    return (
+        config["global"]["infrastructure"]
+        .get("alerts_firehose", {})
+        .get(
+            "bucket_name",
+            "{}-streamalerts".format(config["global"]["account"]["prefix"]),
+        )
     )
 
 
@@ -124,12 +129,14 @@ def athena_partition_buckets(config):
     Returns:
         list: Bucket names for which Athena is enabled
     """
-    athena_config = config['lambda']['athena_partitioner_config']
-    data_buckets = athena_config.get('buckets', {})
-    data_buckets[firehose_alerts_bucket(config)] = 'alerts'
-    data_bucket = firehose_data_bucket(config)  # Data retention is optional, so check for this
+    athena_config = config["lambda"]["athena_partitioner_config"]
+    data_buckets = athena_config.get("buckets", {})
+    data_buckets[firehose_alerts_bucket(config)] = "alerts"
+    data_bucket = firehose_data_bucket(
+        config
+    )  # Data retention is optional, so check for this
     if data_bucket:
-        data_buckets[data_bucket] = 'data'
+        data_buckets[data_bucket] = "data"
 
     return data_buckets
 
@@ -147,17 +154,17 @@ def athena_partition_buckets_tf(config):
     """
     # Add the Terraform module output for the alerts bucket
     buckets = {
-        '${aws_s3_bucket.streamalerts.bucket}',
+        "${aws_s3_bucket.streamalerts.bucket}",
     }
     if firehose_data_bucket(config):  # Data retention is optional, so check for this
         # Add the Terraform module output for the data bucket
-        buckets.add('${module.kinesis_firehose_setup.data_bucket_name}')
+        buckets.add("${module.kinesis_firehose_setup.data_bucket_name}")
 
-    athena_config = config['lambda']['athena_partitioner_config']
+    athena_config = config["lambda"]["athena_partitioner_config"]
 
     # Add any user-defined bucket names
     # These are controlled by the user and not by us, so we trust they exist
-    buckets.update(set(athena_config.get('buckets', {})))
+    buckets.update(set(athena_config.get("buckets", {})))
 
     return sorted(buckets)
 
@@ -170,12 +177,11 @@ def athena_query_results_bucket(config):
     Returns:
         str: The name of the S3 bucket.
     """
-    athena_config = config['lambda']['athena_partitioner_config']
-    prefix = config['global']['account']['prefix']
+    athena_config = config["lambda"]["athena_partitioner_config"]
+    prefix = config["global"]["account"]["prefix"]
 
     return athena_config.get(
-        'results_bucket',
-        '{}-streamalert-athena-results'.format(prefix)
+        "results_bucket", "{}-streamalert-athena-results".format(prefix)
     ).strip()
 
 
@@ -201,16 +207,18 @@ def parse_lambda_arn(function_arn):
                 'qualifier': 'qualifier'
             }
     """
-    split_arn = function_arn.split(':')
+    split_arn = function_arn.split(":")
     return {
-        'region': split_arn[3],
-        'account_id': split_arn[4],
-        'function_name': split_arn[6],
-        'qualifier': split_arn[7] if len(split_arn) == 8 else None  # optional qualifier
+        "region": split_arn[3],
+        "account_id": split_arn[4],
+        "function_name": split_arn[6],
+        "qualifier": split_arn[7]
+        if len(split_arn) == 8
+        else None,  # optional qualifier
     }
 
 
-def load_config(conf_dir='conf/', exclude=None, include=None, validate=True):
+def load_config(conf_dir="conf/", exclude=None, include=None, validate=True):
     """Load the configuration for StreamAlert.
 
     All configuration files live in the `conf` directory in JSON format.
@@ -243,7 +251,7 @@ def load_config(conf_dir='conf/', exclude=None, include=None, validate=True):
                 'outputs': <outputs.json contents>
             }
     """
-    default_files = {file for file in os.listdir(conf_dir) if file.endswith('.json')}
+    default_files = {file for file in os.listdir(conf_dir) if file.endswith(".json")}
     conf_files = (include or default_files).copy()
     include_clusters = TopLevelConfigKeys.CLUSTERS in conf_files
 
@@ -254,37 +262,49 @@ def load_config(conf_dir='conf/', exclude=None, include=None, validate=True):
     schemas_dir = os.path.join(conf_dir, TopLevelConfigKeys.SCHEMAS)
     schema_files = []
 
-    if (os.path.exists(schemas_dir) and TopLevelConfigKeys.SCHEMAS not in exclusions
-            and (not include or TopLevelConfigKeys.SCHEMAS in include)):
+    if (
+        os.path.exists(schemas_dir)
+        and TopLevelConfigKeys.SCHEMAS not in exclusions
+        and (not include or TopLevelConfigKeys.SCHEMAS in include)
+    ):
         schema_files = [
-            schema_file for schema_file in os.listdir(schemas_dir) if schema_file.endswith('.json')
+            schema_file
+            for schema_file in os.listdir(schemas_dir)
+            if schema_file.endswith(".json")
         ]
 
     if not (conf_files or include_clusters or schema_files):
         raise ConfigError(
-            'No config files to load. The supplied directory could be incorrect or this could '
-            'be due the misuse of the \'include\' or \'exclude\' keyword arguments.'
+            "No config files to load. The supplied directory could be incorrect or this could "
+            "be due the misuse of the 'include' or 'exclude' keyword arguments."
         )
 
     config = defaultdict(dict)
     for name in conf_files:
         path = os.path.join(conf_dir, name)
         # we use object_pairs_hook=OrderdDict to preserve schema order for CSV/KV log types
-        config[os.path.splitext(name)[0]] = _load_json_file(path, name == 'logs.json')
+        config[os.path.splitext(name)[0]] = _load_json_file(path, name == "logs.json")
 
     # Load split logs.json configuration
-    if ('logs.json' not in default_files and schema_files):
+    if "logs.json" not in default_files and schema_files:
         config[TopLevelConfigKeys.LOGS] = _load_schemas(schemas_dir, schema_files)
 
     # Load the configs for clusters if it is not excluded
-    if TopLevelConfigKeys.CLUSTERS not in exclusions and not include or include_clusters:
-        clusters = {file for file in os.listdir(os.path.join(conf_dir, 'clusters'))
-                    if file.endswith('.json')}
+    if (
+        TopLevelConfigKeys.CLUSTERS not in exclusions
+        and not include
+        or include_clusters
+    ):
+        clusters = {
+            file
+            for file in os.listdir(os.path.join(conf_dir, "clusters"))
+            if file.endswith(".json")
+        }
         for cluster in clusters:
             cluster_path = os.path.join(conf_dir, TopLevelConfigKeys.CLUSTERS, cluster)
-            config[TopLevelConfigKeys.CLUSTERS][os.path.splitext(cluster)[0]] = (
-                _load_json_file(cluster_path)
-            )
+            config[TopLevelConfigKeys.CLUSTERS][
+                os.path.splitext(cluster)[0]
+            ] = _load_json_file(cluster_path)
 
     if validate:
         _validate_config(config)
@@ -307,8 +327,10 @@ def _load_schemas(schemas_dir, schema_files):
         schemas_from_file = _load_json_file(os.path.join(schemas_dir, schema), True)
         dup_schema = set(schemas).intersection(schemas_from_file)
         if dup_schema:
-            LOGGER.warning('Duplicate schema detected %s. This may result in undefined behavior.',
-                           ', '.join(dup_schema))
+            LOGGER.warning(
+                "Duplicate schema detected %s. This may result in undefined behavior.",
+                ", ".join(dup_schema),
+            )
         schemas.update(schemas_from_file)
     return OrderedDict(sorted(schemas.items(), key=SchemaSorter().sort_key))
 
@@ -327,12 +349,12 @@ def _load_json_file(path, ordered=False):
     Raises:
         ConfigError: Raised if any ValueErrors occur during json.load(...)
     """
-    kwargs = {'object_pairs_hook': OrderedDict if ordered else None}
+    kwargs = {"object_pairs_hook": OrderedDict if ordered else None}
     with open(path) as data:
         try:
             return json.load(data, **kwargs)
         except ValueError:
-            raise ConfigError('Invalid JSON format for {}'.format(path))
+            raise ConfigError("Invalid JSON format for {}".format(path))
 
 
 def _validate_config(config):
@@ -353,10 +375,10 @@ def _validate_config(config):
     # Check the log declarations
     if TopLevelConfigKeys.LOGS in config:
         for log, attrs in config[TopLevelConfigKeys.LOGS].items():
-            if 'schema' not in attrs:
+            if "schema" not in attrs:
                 raise ConfigError("The 'schema' is missing for {}".format(log))
 
-            if 'parser' not in attrs:
+            if "parser" not in attrs:
                 raise ConfigError("The 'parser' is missing for {}".format(log))
 
     # Check if the defined sources are supported and report any invalid entries
@@ -364,20 +386,26 @@ def _validate_config(config):
         # Used to track duplicate sources in separate cluster config files
         existing_sources = set()
         for cluster_name, cluster_attrs in config[TopLevelConfigKeys.CLUSTERS].items():
-            if 'data_sources' not in cluster_attrs:
-                raise ConfigError("'data_sources' missing for cluster {}".format(cluster_name))
-            _validate_sources(cluster_name, cluster_attrs['data_sources'], existing_sources)
+            if "data_sources" not in cluster_attrs:
+                raise ConfigError(
+                    "'data_sources' missing for cluster {}".format(cluster_name)
+                )
+            _validate_sources(
+                cluster_name, cluster_attrs["data_sources"], existing_sources
+            )
 
             for func in CLUSTERED_FUNCTIONS:
-                config_name = '{}_config'.format(func)
+                config_name = "{}_config".format(func)
                 if config_name in cluster_attrs:
                     continue
 
-                error = "'{}' is missing in the '{}' cluster".format(config_name, cluster_name)
+                error = "'{}' is missing in the '{}' cluster".format(
+                    config_name, cluster_name
+                )
 
-                modules = cluster_attrs.get('modules', {})
+                modules = cluster_attrs.get("modules", {})
                 old_format = None
-                for key in {'streamalert', 'stream_alert'}:
+                for key in {"streamalert", "stream_alert"}:
                     if key in modules:
                         old_format = key
 
@@ -391,21 +419,30 @@ def _validate_config(config):
 
     if TopLevelConfigKeys.THREAT_INTEL in config:
         if TopLevelConfigKeys.NORMALIZED_TYPES not in config:
-            raise ConfigError('Normalized types must also be loaded with IOC types')
+            raise ConfigError("Normalized types must also be loaded with IOC types")
 
-        if 'normalized_ioc_types' not in config[TopLevelConfigKeys.THREAT_INTEL]:
-            raise ConfigError('Normalized IOC types must be defined for threat intelligence')
+        if "normalized_ioc_types" not in config[TopLevelConfigKeys.THREAT_INTEL]:
+            raise ConfigError(
+                "Normalized IOC types must be defined for threat intelligence"
+            )
 
-        normalized_ioc_types = config[TopLevelConfigKeys.THREAT_INTEL]['normalized_ioc_types']
+        normalized_ioc_types = config[TopLevelConfigKeys.THREAT_INTEL][
+            "normalized_ioc_types"
+        ]
 
         for ioc_type, normalized_keys in normalized_ioc_types.items():
             for normalized_key in normalized_keys:
-                if not any(normalized_key in set(log_keys)
-                           for log_keys in
-                           list(config[TopLevelConfigKeys.NORMALIZED_TYPES].values())):
+                if not any(
+                    normalized_key in set(log_keys)
+                    for log_keys in list(
+                        config[TopLevelConfigKeys.NORMALIZED_TYPES].values()
+                    )
+                ):
                     raise ConfigError(
                         "IOC key '{}' within IOC type '{}' must be defined for at least "
-                        "one log type in normalized types".format(normalized_key, ioc_type)
+                        "one log type in normalized types".format(
+                            normalized_key, ioc_type
+                        )
                     )
 
 
@@ -422,11 +459,11 @@ def _validate_sources(cluster_name, data_sources, existing_sources):
     if not set(data_sources).issubset(SUPPORTED_SOURCES):
         invalid_sources = set(data_sources) - SUPPORTED_SOURCES
         raise ConfigError(
-            'The data sources for cluster {} contain invalid source entries: {}. '
-            'The following sources are supported: {}'.format(
+            "The data sources for cluster {} contain invalid source entries: {}. "
+            "The following sources are supported: {}".format(
                 cluster_name,
-                ', '.join("'{}'".format(source) for source in invalid_sources),
-                ', '.join("'{}'".format(source) for source in SUPPORTED_SOURCES)
+                ", ".join("'{}'".format(source) for source in invalid_sources),
+                ", ".join("'{}'".format(source) for source in SUPPORTED_SOURCES),
             )
         )
     for attrs in data_sources.values():
@@ -442,7 +479,9 @@ def _validate_sources(cluster_name, data_sources, existing_sources):
                 )
             existing_sources.add(source)
 
+
 # FIXME (derek.wang) write a configuration validator for lookuptables (new one)
+
 
 def artifact_extractor_enabled(config):
     """Check if Artifactor Extractor enabled.
@@ -452,12 +491,15 @@ def artifact_extractor_enabled(config):
     Returns:
         bool: return True is "artifact_extract" is enabled in conf/global.json
     """
-    if not config['global']['infrastructure'].get('artifact_extractor', {}).get('enabled', False):
+    if (
+        not config["global"]["infrastructure"]
+        .get("artifact_extractor", {})
+        .get("enabled", False)
+    ):
         return False
 
     # Artifact Extractor is enabled once when firehose is enabled.
-    if not config['global']['infrastructure'].get('firehose', {}).get('enabled', False):
+    if not config["global"]["infrastructure"].get("firehose", {}).get("enabled", False):
         return False
 
     return True
-    

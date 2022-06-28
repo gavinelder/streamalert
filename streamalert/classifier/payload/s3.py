@@ -31,12 +31,11 @@ import jsonlines
 from streamalert.classifier.payload.payload_base import (
     PayloadRecord,
     RegisterInput,
-    StreamPayload
+    StreamPayload,
 )
 from streamalert.shared import CLASSIFIER_FUNCTION_NAME as FUNCTION_NAME
 from streamalert.shared.logger import get_logger
 from streamalert.shared.metrics import MetricLogger
-
 
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
@@ -54,30 +53,30 @@ class S3Payload(StreamPayload):
 
     @property
     def bucket(self):
-        return self.raw_record['s3']['bucket']['name']
+        return self.raw_record["s3"]["bucket"]["name"]
 
     @property
     def key(self):
-        return self.raw_record['s3']['object']['key']
+        return self.raw_record["s3"]["object"]["key"]
 
     @property
     def size(self):
-        return int(self.raw_record['s3']['object']['size'])
+        return int(self.raw_record["s3"]["object"]["size"])
 
     @property
     def region(self):
-        return self.raw_record['awsRegion']
+        return self.raw_record["awsRegion"]
 
     @property
     def display_size(self):
         """Calculate and format a size for printing"""
         size_kb = round(self.size / 1024.0, 2)
         size_mb = round(size_kb / 1024.0, 2)
-        return '{}MB'.format(size_mb) if size_mb else '{}KB'.format(size_kb)
+        return "{}MB".format(size_mb) if size_mb else "{}KB".format(size_kb)
 
     @classmethod
     def service(cls):
-        return 's3'
+        return "s3"
 
     @classmethod
     def _unquote(cls, data):
@@ -93,13 +92,17 @@ class S3Payload(StreamPayload):
         """
         # Ignore 0 size files
         if self.size == 0:
-            LOGGER.warning('S3 file size is 0 bytes, skipping: %s/%s', self.bucket, self.key)
+            LOGGER.warning(
+                "S3 file size is 0 bytes, skipping: %s/%s", self.bucket, self.key
+            )
             return False
 
         # size greater than 128MB
         if self.size > self.MAX_S3_SIZE:
-            raise S3PayloadError('S3 object {}/{} is too large and cannot be downloaded '
-                                 'from S3: {}'.format(self.bucket, self.key, self.display_size))
+            raise S3PayloadError(
+                "S3 object {}/{} is too large and cannot be downloaded "
+                "from S3: {}".format(self.bucket, self.key, self.display_size)
+            )
 
         return True
 
@@ -107,23 +110,29 @@ class S3Payload(StreamPayload):
     def _cleanup():
         """Cleanup method to remove all objects in the Lambda container's temp directory"""
         # Do nothing if this is not running in AWS Lambda
-        if 'LAMBDA_RUNTIME_DIR' not in os.environ:
+        if "LAMBDA_RUNTIME_DIR" not in os.environ:
             return
 
-        LOGGER.debug('Shredding temp directory')
+        LOGGER.debug("Shredding temp directory")
 
         for root, dirs, files in os.walk(tempfile.gettempdir(), topdown=False):
             for name in files:
-                subprocess.check_call([  # nosec
-                    'shred', '--force', '--iterations=1',
-                    '--remove', os.path.join(root, name)])
+                subprocess.check_call(
+                    [  # nosec
+                        "shred",
+                        "--force",
+                        "--iterations=1",
+                        "--remove",
+                        os.path.join(root, name),
+                    ]
+                )
             for name in dirs:
                 os.rmdir(os.path.join(root, name))  # nosec
 
     @staticmethod
     def _gz_reader(open_file):
         open_file.seek(0)
-        reader = gzip.GzipFile(fileobj=open_file, mode='r')
+        reader = gzip.GzipFile(fileobj=open_file, mode="r")
         try:
             # Test to ensure this is gzip data, then rewind
             reader.read(1)
@@ -185,21 +194,28 @@ class S3Payload(StreamPayload):
         # Use tempfile.TemporaryFile to do the download
         # This will automatically close/get garbage collected upon completion
         with tempfile.TemporaryFile() as download:
-            client = boto3.resource('s3', region_name=self.region).Bucket(bucket)
+            client = boto3.resource("s3", region_name=self.region).Bucket(bucket)
             start_time = time.time()
-            LOGGER.info('[S3Payload] Starting download from S3: %s/%s [%s]', bucket, key, self.size)
+            LOGGER.info(
+                "[S3Payload] Starting download from S3: %s/%s [%s]",
+                bucket,
+                key,
+                self.size,
+            )
 
             try:
                 client.download_fileobj(key, download)
             except (IOError, ClientError):
-                LOGGER.exception('Failed to download object from S3')
+                LOGGER.exception("Failed to download object from S3")
                 raise
 
             total_time = time.time() - start_time
-            LOGGER.info('Completed download in %s seconds', round(total_time, 2))
+            LOGGER.info("Completed download in %s seconds", round(total_time, 2))
 
             # Log a metric on how long this object took to download
-            MetricLogger.log_metric(FUNCTION_NAME, MetricLogger.S3_DOWNLOAD_TIME, total_time)
+            MetricLogger.log_metric(
+                FUNCTION_NAME, MetricLogger.S3_DOWNLOAD_TIME, total_time
+            )
 
             for line_num, line in self._read_downloaded_object(download):
                 yield line_num, line

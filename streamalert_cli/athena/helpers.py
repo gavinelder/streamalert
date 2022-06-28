@@ -25,21 +25,24 @@ from streamalert_cli.helpers import record_to_schema
 LOGGER = get_logger(__name__)
 
 PARTITION_PARTS = re.compile(
-    r'dt=(?P<year>\d{4})\-(?P<month>\d{2})\-(?P<day>\d{2})\-(?P<hour>\d{2})')
+    r"dt=(?P<year>\d{4})\-(?P<month>\d{2})\-(?P<day>\d{2})\-(?P<hour>\d{2})"
+)
 
 # The returned partition from the SHOW PARTITIONS command is dt=YYYY-MM-DD-HH,
 # But when re-creating new partitions this value must be quoted
-PARTITION_STMT = ("PARTITION (dt = '{year}-{month}-{day}-{hour}') "
-                  "LOCATION 's3://{bucket}/{table_name}/{year}/{month}/{day}/{hour}'")
+PARTITION_STMT = (
+    "PARTITION (dt = '{year}-{month}-{day}-{hour}') "
+    "LOCATION 's3://{bucket}/{table_name}/{year}/{month}/{day}/{hour}'"
+)
 
 # How to map log schema types to Athena/Hive types
 SCHEMA_TYPE_MAPPING = {
-    'string': 'string',
-    'integer': 'bigint',
-    'boolean': 'boolean',
-    'float': 'decimal(10,3)',
-    dict: 'map<string,string>',
-    list: 'array<string>'
+    "string": "string",
+    "integer": "bigint",
+    "boolean": "boolean",
+    "float": "decimal(10,3)",
+    dict: "map<string,string>",
+    list: "array<string>",
 }
 
 # Athena query statement length limit
@@ -61,17 +64,14 @@ def add_partition_statements(partitions, bucket, table_name):
         string: The ALTER TABLE statements to add the new partitions
     """
     # Each add partition statement starting with "ALTER TABLE"
-    initial_statement = 'ALTER TABLE {} ADD IF NOT EXISTS'.format(table_name)
+    initial_statement = "ALTER TABLE {} ADD IF NOT EXISTS".format(table_name)
     initial_statement_len = len(initial_statement)
 
     # The statement will be stored in a list of string format before join into a string
     statement = [initial_statement]
     statement_len = initial_statement_len
 
-    fmt_values = {
-        'bucket': bucket,
-        'table_name': table_name
-    }
+    fmt_values = {"bucket": bucket, "table_name": table_name}
 
     for partition in sorted(partitions):
         parts = PARTITION_PARTS.match(partition)
@@ -89,14 +89,14 @@ def add_partition_statements(partitions, bucket, table_name):
         if statement_len + partition_stmt_len + space_count >= MAX_QUERY_LENGTH:
             # If the length of whole statement about to exceed the limit, yield
             # the statement and reset it for rest of partitions
-            yield ' '.join(statement)
+            yield " ".join(statement)
             statement = [initial_statement]
             statement_len = initial_statement_len
 
         statement_len += partition_stmt_len
         statement.append(partition_stmt)
 
-    yield ' '.join(statement)
+    yield " ".join(statement)
 
 
 def logs_schema_to_athena_schema(log_schema, ddl_statement=True):
@@ -117,7 +117,7 @@ def logs_schema_to_athena_schema(log_schema, ddl_statement=True):
         if ddl_statement:
             # Backticks are needed for backward compatibility when creating Athena
             # table via Athena DDL query.
-            key_name = '`{}`'.format(key_name)
+            key_name = "`{}`".format(key_name)
         if key_type == {}:
             # For empty dicts
             athena_schema[key_name] = SCHEMA_TYPE_MAPPING[dict]
@@ -126,7 +126,9 @@ def logs_schema_to_athena_schema(log_schema, ddl_statement=True):
             athena_schema[key_name] = SCHEMA_TYPE_MAPPING[list]
         elif isinstance(key_type, dict):
             # For recursion
-            athena_schema[key_name] = logs_schema_to_athena_schema(key_type, ddl_statement)
+            athena_schema[key_name] = logs_schema_to_athena_schema(
+                key_type, ddl_statement
+            )
         else:
             athena_schema[key_name] = SCHEMA_TYPE_MAPPING[key_type]
 
@@ -146,9 +148,11 @@ def unique_values_from_query(query_result):
     """
     return {
         value
-        for row in query_result['ResultSet']['Rows'] for result in row['Data']
+        for row in query_result["ResultSet"]["Rows"]
+        for result in row["Data"]
         for value in list(result.values())
     }
+
 
 def format_schema_tf(schema):
     """Format schema for an Athena table for terraform.
@@ -167,13 +171,16 @@ def format_schema_tf(schema):
             formatted_schema.append((key_name.lower(), key_type))
         # Account for nested structs
         elif isinstance(key_type, dict):
-            struct_schema = ','.join(
-                '{0}:{1}'.format(sub_key.lower(), key_type[sub_key])
+            struct_schema = ",".join(
+                "{0}:{1}".format(sub_key.lower(), key_type[sub_key])
                 for sub_key in sorted(key_type.keys())
             )
-            formatted_schema.append((key_name.lower(), 'struct<{}>'.format(struct_schema)))
+            formatted_schema.append(
+                (key_name.lower(), "struct<{}>".format(struct_schema))
+            )
 
     return formatted_schema
+
 
 def generate_alerts_table_schema():
     """Generate the schema for alerts table in terraform by using a fake alert
@@ -181,7 +188,7 @@ def generate_alerts_table_schema():
     Returns:
         athena_schema (dict): Equivalent Athena schema used for generating create table statement
     """
-    alert = Alert('temp_rule_name', {}, {})
+    alert = Alert("temp_rule_name", {}, {})
     output = alert.output_dict()
     schema = record_to_schema(output)
     athena_schema = logs_schema_to_athena_schema(schema, False)
@@ -200,8 +207,7 @@ def generate_data_table_schema(config, table, schema_override=None):
         athena_schema (dict): Equivalent Athena schema used for generating create table statement
     """
     enabled_logs = FirehoseClient.load_enabled_log_sources(
-        config['global']['infrastructure']['firehose'],
-        config['logs']
+        config["global"]["infrastructure"]["firehose"], config["logs"]
     )
 
     # Convert special characters in schema name to underscores
@@ -209,25 +215,27 @@ def generate_data_table_schema(config, table, schema_override=None):
 
     # Check that the log type is enabled via Firehose
     if sanitized_table_name not in enabled_logs:
-        LOGGER.error('Table name %s missing from configuration or '
-                     'is not enabled.', sanitized_table_name)
+        LOGGER.error(
+            "Table name %s missing from configuration or " "is not enabled.",
+            sanitized_table_name,
+        )
         return None
 
-    log_info = config['logs'][enabled_logs.get(sanitized_table_name)]
+    log_info = config["logs"][enabled_logs.get(sanitized_table_name)]
 
-    schema = dict(log_info['schema'])
+    schema = dict(log_info["schema"])
     sanitized_schema = FirehoseClient.sanitize_keys(schema)
 
     athena_schema = logs_schema_to_athena_schema(sanitized_schema, False)
 
     # Add envelope keys to Athena Schema
-    configuration_options = log_info.get('configuration')
+    configuration_options = log_info.get("configuration")
     if configuration_options:
-        envelope_keys = configuration_options.get('envelope_keys')
+        envelope_keys = configuration_options.get("envelope_keys")
         if envelope_keys:
             sanitized_envelope_key_schema = FirehoseClient.sanitize_keys(envelope_keys)
             # Note: this key is wrapped in backticks to be Hive compliant
-            athena_schema['streamalert:envelope_keys'] = logs_schema_to_athena_schema(
+            athena_schema["streamalert:envelope_keys"] = logs_schema_to_athena_schema(
                 sanitized_envelope_key_schema, False
             )
 
@@ -235,19 +243,20 @@ def generate_data_table_schema(config, table, schema_override=None):
     #   This is useful when an Athena schema needs to differ from the normal log schema
     if schema_override:
         for override in schema_override:
-            column_name, column_type = override.split('=')
+            column_name, column_type = override.split("=")
             # Columns are escaped to avoid Hive issues with special characters
-            column_name = '{}'.format(column_name)
+            column_name = "{}".format(column_name)
             if column_name in athena_schema:
                 athena_schema[column_name] = column_type
-                LOGGER.info('Applied schema override: %s:%s', column_name, column_type)
+                LOGGER.info("Applied schema override: %s:%s", column_name, column_type)
             else:
                 LOGGER.error(
-                    'Schema override column %s not found in Athena Schema, skipping',
-                    column_name
+                    "Schema override column %s not found in Athena Schema, skipping",
+                    column_name,
                 )
 
     return format_schema_tf(athena_schema)
+
 
 def generate_artifacts_table_schema():
     """Generate the schema for artifacts table in terraform by using a test artifact instance
@@ -256,11 +265,11 @@ def generate_artifacts_table_schema():
         athena_schema (dict): Equivalent Athena schema used for generating create table statement
     """
     artifact = artifact = Artifact(
-        normalized_type='test_normalized_type',
-        value='test_value',
-        source_type='test_source_type',
-        record_id='test_record_id',
-        function=None
+        normalized_type="test_normalized_type",
+        value="test_value",
+        source_type="test_source_type",
+        record_id="test_record_id",
+        function=None,
     )
     schema = record_to_schema(artifact.artifact)
     athena_schema = logs_schema_to_athena_schema(schema, False)

@@ -18,7 +18,8 @@ from logging import Logger
 
 from streamalert.scheduled_queries.handlers.athena import AthenaClient
 from streamalert.scheduled_queries.query_packs.configuration import (
-    QueryPackConfiguration, QueryPackRepository
+    QueryPackConfiguration,
+    QueryPackRepository,
 )
 from streamalert.scheduled_queries.query_packs.parameters import QueryParameterGenerator
 from streamalert.scheduled_queries.state.state_manager import StateManager
@@ -28,8 +29,15 @@ from streamalert.scheduled_queries.support.clock import Clock
 class QueryPackExecutionContext:
     """A convenience service bundle for multiple services related to querying"""
 
-    def __init__(self, cache=None, athena=None, logger=None, params=None,
-                 repository=None, clock=None):
+    def __init__(
+        self,
+        cache=None,
+        athena=None,
+        logger=None,
+        params=None,
+        repository=None,
+        clock=None,
+    ):
         self._cache = cache  # type: StateManager
         self._athena = athena  # type: AthenaClient
         self._logger = logger  # type: Logger
@@ -138,7 +146,7 @@ class QueryPack:
         cache_key = self.unique_id
         if self._execution_context.state_manager.has(cache_key):
             entry = self._execution_context.state_manager.get(cache_key)
-            query_execution_id = entry['query_execution_id']
+            query_execution_id = entry["query_execution_id"]
             self._query_execution_id = query_execution_id
 
     def start_query(self):
@@ -150,8 +158,10 @@ class QueryPack:
         if self.is_previously_started:
             return None
 
-        self._query_execution_id = self._execution_context.athena_client.run_async_query(
-            self.generate_query_string()
+        self._query_execution_id = (
+            self._execution_context.athena_client.run_async_query(
+                self.generate_query_string()
+            )
         )
         self.save_to_cache()
         return self._query_execution_id
@@ -165,8 +175,10 @@ class QueryPack:
         if not self.is_previously_started:
             return None
 
-        self._query_execution = self._execution_context.athena_client.get_query_execution(
-            self._query_execution_id
+        self._query_execution = (
+            self._execution_context.athena_client.get_query_execution(
+                self._query_execution_id
+            )
         )
         return self._query_execution
 
@@ -186,7 +198,7 @@ class QueryPack:
 
     def save_to_cache(self):
         entry = {
-            'query_execution_id': self._query_execution_id,
+            "query_execution_id": self._query_execution_id,
             # 'query_string': self.generate_query_string(),
         }
 
@@ -195,7 +207,7 @@ class QueryPack:
     def generate_query_string(self):
         params = self._query_parameters
         self._execution_context.logger.debug(
-            'Generated Parameters: {}'.format(json.dumps(params, indent=2))
+            "Generated Parameters: {}".format(json.dumps(params, indent=2))
         )
         self._query_string = self._configuration.generate_query(**params)
         return self._query_string
@@ -240,15 +252,11 @@ class QueryPacksManager:
         # If multiple tags are provided, then only the packs that contain ALL OF THE TAGS
         # will be run
         configured_tags = self._execution_context.state_manager.get(
-            'streamquery_configuration', {}
-        ).get('tags', [])
+            "streamquery_configuration", {}
+        ).get("tags", [])
 
         for tag in configured_tags:
-            repo_packs = [
-                pack
-                for pack in repo_packs
-                if tag in pack.tags
-            ]
+            repo_packs = [pack for pack in repo_packs if tag in pack.tags]
 
         self._query_configs = repo_packs
 
@@ -312,7 +320,7 @@ class QueryPacksManager:
             self._execution_context.logger.debug(
                 'Existing Query Execution exists for "%s": [%s]',
                 query_pack.query_pack_configuration.name,
-                query_pack.query_execution_id
+                query_pack.query_execution_id,
             )
             return query_pack
 

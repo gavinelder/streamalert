@@ -26,7 +26,6 @@ import jmespath
 
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
 PARSERS = {}
@@ -38,7 +37,9 @@ def parser(cls):
     parser_type = cls.type()
     if not parser_type:
         raise NotImplementedError(
-            '{}: Parser does not define a class property for \'_type\''.format(cls.__name__)
+            "{}: Parser does not define a class property for '_type'".format(
+                cls.__name__
+            )
         )
 
     PARSERS[parser_type] = cls
@@ -59,15 +60,11 @@ def get_parser(parser_type):
 
 class ParserBase(metaclass=ABCMeta):
     """Abstract Parser class to be inherited by all StreamAlert Parsers"""
+
     _type = None
 
-    ENVELOPE_KEY = 'streamalert:envelope_keys'
-    _TYPE_MAP = {
-        'string': str,
-        'integer': int,
-        'float': float,
-        'boolean': bool
-    }
+    ENVELOPE_KEY = "streamalert:envelope_keys"
+    _TYPE_MAP = {"string": str, "integer": int, "float": float, "boolean": bool}
 
     def __init__(self, options, log_type=None):
         """Setup required parser properties
@@ -93,31 +90,31 @@ class ParserBase(metaclass=ABCMeta):
 
     @property
     def _schema(self):
-        return self._options.get('schema', {})
+        return self._options.get("schema", {})
 
     @property
     def _configuration(self):
-        return self._options.get('configuration', {})
+        return self._options.get("configuration", {})
 
     @property
     def _optional_top_level_keys(self):
-        return set(self._configuration.get('optional_top_level_keys', {}))
+        return set(self._configuration.get("optional_top_level_keys", {}))
 
     @property
     def _log_patterns(self):
-        return self._configuration.get('log_patterns')
+        return self._configuration.get("log_patterns")
 
     @property
     def _json_path(self):
-        return self._configuration.get('json_path')
+        return self._configuration.get("json_path")
 
     @property
     def _envelope_schema(self):
-        return self._configuration.get('envelope_keys', {})
+        return self._configuration.get("envelope_keys", {})
 
     @property
     def _optional_envelope_keys(self):
-        return set(self._configuration.get('optional_envelope_keys', {}))
+        return set(self._configuration.get("optional_envelope_keys", {}))
 
     @property
     def valid(self):
@@ -168,7 +165,9 @@ class ParserBase(metaclass=ABCMeta):
 
         for key_name in optional_keys:
             # Add the optional key if it does not exist in the parsed json payload
-            data[key_name] = data.get(key_name, cls.default_optional_values(schema[key_name]))
+            data[key_name] = data.get(
+                key_name, cls.default_optional_values(schema[key_name])
+            )
 
     @classmethod
     def _matches_log_patterns(cls, record, log_patterns, envelope=None):
@@ -198,15 +197,15 @@ class ParserBase(metaclass=ABCMeta):
 
             # Transform a flat pattern into a list
             if isinstance(patterns, str):
-                LOGGER.debug('Transforming flat pattern \'%s\' into list', patterns)
+                LOGGER.debug("Transforming flat pattern '%s' into list", patterns)
                 patterns = [patterns]
 
             # Ensure the pattern key is in the record
             if field not in record:
                 LOGGER.error(
-                    'Declared log pattern key [%s] does exist in record:\n%s',
+                    "Declared log pattern key [%s] does exist in record:\n%s",
                     field,
-                    record
+                    record,
                 )
                 return False
 
@@ -215,7 +214,7 @@ class ParserBase(metaclass=ABCMeta):
             # Ensure at least one of the log_patterns matches
             result = result and any(fnmatch(value, pattern) for pattern in patterns)
 
-        LOGGER.debug('%s log pattern match result: %s', cls.type(), result)
+        LOGGER.debug("%s log pattern match result: %s", cls.type(), result)
 
         # If all pattern match results are True
         return result
@@ -250,24 +249,22 @@ class ParserBase(metaclass=ABCMeta):
         keys = set(record) if not optionals else set(record).union(optionals)
 
         if is_envelope and not schema_keys.issubset(keys):
-            LOGGER.debug('Missing keys in record envelope: %s', schema_keys - keys)
+            LOGGER.debug("Missing keys in record envelope: %s", schema_keys - keys)
             return False
 
         if not is_envelope and keys != schema_keys:
             expected = schema_keys - keys
             if expected:
                 LOGGER.debug(
-                    'Expected keys not found in record: %s', ', '.join(
-                        str(val) for val in sorted(expected, key=str)
-                    )
+                    "Expected keys not found in record: %s",
+                    ", ".join(str(val) for val in sorted(expected, key=str)),
                 )
 
             found = keys - schema_keys
             if found:
                 LOGGER.debug(
-                    'Found keys not expected in record: %s', ', '.join(
-                        str(val) for val in sorted(found, key=str)
-                    )
+                    "Found keys not expected in record: %s",
+                    ", ".join(str(val) for val in sorted(found, key=str)),
                 )
             return False
 
@@ -284,9 +281,9 @@ class ParserBase(metaclass=ABCMeta):
 
         if not match and LOGGER_DEBUG_ENABLED:
             LOGGER.debug(
-                'Nested key check failure. Schema:\n%s\nRecord:\n%s',
+                "Nested key check failure. Schema:\n%s\nRecord:\n%s",
                 json.dumps(schema, indent=2, sort_keys=True),
-                json.dumps(record, indent=2, sort_keys=True)
+                json.dumps(record, indent=2, sort_keys=True),
             )
 
         return match
@@ -315,39 +312,45 @@ class ParserBase(metaclass=ABCMeta):
             # No need to type an optional key if it's value is not in the
             # record since this is a value we will insert
             if optionals and key in optionals and key not in record:
-                LOGGER.debug('Skipping optional key not found in record: %s', key)
+                LOGGER.debug("Skipping optional key not found in record: %s", key)
                 continue
 
             if not record[key]:
-                LOGGER.debug('Skipping NoneType value in record for key: %s', key)
+                LOGGER.debug("Skipping NoneType value in record for key: %s", key)
                 continue
 
             # if the schema value is declared as string
-            if value == 'string':
+            if value == "string":
                 try:
                     record[key] = str(record[key])
                 except UnicodeEncodeError:
                     record[key] = str(record[key])
 
             # if the schema value is declared as integer
-            elif value == 'integer':
+            elif value == "integer":
                 try:
                     record[key] = int(record[key])
                 except (ValueError, TypeError):
-                    LOGGER.error('Invalid schema. Value for key [%s] is not an int: %s',
-                                 key, record[key])
+                    LOGGER.error(
+                        "Invalid schema. Value for key [%s] is not an int: %s",
+                        key,
+                        record[key],
+                    )
                     return False
 
-            elif value == 'float':
+            elif value == "float":
                 try:
                     record[key] = float(record[key])
                 except (ValueError, TypeError):
-                    LOGGER.error('Invalid schema. Value for key [%s] is not a float: %s',
-                                 key, record[key])
+                    LOGGER.error(
+                        "Invalid schema. Value for key [%s] is not a float: %s",
+                        key,
+                        record[key],
+                    )
                     return False
 
-            elif value == 'boolean':
-                record[key] = str(record[key]).lower() == 'true'
+            elif value == "boolean":
+                record[key] = str(record[key]).lower() == "true"
 
             elif isinstance(value, dict):
                 # Convert nested types
@@ -358,12 +361,17 @@ class ParserBase(metaclass=ABCMeta):
                 # Ensure a list is actually a list, but do not check list value types
                 # since we do not currently support type checking list elements
                 if not isinstance(record[key], list):
-                    LOGGER.error('Invalid schema. Value for key [%s] is not a list: %s',
-                                 key, record[key])
+                    LOGGER.error(
+                        "Invalid schema. Value for key [%s] is not a list: %s",
+                        key,
+                        record[key],
+                    )
                     return False
 
             else:
-                LOGGER.error('Unsupported value type in schema for key \'%s\': %s', key, value)
+                LOGGER.error(
+                    "Unsupported value type in schema for key '%s': %s", key, value
+                )
                 return False
 
         return True
@@ -385,7 +393,7 @@ class ParserBase(metaclass=ABCMeta):
         # they are valid before erroring out at the _convert_type stage
         values = [
             (self._schema, self._optional_top_level_keys),
-            (self._envelope_schema, self._optional_envelope_keys)
+            (self._envelope_schema, self._optional_envelope_keys),
         ]
 
         return all(optionals.issubset(schema) for schema, optionals in values)
@@ -419,7 +427,7 @@ class ParserBase(metaclass=ABCMeta):
         if not self._envelope_schema:
             return
 
-        LOGGER.debug('Extracting envelope keys')
+        LOGGER.debug("Extracting envelope keys")
         return {
             key: payload[key]
             for key in self._envelope_schema
@@ -436,7 +444,7 @@ class ParserBase(metaclass=ABCMeta):
             list: A list of JSON records extracted via JSON path
         """
         # Handle jsonpath extraction of records
-        LOGGER.debug('Parsing records with JSONPath: %s', self._json_path)
+        LOGGER.debug("Parsing records with JSONPath: %s", self._json_path)
 
         result = jmespath.search(self._json_path, payload)
         if not result:
@@ -458,8 +466,11 @@ class ParserBase(metaclass=ABCMeta):
         """
         # Ensure the schema is defined properly. Invalid schemas will not be used
         if not self._validate_schema():
-            LOGGER.error('Schema definition is not valid (%s):\n%s',
-                         self._schema_type, self._schema)
+            LOGGER.error(
+                "Schema definition is not valid (%s):\n%s",
+                self._schema_type,
+                self._schema,
+            )
             return False
 
         data_copy = None
@@ -474,28 +485,37 @@ class ParserBase(metaclass=ABCMeta):
             try:
                 data_copy = json.loads(data)
             except (ValueError, TypeError) as err:
-                LOGGER.debug('Data is not valid json: %s', err)
+                LOGGER.debug("Data is not valid json: %s", err)
                 data_copy = data
 
         # Check to make sure any non-optional envelope keys exist before proceeding
-        if not self._key_check(data_copy, self._envelope_schema,
-                               self._optional_envelope_keys, True):
+        if not self._key_check(
+            data_copy, self._envelope_schema, self._optional_envelope_keys, True
+        ):
             return False
 
         # Get the envelope and try to convert the value to the proper type(s)
         envelope = self._extract_envelope(data_copy)
-        if not self._convert_type(envelope, self._envelope_schema, self._optional_envelope_keys):
+        if not self._convert_type(
+            envelope, self._envelope_schema, self._optional_envelope_keys
+        ):
             return False
 
         # Add the optional envelope keys to record once at the beginning
-        self._add_optional_keys(envelope, self._envelope_schema, self._optional_envelope_keys)
+        self._add_optional_keys(
+            envelope, self._envelope_schema, self._optional_envelope_keys
+        )
 
         for record, valid in self._parse(data_copy):
-            valid = valid and self._key_check(record, self._schema, self._optional_top_level_keys)
+            valid = valid and self._key_check(
+                record, self._schema, self._optional_top_level_keys
+            )
             valid = valid and self._convert_type(
                 record, self._schema, self._optional_top_level_keys
             )
-            valid = valid and self._matches_log_patterns(record, self._log_patterns, envelope)
+            valid = valid and self._matches_log_patterns(
+                record, self._log_patterns, envelope
+            )
             self._add_parse_result(record, valid, envelope)
 
         return self.valid
@@ -516,16 +536,17 @@ class ParserBase(metaclass=ABCMeta):
 @parser
 class JSONParser(ParserBase):
     """JSON record parser"""
-    _type = 'json'
-    _regex = re.compile(r'(?P<json_blob>{.+[:,].+}|\[.+[,:].+\])')
+
+    _type = "json"
+    _regex = re.compile(r"(?P<json_blob>{.+[:,].+}|\[.+[,:].+\])")
 
     @property
     def embedded_json(self):
-        return self._configuration.get('embedded_json', False)
+        return self._configuration.get("embedded_json", False)
 
     @property
     def json_regex_key(self):
-        return self._configuration.get('json_regex_key')
+        return self._configuration.get("json_regex_key")
 
     def _extract_via_json_path(self, json_payload):
         """Extract records from the original json payload using the JSON configuration
@@ -553,9 +574,9 @@ class JSONParser(ParserBase):
                 record = json.loads(record)
                 if not isinstance(record, dict):
                     # purposely raising here to be caught below & handled
-                    raise TypeError('record data is not a dictionary')
+                    raise TypeError("record data is not a dictionary")
             except (ValueError, TypeError) as err:
-                LOGGER.debug('Embedded json is invalid: %s', str(err))
+                LOGGER.debug("Embedded json is invalid: %s", str(err))
                 valid = False
 
             embedded_records.append((record, valid))
@@ -575,19 +596,21 @@ class JSONParser(ParserBase):
         if not json_payload.get(self.json_regex_key):
             return False
 
-        LOGGER.debug('Parsing records with JSON Regex Key')
+        LOGGER.debug("Parsing records with JSON Regex Key")
         match = self._regex.search(str(json_payload[self.json_regex_key]))
         if not match:
             return False
 
-        match_str = match.groups('json_blob')[0]
+        match_str = match.groups("json_blob")[0]
         try:
             record = json.loads(match_str)
             if not isinstance(record, dict):
                 # purposely raising here to be caught below & handled
-                raise TypeError('record data is not a dictionary')
+                raise TypeError("record data is not a dictionary")
         except (ValueError, TypeError) as err:
-            LOGGER.debug('Matched regex string is invalid (%s): %s', str(err), match_str)
+            LOGGER.debug(
+                "Matched regex string is invalid (%s): %s", str(err), match_str
+            )
             return False
 
         return [(record, True)]
@@ -625,24 +648,28 @@ class JSONParser(ParserBase):
 @parser
 class CSVParser(ParserBase):
     """CSV record parser"""
-    _type = 'csv'
+
+    _type = "csv"
 
     @property
     def delimiter(self):
         # default delimiter = ','
-        return str(self._configuration.get('delimiter', ','))
+        return str(self._configuration.get("delimiter", ","))
 
     @property
     def quotechar(self):
         # default quotechar = '"'
-        return str(self._configuration.get('quotechar', '"'))
+        return str(self._configuration.get("quotechar", '"'))
 
     @property
     def escapechar(self):
         # default escapechar = None
         # only cast to string if it exists since casting NoneType to string will result in 'None'
-        return (str(self._configuration['escapechar'])
-                if 'escapechar' in self._configuration else None)
+        return (
+            str(self._configuration["escapechar"])
+            if "escapechar" in self._configuration
+            else None
+        )
 
     def _get_reader(self, data):
         """Return the CSV reader for the data using the configured delimiter, etc
@@ -657,7 +684,7 @@ class CSVParser(ParserBase):
                 io.StringIO(data),
                 delimiter=self.delimiter,
                 quotechar=self.quotechar,
-                escapechar=self.escapechar
+                escapechar=self.escapechar,
             )
         except (ValueError, csv.Error):
             return False
@@ -748,17 +775,18 @@ class CSVParser(ParserBase):
 @parser
 class KVParser(ParserBase):
     """Key/value record parser"""
-    _type = 'kv'
+
+    _type = "kv"
 
     @property
     def delimiter(self):
         # default delimiter = ' '
-        return str(self._configuration.get('delimiter', ' '))
+        return str(self._configuration.get("delimiter", " "))
 
     @property
     def separator(self):
         # default separator = '='
-        return str(self._configuration.get('separator', '='))
+        return str(self._configuration.get("separator", "="))
 
     def _parse(self, data):
         """Parse a key/value string into a dictionary
@@ -793,7 +821,9 @@ class KVParser(ParserBase):
             for index, field in enumerate(fields):
                 # verify our fields contains the separator
                 if self.separator not in field:
-                    LOGGER.error('separator \'%s\' not found in field: %s', self.separator, field)
+                    LOGGER.error(
+                        "separator '%s' not found in field: %s", self.separator, field
+                    )
                     continue
 
                 # only take data preceeding the first occurence of the field as the key
@@ -815,11 +845,14 @@ class KVParser(ParserBase):
 @parser
 class SyslogParser(ParserBase):
     """Syslog record parser"""
-    _type = 'syslog'
-    _regex = re.compile(r'(?P<timestamp>^\w{3}\s\d{2}\s(\d{2}:?)+)\s'
-                        r'(?P<host>(\w[-]*)+)\s'
-                        r'(?P<application>\w+)(\[\w+\])*:\s'
-                        r'(?P<message>.*$)')
+
+    _type = "syslog"
+    _regex = re.compile(
+        r"(?P<timestamp>^\w{3}\s\d{2}\s(\d{2}:?)+)\s"
+        r"(?P<host>(\w[-]*)+)\s"
+        r"(?P<application>\w+)(\[\w+\])*:\s"
+        r"(?P<message>.*$)"
+    )
 
     def _parse(self, data):
         """Parse a syslog string into a dictionary

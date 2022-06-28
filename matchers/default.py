@@ -21,24 +21,18 @@ class AwsGuardDutyMatcher:
 
     @classmethod
     def guard_duty(cls, rec):
-        return rec['detail-type'] == 'GuardDuty Finding'
+        return rec["detail-type"] == "GuardDuty Finding"
 
 
 class OsqueryMatcher:
     """A class defines contains matchers for Osquery events"""
 
     _EVENT_TYPE_LOGIN = 7
-    _RUNLEVELS = {
-        '',
-        'LOGIN',
-        'reboot',
-        'shutdown',
-        'runlevel'
-    }
+    _RUNLEVELS = {"", "LOGIN", "reboot", "shutdown", "runlevel"}
 
     @classmethod
     def added(cls, rec):
-        return rec['action'] == 'added'
+        return rec["action"] == "added"
 
     @classmethod
     def user_login(cls, rec):
@@ -48,9 +42,9 @@ class OsqueryMatcher:
         Update the pack name (rec['name']) if it is different.
         """
         return (
-            rec['name'] == 'pack_incident-response_last' and
-            int(rec['columns']['type']) == cls._EVENT_TYPE_LOGIN and
-            (rec['columns']['username'] not in cls._RUNLEVELS)
+            rec["name"] == "pack_incident-response_last"
+            and int(rec["columns"]["type"]) == cls._EVENT_TYPE_LOGIN
+            and (rec["columns"]["username"] not in cls._RUNLEVELS)
         )
 
 
@@ -68,9 +62,9 @@ class AwsConfigMatcher:
             bool: True if from config and not in testMode else False
         """
         return (
-            rec['eventSource'] == 'config.amazonaws.com'
-            and rec['eventName'] == 'PutEvaluations'
-            and not rec['requestParameters']['testMode']
+            rec["eventSource"] == "config.amazonaws.com"
+            and rec["eventName"] == "PutEvaluations"
+            and not rec["requestParameters"]["testMode"]
         )
 
     @staticmethod
@@ -83,7 +77,7 @@ class AwsConfigMatcher:
             bool: True if auto_remediation event else False
         """
         return (
-            rec['eventName'] == 'StartAutomationExecution'
-            and rec['eventSource'] == 'ssm.amazonaws.com'
-            and rec['sourceIPAddress'] == 'config.amazonaws.com'
+            rec["eventName"] == "StartAutomationExecution"
+            and rec["eventSource"] == "ssm.amazonaws.com"
+            and rec["sourceIPAddress"] == "config.amazonaws.com"
         )

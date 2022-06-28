@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['ghe:general'])
+@rule(logs=["ghe:general"])
 def github_oauth_application_create(rec):
     """
     author:       @mimeframe
@@ -10,4 +10,4 @@ def github_oauth_application_create(rec):
     reference:    https://developer.github.com
                   /apps/building-integrations/setting-up-and-registering-oauth-apps/
     """
-    return rec['action'] == 'oauth_application.create'
+    return rec["action"] == "oauth_application.create"

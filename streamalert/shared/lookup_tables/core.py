@@ -2,7 +2,9 @@ from streamalert.shared.config import load_config
 from streamalert.shared.logger import get_logger
 from streamalert.shared.lookup_tables.configuration import LookupTablesConfiguration
 from streamalert.shared.lookup_tables.drivers import NullDriver
-from streamalert.shared.lookup_tables.drivers_factory import construct_persistence_driver
+from streamalert.shared.lookup_tables.drivers_factory import (
+    construct_persistence_driver,
+)
 from streamalert.shared.lookup_tables.table import LookupTable
 
 LOGGER = get_logger(__name__)
@@ -13,6 +15,7 @@ class LookupTables:
     A class primarily responsible for syntactic sugar + application singleton behavior that wraps
     the LookupTablesCore.
     """
+
     _instance = None  # type: LookupTablesCore
 
     @classmethod
@@ -72,10 +75,13 @@ class LookupTablesCore:
 
     This is designed to be a drop-in replacement for the original LookupTables class.
     """
+
     def __init__(self, config):
         self._configuration = LookupTablesConfiguration(config=config)
         self._tables = {}  # type: Dict[str, LookupTable]
-        self._null_table = LookupTable('null_table', NullDriver(self._configuration), {})
+        self._null_table = LookupTable(
+            "null_table", NullDriver(self._configuration), {}
+        )
 
     def setup_tables(self):
         """
@@ -86,20 +92,19 @@ class LookupTablesCore:
         preventing unnecessary memory usage.
         """
         if not self._configuration.is_enabled:
-            LOGGER.debug(
-                'Skipping LookupTables as it is not enabled'
-            )
+            LOGGER.debug("Skipping LookupTables as it is not enabled")
             return
 
-        for table_name, table_configuration in self._configuration.table_configurations.items():
+        for (
+            table_name,
+            table_configuration,
+        ) in self._configuration.table_configurations.items():
             driver = construct_persistence_driver(table_configuration)
             self._tables[table_name] = LookupTable(
-                table_name,
-                driver,
-                table_configuration
+                table_name, driver, table_configuration
             )
 
-        LOGGER.info('LookupTablesCore initialized!')
+        LOGGER.info("LookupTablesCore initialized!")
 
     def table(self, table_name):
         """
@@ -130,10 +135,10 @@ class LookupTablesCore:
             return self._tables[table_name]
 
         LOGGER.error(
-            'Nonexistent LookupTable \'%s\' referenced. Defaulting to null table. '
-            'Valid tables were (%s)',
+            "Nonexistent LookupTable '%s' referenced. Defaulting to null table. "
+            "Valid tables were (%s)",
             table_name,
-            ', '.join(sorted(self._tables.keys()))
+            ", ".join(sorted(self._tables.keys())),
         )
 
         return self._null_table

@@ -1,4 +1,3 @@
-
 """
 Copyright 2017-present Airbnb, Inc.
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +18,8 @@ from streamalert_cli.athena.helpers import generate_artifacts_table_schema
 from streamalert_cli.terraform.common import infinitedict
 
 # FIXME: Should we provide custom artifacs table name?
-DEFAULT_ARTIFACTS_TABLE_NAME = 'artifacts'
+DEFAULT_ARTIFACTS_TABLE_NAME = "artifacts"
+
 
 def generate_artifact_extractor(config):
     """Generate Terraform for the Artifact Extractor Lambda function
@@ -33,23 +33,25 @@ def generate_artifact_extractor(config):
     if not artifact_extractor_enabled(config):
         return
 
-    ae_config = config['global']['infrastructure']['artifact_extractor']
+    ae_config = config["global"]["infrastructure"]["artifact_extractor"]
     stream_name = FirehoseClient.artifacts_firehose_stream_name(config)
 
     # Set variables for the artifact extractor module
-    result['module']['artifact_extractor'] = {
-        'source': './modules/tf_artifact_extractor',
-        'account_id': config['global']['account']['aws_account_id'],
-        'prefix': config['global']['account']['prefix'],
-        'region': config['global']['account']['region'],
-        'glue_catalog_db_name': get_database_name(config),
-        'glue_catalog_table_name': ae_config.get('table_name', DEFAULT_ARTIFACTS_TABLE_NAME),
-        's3_bucket_name': firehose_data_bucket(config),
-        'stream_name': stream_name,
-        'buffer_size': ae_config.get('firehose_buffer_size', 128),
-        'buffer_interval': ae_config.get('firehose_buffer_interval', 900),
-        'kms_key_arn': '${aws_kms_key.server_side_encryption.arn}',
-        'schema': generate_artifacts_table_schema()
+    result["module"]["artifact_extractor"] = {
+        "source": "./modules/tf_artifact_extractor",
+        "account_id": config["global"]["account"]["aws_account_id"],
+        "prefix": config["global"]["account"]["prefix"],
+        "region": config["global"]["account"]["region"],
+        "glue_catalog_db_name": get_database_name(config),
+        "glue_catalog_table_name": ae_config.get(
+            "table_name", DEFAULT_ARTIFACTS_TABLE_NAME
+        ),
+        "s3_bucket_name": firehose_data_bucket(config),
+        "stream_name": stream_name,
+        "buffer_size": ae_config.get("firehose_buffer_size", 128),
+        "buffer_interval": ae_config.get("firehose_buffer_interval", 900),
+        "kms_key_arn": "${aws_kms_key.server_side_encryption.arn}",
+        "schema": generate_artifacts_table_schema(),
     }
 
     return result

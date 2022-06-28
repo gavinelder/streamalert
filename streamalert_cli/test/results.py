@@ -27,48 +27,34 @@ LOGGER = get_logger(__name__)
 class TestResult(TestEvent):
     """TestResult contains information useful for tracking test results"""
 
-    _NONE_STRING = '<None>'
-    _PASS_STRING = format_green('Pass')
-    _FAIL_STRING = format_red('Fail')
-    _SIMPLE_TEMPLATE = '{header}:'
-    _PASS_TEMPLATE = '{header}: {pass}'  # nosec
-    _ERROR_TEMPLATE = '{header}: {error}'  # nosec
-    _DESCRIPTION_LINE = (
-        '''
-    Description: {description}'''
-    )
-    _CLASSIFICATION_STATUS_TEMPLATE = (
-        '''
+    _NONE_STRING = "<None>"
+    _PASS_STRING = format_green("Pass")
+    _FAIL_STRING = format_red("Fail")
+    _SIMPLE_TEMPLATE = "{header}:"
+    _PASS_TEMPLATE = "{header}: {pass}"  # nosec
+    _ERROR_TEMPLATE = "{header}: {error}"  # nosec
+    _DESCRIPTION_LINE = """
+    Description: {description}"""
+    _CLASSIFICATION_STATUS_TEMPLATE = """
     Classification: {classification_status}
         Classified Type: {classified_type}
-        Expected Type: {expected_type}'''
-    )
-    _RULES_STATUS_TEMPLATE = (
-        '''
+        Expected Type: {expected_type}"""
+    _RULES_STATUS_TEMPLATE = """
     Rules: {rules_status}
         Triggered Rules: {triggered_rules}
-        Expected Rules: {expected_rules}'''
-    )
-    _DISABLED_RULES_TEMPLATE = (
-        '''
-        Disabled Rules: {disabled_rules}'''
-    )
-    _PUBLISHERS_STATUS_TEMPLATE = (
-        '''
+        Expected Rules: {expected_rules}"""
+    _DISABLED_RULES_TEMPLATE = """
+        Disabled Rules: {disabled_rules}"""
+    _PUBLISHERS_STATUS_TEMPLATE = """
     Publishers: {publishers_status}
         Errors:
-{publisher_errors}'''
-    )
-    _CLASSIFY_ONLY = (
-        '''
-    Classify Only: True'''
-    )
-    _ALERTS_TEMPLATE = (
-        '''
+{publisher_errors}"""
+    _CLASSIFY_ONLY = """
+    Classify Only: True"""
+    _ALERTS_TEMPLATE = """
     Live Alerts:
         Sent Alerts: {sent_alerts}
-        Failed Alerts: {failed_alerts}'''
-    )
+        Failed Alerts: {failed_alerts}"""
     _DEFAULT_INDENT = 4
 
     def __init__(self, idx, test_event, verbose=False, with_rules=False):
@@ -86,33 +72,33 @@ class TestResult(TestEvent):
 
     def __str__(self):
         fmt = {
-            'header': 'Test #{idx:02d}'.format(idx=self._index + 1),
+            "header": "Test #{idx:02d}".format(idx=self._index + 1),
         }
 
         if self.error:
-            fmt['error'] = format_red('Error - {}'.format(self.error))
+            fmt["error"] = format_red("Error - {}".format(self.error))
             return self._ERROR_TEMPLATE.format(**fmt)
 
         if self.passed and not self._verbose:
             # Simply render "Test #XYZ: Pass" if the whole test case passed
-            fmt['pass'] = self._PASS_STRING
+            fmt["pass"] = self._PASS_STRING
             return self._PASS_TEMPLATE.format(**fmt)
 
         # Otherwise, expand the entire test with verbose details
-        template = self._SIMPLE_TEMPLATE + '\n' + self._DESCRIPTION_LINE
-        fmt['description'] = self.description
+        template = self._SIMPLE_TEMPLATE + "\n" + self._DESCRIPTION_LINE
+        fmt["description"] = self.description
 
         # First, render classification
-        template += '\n' + self._CLASSIFICATION_STATUS_TEMPLATE
-        fmt['classification_status'] = (
+        template += "\n" + self._CLASSIFICATION_STATUS_TEMPLATE
+        fmt["classification_status"] = (
             self._PASS_STRING if self.classification_tests_passed else self._FAIL_STRING
         )
-        fmt['expected_type'] = self.log
-        fmt['classified_type'] = (
+        fmt["expected_type"] = self.log
+        fmt["classified_type"] = (
             self._classified_result.log_schema_type
-            if self._classified else format_red(
-                self._classified_result.log_schema_type
-                if self else self._NONE_STRING
+            if self._classified
+            else format_red(
+                self._classified_result.log_schema_type if self else self._NONE_STRING
             )
         )
 
@@ -122,54 +108,54 @@ class TestResult(TestEvent):
 
         # Render the result of rules engine run
         if self.rule_tests_were_run:
-            template += '\n' + self._RULES_STATUS_TEMPLATE
-            fmt['rules_status'] = (
+            template += "\n" + self._RULES_STATUS_TEMPLATE
+            fmt["rules_status"] = (
                 self._PASS_STRING if self.rule_tests_passed else self._FAIL_STRING
             )
-            fmt['triggered_rules'] = self._format_rules(
-                self._triggered_rules,
-                self.expected_rules
+            fmt["triggered_rules"] = self._format_rules(
+                self._triggered_rules, self.expected_rules
             )
 
-            fmt['expected_rules'] = self._format_rules(
-                self.expected_rules,
-                self._triggered_rules
+            fmt["expected_rules"] = self._format_rules(
+                self.expected_rules, self._triggered_rules
             )
 
             disabled = self._disabled_rules
             if disabled:
                 template += self._DISABLED_RULES_TEMPLATE
-                fmt['disabled_rules'] = ', '.join(disabled)
+                fmt["disabled_rules"] = ", ".join(disabled)
 
             # Render live test results
             if self.has_live_tests:
                 template += self._ALERTS_TEMPLATE
-                fmt['sent_alerts'], fmt['failed_alerts'] = self._format_alert_results()
+                fmt["sent_alerts"], fmt["failed_alerts"] = self._format_alert_results()
 
         # Render any publisher errors
         if self.publisher_tests_were_run:
-            template += '\n' + self._PUBLISHERS_STATUS_TEMPLATE
+            template += "\n" + self._PUBLISHERS_STATUS_TEMPLATE
 
             num_pass = 0
             num_total = 0
             for num_total, result in enumerate(self._publication_results, start=1):
-                num_pass += 1 if result['success'] else 0
+                num_pass += 1 if result["success"] else 0
 
-            fmt['publishers_status'] = (
-                format_green('{}/{} Passed'.format(num_pass, num_total))
+            fmt["publishers_status"] = (
+                format_green("{}/{} Passed".format(num_pass, num_total))
                 if num_pass == num_total
-                else format_red('{}/{} Passed'.format(num_pass, num_total))
+                else format_red("{}/{} Passed".format(num_pass, num_total))
             )
-            pad = ' ' * self._DEFAULT_INDENT * 3
-            fmt['publisher_errors'] = (
-                format_red('\n'.join([
-                    '{}{}'.format(pad, error) for error in self.publisher_errors
-                ]))
+            pad = " " * self._DEFAULT_INDENT * 3
+            fmt["publisher_errors"] = (
+                format_red(
+                    "\n".join(
+                        ["{}{}".format(pad, error) for error in self.publisher_errors]
+                    )
+                )
                 if self.publisher_errors
-                else '{}{}'.format(pad, self._NONE_STRING)
+                else "{}{}".format(pad, self._NONE_STRING)
             )
 
-        return textwrap.dedent(template.format(**fmt)).rstrip() + '\n'
+        return textwrap.dedent(template.format(**fmt)).rstrip() + "\n"
 
     __repr__ = __str__
 
@@ -179,9 +165,7 @@ class TestResult(TestEvent):
 
     @property
     def _disabled_rules(self):
-        return sorted(set(self.trigger_rules).intersection(
-            rule.Rule.disabled_rules()
-        ))
+        return sorted(set(self.trigger_rules).intersection(rule.Rule.disabled_rules()))
 
     @property
     def _triggered_rules(self):
@@ -216,10 +200,10 @@ class TestResult(TestEvent):
         result = []
         for value in sorted(items):
             if value not in all_rules:
-                value = '{} (does not exist)'.format(value)
+                value = "{} (does not exist)".format(value)
 
             result.append(format_red(value) if value not in compare_set else value)
-        return ', '.join(result)
+        return ", ".join(result)
 
     def _format_alert_results(self):
         failed = defaultdict(list)
@@ -236,26 +220,32 @@ class TestResult(TestEvent):
 
     def _alert_result_block(self, values, failed=False):
         result_block = []
-        fmt = '{pad_char:<{pad}}{line}'
+        fmt = "{pad_char:<{pad}}{line}"
         for rule_name in sorted(values):
             result_block.append(
                 fmt.format(
-                    pad_char=' ',
+                    pad_char=" ",
                     pad=self._DEFAULT_INDENT * 4,
-                    line='Rule: {rule_name}'.format(rule_name=format_underline(rule_name))
+                    line="Rule: {rule_name}".format(
+                        rule_name=format_underline(rule_name)
+                    ),
                 )
             )
 
             result_block.extend(
                 fmt.format(
-                    pad_char=' ',
+                    pad_char=" ",
                     pad=self._DEFAULT_INDENT * 5,
-                    line=format_red(value) if failed else value
+                    line=format_red(value) if failed else value,
                 )
                 for value in values[rule_name]
             )
 
-        return self._NONE_STRING if not result_block else '\n{}'.format('\n'.join(result_block))
+        return (
+            self._NONE_STRING
+            if not result_block
+            else "\n{}".format("\n".join(result_block))
+        )
 
     @property
     def rule_tests_were_run(self):
@@ -282,7 +272,9 @@ class TestResult(TestEvent):
 
         Also returns False if the rules engine tests were not run
         """
-        return self.rule_tests_were_run and (self._triggered_rules == self.expected_rules)
+        return self.rule_tests_were_run and (
+            self._triggered_rules == self.expected_rules
+        )
 
     @property
     def has_live_tests(self):
@@ -312,7 +304,7 @@ class TestResult(TestEvent):
             return False
 
         for result in self._publication_results:
-            if not result['success']:
+            if not result["success"]:
                 return False
 
         return True
@@ -330,23 +322,21 @@ class TestResult(TestEvent):
 
         return [
             "{}: {}".format(
-                item['output_descriptor'],
-                "({}) {}".format(
-                    type(item['error']).__name__,
-                    item['error']
-                )
-                if 'error' in item
-                else item['failure']
+                item["output_descriptor"],
+                "({}) {}".format(type(item["error"]).__name__, item["error"])
+                if "error" in item
+                else item["failure"],
             )
-            for item
-            in self._publication_results
-            if not item['success']
+            for item in self._publication_results
+            if not item["success"]
         ]
 
     @property
     def count_publisher_tests_passed(self):
         """Returns number of publisher tests that failed"""
-        return sum(1 for _, result in self._publication_results.items() if result['success'])
+        return sum(
+            1 for _, result in self._publication_results.items() if result["success"]
+        )
 
     @property
     def count_publisher_tests_run(self):

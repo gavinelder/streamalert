@@ -3,7 +3,7 @@ from streamalert.shared.rule import rule
 from streamalert.shared.lookup_tables.core import LookupTables
 
 
-@rule(logs=['duo:authentication'])
+@rule(logs=["duo:authentication"])
 def duo_lookup_tables_example(rec):
     """
     description: Alert on Duo auth logs from blacklisted browsers, as defined by a lookup table
@@ -11,8 +11,10 @@ def duo_lookup_tables_example(rec):
     """
     # The 'global' fixture file at rules/test_fixtures/lookup_tables/dynamo-backed-table.json
     # creates the 'dynamo-backed-table' containing the 'duo_blacklisted_browsers' value
-    blacklisted_browsers = LookupTables.get('dynamo-backed-table', 'duo_blacklisted_browsers', [])
+    blacklisted_browsers = LookupTables.get(
+        "dynamo-backed-table", "duo_blacklisted_browsers", []
+    )
 
     # The test event contains a browser of 'Netscape', which is
     # included in the lookup table blacklist
-    return rec['access_device'].get('browser') in set(blacklisted_browsers)
+    return rec["access_device"].get("browser") in set(blacklisted_browsers)

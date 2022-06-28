@@ -3,58 +3,58 @@ from streamalert.shared.rule import rule
 
 _CRITICAL_EVENTS = {
     # VPC Flow Logs (~netflow)
-    'DeleteFlowLogs',
+    "DeleteFlowLogs",
     # Critical, large resources
-    'DeleteSubnet',
-    'DeleteVpc',
-    'DeleteDBCluster',
-    'DeleteCluster',
+    "DeleteSubnet",
+    "DeleteVpc",
+    "DeleteDBCluster",
+    "DeleteCluster",
     # CloudTrail
-    'DeleteTrail',
-    'PutEventSelectors',
-    'UpdateTrail',
-    'StopLogging',
+    "DeleteTrail",
+    "PutEventSelectors",
+    "UpdateTrail",
+    "StopLogging",
     # AWS Config
-    'DeleteDeliveryChannel',
-    'StopConfigurationRecorder',
+    "DeleteDeliveryChannel",
+    "StopConfigurationRecorder",
     # CloudWatch
-    'DeleteRule',
-    'DisableRule',
+    "DeleteRule",
+    "DisableRule",
     # GuardDuty
-    'DeleteDetector',
+    "DeleteDetector",
     # S3 Public Access Block
-    'DeleteAccountPublicAccessBlock',
+    "DeleteAccountPublicAccessBlock",
     # EBS default encryption
-    'DisableEbsEncryptionByDefault',
+    "DisableEbsEncryptionByDefault",
 }
 
 PUBLIC_ACCESS_BLOCK_CONFIG_ACTIONS = {
-    'RestrictPublicBuckets',
-    'BlockPublicPolicy',
-    'BlockPublicAcls',
-    'IgnorePublicAcls',
+    "RestrictPublicBuckets",
+    "BlockPublicPolicy",
+    "BlockPublicAcls",
+    "IgnorePublicAcls",
 }
 
 AWS_ORG_EVENTS = {
-    'AttachPolicy',
-    'CreateOrganizationUnit',
-    'CreatePolicy',
-    'DeletePolicy',
-    'DeleteOrganizationUnit',
-    'DetachPolicy',
-    'DisableAWSServiceAccess',
-    'DisablePolicyType',
-    'EnableAllFeatures',
-    'EnableAWSServiceAccess',
-    'EnablePolicyType',
-    'LeaveOrganization',
-    'MoveAccount',
-    'RemoveAccountFromOrganization',
-    'UpdatePolicy',
+    "AttachPolicy",
+    "CreateOrganizationUnit",
+    "CreatePolicy",
+    "DeletePolicy",
+    "DeleteOrganizationUnit",
+    "DetachPolicy",
+    "DisableAWSServiceAccess",
+    "DisablePolicyType",
+    "EnableAllFeatures",
+    "EnableAWSServiceAccess",
+    "EnablePolicyType",
+    "LeaveOrganization",
+    "MoveAccount",
+    "RemoveAccountFromOrganization",
+    "UpdatePolicy",
 }
 
 
-@rule(logs=['cloudtrail:events'])
+@rule(logs=["cloudtrail:events"])
 def cloudtrail_critical_api_calls(rec):
     """
     author:           airbnb_csirt
@@ -67,25 +67,33 @@ def cloudtrail_critical_api_calls(rec):
                       (b) identify what resource(s) are impacted by the API call
                       (c) determine if the intent is valid, malicious or accidental
     """
-    if rec['eventName'] in _CRITICAL_EVENTS:
+    if rec["eventName"] in _CRITICAL_EVENTS:
         return True
 
-    if rec['eventName'] == 'UpdateDetector':
+    if rec["eventName"] == "UpdateDetector":
         # Check if GuardDuty is being disabled, where enable is set to False
-        if not rec.get('requestParameters', {}).get('enable', True):
+        if not rec.get("requestParameters", {}).get("enable", True):
             return True
 
-    if rec['eventName'] in {'PutBucketPublicAccessBlock', 'PutAccountPublicAccessBlock'}:
+    if rec["eventName"] in {
+        "PutBucketPublicAccessBlock",
+        "PutAccountPublicAccessBlock",
+    }:
         # These calls set the policy for what to block for a bucket.
         # We need to get the configuration and see if any
         # of the items are set to False.
-        config = rec.get('requestParameters', {}).get('PublicAccessBlockConfiguration', {})
+        config = rec.get("requestParameters", {}).get(
+            "PublicAccessBlockConfiguration", {}
+        )
         for action in PUBLIC_ACCESS_BLOCK_CONFIG_ACTIONS:
             if config.get(action, True) is False:
                 return True
 
     # Detect important Organizations calls
-    if rec['eventSource'] == 'organizations.amazonaws.com' and rec['eventName'] in AWS_ORG_EVENTS:
+    if (
+        rec["eventSource"] == "organizations.amazonaws.com"
+        and rec["eventName"] in AWS_ORG_EVENTS
+    ):
         return True
 
     return False

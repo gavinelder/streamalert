@@ -32,12 +32,14 @@ LOGGER = get_logger(__name__)
 
 
 class AppCommand(CLICommand):
-    description = 'Create, list, or update a StreamAlert app to poll logs from various services'
+    description = (
+        "Create, list, or update a StreamAlert app to poll logs from various services"
+    )
 
     @classmethod
     def setup_subparser(cls, subparser):
         """Add the app integration subparser: manage.py app [subcommand] [options]"""
-        app_subparsers = subparser.add_subparsers(dest='app subcommand', required=True)
+        app_subparsers = subparser.add_subparsers(dest="app subcommand", required=True)
 
         cls._setup_app_list_subparser(app_subparsers)
         cls._setup_app_new_subparser(app_subparsers)
@@ -48,9 +50,9 @@ class AppCommand(CLICommand):
         """Add the app list subparser: manage.py app list"""
         generate_subparser(
             subparsers,
-            'list',
-            description='List all configured app functions, grouped by cluster',
-            subcommand=True
+            "list",
+            description="List all configured app functions, grouped by cluster",
+            subcommand=True,
         )
 
     @classmethod
@@ -58,15 +60,15 @@ class AppCommand(CLICommand):
         """Add the app new subparser: manage.py app new [options]"""
         app_new_parser = generate_subparser(
             subparsers,
-            'new',
-            description='Create a new StreamAlert app to poll logs from various services',
-            subcommand=True
+            "new",
+            description="Create a new StreamAlert app to poll logs from various services",
+            subcommand=True,
         )
 
         set_parser_epilog(
             app_new_parser,
             epilog=(
-                '''\
+                """\
                 Example:
 
                     manage.py app new \\
@@ -76,8 +78,8 @@ class AppCommand(CLICommand):
                       --schedule-expression 'rate(2 hours)' \\
                       --timeout 60 \\
                       --memory 256
-                '''
-            )
+                """
+            ),
         )
 
         cls._add_default_app_args(app_new_parser)
@@ -86,10 +88,10 @@ class AppCommand(CLICommand):
 
         # App type options
         app_new_parser.add_argument(
-            'type',
+            "type",
             choices=app_types,
-            metavar='APP_TYPE',
-            help='Type of app being configured: {}'.format(', '.join(app_types))
+            metavar="APP_TYPE",
+            help="Type of app being configured: {}".format(", ".join(app_types)),
         )
 
         # Function schedule expression (rate) arg
@@ -106,22 +108,22 @@ class AppCommand(CLICommand):
         """Add the app update-auth subparser: manage.py app update-auth [options]"""
         app_update_parser = generate_subparser(
             subparsers,
-            'update-auth',
-            description='Update the authentication information for an existing app',
-            subcommand=True
+            "update-auth",
+            description="Update the authentication information for an existing app",
+            subcommand=True,
         )
 
         set_parser_epilog(
             app_update_parser,
             epilog=(
-                '''\
+                """\
                 Example:
 
                     manage.py app update-auth \\
                       --cluster prod \\
                       --name duo_prod_collector
-                '''
-            )
+                """
+            ),
         )
 
         cls._add_default_app_args(app_update_parser)
@@ -132,31 +134,33 @@ class AppCommand(CLICommand):
 
         # App integration cluster options
         app_parser.add_argument(
-            '-c',
-            '--cluster',
+            "-c",
+            "--cluster",
             choices=CLUSTERS,
             required=True,
-            help='Cluster to perform this action against'
+            help="Cluster to perform this action against",
         )
 
         # Validate the name being used to make sure it does not contain specific characters
         def _validate_name(val):
             """Validate acceptable inputs for the name of the function"""
-            acceptable_chars = ''.join([string.digits, string.ascii_lowercase, '_-'])
+            acceptable_chars = "".join([string.digits, string.ascii_lowercase, "_-"])
             if not set(str(val)).issubset(acceptable_chars):
-                raise app_parser.error('Name must contain only lowercase letters, numbers, '
-                                       'hyphens, or underscores.')
+                raise app_parser.error(
+                    "Name must contain only lowercase letters, numbers, "
+                    "hyphens, or underscores."
+                )
 
             return val
 
         # App integration name to be used for this instance that must be unique per cluster
         app_parser.add_argument(
-            '-n',
-            '--name',
-            dest='app_name',
+            "-n",
+            "--name",
+            dest="app_name",
             required=True,
-            help='Unique name for this app',
-            type=_validate_name
+            help="Unique name for this app",
+            type=_validate_name,
         )
 
     @classmethod
@@ -175,73 +179,87 @@ class AppCommand(CLICommand):
             return False
 
         # List all of the available app integrations, broken down by cluster
-        if options.subcommand == 'list':
+        if options.subcommand == "list":
             all_info = {
-                cluster: cluster_config['modules'].get('streamalert_apps')
-                for cluster, cluster_config in config['clusters'].items()
+                cluster: cluster_config["modules"].get("streamalert_apps")
+                for cluster, cluster_config in config["clusters"].items()
             }
 
             for cluster, info in all_info.items():
-                print('\nCluster: {}\n'.format(cluster))
+                print("\nCluster: {}\n".format(cluster))
                 if not info:
-                    print('\tNo Apps configured\n')
+                    print("\tNo Apps configured\n")
                     continue
 
                 for name, details in info.items():
-                    print('\tName: {}'.format(name))
-                    print('\n'.join([
-                        '\t\t{key}:{padding_char:<{padding_count}}{value}'.format(
-                            key=key_name,
-                            padding_char=' ',
-                            padding_count=30 - (len(key_name)),
-                            value=value) for key_name, value in details.items()
-                    ] + ['\n']))
+                    print("\tName: {}".format(name))
+                    print(
+                        "\n".join(
+                            [
+                                "\t\t{key}:{padding_char:<{padding_count}}{value}".format(
+                                    key=key_name,
+                                    padding_char=" ",
+                                    padding_count=30 - (len(key_name)),
+                                    value=value,
+                                )
+                                for key_name, value in details.items()
+                            ]
+                            + ["\n"]
+                        )
+                    )
             return True
 
         # Convert the options to a dict
         app_info = vars(options)
 
         # Add the region and prefix for this StreamAlert instance to the app info
-        app_info['region'] = str(config['global']['account']['region'])
-        app_info['prefix'] = str(config['global']['account']['prefix'])
+        app_info["region"] = str(config["global"]["account"]["region"])
+        app_info["prefix"] = str(config["global"]["account"]["prefix"])
 
         # Create a new app integration function
-        if options.subcommand == 'new':
-            function_name = '_'.join([
-                app_info['prefix'],
-                app_info['cluster'],
-                app_info['type'],
-                app_info['app_name'],
-                'app'
-            ])
+        if options.subcommand == "new":
+            function_name = "_".join(
+                [
+                    app_info["prefix"],
+                    app_info["cluster"],
+                    app_info["type"],
+                    app_info["app_name"],
+                    "app",
+                ]
+            )
 
             return config.add_app(function_name, app_info)
 
         # Update the auth information for an existing app integration function
-        if options.subcommand == 'update-auth':
-            cluster_config = config['clusters'][app_info['cluster']]
-            apps = cluster_config['modules'].get('streamalert_apps', {})
+        if options.subcommand == "update-auth":
+            cluster_config = config["clusters"][app_info["cluster"]]
+            apps = cluster_config["modules"].get("streamalert_apps", {})
             if not apps:
-                LOGGER.error('No apps configured for cluster \'%s\'', app_info['cluster'])
+                LOGGER.error("No apps configured for cluster '%s'", app_info["cluster"])
                 return False
 
             # Find the appropriate function config for this app
             func_name = None
             for function_name, app_config in apps.items():
-                if app_config.get('app_name') == app_info['app_name']:
+                if app_config.get("app_name") == app_info["app_name"]:
                     func_name = function_name
                     break
 
             if not func_name:
-                LOGGER.error('App with name \'%s\' does not exist for cluster \'%s\'',
-                             app_info['app_name'], app_info['cluster'])
+                LOGGER.error(
+                    "App with name '%s' does not exist for cluster '%s'",
+                    app_info["app_name"],
+                    app_info["cluster"],
+                )
                 return False
 
             # Get the type for this app integration from the current
             # config so we can update it properly
-            app_info['type'] = cluster_config['modules']['streamalert_apps'][func_name]['type']
+            app_info["type"] = cluster_config["modules"]["streamalert_apps"][func_name][
+                "type"
+            ]
 
-            app = StreamAlertApp.get_app(app_info['type'])
+            app = StreamAlertApp.get_app(app_info["type"])
 
             if not save_app_auth_info(app, app_info, func_name, True):
                 return False

@@ -24,8 +24,9 @@ from streamalert.shared.helpers.dynamodb import ignore_conditional_failure
 
 class AlertTable:
     """Provides convenience methods for accessing and modifying the alerts table."""
+
     def __init__(self, table_name):
-        self._table = boto3.resource('dynamodb').Table(table_name)
+        self._table = boto3.resource("dynamodb").Table(table_name)
 
     @property
     def name(self):
@@ -48,11 +49,11 @@ class AlertTable:
         """
         while True:
             response = func(**func_kwargs)
-            for item in response.get('Items', []):
+            for item in response.get("Items", []):
                 yield item
 
-            if response.get('LastEvaluatedKey'):
-                func_kwargs['ExclusiveStartKey'] = response['LastEvaluatedKey']
+            if response.get("LastEvaluatedKey"):
+                func_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
             else:
                 return
 
@@ -68,18 +69,17 @@ class AlertTable:
             Generator[str]
         """
         kwargs = {
-            'ProjectionExpression': 'RuleName',
-            'Select': 'SPECIFIC_ATTRIBUTES',
-
+            "ProjectionExpression": "RuleName",
+            "Select": "SPECIFIC_ATTRIBUTES",
             # It is acceptable to use inconsistent reads here to reduce read capacity units
             # consumed, as there is already no guarantee of consistent in the rule names due to
             # pagination.
-            'ConsistentRead': False,
+            "ConsistentRead": False,
         }
 
         rule_names = set()
         for item in self._paginate(self._table.scan, kwargs):
-            name = item['RuleName']
+            name = item["RuleName"]
             if name in rule_names:
                 continue
 
@@ -99,19 +99,22 @@ class AlertTable:
         """
         # Any alert which was recently dispatched to the alert processor may still be in progress,
         # so we'll skip over those for now.
-        in_progress_threshold = datetime.utcnow() - timedelta(seconds=alert_proc_timeout_sec)
+        in_progress_threshold = datetime.utcnow() - timedelta(
+            seconds=alert_proc_timeout_sec
+        )
 
         kwargs = {
             # We need a consistent read here in order to pick up the most recent updates from the
             # alert processor. Otherwise, deleted/updated alerts may not yet have propagated.
-            'ConsistentRead': True,
-
+            "ConsistentRead": True,
             # Include only those alerts which have not yet dispatched or were dispatched more than
             # ALERT_PROCESSOR_TIMEOUT seconds ago.
-            'FilterExpression': (
-                Attr('Dispatched').lt(in_progress_threshold.strftime(Alert.DATETIME_FORMAT))),
-
-            'KeyConditionExpression': Key('RuleName').eq(rule_name)
+            "FilterExpression": (
+                Attr("Dispatched").lt(
+                    in_progress_threshold.strftime(Alert.DATETIME_FORMAT)
+                )
+            ),
+            "KeyConditionExpression": Key("RuleName").eq(rule_name),
         }
         for item in self._paginate(self._table.query, kwargs):
             yield item
@@ -127,8 +130,9 @@ class AlertTable:
             (dict): Dynamo record corresponding to this alert, or None if the alert was not found.
         """
         kwargs = {
-            'ConsistentRead': True,
-            'KeyConditionExpression': Key('RuleName').eq(rule_name) & Key('AlertID').eq(alert_id)
+            "ConsistentRead": True,
+            "KeyConditionExpression": Key("RuleName").eq(rule_name)
+            & Key("AlertID").eq(alert_id),
         }
         items = list(self._paginate(self._table.query, kwargs))
         return items[0] if items else {}
@@ -157,12 +161,12 @@ class AlertTable:
         # (The alert processor could have deleted the alert before this table update finishes).
         self._table.update_item(
             Key=alert.dynamo_key,
-            UpdateExpression='SET Attempts = :attempts, Dispatched = :dispatched',
+            UpdateExpression="SET Attempts = :attempts, Dispatched = :dispatched",
             ExpressionAttributeValues={
-                ':attempts': alert.attempts,
-                ':dispatched': alert.dispatched.strftime(Alert.DATETIME_FORMAT)
+                ":attempts": alert.attempts,
+                ":dispatched": alert.dispatched.strftime(Alert.DATETIME_FORMAT),
             },
-            ConditionExpression='attribute_exists(AlertID)'
+            ConditionExpression="attribute_exists(AlertID)",
         )
 
     @ignore_conditional_failure
@@ -174,9 +178,9 @@ class AlertTable:
         """
         self._table.update_item(
             Key=alert.dynamo_key,
-            UpdateExpression='SET OutputsSent = :outputs_sent',
-            ExpressionAttributeValues={':outputs_sent': alert.outputs_sent},
-            ConditionExpression='attribute_exists(AlertID)'
+            UpdateExpression="SET OutputsSent = :outputs_sent",
+            ExpressionAttributeValues={":outputs_sent": alert.outputs_sent},
+            ConditionExpression="attribute_exists(AlertID)",
         )
 
     def delete_alerts(self, keys):
@@ -187,4 +191,4 @@ class AlertTable:
         """
         with self._table.batch_writer() as batch:
             for rule_name, alert_id in keys:
-                batch.delete_item(Key={'RuleName': rule_name, 'AlertID': alert_id})
+                batch.delete_item(Key={"RuleName": rule_name, "AlertID": alert_id})

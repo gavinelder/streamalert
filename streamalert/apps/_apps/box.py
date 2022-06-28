@@ -22,13 +22,13 @@ import requests
 
 from . import AppIntegration, StreamAlertApp, get_logger, safe_timeout
 
-
 LOGGER = get_logger(__name__)
 
 
 @StreamAlertApp
 class BoxApp(AppIntegration):
     """BoxApp integration"""
+
     _MAX_CHUNK_SIZE = 500
     _MAX_RETRY_COUNT = 3
 
@@ -39,11 +39,11 @@ class BoxApp(AppIntegration):
 
     @classmethod
     def _type(cls):
-        return 'admin_events'
+        return "admin_events"
 
     @classmethod
     def service(cls):
-        return 'box'
+        return "box"
 
     @classmethod
     def date_formatter(cls):
@@ -52,7 +52,7 @@ class BoxApp(AppIntegration):
         This format is consistent with the format recommended by Box docs:
             https://developer.box.com/reference#section-date-format
         """
-        return '%Y-%m-%dT%H:%M:%S-00:00'
+        return "%Y-%m-%dT%H:%M:%S-00:00"
 
     @classmethod
     def _load_auth(cls, auth_data):
@@ -68,7 +68,7 @@ class BoxApp(AppIntegration):
         try:
             auth = JWTAuth.from_settings_dictionary(auth_data)
         except (TypeError, ValueError, KeyError):
-            LOGGER.exception('Could not load JWT from settings dictionary')
+            LOGGER.exception("Could not load JWT from settings dictionary")
             return False
 
         return auth
@@ -81,10 +81,10 @@ class BoxApp(AppIntegration):
                 if any errors occurred during the creation of the client
         """
         if self._client:
-            LOGGER.debug('[%s] Client already instantiated', self)
+            LOGGER.debug("[%s] Client already instantiated", self)
             return True
 
-        auth = self._load_auth(self._config.auth['keyfile'])
+        auth = self._load_auth(self._config.auth["keyfile"])
         if not auth:
             return False
 
@@ -105,36 +105,41 @@ class BoxApp(AppIntegration):
         """
         # Create the parameters for this request, 100 is the max value for limit
         params = {
-            'limit': self._MAX_CHUNK_SIZE,
-            'stream_type': EnterpriseEventsStreamType.ADMIN_LOGS,
+            "limit": self._MAX_CHUNK_SIZE,
+            "stream_type": EnterpriseEventsStreamType.ADMIN_LOGS,
         }
 
         # From Box's docs: Box responds to the created_before and created_after
         # parameters only if the stream_position parameter is not included.
         if self._next_stream_position:
-            params['stream_position'] = self._next_stream_position
+            params["stream_position"] = self._next_stream_position
         else:
-            params['created_after'] = self._last_timestamp
+            params["created_after"] = self._last_timestamp
 
-        LOGGER.debug('[%s] Requesting events', self)
+        LOGGER.debug("[%s] Requesting events", self)
 
         def _perform_request(timeout, allow_retry=True, retry_count=0):
             try:
                 # Get the events using a make_request call with the box api. This is to
                 # support custom parameters such as 'created_after' and 'created_before'
                 box_response = self._client.make_request(
-                    'GET',
-                    self._client.get_url('events'),
+                    "GET",
+                    self._client.get_url("events"),
                     params=params,
-                    timeout=timeout
+                    timeout=timeout,
                 )
             except BoxException:
-                LOGGER.exception('[%s] Failed to get events', self)
-                return False, {}   # Return a tuple to conform to return value of safe_timeout
+                LOGGER.exception("[%s] Failed to get events", self)
+                return (
+                    False,
+                    {},
+                )  # Return a tuple to conform to return value of safe_timeout
             except requests.exceptions.Timeout:
                 # Retry requests that timed out a few more times, with increased timeout
                 timeout *= 2
-                LOGGER.debug('Attempting new request with timeout: %0.2f seconds', timeout)
+                LOGGER.debug(
+                    "Attempting new request with timeout: %0.2f seconds", timeout
+                )
                 if retry_count == self._MAX_RETRY_COUNT:
                     raise  # eventually give up and raise this
                 return _perform_request(timeout, allow_retry, retry_count + 1)
@@ -142,11 +147,14 @@ class BoxApp(AppIntegration):
                 # In testing, the requests connection seemed to get reset for no
                 # obvious reason, and a simple retry once works fine so catch it
                 # and retry once, but after that return False
-                LOGGER.exception('Bad response received from host, will retry once')
+                LOGGER.exception("Bad response received from host, will retry once")
                 if allow_retry:
                     return _perform_request(timeout, allow_retry=False)
 
-                return False, {}   # Return a tuple to conform to return value of safe_timeout
+                return (
+                    False,
+                    {},
+                )  # Return a tuple to conform to return value of safe_timeout
 
             # Return a successful status and the JSON from the box response
             # Return a tuple to conform to return value of safe_timeout
@@ -167,7 +175,7 @@ class BoxApp(AppIntegration):
                 Otherwise, return a list of box admin event entries.
         """
         if not self._create_client():
-            LOGGER.error('[%s] Could not create client', self)
+            LOGGER.error("[%s] Could not create client", self)
             return False
 
         result, response = self._make_request()
@@ -178,19 +186,19 @@ class BoxApp(AppIntegration):
             return False
 
         if not response:
-            LOGGER.error('[%s] No results received in request', self)
+            LOGGER.error("[%s] No results received in request", self)
             return False
 
-        self._more_to_poll = int(response['chunk_size']) >= self._MAX_CHUNK_SIZE
+        self._more_to_poll = int(response["chunk_size"]) >= self._MAX_CHUNK_SIZE
 
-        events = response.get('entries', [])
+        events = response.get("entries", [])
         if not events:
-            LOGGER.info('[%s] No events found in result', self)
+            LOGGER.info("[%s] No events found in result", self)
             return False
 
-        self._next_stream_position = response['next_stream_position']
+        self._next_stream_position = response["next_stream_position"]
 
-        self._last_timestamp = events[-1]['created_at']
+        self._last_timestamp = events[-1]["created_at"]
 
         return events
 
@@ -200,7 +208,7 @@ class BoxApp(AppIntegration):
         def keyfile_validator(keyfile):
             """A JSON formatted Box service account private key file key"""
             try:
-                with open(keyfile.strip(), 'r') as json_keyfile:
+                with open(keyfile.strip(), "r") as json_keyfile:
                     auth_data = json.load(json_keyfile)
             except (IOError, ValueError):
                 return False
@@ -211,13 +219,14 @@ class BoxApp(AppIntegration):
             return auth_data
 
         return {
-            'keyfile':
-                {
-                    'description': ('the path on disk to the JSON formatted Box '
-                                    'service account private key file'),
-                    'format': keyfile_validator
-                }
+            "keyfile": {
+                "description": (
+                    "the path on disk to the JSON formatted Box "
+                    "service account private key file"
+                ),
+                "format": keyfile_validator,
             }
+        }
 
     def _sleep_seconds(self):
         """Return the number of seconds this polling function should sleep for

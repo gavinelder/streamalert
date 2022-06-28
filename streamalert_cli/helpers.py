@@ -28,16 +28,16 @@ from streamalert.shared.logger import get_logger
 LOGGER = get_logger(__name__)
 
 SCHEMA_TYPE_LOOKUP = {
-    bool: 'boolean',
-    float: 'float',
-    int: 'integer',
-    str: 'string',
+    bool: "boolean",
+    float: "float",
+    int: "integer",
+    str: "string",
     dict: dict(),
-    list: list()
+    list: list(),
 }
 
 
-def run_command(runner_args, cwd='./', **kwargs):
+def run_command(runner_args, cwd="./", **kwargs):
     """Helper function to run commands with error handling.
 
     Args:
@@ -48,26 +48,28 @@ def run_command(runner_args, cwd='./', **kwargs):
         error_message (str): Message to output if command fails
         quiet (bool): Set to True to suppress command output
     """
-    default_error_message = "An error occurred while running: {}".format(' '.join(runner_args))
-    error_message = kwargs.get('error_message', default_error_message)
+    default_error_message = "An error occurred while running: {}".format(
+        " ".join(runner_args)
+    )
+    error_message = kwargs.get("error_message", default_error_message)
 
     # Add the -force-copy flag for s3 state copying to suppress dialogs that
     # the user must type 'yes' into.
-    if runner_args[0] == 'terraform':
-        if runner_args[1] == 'init':
-            runner_args.append('-force-copy')
+    if runner_args[0] == "terraform":
+        if runner_args[1] == "init":
+            runner_args.append("-force-copy")
 
     stdout_option = None
-    if kwargs.get('quiet'):
-        stdout_option = open(os.devnull, 'w')
+    if kwargs.get("quiet"):
+        stdout_option = open(os.devnull, "w")
 
     try:
         subprocess.check_call(runner_args, stdout=stdout_option, cwd=cwd)  # nosec
     except subprocess.CalledProcessError as err:
-        LOGGER.error('%s\n%s', error_message, err.cmd)
+        LOGGER.error("%s\n%s", error_message, err.cmd)
         return False
     except OSError as err:
-        LOGGER.error('%s\n%s (%s)', error_message, err.strerror, runner_args[0])
+        LOGGER.error("%s\n%s (%s)", error_message, err.strerror, runner_args[0])
         return False
 
     return True
@@ -85,14 +87,14 @@ def continue_prompt(message=None):
     Returns:
         bool: If the user wants to continue or not
     """
-    required_responses = {'yes', 'no'}
-    message = message or 'Would you like to continue?'
+    required_responses = {"yes", "no"}
+    message = message or "Would you like to continue?"
 
-    response = ''
+    response = ""
     while response not in required_responses:
-        response = input('\n{} (yes or no): '.format(message)) # nosec
+        response = input("\n{} (yes or no): ".format(message))  # nosec
 
-    return response == 'yes'
+    return response == "yes"
 
 
 def check_credentials():
@@ -102,23 +104,29 @@ def check_credentials():
         bool: True any of the AWS env variables exist
     """
     try:
-        response = boto3.client('sts').get_caller_identity()
+        response = boto3.client("sts").get_caller_identity()
     except NoCredentialsError:
-        LOGGER.error('No valid AWS Credentials found in your environment!')
-        LOGGER.error('Please follow the setup instructions here: '
-                     'https://www.streamalert.io/getting-started.html'
-                     '#configure-aws-credentials')
+        LOGGER.error("No valid AWS Credentials found in your environment!")
+        LOGGER.error(
+            "Please follow the setup instructions here: "
+            "https://www.streamalert.io/getting-started.html"
+            "#configure-aws-credentials"
+        )
         return False
     except ClientError as err:
         # Check for an error related to an expired token
-        if err.response['Error']['Code'] == 'ExpiredToken':
-            LOGGER.error('%s. Please refresh your credentials.', err.response['Error']['Message'])
+        if err.response["Error"]["Code"] == "ExpiredToken":
+            LOGGER.error(
+                "%s. Please refresh your credentials.", err.response["Error"]["Message"]
+            )
             return False
         raise  # Raise the error if it is anything else
 
     LOGGER.debug(
-        'Using credentials for user \'%s\' with user ID \'%s\' in account '
-        '\'%s\'', response['Arn'], response['UserId'], response['Account']
+        "Using credentials for user '%s' with user ID '%s' in account " "'%s'",
+        response["Arn"],
+        response["UserId"],
+        response["Account"],
     )
 
     return True
@@ -135,8 +143,8 @@ def user_input(requested_info, mask, input_restrictions):
         str: response provided by the user
     """
     # pylint: disable=protected-access
-    response = ''
-    prompt = '\nPlease supply {}: '.format(requested_info)
+    response = ""
+    prompt = "\nPlease supply {}: ".format(requested_info)
 
     if not mask:
         while not response:
@@ -168,23 +176,31 @@ def response_is_valid(response, input_restrictions):
     if isinstance(input_restrictions, re.Pattern):
         valid_response = input_restrictions.match(response)
         if not valid_response:
-            LOGGER.error('The supplied input should match the following '
-                         'regular expression: %s', input_restrictions.pattern)
+            LOGGER.error(
+                "The supplied input should match the following "
+                "regular expression: %s",
+                input_restrictions.pattern,
+            )
     elif callable(input_restrictions):
         # Functions can be passed here to perform complex validation of input
         # Transform the response with the validating function
         response = input_restrictions(response)
         valid_response = response is not None and response is not False
         if not valid_response:
-            LOGGER.error('The supplied input failed to pass the validation '
-                         'function: %s', input_restrictions.__doc__)
+            LOGGER.error(
+                "The supplied input failed to pass the validation " "function: %s",
+                input_restrictions.__doc__,
+            )
     else:
         valid_response = not any(x in input_restrictions for x in response)
         if not valid_response:
-            restrictions = ', '.join(
-                '\'{}\''.format(restriction) for restriction in input_restrictions)
-            LOGGER.error('The supplied input should not contain any of the following: %s',
-                         restrictions)
+            restrictions = ", ".join(
+                "'{}'".format(restriction) for restriction in input_restrictions
+            )
+            LOGGER.error(
+                "The supplied input should not contain any of the following: %s",
+                restrictions,
+            )
     return valid_response
 
 
@@ -195,7 +211,7 @@ def save_parameter(region, name, value, description, force_overwrite=False):
         name (str): Name of the parameter being saved
         value (str): Value to be saved to the parameter store
     """
-    ssm_client = boto3.client('ssm', region_name=region)
+    ssm_client = boto3.client("ssm", region_name=region)
 
     param_value = json.dumps(value)
 
@@ -210,23 +226,28 @@ def save_parameter(region, name, value, description, force_overwrite=False):
             Name=name,
             Description=description,
             Value=param_value,
-            Type='SecureString',
-            Overwrite=overwrite
+            Type="SecureString",
+            Overwrite=overwrite,
         )
 
     try:
         save(overwrite=force_overwrite)
     except ClientError as err:
-        if err.response['Error']['Code'] == 'ExpiredTokenException':
+        if err.response["Error"]["Code"] == "ExpiredTokenException":
             # Log an error if this response was due to no credentials being found
-            LOGGER.error('Could not save \'%s\' to parameter store because no '
-                         'valid credentials were loaded.', name)
+            LOGGER.error(
+                "Could not save '%s' to parameter store because no "
+                "valid credentials were loaded.",
+                name,
+            )
 
-        if err.response['Error']['Code'] != 'ParameterAlreadyExists':
+        if err.response["Error"]["Code"] != "ParameterAlreadyExists":
             raise
 
-        prompt = ('A parameter already exists with name \'{}\'. Would you like '
-                  'to overwrite the existing value?'.format(name))
+        prompt = (
+            "A parameter already exists with name '{}'. Would you like "
+            "to overwrite the existing value?".format(name)
+        )
 
         # Ask to overwrite
         if not continue_prompt(message=prompt):
@@ -259,6 +280,6 @@ def record_to_schema(record, recursive=False):
         if recursive and isinstance(value, dict):
             result[key] = record_to_schema(value, recursive)
         else:
-            result[key] = SCHEMA_TYPE_LOOKUP.get(type(value), 'string')
+            result[key] = SCHEMA_TYPE_LOOKUP.get(type(value), "string")
 
     return result

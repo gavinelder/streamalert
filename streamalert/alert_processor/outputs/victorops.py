@@ -19,7 +19,7 @@ from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
-    StreamAlertOutput
+    StreamAlertOutput,
 )
 from streamalert.shared.logger import get_logger
 
@@ -29,7 +29,8 @@ LOGGER = get_logger(__name__)
 @StreamAlertOutput
 class VictorOpsOutput(OutputDispatcher):
     """VictorOpsOutput handles all alert dispatching for VictorOps"""
-    __service__ = 'victorops'
+
+    __service__ = "victorops"
     _DEFAULT_REQUEST_TIMEOUT = 10
 
     # Change the default request timeout for just this output
@@ -47,27 +48,49 @@ class VictorOpsOutput(OutputDispatcher):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='A short and unique descriptor for this '
-                                        'VictorOps integration')),
-            ('victorops_api_id',
-             OutputProperty(description='The API Id for this VictorOps integration.',
-                            mask_input=True,
-                            cred_requirement=True)),
-            ('victorops_api_key',
-             OutputProperty(description='The API Key for this VictorOps integration.',
-                            mask_input=True,
-                            cred_requirement=True)),
-            ('url',
-             OutputProperty(description='The endpoint url for this VictorOps integration.',
-                            mask_input=True,
-                            cred_requirement=True)),
-            ('routing_key',
-             OutputProperty(description='The endpoint routing key for this VictorOps integration.',
-                            mask_input=True,
-                            cred_requirement=True))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="A short and unique descriptor for this "
+                        "VictorOps integration"
+                    ),
+                ),
+                (
+                    "victorops_api_id",
+                    OutputProperty(
+                        description="The API Id for this VictorOps integration.",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "victorops_api_key",
+                    OutputProperty(
+                        description="The API Key for this VictorOps integration.",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "url",
+                    OutputProperty(
+                        description="The endpoint url for this VictorOps integration.",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "routing_key",
+                    OutputProperty(
+                        description="The endpoint routing key for this VictorOps integration.",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send alert to VictorOps
@@ -89,27 +112,21 @@ class VictorOpsOutput(OutputDispatcher):
 
         publication = compose_alert(alert, self, descriptor)
 
-
         headers = {
-            'Content-Type': 'application/json',
-            'X-VO-Api-Id': creds['victorops_api_id'],
-            'X-VO-Api-Key': creds['victorops_api_key']
+            "Content-Type": "application/json",
+            "X-VO-Api-Id": creds["victorops_api_id"],
+            "X-VO-Api-Key": creds["victorops_api_key"],
         }
 
         data = {
             "message_type": "CRITICAL",
             "entity_id": "streamalert/alert",
             "entity_display_name": alert.rule_name,
-            "record": publication['record']
+            "record": publication["record"],
         }
 
-        LOGGER.critical('Sending alert to VictorOps')
-        url = creds['url'] + '/' + creds['routing_key']
-        resp = self._post_request(
-            url,
-            data,
-            headers,
-            True
-            )
+        LOGGER.critical("Sending alert to VictorOps")
+        url = creds["url"] + "/" + creds["routing_key"]
+        resp = self._post_request(url, data, headers, True)
 
         return self._check_http_response(resp)

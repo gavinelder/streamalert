@@ -22,10 +22,9 @@ from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
     OutputRequestFailure,
-    StreamAlertOutput
+    StreamAlertOutput,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -33,34 +32,57 @@ LOGGER = get_logger(__name__)
 @StreamAlertOutput
 class GithubOutput(OutputDispatcher):
     """GithubOutput handles all alert dispatching for Github"""
-    __service__ = 'github'
+
+    __service__ = "github"
 
     @classmethod
     def get_user_defined_properties(cls):
         """Get properties that must be assigned by the user when configuring a new Github output."""
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for this'
-                                        ' Github integration')),
-            ('repository',
-             OutputProperty(description='the repository for this integration '
-                                        'in the form :username/:repository',
-                            cred_requirement=True,
-                            mask_input=False)),
-            ('labels',
-             OutputProperty(description='a comma separated list of labels to '
-                                        'apply to issues when they are created',
-                            cred_requirement=True,
-                            mask_input=False)),
-            ('username',
-             OutputProperty(description='the username for this integration',
-                            cred_requirement=True,
-                            mask_input=False)),
-            ('access_token',
-             OutputProperty(description='the access token for the integration',
-                            cred_requirement=True,
-                            mask_input=True))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this"
+                        " Github integration"
+                    ),
+                ),
+                (
+                    "repository",
+                    OutputProperty(
+                        description="the repository for this integration "
+                        "in the form :username/:repository",
+                        cred_requirement=True,
+                        mask_input=False,
+                    ),
+                ),
+                (
+                    "labels",
+                    OutputProperty(
+                        description="a comma separated list of labels to "
+                        "apply to issues when they are created",
+                        cred_requirement=True,
+                        mask_input=False,
+                    ),
+                ),
+                (
+                    "username",
+                    OutputProperty(
+                        description="the username for this integration",
+                        cred_requirement=True,
+                        mask_input=False,
+                    ),
+                ),
+                (
+                    "access_token",
+                    OutputProperty(
+                        description="the access token for the integration",
+                        cred_requirement=True,
+                        mask_input=True,
+                    ),
+                ),
+            ]
+        )
 
     @classmethod
     def _get_default_properties(cls):
@@ -71,7 +93,7 @@ class GithubOutput(OutputDispatcher):
         Returns:
             dict: Contains various default items for this output (ie: url)
         """
-        return {'api': 'https://api.github.com'}
+        return {"api": "https://api.github.com"}
 
     def _dispatch(self, alert, descriptor):
         """Send alert to Github
@@ -98,34 +120,33 @@ class GithubOutput(OutputDispatcher):
         if not credentials:
             return False
 
-        username_password = "{}:{}".format(credentials['username'],
-                                           credentials['access_token'])
+        username_password = "{}:{}".format(
+            credentials["username"], credentials["access_token"]
+        )
         encoded_credentials = base64.b64encode(username_password.encode())
-        headers = {'Authorization': "Basic {}".format(encoded_credentials.decode())}
-        url = '{}/repos/{}/issues'.format(credentials['api'],
-                                          credentials['repository'])
+        headers = {"Authorization": "Basic {}".format(encoded_credentials.decode())}
+        url = "{}/repos/{}/issues".format(credentials["api"], credentials["repository"])
 
         publication = compose_alert(alert, self, descriptor)
 
         # Default presentation to the output
         default_title = "StreamAlert: {}".format(alert.rule_name)
         default_body = "### Description\n{}\n\n### Event data\n\n```\n{}\n```".format(
-            alert.rule_description,
-            json.dumps(alert.record, indent=2, sort_keys=True)
+            alert.rule_description, json.dumps(alert.record, indent=2, sort_keys=True)
         )
 
         # Override presentation defaults
-        issue_title = publication.get('@github.title', default_title)
-        issue_body = publication.get('@github.body', default_body)
+        issue_title = publication.get("@github.title", default_title)
+        issue_body = publication.get("@github.body", default_body)
 
         # Github Issue to be created
         issue = {
-            'title': issue_title,
-            'body': issue_body,
-            'labels': credentials['labels'].split(',')
+            "title": issue_title,
+            "body": issue_body,
+            "labels": credentials["labels"].split(","),
         }
 
-        LOGGER.debug('sending alert to Github repository %s', credentials['repository'])
+        LOGGER.debug("sending alert to Github repository %s", credentials["repository"])
 
         try:
             self._post_request_retry(url, issue, headers)

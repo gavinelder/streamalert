@@ -25,29 +25,30 @@ LOGGER = get_logger(__name__)
 
 class LambdaPackage:
     """Build the deployment package for StreamAlert Lambdas"""
+
     # The name of the directory to package and basename of the generated .zip file
-    PACKAGE_NAME = 'streamalert'
+    PACKAGE_NAME = "streamalert"
 
     # The configurable items for user specified files to include in deployment pacakge
     CONFIG_EXTRAS = {
-        'matcher_locations',
-        'rule_locations',
-        'scheduled_query_locations',
-        'publisher_locations',
+        "matcher_locations",
+        "rule_locations",
+        "scheduled_query_locations",
+        "publisher_locations",
     }
 
     # Define a package dict to support pinning versions across all subclasses
     REQUIRED_LIBS = {
-        'backoff==1.10.0',
-        'boto3==1.14.29',
-        'cbapi==1.7.1',
-        'google-api-python-client==1.10.0',
-        'jmespath==0.10.0',
-        'jsonlines==1.2.0',
-        'netaddr==0.8.0',
-        'requests==2.24.0',
-        'pymsteams==0.1.13',
-        'idna==2.8',
+        "backoff==1.10.0",
+        "boto3==1.14.29",
+        "cbapi==1.7.1",
+        "google-api-python-client==1.10.0",
+        "jmespath==0.10.0",
+        "jsonlines==1.2.0",
+        "netaddr==0.8.0",
+        "requests==2.24.0",
+        "pymsteams==0.1.13",
+        "idna==2.8",
     }
 
     def __init__(self, config):
@@ -56,15 +57,15 @@ class LambdaPackage:
 
     def _copy_user_config_files(self):
         for location in self.CONFIG_EXTRAS:
-            paths = self.config['global']['general'].get(location, set())
+            paths = self.config["global"]["general"].get(location, set())
             if not paths:
                 continue
             for path in paths:
-                self._copy_directory(path, ignores={'*.json'})
+                self._copy_directory(path, ignores={"*.json"})
 
     def create(self):
         """Create a Lambda deployment package .zip file."""
-        LOGGER.info('Creating package for %s', self.PACKAGE_NAME)
+        LOGGER.info("Creating package for %s", self.PACKAGE_NAME)
 
         if os.path.exists(self.temp_package_path):
             shutil.rmtree(self.temp_package_path)
@@ -74,24 +75,24 @@ class LambdaPackage:
 
         # Copy the user-specified config directory
         # Ensure this is copied to the 'conf' destination directory
-        self._copy_directory(self.config.config_path, destination='conf')
+        self._copy_directory(self.config.config_path, destination="conf")
 
         # Copy in any user-specified files
         self._copy_user_config_files()
 
         if not self._resolve_libraries():
-            LOGGER.error('Failed to install necessary libraries')
+            LOGGER.error("Failed to install necessary libraries")
             return False
 
         # Zip it all up
         # Build these in the top-level of the terraform directory as streamalert.zip
         result = shutil.make_archive(
             os.path.join(self.config.build_directory, self.PACKAGE_NAME),
-            'zip',
-            self.temp_package_path
+            "zip",
+            self.temp_package_path,
         )
 
-        LOGGER.info('Successfully created package: %s', result)
+        LOGGER.info("Successfully created package: %s", result)
 
         # Remove temp files
         shutil.rmtree(self.temp_package_path)
@@ -106,7 +107,7 @@ class LambdaPackage:
             ignores (set=None): File globs to be ignored during the copying of the directory
         """
         # Copy the directory, skipping any files explicitly ignored
-        kwargs = {'ignore': shutil.ignore_patterns(*ignores)} if ignores else dict()
+        kwargs = {"ignore": shutil.ignore_patterns(*ignores)} if ignores else dict()
         destination = destination or path
         destination = os.path.join(self.temp_package_path, destination)
         shutil.copytree(path, destination, **kwargs)
@@ -119,13 +120,15 @@ class LambdaPackage:
         """
         # Merge any custom libs needed by rules, etc
         libs_to_install = self.REQUIRED_LIBS.union(
-            set(self.config['global']['general'].get('third_party_libraries', []))
+            set(self.config["global"]["general"].get("third_party_libraries", []))
         )
 
-        LOGGER.info('Installing libraries: %s', ', '.join(libs_to_install))
-        pip_command = ['pip', 'install']
+        LOGGER.info("Installing libraries: %s", ", ".join(libs_to_install))
+        pip_command = ["pip", "install"]
         pip_command.extend(libs_to_install)
-        pip_command.extend(['--no-cache-dir', '--upgrade', '--target', self.temp_package_path])
+        pip_command.extend(
+            ["--no-cache-dir", "--upgrade", "--target", self.temp_package_path]
+        )
 
         # Return True if the pip command is successfully run
         return run_command(pip_command, cwd=self.temp_package_path, quiet=True)

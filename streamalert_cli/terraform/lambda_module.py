@@ -18,20 +18,20 @@ from streamalert_cli.terraform.common import monitoring_topic_arn
 def _tf_metric_alarms(lambda_config, sns_arn):
     """Compute metric alarm Terraform configuration from the Lambda config."""
     result = {}
-    alarms_config = lambda_config.get('metric_alarms', {})
+    alarms_config = lambda_config.get("metric_alarms", {})
     if not alarms_config:
         return result
 
-    result['alarm_actions'] = [sns_arn]
+    result["alarm_actions"] = [sns_arn]
 
-    for alarm_type in ['errors', 'throttles']:
+    for alarm_type in ["errors", "throttles"]:
         settings = alarms_config.get(alarm_type)
         if not settings:
             continue
 
-        for key in ['enabled', 'evaluation_periods', 'period_secs', 'threshold']:
+        for key in ["enabled", "evaluation_periods", "period_secs", "threshold"]:
             if key in settings:
-                result['{}_alarm_{}'.format(alarm_type, key)] = settings[key]
+                result["{}_alarm_{}".format(alarm_type, key)] = settings[key]
 
     return result
 
@@ -39,20 +39,28 @@ def _tf_metric_alarms(lambda_config, sns_arn):
 def _tf_vpc_config(lambda_config):
     """Compute VPC configuration from the Lambda config."""
     result = {}
-    vpc_config = lambda_config.get('vpc_config', {})
+    vpc_config = lambda_config.get("vpc_config", {})
     if not vpc_config:
         return result
 
-    if 'security_group_ids' in vpc_config:
-        result['vpc_security_group_ids'] = vpc_config['security_group_ids']
-    if 'subnet_ids' in vpc_config:
-        result['vpc_subnet_ids'] = vpc_config['subnet_ids']
+    if "security_group_ids" in vpc_config:
+        result["vpc_security_group_ids"] = vpc_config["security_group_ids"]
+    if "subnet_ids" in vpc_config:
+        result["vpc_subnet_ids"] = vpc_config["subnet_ids"]
 
     return result
 
 
-def generate_lambda(function_name, handler, lambda_config, config, environment=None,
-                    input_event=None, tags=None, **kwargs):
+def generate_lambda(
+    function_name,
+    handler,
+    lambda_config,
+    config,
+    environment=None,
+    input_event=None,
+    tags=None,
+    **kwargs
+):
     """Generate an instance of the Lambda Terraform module.
 
     Args:
@@ -106,47 +114,45 @@ def generate_lambda(function_name, handler, lambda_config, config, environment=N
     # Add logger level to any custom environment variables
     environment_variables = {
         # Convert True/False to "1" or "0", respectively
-        'ENABLE_METRICS': str(int(lambda_config.get('enable_custom_metrics', False))),
-        'LOGGER_LEVEL': lambda_config.get('log_level', 'info')
+        "ENABLE_METRICS": str(int(lambda_config.get("enable_custom_metrics", False))),
+        "LOGGER_LEVEL": lambda_config.get("log_level", "info"),
     }
 
     if environment:
         environment_variables.update(environment)
 
     lambda_module = {
-        'source': './modules/tf_lambda',
-        'function_name': function_name,
-        'description': function_name.replace('_', ' ').title(),
-        'handler': handler,
-        'memory_size_mb': lambda_config['memory'],
-        'timeout_sec': lambda_config['timeout'],
-        'environment_variables': environment_variables,
-        'tags': tags or {},
+        "source": "./modules/tf_lambda",
+        "function_name": function_name,
+        "description": function_name.replace("_", " ").title(),
+        "handler": handler,
+        "memory_size_mb": lambda_config["memory"],
+        "timeout_sec": lambda_config["timeout"],
+        "environment_variables": environment_variables,
+        "tags": tags or {},
     }
 
-    if kwargs.get('include_layers', False):
-        lambda_module['layers'] = '${module.globals.lamdba_layer_arns}'
+    if kwargs.get("include_layers", False):
+        lambda_module["layers"] = "${module.globals.lamdba_layer_arns}"
 
     # The lambda module defaults to using the 'streamalert.zip' file that is created
-    if kwargs.get('zip_file'):
-        lambda_module['filename'] = kwargs.get('zip_file')
+    if kwargs.get("zip_file"):
+        lambda_module["filename"] = kwargs.get("zip_file")
 
     # Add Classifier input config from the loaded cluster file
-    input_config = lambda_config.get('inputs')
+    input_config = lambda_config.get("inputs")
     if input_config:
-        input_mapping = {
-            'input_sns_topics': 'aws-sns'
-        }
+        input_mapping = {"input_sns_topics": "aws-sns"}
         for tf_key, input_key in input_mapping.items():
             if input_key in input_config:
                 lambda_module[tf_key] = input_config[input_key]
 
     # If the Lambda is being invoke on a schedule, an optional input event can be passed in
     if input_event:
-        lambda_module['lambda_input_event'] = input_event
+        lambda_module["lambda_input_event"] = input_event
 
     # Include optional keys only if they are defined (otherwise use the module defaults)
-    for key in ['concurrency_limit', 'log_retention_days', 'schedule_expression']:
+    for key in ["concurrency_limit", "log_retention_days", "schedule_expression"]:
         if key in lambda_config:
             lambda_module[key] = lambda_config[key]
 

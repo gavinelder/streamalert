@@ -23,10 +23,9 @@ from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
     OutputRequestFailure,
-    StreamAlertOutput
+    StreamAlertOutput,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -34,12 +33,13 @@ LOGGER = get_logger(__name__)
 @StreamAlertOutput
 class JiraOutput(OutputDispatcher):
     """JiraOutput handles all alert dispatching for Jira"""
-    __service__ = 'jira-v2'
+
+    __service__ = "jira-v2"
 
     DEFAULT_HEADERS = {"Accept": "application/json"}
-    SEARCH_ENDPOINT = '/rest/api/2/search'
-    ISSUE_ENDPOINT = '/rest/api/2/issue'
-    COMMENT_ENDPOINT = '/rest/api/2/issue/{}/comment'
+    SEARCH_ENDPOINT = "/rest/api/2/search"
+    ISSUE_ENDPOINT = "/rest/api/2/issue"
+    COMMENT_ENDPOINT = "/rest/api/2/issue/{}/comment"
 
     def __init__(self, *args, **kwargs):
         OutputDispatcher.__init__(self, *args, **kwargs)
@@ -65,44 +65,71 @@ class JiraOutput(OutputDispatcher):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for this '
-                                        'Jira integration')),
-            ('api_key',
-             OutputProperty(
-                 description='the Jira api key'
-                 'generated at https://id.atlassian.com/manage/api-tokens',
-                 mask_input=True,
-                 cred_requirement=True)),
-            ('user_name',
-             OutputProperty(
-                 description='The jira username for the api key'
-                 'example "username@company.com"',
-                 mask_input=False,
-                 cred_requirement=True)),
-            ('url',
-             OutputProperty(
-                 description='Base URL of your Jira instance'
-                 'example https://company.atlassian.net',
-                 mask_input=False,
-                 input_restrictions={},
-                 cred_requirement=True)),
-            ('project_key',
-             OutputProperty(description='Jira project KEY where issues should be created',
-                            mask_input=False,
-                            cred_requirement=True)),
-            ('issue_type',
-             OutputProperty(description='the Jira issue type please note this is case sensitive'
-                            'example ("Task" not "task)"',
-                            mask_input=False,
-                            cred_requirement=True)),
-            ('aggregate',
-             OutputProperty(description='the Jira aggregation behavior to aggregate '
-                                        'alerts by rule name (yes/no)',
-                            mask_input=False,
-                            cred_requirement=True))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this "
+                        "Jira integration"
+                    ),
+                ),
+                (
+                    "api_key",
+                    OutputProperty(
+                        description="the Jira api key"
+                        "generated at https://id.atlassian.com/manage/api-tokens",
+                        mask_input=True,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "user_name",
+                    OutputProperty(
+                        description="The jira username for the api key"
+                        'example "username@company.com"',
+                        mask_input=False,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "url",
+                    OutputProperty(
+                        description="Base URL of your Jira instance"
+                        "example https://company.atlassian.net",
+                        mask_input=False,
+                        input_restrictions={},
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "project_key",
+                    OutputProperty(
+                        description="Jira project KEY where issues should be created",
+                        mask_input=False,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "issue_type",
+                    OutputProperty(
+                        description="the Jira issue type please note this is case sensitive"
+                        'example ("Task" not "task)"',
+                        mask_input=False,
+                        cred_requirement=True,
+                    ),
+                ),
+                (
+                    "aggregate",
+                    OutputProperty(
+                        description="the Jira aggregation behavior to aggregate "
+                        "alerts by rule name (yes/no)",
+                        mask_input=False,
+                        cred_requirement=True,
+                    ),
+                ),
+            ]
+        )
 
     @classmethod
     def _get_default_headers(cls):
@@ -113,8 +140,10 @@ class JiraOutput(OutputDispatcher):
         """Instance method used to pass the default headers plus the api key"""
         auth_token = "%s:%s" % (self._user_name, self._api_key)
         encoded_credentials = base64.b64encode(auth_token.encode())
-        return dict(self._get_default_headers(),
-                    **{"Authorization": "Basic %s" % encoded_credentials.decode()})
+        return dict(
+            self._get_default_headers(),
+            **{"Authorization": "Basic %s" % encoded_credentials.decode()}
+        )
 
     def _load_creds(self, descriptor):
         """Loads a dict of credentials relevant to this output descriptor
@@ -142,16 +171,15 @@ class JiraOutput(OutputDispatcher):
         """
         search_url = os.path.join(self._base_url, self.SEARCH_ENDPOINT)
         params = {
-            'jql': jql,
-            'maxResults': max_results,
-            'validateQuery': validate_query,
-            'fields': fields
+            "jql": jql,
+            "maxResults": max_results,
+            "validateQuery": validate_query,
+            "fields": fields,
         }
         try:
-            resp = self._get_request_retry(search_url,
-                                           params=params,
-                                           headers=self._get_headers(),
-                                           verify=False)
+            resp = self._get_request_retry(
+                search_url, params=params, headers=self._get_headers(), verify=False
+            )
         except OutputRequestFailure:
             return []
 
@@ -159,7 +187,7 @@ class JiraOutput(OutputDispatcher):
         if not response:
             return []
 
-        return response.get('issues', [])
+        return response.get("issues", [])
 
     def _create_comment(self, issue_id, comment):
         """Add a comment to an existing issue
@@ -171,12 +199,16 @@ class JiraOutput(OutputDispatcher):
         Returns:
             int: ID of the created comment or False if unsuccessful
         """
-        comment_url = os.path.join(self._base_url, self.COMMENT_ENDPOINT.format(issue_id))
+        comment_url = os.path.join(
+            self._base_url, self.COMMENT_ENDPOINT.format(issue_id)
+        )
         try:
-            resp = self._post_request_retry(comment_url,
-                                            data={'body': comment},
-                                            headers=self._get_headers(),
-                                            verify=False)
+            resp = self._post_request_retry(
+                comment_url,
+                data={"body": comment},
+                headers=self._get_headers(),
+                verify=False,
+            )
         except OutputRequestFailure:
             return False
 
@@ -184,7 +216,7 @@ class JiraOutput(OutputDispatcher):
         if not response:
             return False
 
-        return response.get('id', False)
+        return response.get("id", False)
 
     def _get_comments(self, issue_id):
         """Get all comments for an existing Jira issue
@@ -195,11 +227,13 @@ class JiraOutput(OutputDispatcher):
         Returns:
             list: List of comments associated with a Jira issue
         """
-        comment_url = os.path.join(self._base_url, self.COMMENT_ENDPOINT.format(issue_id))
+        comment_url = os.path.join(
+            self._base_url, self.COMMENT_ENDPOINT.format(issue_id)
+        )
         try:
-            resp = self._get_request_retry(comment_url,
-                                           headers=self._get_headers(),
-                                           verify=False)
+            resp = self._get_request_retry(
+                comment_url, headers=self._get_headers(), verify=False
+            )
         except OutputRequestFailure:
             return []
 
@@ -207,7 +241,7 @@ class JiraOutput(OutputDispatcher):
         if not response:
             return []
 
-        return response.get('comments', [])
+        return response.get("comments", [])
 
     def _get_existing_issue(self, issue_summary, project_key):
         """Find an existing Jira issue based on the issue summary
@@ -220,13 +254,13 @@ class JiraOutput(OutputDispatcher):
             int: ID of the found issue or False if existing issue does not exist
         """
         jql = 'summary ~ "{}" and project="{}"'.format(issue_summary, project_key)
-        resp = self._search_jira(jql, fields=['id', 'summary'], max_results=1)
+        resp = self._search_jira(jql, fields=["id", "summary"], max_results=1)
         jira_id = False
 
         try:
-            jira_id = int(resp[0]['id'])
+            jira_id = int(resp[0]["id"])
         except (IndexError, KeyError):
-            LOGGER.debug('Existing Jira issue not found')
+            LOGGER.debug("Existing Jira issue not found")
 
         return jira_id
 
@@ -245,22 +279,17 @@ class JiraOutput(OutputDispatcher):
         """
         issue_url = os.path.join(self._base_url, self.ISSUE_ENDPOINT)
         issue_body = {
-            'fields': {
-                'project': {
-                    'key': project_key
-                },
-                'summary': summary,
-                'description': description,
-                'issuetype': {
-                    'name': issue_type
-                }
+            "fields": {
+                "project": {"key": project_key},
+                "summary": summary,
+                "description": description,
+                "issuetype": {"name": issue_type},
             }
         }
         try:
-            resp = self._post_request_retry(issue_url,
-                                            data=issue_body,
-                                            headers=self._get_headers(),
-                                            verify=False)
+            resp = self._post_request_retry(
+                issue_url, data=issue_body, headers=self._get_headers(), verify=False
+            )
         except OutputRequestFailure:
             return False
 
@@ -268,7 +297,7 @@ class JiraOutput(OutputDispatcher):
         if not response:
             return False
 
-        return response.get('id', False)
+        return response.get("id", False)
 
     def _dispatch(self, alert, descriptor):
         """Send alert to Jira
@@ -299,43 +328,46 @@ class JiraOutput(OutputDispatcher):
         publication = compose_alert(alert, self, descriptor)
 
         # Presentation defaults
-        default_issue_summary = 'StreamAlert {}'.format(alert.rule_name)
-        default_alert_body = '{{code:JSON}}{}{{code}}'.format(
+        default_issue_summary = "StreamAlert {}".format(alert.rule_name)
+        default_alert_body = "{{code:JSON}}{}{{code}}".format(
             json.dumps(publication, sort_keys=True)
         )
 
         # True Presentation values
-        issue_summary = publication.get('@jira.issue_summary', default_issue_summary)
-        description = publication.get('@jira.description', default_alert_body)
+        issue_summary = publication.get("@jira.issue_summary", default_issue_summary)
+        description = publication.get("@jira.description", default_alert_body)
 
         issue_id = None
         comment_id = None
 
-        self._base_url = creds['url']
-        self._api_key = creds['api_key']
-        self._user_name = creds['user_name']
+        self._base_url = creds["url"]
+        self._api_key = creds["api_key"]
+        self._user_name = creds["user_name"]
 
         # If aggregation is enabled, attempt to add alert to an existing issue. If a
         # failure occurs in this block, creation of a new Jira issue will be attempted.
-        if creds.get('aggregate', '').lower() == 'yes':
-            issue_id = self._get_existing_issue(issue_summary, creds['project_key'])
+        if creds.get("aggregate", "").lower() == "yes":
+            issue_id = self._get_existing_issue(issue_summary, creds["project_key"])
             if issue_id:
                 comment_id = self._create_comment(issue_id, description)
                 if comment_id:
-                    LOGGER.debug('Sending alert to an existing Jira issue %s with comment %s',
-                                 issue_id,
-                                 comment_id)
+                    LOGGER.debug(
+                        "Sending alert to an existing Jira issue %s with comment %s",
+                        issue_id,
+                        comment_id,
+                    )
                     return True
-                LOGGER.error('Encountered an error when adding alert to existing '
-                             'Jira issue %s. Attempting to create new Jira issue.',
-                             issue_id)
+                LOGGER.error(
+                    "Encountered an error when adding alert to existing "
+                    "Jira issue %s. Attempting to create new Jira issue.",
+                    issue_id,
+                )
 
         # Create a new Jira issue
-        issue_id = self._create_issue(issue_summary,
-                                      creds['project_key'],
-                                      creds['issue_type'],
-                                      description)
+        issue_id = self._create_issue(
+            issue_summary, creds["project_key"], creds["issue_type"], description
+        )
         if issue_id:
-            LOGGER.debug('Sending alert to a new Jira issue %s', issue_id)
+            LOGGER.debug("Sending alert to a new Jira issue %s", issue_id)
 
         return bool(issue_id or comment_id)

@@ -25,11 +25,11 @@ from streamalert.shared.utils import (  # pylint: disable=unused-import
     get_first_key,
     get_keys,
     in_network,
-    valid_ip
+    valid_ip,
 )
 
 logging.basicConfig()
-LOGGER = logging.getLogger('StreamAlert')
+LOGGER = logging.getLogger("StreamAlert")
 
 
 def path_matches_any(text, patterns):
@@ -174,7 +174,9 @@ def data_has_value_with_substring(data, search_value):
         return any(data_has_value_with_substring(item, search_value) for item in data)
 
     if isinstance(data, dict):
-        return any(data_has_value_with_substring(v, search_value) for v in data.values())
+        return any(
+            data_has_value_with_substring(v, search_value) for v in data.values()
+        )
 
     return isinstance(data, str) and search_value in data
 
@@ -211,10 +213,14 @@ def data_has_value_from_substring_list(data, needle_list):
         (bool) True or False if found
     """
     if isinstance(data, list):
-        return any(data_has_value_from_substring_list(item, needle_list) for item in data)
+        return any(
+            data_has_value_from_substring_list(item, needle_list) for item in data
+        )
 
     if isinstance(data, dict):
-        return any(data_has_value_from_substring_list(v, needle_list) for v in data.values())
+        return any(
+            data_has_value_from_substring_list(v, needle_list) for v in data.values()
+        )
 
     if not data:
         return False
@@ -249,5 +255,5 @@ def random_bool(probability_of_true):
         (bool) True or False
     """
     if probability_of_true < 0 or probability_of_true > 1:
-        raise ValueError('Probability must be between 0.0 and 1.0')
+        raise ValueError("Probability must be between 0.0 and 1.0")
     return random.random() <= probability_of_true

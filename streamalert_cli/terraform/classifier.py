@@ -53,50 +53,50 @@ def generate_classifier(cluster_name, cluster_dict, config):
           }
         }
     """
-    classifier_config = config['clusters'][cluster_name]['classifier_config']
+    classifier_config = config["clusters"][cluster_name]["classifier_config"]
 
-    firehose_config = config['global']['infrastructure'].get('firehose', {})
+    firehose_config = config["global"]["infrastructure"].get("firehose", {})
     # The default value here must be consistent with the firehose client default
-    use_firehose_prefix = firehose_config.get('use_prefix', True)
+    use_firehose_prefix = firehose_config.get("use_prefix", True)
 
-    tf_module_prefix = 'classifier_{}'.format(cluster_name)
-    iam_module = '{}_iam'.format(tf_module_prefix)
+    tf_module_prefix = "classifier_{}".format(cluster_name)
+    iam_module = "{}_iam".format(tf_module_prefix)
 
     # Set variables for the alert merger's IAM permissions
-    cluster_dict['module'][iam_module] = {
-        'source': './modules/tf_classifier',
-        'account_id': config['global']['account']['aws_account_id'],
-        'region': config['global']['account']['region'],
-        'prefix': config['global']['account']['prefix'],
-        'firehose_use_prefix': use_firehose_prefix,
-        'function_role_id': '${{module.{}_lambda.role_id}}'.format(tf_module_prefix),
-        'function_alias_arn': '${{module.{}_lambda.function_alias_arn}}'.format(tf_module_prefix),
-        'function_name': '${{module.{}_lambda.function_name}}'.format(tf_module_prefix),
-        'classifier_sqs_queue_arn': '${module.globals.classifier_sqs_queue_arn}',
-        'classifier_sqs_sse_kms_key_arn': '${module.globals.classifier_sqs_sse_kms_key_arn}',
+    cluster_dict["module"][iam_module] = {
+        "source": "./modules/tf_classifier",
+        "account_id": config["global"]["account"]["aws_account_id"],
+        "region": config["global"]["account"]["region"],
+        "prefix": config["global"]["account"]["prefix"],
+        "firehose_use_prefix": use_firehose_prefix,
+        "function_role_id": "${{module.{}_lambda.role_id}}".format(tf_module_prefix),
+        "function_alias_arn": "${{module.{}_lambda.function_alias_arn}}".format(
+            tf_module_prefix
+        ),
+        "function_name": "${{module.{}_lambda.function_name}}".format(tf_module_prefix),
+        "classifier_sqs_queue_arn": "${module.globals.classifier_sqs_queue_arn}",
+        "classifier_sqs_sse_kms_key_arn": "${module.globals.classifier_sqs_sse_kms_key_arn}",
     }
 
     # Add Classifier input config from the loaded cluster file
-    input_config = classifier_config.get('inputs')
+    input_config = classifier_config.get("inputs")
     if input_config:
-        input_mapping = {
-            'input_sns_topics': 'aws-sns'
-        }
+        input_mapping = {"input_sns_topics": "aws-sns"}
         for tf_key, input_key in input_mapping.items():
             if input_key in input_config:
-                cluster_dict['module'][iam_module][tf_key] = input_config[input_key]
+                cluster_dict["module"][iam_module][tf_key] = input_config[input_key]
 
     # Set variables for the Lambda module
-    cluster_dict['module']['{}_lambda'.format(tf_module_prefix)] = generate_lambda(
-        '{}_{}_streamalert_classifier'.format(config['global']['account']['prefix'], cluster_name),
-        'streamalert.classifier.main.handler',
+    cluster_dict["module"]["{}_lambda".format(tf_module_prefix)] = generate_lambda(
+        "{}_{}_streamalert_classifier".format(
+            config["global"]["account"]["prefix"], cluster_name
+        ),
+        "streamalert.classifier.main.handler",
         classifier_config,
         config,
         environment={
-            'CLUSTER': cluster_name,
-            'SQS_QUEUE_URL': '${module.globals.classifier_sqs_queue_url}',
+            "CLUSTER": cluster_name,
+            "SQS_QUEUE_URL": "${module.globals.classifier_sqs_queue_url}",
         },
-        tags={
-            'Cluster': cluster_name
-        },
+        tags={"Cluster": cluster_name},
     )

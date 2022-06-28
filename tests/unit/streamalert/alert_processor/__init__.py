@@ -15,19 +15,19 @@ import json
 from streamalert.shared import resources
 from streamalert.shared.config import load_config
 
-REGION = 'us-east-1'
-ACCOUNT_ID = '123456789012'
-PREFIX = 'prefix'
-FUNCTION_NAME = '{}_streamalert_alert_processor'.format(PREFIX)
+REGION = "us-east-1"
+ACCOUNT_ID = "123456789012"
+PREFIX = "prefix"
+FUNCTION_NAME = "{}_streamalert_alert_processor".format(PREFIX)
 
-base_config = load_config('tests/unit/conf/', include={'outputs.json'})['outputs']
+base_config = load_config("tests/unit/conf/", include={"outputs.json"})["outputs"]
 CONFIG = resources.merge_required_outputs(base_config, PREFIX)
 
-ALERTS_TABLE = '{}_streamalert_alerts'.format(PREFIX)
-KMS_ALIAS = 'alias/streamalert_secrets_test'
+ALERTS_TABLE = "{}_streamalert_alerts".format(PREFIX)
+KMS_ALIAS = "alias/streamalert_secrets_test"
 
 MOCK_ENV = {
-    'AWS_ACCOUNT_ID': ACCOUNT_ID,
-    'STREAMALERT_PREFIX': PREFIX,
-    'AWS_DEFAULT_REGION': REGION
+    "AWS_ACCOUNT_ID": ACCOUNT_ID,
+    "STREAMALERT_PREFIX": PREFIX,
+    "AWS_DEFAULT_REGION": REGION,
 }

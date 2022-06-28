@@ -24,11 +24,11 @@ from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 
 
 @mock_ssm
-@patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
-@patch('streamalert.apps.app_base.AppIntegration.gather')
+@patch.dict(os.environ, {"AWS_DEFAULT_REGION": "us-east-1"})
+@patch("streamalert.apps.app_base.AppIntegration.gather")
 def test_handler(gather_mock):
     """StreamAlertApp Lambda - Test Handler"""
-    app_type = 'duo_auth'
+    app_type = "duo_auth"
     event = get_event(app_type)
     put_mock_params(app_type)
     handler(event, get_mock_lambda_context(app_type))

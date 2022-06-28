@@ -31,15 +31,15 @@ LOGGER = get_logger(__name__)
 
 class TestEvent:
 
-    ACCEPTABLE_DATA_KEYS = {'data', 'override_record'}
-    REQUIRED_KEYS = {'description', 'log', 'service', 'source'}
+    ACCEPTABLE_DATA_KEYS = {"data", "override_record"}
+    REQUIRED_KEYS = {"description", "log", "service", "source"}
     OPTIONAL_KEYS = {
-        'compress',
-        'trigger_rules',
-        'classify_only',
-        'skip_publishers',
-        'publisher_tests',
-        'test_fixtures',
+        "compress",
+        "trigger_rules",
+        "classify_only",
+        "skip_publishers",
+        "publisher_tests",
+        "test_fixtures",
     }
 
     def __init__(self, test_data):
@@ -51,62 +51,62 @@ class TestEvent:
     # One of either 'data' or 'override_record' is required
     @property
     def data(self):
-        return self._event.get('data')
+        return self._event.get("data")
 
     @property
     def override_record(self):
-        return self._event.get('override_record')
+        return self._event.get("override_record")
 
     # The 'description', 'log', 'service', and 'source' keys are not optional
     @property
     def description(self):
-        return self._event['description']
+        return self._event["description"]
 
     @property
     def log(self):
-        return self._event['log']
+        return self._event["log"]
 
     @property
     def service(self):
-        return self._event['service']
+        return self._event["service"]
 
     @property
     def source(self):
-        return self._event['source']
+        return self._event["source"]
 
     # The 'compress', 'trigger_rules', 'classify_only', 'skip_publishers',
     # and 'test_fixtures' keys are optional
     @property
     def compress(self):
-        return self._event.get('compress', False)
+        return self._event.get("compress", False)
 
     @property
     def trigger_rules(self):
-        return self._event.get('trigger_rules', [])
+        return self._event.get("trigger_rules", [])
 
     @property
     def classify_only(self):
-        return self._event.get('classify_only', False)
+        return self._event.get("classify_only", False)
 
     @property
     def skip_publishers(self):
-        return self._event.get('skip_publishers', False)
+        return self._event.get("skip_publishers", False)
 
     @property
     def publisher_tests(self):
-        return [] if self.skip_publishers else self._event.get('publisher_tests', [])
+        return [] if self.skip_publishers else self._event.get("publisher_tests", [])
 
     @property
     def test_fixtures(self):
-        return self._event.get('test_fixtures', {})
+        return self._event.get("test_fixtures", {})
 
     @property
     def lookup_table_fixtures(self):
-        return self.test_fixtures.get('lookup_tables', {})
+        return self.test_fixtures.get("lookup_tables", {})
 
     @property
     def threat_intel_fixtures(self):
-        return self.test_fixtures.get('threat_intel', {})
+        return self.test_fixtures.get("threat_intel", {})
 
     @property
     def suppressed(self):
@@ -125,30 +125,34 @@ class TestEvent:
             bool: True if the proper keys are present
         """
         if not isinstance(self._event, dict):
-            self.error = 'Invalid type for event: {}; should be dict'.format(type(self._event))
+            self.error = "Invalid type for event: {}; should be dict".format(
+                type(self._event)
+            )
             return False
 
         test_event_keys = set(self._event)
         if not self.REQUIRED_KEYS.issubset(test_event_keys):
             req_key_diff = self.REQUIRED_KEYS.difference(test_event_keys)
-            missing_keys = ', '.join('\'{}\''.format(key) for key in req_key_diff)
-            self.error = 'Missing required key(s) in test event: {}'.format(missing_keys)
+            missing_keys = ", ".join("'{}'".format(key) for key in req_key_diff)
+            self.error = "Missing required key(s) in test event: {}".format(
+                missing_keys
+            )
             return False
 
         if not (self.data or self.override_record):
-            self.error = 'Test event must contain either \'data\' or \'override_record\''
+            self.error = "Test event must contain either 'data' or 'override_record'"
             return False
 
-        if not self._event.get('classify_only'):
-            if 'trigger_rules' not in test_event_keys:
+        if not self._event.get("classify_only"):
+            if "trigger_rules" not in test_event_keys:
                 self.error = (
-                    'Test events that are not \'classify_only\' should have \'trigger_rules\' '
-                    'defined'
+                    "Test events that are not 'classify_only' should have 'trigger_rules' "
+                    "defined"
                 )
                 return False
 
-        if self.log not in config['logs']:
-            self.error = 'No defined schema in config for log type: {}'.format(self.log)
+        if self.log not in config["logs"]:
+            self.error = "No defined schema in config for log type: {}".format(self.log)
             return False
 
         # Log a warning if there are extra keys declared in the test log, but this is not an error
@@ -157,8 +161,8 @@ class TestEvent:
         )
 
         if key_diff:
-            extra_keys = ', '.join('\'{}\''.format(key) for key in key_diff)
-            LOGGER.warning('Additional unnecessary keys in test event: %s', extra_keys)
+            extra_keys = ", ".join("'{}'".format(key) for key in key_diff)
+            LOGGER.warning("Additional unnecessary keys in test event: %s", extra_keys)
 
         return True
 
@@ -171,7 +175,7 @@ class TestEvent:
         return not self.suppressed
 
     def setup_fixtures(self):
-        LOGGER.debug('Setting up fixtures')
+        LOGGER.debug("Setting up fixtures")
         LookupTableMocks.add_fixtures(self.lookup_table_fixtures)
         ThreatIntelMocks.add_fixtures(self.threat_intel_fixtures)
 
@@ -206,11 +210,11 @@ class TestEvent:
         if isinstance(rec_data, dict):
             rec_data = json.dumps(rec_data)
         elif not isinstance(self.data, str):
-            self.error = 'Invalid data type: {}'.format(type(rec_data))
+            self.error = "Invalid data type: {}".format(type(rec_data))
             return False
 
-        if self._event['service'] not in {'s3', 'kinesis', 'sns', 'streamalert_app'}:
-            self.error = 'Unsupported service: {}'.format(self.service)
+        if self._event["service"] not in {"s3", "kinesis", "sns", "streamalert_app"}:
+            self.error = "Unsupported service: {}".format(self.service)
             return False
 
         # Set a formatted record for this particular service
@@ -227,98 +231,93 @@ class TestEvent:
         Returns:
             dict: Template of the payload for the given service
         """
-        if self.service == 's3':
+        if self.service == "s3":
             # Assign the s3 mock for this data
             self._setup_s3_mock(data)
             return {
-                'eventVersion': '2.0',
-                'eventTime': '1970-01-01T00:00:00.000Z',
-                'requestParameters': {
-                    'sourceIPAddress': '127.0.0.1'
-                },
-                's3': {
-                    'configurationId': ',,,',
-                    'object': {
-                        'eTag': '...',
-                        'sequencer': '...',
-                        'key': 'test_object_key',
-                        'size': len(data)
+                "eventVersion": "2.0",
+                "eventTime": "1970-01-01T00:00:00.000Z",
+                "requestParameters": {"sourceIPAddress": "127.0.0.1"},
+                "s3": {
+                    "configurationId": ",,,",
+                    "object": {
+                        "eTag": "...",
+                        "sequencer": "...",
+                        "key": "test_object_key",
+                        "size": len(data),
                     },
-                    'bucket': {
-                        'arn': 'arn:aws:s3:::{}'.format(self.source),
-                        'name': self.source,
-                        'ownerIdentity': {
-                            'principalId': 'EXAMPLE'
-                        }
+                    "bucket": {
+                        "arn": "arn:aws:s3:::{}".format(self.source),
+                        "name": self.source,
+                        "ownerIdentity": {"principalId": "EXAMPLE"},
                     },
-                    's3SchemaVersion': '1.0'
+                    "s3SchemaVersion": "1.0",
                 },
-                'responseElements': {
-                    'x-amz-id-2': (
-                        'EXAMPLE123/foo/bar'
-                    ),
-                    'x-amz-request-id': '...'
+                "responseElements": {
+                    "x-amz-id-2": ("EXAMPLE123/foo/bar"),
+                    "x-amz-request-id": "...",
                 },
-                'awsRegion': 'us-east-1',
-                'eventName': 'ObjectCreated:Put',
-                'userIdentity': {
-                    'principalId': 'EXAMPLE'
-                },
-                'eventSource': 'aws:s3'
+                "awsRegion": "us-east-1",
+                "eventName": "ObjectCreated:Put",
+                "userIdentity": {"principalId": "EXAMPLE"},
+                "eventSource": "aws:s3",
             }
 
-        if self.service == 'kinesis':
+        if self.service == "kinesis":
             if self.compress:
                 data = zlib.compress(data)
 
-            kinesis_data = base64.b64encode(data.encode() if isinstance(data, str) else data)
+            kinesis_data = base64.b64encode(
+                data.encode() if isinstance(data, str) else data
+            )
 
             return {
-                'eventID': '...',
-                'eventVersion': '1.0',
-                'kinesis': {
-                    'approximateArrivalTimestamp': 1428537600,
-                    'partitionKey': 'partitionKey-3',
-                    'data': kinesis_data,
-                    'kinesisSchemaVersion': '1.0',
-                    'sequenceNumber': ',,,'
+                "eventID": "...",
+                "eventVersion": "1.0",
+                "kinesis": {
+                    "approximateArrivalTimestamp": 1428537600,
+                    "partitionKey": "partitionKey-3",
+                    "data": kinesis_data,
+                    "kinesisSchemaVersion": "1.0",
+                    "sequenceNumber": ",,,",
                 },
-                'invokeIdentityArn': 'arn:aws:iam::EXAMPLE',
-                'eventName': 'aws:kinesis:record',
-                'eventSourceARN': 'arn:aws:kinesis:us-east-1:123456789012:stream/{}'.format(
+                "invokeIdentityArn": "arn:aws:iam::EXAMPLE",
+                "eventName": "aws:kinesis:record",
+                "eventSourceARN": "arn:aws:kinesis:us-east-1:123456789012:stream/{}".format(
                     self.source
                 ),
-                'eventSource': 'aws:kinesis',
-                'awsRegion': 'us-east-1'
+                "eventSource": "aws:kinesis",
+                "awsRegion": "us-east-1",
             }
 
-        if self.service == 'sns':
+        if self.service == "sns":
             return {
-                'EventVersion': '1.0',
-                'EventSubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:{}'.format(self.source),
-                'EventSource': 'aws:sns',
-                'Sns': {
-                    'SignatureVersion': '1',
-                    'Timestamp': '1970-01-01T00:00:00.000Z',
-                    'Signature': 'EXAMPLE',
-                    'SigningCertUrl': 'EXAMPLE',
-                    'MessageId': '95df01b4-ee98-5cb9-9903-4c221d41eb5e',
-                    'Message': data,
-                    'MessageAttributes': {
-                        'Test': {
-                            'Type': 'String',
-                            'Value': 'TestString'
-                        }
+                "EventVersion": "1.0",
+                "EventSubscriptionArn": "arn:aws:sns:us-east-1:123456789012:{}".format(
+                    self.source
+                ),
+                "EventSource": "aws:sns",
+                "Sns": {
+                    "SignatureVersion": "1",
+                    "Timestamp": "1970-01-01T00:00:00.000Z",
+                    "Signature": "EXAMPLE",
+                    "SigningCertUrl": "EXAMPLE",
+                    "MessageId": "95df01b4-ee98-5cb9-9903-4c221d41eb5e",
+                    "Message": data,
+                    "MessageAttributes": {
+                        "Test": {"Type": "String", "Value": "TestString"}
                     },
-                    'Type': 'Notification',
-                    'UnsubscribeUrl': '...',
-                    'TopicArn': 'arn:aws:sns:us-east-1:123456789012:{}'.format(self.source),
-                    'Subject': '...'
-                }
+                    "Type": "Notification",
+                    "UnsubscribeUrl": "...",
+                    "TopicArn": "arn:aws:sns:us-east-1:123456789012:{}".format(
+                        self.source
+                    ),
+                    "Subject": "...",
+                },
             }
 
-        if self.service == 'streamalert_app':
-            return {'streamalert_app': self.source, 'logs': [data]}
+        if self.service == "streamalert_app":
+            return {"streamalert_app": self.source, "logs": [data]}
 
     def _apply_helpers(self):
         """Detect and apply helper functions to test event data
@@ -331,10 +330,8 @@ class TestEvent:
                        last_hour rule helper.
         """
         # declare all helper functions here, they should always return a string
-        record_helpers = {
-            'last_hour': lambda: str(int(time.time()) - 60)
-        }
-        helper_regex = re.compile(r'<helper:(?P<helper>\w+)>')
+        record_helpers = {"last_hour": lambda: str(int(time.time()) - 60)}
+        helper_regex = re.compile(r"<helper:(?P<helper>\w+)>")
 
         def _find_and_apply_helpers(test_record):
             """Apply any helpers to the passed in test_record"""
@@ -342,8 +339,8 @@ class TestEvent:
                 if isinstance(value, str):
                     test_record[key] = re.sub(
                         helper_regex,
-                        lambda match: record_helpers[match.group('helper')](),
-                        value
+                        lambda match: record_helpers[match.group("helper")](),
+                        value,
                     )
                 elif isinstance(value, dict):
                     _find_and_apply_helpers(test_record[key])
@@ -352,7 +349,7 @@ class TestEvent:
 
     @staticmethod
     def _setup_s3_mock(data):
-        s3_mocker = patch('streamalert.classifier.payload.s3.boto3.resource').start()
+        s3_mocker = patch("streamalert.classifier.payload.s3.boto3.resource").start()
         s3_mocker.return_value.Bucket.return_value.download_fileobj = (
             lambda k, d: d.write(json.dumps(data).encode())
         )
@@ -363,10 +360,10 @@ class TestEvent:
             return
 
         # The existence of this is checked in the is_valid function
-        event_log = config['logs'].get(self.log)
+        event_log = config["logs"].get(self.log)
 
-        configuration = event_log.get('configuration', {})
-        schema = configuration.get('envelope_keys', event_log['schema'])
+        configuration = event_log.get("configuration", {})
+        schema = configuration.get("envelope_keys", event_log["schema"])
 
         # Add apply default values based on the declared schema
         default_test_event = {
@@ -377,4 +374,4 @@ class TestEvent:
         # Overwrite the fields included in the 'override_record' field,
         # and update the test event with a full 'data' key
         default_test_event.update(self.override_record)
-        self._event['data'] = default_test_event
+        self._event["data"] = default_test_event

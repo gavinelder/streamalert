@@ -19,7 +19,9 @@ from streamalert_cli.manage_lambda import package
 LOGGER = get_logger(__name__)
 
 
-def terraform_runner(config, refresh=True, auto_approve=False, targets=None, destroy=False):
+def terraform_runner(
+    config, refresh=True, auto_approve=False, targets=None, destroy=False
+):
     """Terraform wrapper to build StreamAlert infrastructure.
 
     Resolves modules with `terraform get` before continuing.
@@ -35,30 +37,30 @@ def terraform_runner(config, refresh=True, auto_approve=False, targets=None, des
     Returns:
         bool: True if the terraform command was successful
     """
-    LOGGER.info('Initializing StreamAlert')
-    if not run_command(['terraform', 'init'], cwd=config.build_directory):
+    LOGGER.info("Initializing StreamAlert")
+    if not run_command(["terraform", "init"], cwd=config.build_directory):
         return False
 
-    LOGGER.debug('Resolving Terraform modules')
-    if not run_command(['terraform', 'get'], cwd=config.build_directory, quiet=True):
+    LOGGER.debug("Resolving Terraform modules")
+    if not run_command(["terraform", "get"], cwd=config.build_directory, quiet=True):
         return False
 
-    tf_command = ['terraform']
+    tf_command = ["terraform"]
 
     if destroy:
-        tf_command.append('destroy')
+        tf_command.append("destroy")
         # Terraform destroy has a '-force' flag instead of '-auto-approve'
-        LOGGER.info('Destroying infrastructure')
-        tf_command.append('-force={}'.format(str(auto_approve).lower()))
+        LOGGER.info("Destroying infrastructure")
+        tf_command.append("-force={}".format(str(auto_approve).lower()))
     else:
-        tf_command.append('apply')
-        LOGGER.info('%s changes', 'Applying' if auto_approve else 'Planning')
-        tf_command.append('-auto-approve={}'.format(str(auto_approve).lower()))
+        tf_command.append("apply")
+        LOGGER.info("%s changes", "Applying" if auto_approve else "Planning")
+        tf_command.append("-auto-approve={}".format(str(auto_approve).lower()))
 
-    tf_command.append('-refresh={}'.format(str(refresh).lower()))
+    tf_command.append("-refresh={}".format(str(refresh).lower()))
 
     if targets:
-        tf_command.extend('-target={}'.format(x) for x in targets)
+        tf_command.extend("-target={}".format(x) for x in targets)
 
     # Build the deployment package so the Lambda does not produce an error
     # TODO: maybe remove this as packaging improvements progress
@@ -77,11 +79,11 @@ def terraform_check():
         bool: Success or failure of the command ran
     """
     error_message = (
-        'Terraform not found! Please install and add to your $PATH:\n'
-        '\texport PATH=$PATH:/usr/local/terraform/bin'
+        "Terraform not found! Please install and add to your $PATH:\n"
+        "\texport PATH=$PATH:/usr/local/terraform/bin"
     )
     return run_command(
-        ['terraform', 'version'],
+        ["terraform", "version"],
         error_message=error_message,
         quiet=True,
     )

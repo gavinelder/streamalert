@@ -44,13 +44,13 @@ class AwsKms:
             ClientError
         """
         try:
-            if not key_alias.startswith('alias/'):
-                key_alias = 'alias/{}'.format(key_alias)
-            client = boto3.client('kms', config=default_config(region=region))
+            if not key_alias.startswith("alias/"):
+                key_alias = "alias/{}".format(key_alias)
+            client = boto3.client("kms", config=default_config(region=region))
             response = client.encrypt(KeyId=key_alias, Plaintext=plaintext_data)
-            return response['CiphertextBlob']
+            return response["CiphertextBlob"]
         except ClientError:
-            LOGGER.error('An error occurred during KMS encryption')
+            LOGGER.error("An error occurred during KMS encryption")
             raise
 
     @staticmethod
@@ -71,11 +71,11 @@ class AwsKms:
             ClientError
         """
         try:
-            client = boto3.client('kms', config=default_config(region=region))
+            client = boto3.client("kms", config=default_config(region=region))
             response = client.decrypt(CiphertextBlob=ciphertext)
-            return response['Plaintext']
+            return response["Plaintext"]
         except ClientError:
-            LOGGER.error('An error occurred during KMS decryption')
+            LOGGER.error("An error occurred during KMS decryption")
             raise
 
 
@@ -98,10 +98,10 @@ class AwsS3:
             ClientError; Raises when the bucket does not exist or is denying permission to access.
         """
         try:
-            client = boto3.client('s3', config=default_config(region=region))
+            client = boto3.client("s3", config=default_config(region=region))
             client.head_bucket(Bucket=bucket)
         except ClientError:
-            LOGGER.error('An error occurred during S3 HeadBucket')
+            LOGGER.error("An error occurred during S3 HeadBucket")
             raise
 
     @staticmethod
@@ -122,11 +122,11 @@ class AwsS3:
             ClientError
         """
         try:
-            client = boto3.client('s3', config=default_config(region=region))
+            client = boto3.client("s3", config=default_config(region=region))
             client.create_bucket(Bucket=bucket)
             return True
         except ClientError:
-            LOGGER.error('An error occurred during S3 CreateBucket')
+            LOGGER.error("An error occurred during S3 CreateBucket")
             raise
 
     @staticmethod
@@ -146,11 +146,11 @@ class AwsS3:
             ClientError
         """
         try:
-            client = boto3.client('s3', config=default_config(region=region))
+            client = boto3.client("s3", config=default_config(region=region))
             client.put_object(Body=object_data, Bucket=bucket, Key=key)
             return True
         except ClientError:
-            LOGGER.error('An error occurred during S3 PutObject')
+            LOGGER.error("An error occurred during S3 PutObject")
             raise
 
     @staticmethod
@@ -172,17 +172,13 @@ class AwsS3:
             ClientError
         """
         try:
-            client = boto3.client('s3', config=default_config(region=region))
-            client.download_fileobj(
-                bucket,
-                key,
-                file_handle
-            )
+            client = boto3.client("s3", config=default_config(region=region))
+            client.download_fileobj(bucket, key, file_handle)
 
             file_handle.seek(0)
             return file_handle.read()
         except ClientError:
-            LOGGER.error('An error occurred during S3 DownloadFileobj')
+            LOGGER.error("An error occurred during S3 DownloadFileobj")
             raise
 
 
@@ -204,12 +200,14 @@ class AwsSsm:
         Raises:
             ClientError
         """
-        client = boto3.client('ssm', config=default_config(region=region))
+        client = boto3.client("ssm", config=default_config(region=region))
 
         try:
-            response = client.get_parameter(Name=parameter_name, WithDecryption=with_decryption)
+            response = client.get_parameter(
+                Name=parameter_name, WithDecryption=with_decryption
+            )
         except ClientError:
-            LOGGER.error('Error getting parameter %s', parameter_name)
+            LOGGER.error("Error getting parameter %s", parameter_name)
             raise
         else:
             return response["Parameter"]["Value"]
@@ -227,25 +225,24 @@ class AwsSsm:
         Returns:
             bool: True if successful else False
         """
-        client = boto3.client('ssm', config=default_config(region=region))
+        client = boto3.client("ssm", config=default_config(region=region))
         result = False
 
-        key_id = 'alias/{}'.format(kms_key_alias)
+        key_id = "alias/{}".format(kms_key_alias)
         parameter_value = json.dumps(value) if isinstance(value, dict) else str(value)
         try:
             client.put_parameter(
                 Name=name,
-                Description='StreamAlert Secret',
+                Description="StreamAlert Secret",
                 Value=parameter_value,
-                Type='SecureString',
+                Type="SecureString",
                 KeyId=key_id,
                 Overwrite=True,
-                Tier='Standard'
+                Tier="Standard",
             )
         except ClientError as err:
             LOGGER.exception(
-                'Error saving parameter %s to SSM Param Store\n%s',
-                name, err
+                "Error saving parameter %s to SSM Param Store\n%s", name, err
             )
             result = False
         else:

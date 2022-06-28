@@ -30,15 +30,14 @@ from streamalert.alert_processor.helpers import compose_alert, elide_string_midd
 from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher,
     OutputProperty,
-    StreamAlertOutput
+    StreamAlertOutput,
 )
 from streamalert.shared.backoff_handlers import (
     backoff_handler,
     success_handler,
-    giveup_handler
+    giveup_handler,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -65,8 +64,10 @@ class AWSOutput(OutputDispatcher):
                 subclasses should use a generic 'aws_value' to store the value for the
                 descriptor used in configuration
         """
-        return dict(service_config.get(cls.__service__, {}),
-                    **{values['descriptor'].value: values['aws_value'].value})
+        return dict(
+            service_config.get(cls.__service__, {}),
+            **{values["descriptor"].value: values["aws_value"].value}
+        )
 
     @abstractmethod
     def _dispatch(self, alert, descriptor):
@@ -76,10 +77,11 @@ class AWSOutput(OutputDispatcher):
 @StreamAlertOutput
 class KinesisFirehoseOutput(AWSOutput):
     """High throughput Alert delivery to AWS S3"""
+
     MAX_RECORD_SIZE = 1000 * 1000
     MAX_BACKOFF_ATTEMPTS = 3
 
-    __service__ = 'aws-firehose'
+    __service__ = "aws-firehose"
     __aws_client__ = None
 
     @classmethod
@@ -92,13 +94,20 @@ class KinesisFirehoseOutput(AWSOutput):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(
-                 description='a short and unique descriptor for this Firehose Delivery Stream')),
-            ('aws_value',
-             OutputProperty(description='the Firehose Delivery Stream name'))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this Firehose Delivery Stream"
+                    ),
+                ),
+                (
+                    "aws_value",
+                    OutputProperty(description="the Firehose Delivery Stream name"),
+                ),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send alert to a Kinesis Firehose Delivery Stream
@@ -114,13 +123,16 @@ class KinesisFirehoseOutput(AWSOutput):
         Returns:
             bool: True if alert was sent successfully, False otherwise
         """
-        @backoff.on_exception(backoff.fibo,
-                              ClientError,
-                              max_tries=self.MAX_BACKOFF_ATTEMPTS,
-                              jitter=backoff.full_jitter,
-                              on_backoff=backoff_handler(),
-                              on_success=success_handler(),
-                              on_giveup=giveup_handler())
+
+        @backoff.on_exception(
+            backoff.fibo,
+            ClientError,
+            max_tries=self.MAX_BACKOFF_ATTEMPTS,
+            jitter=backoff.full_jitter,
+            on_backoff=backoff_handler(),
+            on_success=success_handler(),
+            on_giveup=giveup_handler(),
+        )
         def _firehose_request_wrapper(json_alert, delivery_stream):
             """Make the PutRecord request to Kinesis Firehose with backoff
 
@@ -133,25 +145,26 @@ class KinesisFirehoseOutput(AWSOutput):
                     {'RecordId': 'string'}
             """
             self.__aws_client__.put_record(
-                DeliveryStreamName=delivery_stream,
-                Record={'Data': json_alert}
+                DeliveryStreamName=delivery_stream, Record={"Data": json_alert}
             )
 
         if self.__aws_client__ is None:
-            self.__aws_client__ = boto3.client('firehose', region_name=self.region)
+            self.__aws_client__ = boto3.client("firehose", region_name=self.region)
 
         publication = compose_alert(alert, self, descriptor)
 
-        json_alert = json.dumps(publication, separators=(',', ':')) + '\n'
+        json_alert = json.dumps(publication, separators=(",", ":")) + "\n"
         if len(json_alert) > self.MAX_RECORD_SIZE:
-            LOGGER.error('Alert too large to send to Firehose: \n%s...', json_alert[0:1000])
+            LOGGER.error(
+                "Alert too large to send to Firehose: \n%s...", json_alert[0:1000]
+            )
             return False
 
         delivery_stream = self.config[self.__service__][descriptor]
-        LOGGER.info('Sending %s to aws-firehose:%s', alert, delivery_stream)
+        LOGGER.info("Sending %s to aws-firehose:%s", alert, delivery_stream)
 
         _firehose_request_wrapper(json_alert, delivery_stream)
-        LOGGER.info('%s successfully sent to aws-firehose:%s', alert, delivery_stream)
+        LOGGER.info("%s successfully sent to aws-firehose:%s", alert, delivery_stream)
 
         return True
 
@@ -162,7 +175,8 @@ class LambdaOutput(AWSOutput):
 
     This output is deprecated by the aws-lambda-v2 output
     """
-    __service__ = 'aws-lambda'
+
+    __service__ = "aws-lambda"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -181,16 +195,26 @@ class LambdaOutput(AWSOutput):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for this Lambda function '
-                                        'configuration (ie: abbreviated name)')),
-            ('aws_value',
-             OutputProperty(description='the AWS Lambda function name, with the optional '
-                                        'qualifier (aka \'alias\'), to use for this '
-                                        'configuration (ie: output_function:qualifier)',
-                            input_restrictions={' '})),
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this Lambda function "
+                        "configuration (ie: abbreviated name)"
+                    ),
+                ),
+                (
+                    "aws_value",
+                    OutputProperty(
+                        description="the AWS Lambda function name, with the optional "
+                        "qualifier (aka 'alias'), to use for this "
+                        "configuration (ie: output_function:qualifier)",
+                        input_restrictions={" "},
+                    ),
+                ),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send alert to a Lambda function
@@ -218,9 +242,9 @@ class LambdaOutput(AWSOutput):
         default_alert_data = alert.record
 
         # Override with publisher
-        alert_data = publication.get('@aws-lambda.alert_data', default_alert_data)
+        alert_data = publication.get("@aws-lambda.alert_data", default_alert_data)
 
-        alert_string = json.dumps(alert_data, separators=(',', ':'))
+        alert_string = json.dumps(alert_data, separators=(",", ":"))
         function_name = self.config[self.__service__][descriptor]
 
         # Check to see if there is an optional qualifier included here
@@ -231,7 +255,7 @@ class LambdaOutput(AWSOutput):
         #   'function-name'
         # Checking the length of the list for 2 or 8 should account for all
         # times a qualifier is provided.
-        parts = function_name.split(':')
+        parts = function_name.split(":")
         if len(parts) == 2 or len(parts) == 8:
             function = parts[-2]
             qualifier = parts[-1]
@@ -239,20 +263,20 @@ class LambdaOutput(AWSOutput):
             function = parts[-1]
             qualifier = None
 
-        LOGGER.debug('Sending alert to Lambda function %s', function_name)
+        LOGGER.debug("Sending alert to Lambda function %s", function_name)
 
-        client = boto3.client('lambda', region_name=self.region)
+        client = boto3.client("lambda", region_name=self.region)
 
         invoke_params = {
-            'FunctionName': function,
-            'InvocationType': 'Event',
-            'Payload': alert_string
+            "FunctionName": function,
+            "InvocationType": "Event",
+            "Payload": alert_string,
         }
 
         # Use the qualifier if it's available. Passing an empty qualifier in
         # with `Qualifier=''` or `Qualifier=None` does not work
         if qualifier:
-            invoke_params['Qualifier'] = qualifier
+            invoke_params["Qualifier"] = qualifier
 
         client.invoke(**invoke_params)
 
@@ -262,7 +286,8 @@ class LambdaOutput(AWSOutput):
 @StreamAlertOutput
 class LambdaOutputV2(OutputDispatcher):
     """LambdaOutput handles all alert dispatching to AWS Lambda"""
-    __service__ = 'aws-lambda-v2'
+
+    __service__ = "aws-lambda-v2"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -290,35 +315,35 @@ class LambdaOutputV2(OutputDispatcher):
         return OrderedDict(
             [
                 (
-                    'descriptor',
+                    "descriptor",
                     OutputProperty(
-                        description='a short and unique descriptor for this Lambda function '
-                        'configuration (ie: abbreviated name)'
-                    )
+                        description="a short and unique descriptor for this Lambda function "
+                        "configuration (ie: abbreviated name)"
+                    ),
                 ),
                 (
-                    'lambda_function_arn',
+                    "lambda_function_arn",
                     OutputProperty(
-                        description='The ARN of the AWS Lambda function to Invoke',
-                        input_restrictions={' '},
-                        cred_requirement=True
-                    )
+                        description="The ARN of the AWS Lambda function to Invoke",
+                        input_restrictions={" "},
+                        cred_requirement=True,
+                    ),
                 ),
                 (
-                    'function_qualifier',
+                    "function_qualifier",
                     OutputProperty(
-                        description='The function qualifier/alias to invoke.',
-                        input_restrictions={' '},
-                        cred_requirement=True
-                    )
+                        description="The function qualifier/alias to invoke.",
+                        input_restrictions={" "},
+                        cred_requirement=True,
+                    ),
                 ),
                 (
-                    'assume_role_arn',
+                    "assume_role_arn",
                     OutputProperty(
-                        description='When provided, will use AssumeRole with this ARN',
-                        input_restrictions={' '},
-                        cred_requirement=True
-                    )
+                        description="When provided, will use AssumeRole with this ARN",
+                        input_restrictions={" "},
+                        cred_requirement=True,
+                    ),
                 ),
             ]
         )
@@ -355,25 +380,25 @@ class LambdaOutputV2(OutputDispatcher):
         default_alert_data = alert.record
 
         # Override with publisher
-        alert_data = publication.get('@aws-lambda.alert_data', default_alert_data)
-        alert_string = json.dumps(alert_data, separators=(',', ':'))
+        alert_data = publication.get("@aws-lambda.alert_data", default_alert_data)
+        alert_string = json.dumps(alert_data, separators=(",", ":"))
 
         client = self._build_client(creds)
 
-        function_name = creds['lambda_function_arn']
-        qualifier = creds.get('function_qualifier', False)
+        function_name = creds["lambda_function_arn"]
+        qualifier = creds.get("function_qualifier", False)
 
-        LOGGER.debug('Sending alert to Lambda function %s', function_name)
+        LOGGER.debug("Sending alert to Lambda function %s", function_name)
         invocation_opts = {
-            'FunctionName': function_name,
-            'InvocationType': 'Event',
-            'Payload': alert_string,
+            "FunctionName": function_name,
+            "InvocationType": "Event",
+            "Payload": alert_string,
         }
 
         # Use the qualifier if it's available. Passing an empty qualifier in
         # with `Qualifier=''` or `Qualifier=None` does not work
         if qualifier:
-            invocation_opts['Qualifier'] = qualifier
+            invocation_opts["Qualifier"] = qualifier
 
         client.invoke(**invocation_opts)
 
@@ -390,33 +415,30 @@ class LambdaOutputV2(OutputDispatcher):
         Returns:
             boto3.session.Session.client
         """
-        client_opts = {
-            'region_name': self.region
-        }
+        client_opts = {"region_name": self.region}
 
-        assume_role_arn = creds.get('assume_role_arn', False)
+        assume_role_arn = creds.get("assume_role_arn", False)
         if assume_role_arn:
-            LOGGER.debug('Assuming role: %s', assume_role_arn)
-            sts_connection = boto3.client('sts')
+            LOGGER.debug("Assuming role: %s", assume_role_arn)
+            sts_connection = boto3.client("sts")
             acct_b = sts_connection.assume_role(
-                RoleArn=assume_role_arn,
-                RoleSessionName="streamalert_alert_processor"
+                RoleArn=assume_role_arn, RoleSessionName="streamalert_alert_processor"
             )
 
-            client_opts['aws_access_key_id'] = acct_b['Credentials']['AccessKeyId']
-            client_opts['aws_secret_access_key'] = acct_b['Credentials']['SecretAccessKey']
-            client_opts['aws_session_token'] = acct_b['Credentials']['SessionToken']
+            client_opts["aws_access_key_id"] = acct_b["Credentials"]["AccessKeyId"]
+            client_opts["aws_secret_access_key"] = acct_b["Credentials"][
+                "SecretAccessKey"
+            ]
+            client_opts["aws_session_token"] = acct_b["Credentials"]["SessionToken"]
 
-        return boto3.client(
-            'lambda',
-            **client_opts
-        )
+        return boto3.client("lambda", **client_opts)
 
 
 @StreamAlertOutput
 class S3Output(AWSOutput):
     """S3Output handles all alert dispatching for AWS S3"""
-    __service__ = 'aws-s3'
+
+    __service__ = "aws-s3"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -434,13 +456,22 @@ class S3Output(AWSOutput):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(
-                 description='a short and unique descriptor for this S3 bucket (ie: bucket name)')),
-            ('aws_value',
-             OutputProperty(description='the AWS S3 bucket name to use for this S3 configuration'))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this S3 bucket (ie: bucket name)"
+                    ),
+                ),
+                (
+                    "aws_value",
+                    OutputProperty(
+                        description="the AWS S3 bucket name to use for this S3 configuration"
+                    ),
+                ),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send alert to an S3 bucket
@@ -466,19 +497,19 @@ class S3Output(AWSOutput):
         # Produces the following key format:
         #   alerts/dt=2017-01-25-00/kinesis_my-stream_my-rule_uuid.json
         # Keys need to be unique to avoid object overwriting
-        key = 'alerts/dt={}/{}_{}_{}_{}.json'.format(
-            datetime.now().strftime('%Y-%m-%d-%H'),
+        key = "alerts/dt={}/{}_{}_{}_{}.json".format(
+            datetime.now().strftime("%Y-%m-%d-%H"),
             alert.source_service,
             alert.source_entity,
             alert.rule_name,
-            uuid.uuid4()
+            uuid.uuid4(),
         )
 
-        LOGGER.debug('Sending %s to S3 bucket %s with key %s', alert, bucket, key)
+        LOGGER.debug("Sending %s to S3 bucket %s with key %s", alert, bucket, key)
 
         publication = compose_alert(alert, self, descriptor)
 
-        client = boto3.client('s3', region_name=self.region)
+        client = boto3.client("s3", region_name=self.region)
         client.put_object(Body=json.dumps(publication), Bucket=bucket, Key=key)
 
         return True
@@ -487,7 +518,8 @@ class S3Output(AWSOutput):
 @StreamAlertOutput
 class SNSOutput(AWSOutput):
     """Handle all alert dispatching for AWS SNS"""
-    __service__ = 'aws-sns'
+
+    __service__ = "aws-sns"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -506,11 +538,17 @@ class SNSOutput(AWSOutput):
         Returns:
             OrderedDict: With 'descriptor' and 'aws_value' OutputProperty tuples
         """
-        return OrderedDict([
-            ('descriptor', OutputProperty(
-                description='a short and unique descriptor for this SNS topic')),
-            ('aws_value', OutputProperty(description='SNS topic name'))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this SNS topic"
+                    ),
+                ),
+                ("aws_value", OutputProperty(description="SNS topic name")),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send alert to an SNS topic
@@ -524,24 +562,27 @@ class SNSOutput(AWSOutput):
         """
         # SNS topics can only be accessed via their ARN
         topic_name = self.config[self.__service__][descriptor]
-        topic_arn = 'arn:aws:sns:{}:{}:{}'.format(self.region, self.account_id, topic_name)
-        topic = boto3.resource('sns', region_name=self.region).Topic(topic_arn)
+        topic_arn = "arn:aws:sns:{}:{}:{}".format(
+            self.region, self.account_id, topic_name
+        )
+        topic = boto3.resource("sns", region_name=self.region).Topic(topic_arn)
 
         publication = compose_alert(alert, self, descriptor)
 
         # Presentation defaults
-        default_subject = '{} triggered alert {}'.format(alert.rule_name, alert.alert_id)
+        default_subject = "{} triggered alert {}".format(
+            alert.rule_name, alert.alert_id
+        )
         default_message = json.dumps(publication, indent=2, sort_keys=True)
 
         # Published presentation fields
         # Subject must be < 100 characters long;
-        subject = elide_string_middle(publication.get('@aws-sns.topic', default_subject), 99)
-        message = publication.get('@aws-sns.message', default_message)
-
-        topic.publish(
-            Message=message,
-            Subject=subject
+        subject = elide_string_middle(
+            publication.get("@aws-sns.topic", default_subject), 99
         )
+        message = publication.get("@aws-sns.message", default_message)
+
+        topic.publish(Message=message, Subject=subject)
 
         return True
 
@@ -553,7 +594,8 @@ class SNSOutput(AWSOutput):
 @StreamAlertOutput
 class SQSOutput(AWSOutput):
     """Handle all alert dispatching for AWS SQS"""
-    __service__ = 'aws-sqs'
+
+    __service__ = "aws-sqs"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -562,11 +604,17 @@ class SQSOutput(AWSOutput):
         Returns:
             OrderedDict: With 'descriptor' and 'aws_value' OutputProperty tuples
         """
-        return OrderedDict([
-            ('descriptor', OutputProperty(
-                description='a short and unique descriptor for this SQS queue')),
-            ('aws_value', OutputProperty(description='SQS queue name'))
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for this SQS queue"
+                    ),
+                ),
+                ("aws_value", OutputProperty(description="SQS queue name")),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send alert to an SQS queue
@@ -587,7 +635,7 @@ class SQSOutput(AWSOutput):
             bool: True if alert was sent successfully, False otherwise
         """
         queue_name = self.config[self.__service__][descriptor]
-        sqs = boto3.resource('sqs', region_name=self.region)
+        sqs = boto3.resource("sqs", region_name=self.region)
         queue = sqs.get_queue_by_name(QueueName=queue_name)  # pylint: disable=no-member
 
         publication = compose_alert(alert, self, descriptor)
@@ -596,10 +644,10 @@ class SQSOutput(AWSOutput):
         default_message_data = alert.record
 
         # Presentation values
-        message_data = publication.get('@aws-sqs.message_data', default_message_data)
+        message_data = publication.get("@aws-sqs.message_data", default_message_data)
 
         # Transform the body from a dict to a string for SQS
-        sqs_message = json.dumps(message_data, separators=(',', ':'))
+        sqs_message = json.dumps(message_data, separators=(",", ":"))
         queue.send_message(MessageBody=sqs_message)
 
         return True
@@ -608,7 +656,8 @@ class SQSOutput(AWSOutput):
 @StreamAlertOutput
 class CloudwatchLogOutput(AWSOutput):
     """Print alerts to the Cloudwatch Logger"""
-    __service__ = 'aws-cloudwatch-log'
+
+    __service__ = "aws-cloudwatch-log"
 
     @classmethod
     def get_user_defined_properties(cls):
@@ -621,10 +670,16 @@ class CloudwatchLogOutput(AWSOutput):
         Returns:
             OrderedDict: Contains various OutputProperty items
         """
-        return OrderedDict([
-            ('descriptor',
-             OutputProperty(description='a short and unique descriptor for the cloudwatch log')),
-        ])
+        return OrderedDict(
+            [
+                (
+                    "descriptor",
+                    OutputProperty(
+                        description="a short and unique descriptor for the cloudwatch log"
+                    ),
+                ),
+            ]
+        )
 
     def _dispatch(self, alert, descriptor):
         """Send alert to Cloudwatch Logger for Lambda
@@ -634,7 +689,7 @@ class CloudwatchLogOutput(AWSOutput):
             descriptor (str): Output descriptor
         """
         publication = compose_alert(alert, self, descriptor)
-        LOGGER.info('New Alert:\n%s', json.dumps(publication, indent=2))
+        LOGGER.info("New Alert:\n%s", json.dumps(publication, indent=2))
 
         return True
 
@@ -642,6 +697,7 @@ class CloudwatchLogOutput(AWSOutput):
 @StreamAlertOutput
 class SESOutput(OutputDispatcher):
     """Handle all alert dispatching for AWS SES"""
+
     __service__ = "aws-ses"
 
     @staticmethod
@@ -667,7 +723,7 @@ class SESOutput(OutputDispatcher):
 
     @staticmethod
     def _construct_body(msg, body):
-        """ Create the body of the email
+        """Create the body of the email
 
         Args:
             msg (MIMEMultipart): Email Object to contruct body
@@ -801,17 +857,17 @@ class SESOutput(OutputDispatcher):
 
         msg = self._build_email(alert, publication, creds)
 
-        ses = boto3.client('ses', region_name=self.region)
+        ses = boto3.client("ses", region_name=self.region)
 
         try:
             response = ses.send_raw_email(
-                Source=msg['From'],
-                Destinations=msg['To'].split(','),
-                RawMessage={'Data': msg.as_string()},
+                Source=msg["From"],
+                Destinations=msg["To"].split(","),
+                RawMessage={"Data": msg.as_string()},
             )
         except ClientError as e:
-            LOGGER.error(e.response['Error']['Message'])
+            LOGGER.error(e.response["Error"]["Message"])
             return False
         else:
-            LOGGER.info('Email sent! Message ID: %s', response['MessageId'])
+            LOGGER.info("Email sent! Message ID: %s", response["MessageId"])
             return True

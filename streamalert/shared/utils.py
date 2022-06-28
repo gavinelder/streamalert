@@ -7,8 +7,8 @@ from netaddr.core import AddrFormatError
 from streamalert.shared.logger import get_logger
 from streamalert.shared.normalize import Normalizer
 
-
 LOGGER = get_logger(__name__)
+
 
 def valid_ip(ip_address):
     """Verify that a ip_address string is valid
@@ -20,7 +20,7 @@ def valid_ip(ip_address):
         True if the ip_address is valid, otherwise False
     """
     # Early return if ip address is '::1'
-    if ip_address == '::1':
+    if ip_address == "::1":
         return False
 
     try:
@@ -47,7 +47,7 @@ def in_network(ip_address, cidrs):
         try:
             network = IPNetwork(cidr)
         except AddrFormatError:
-            LOGGER.error('Invalid IP Network: %s', cidr)
+            LOGGER.error("Invalid IP Network: %s", cidr)
             continue
         if ip_address in network:
             return True
@@ -144,6 +144,7 @@ def get_keys(data, search_key, max_matches=-1):
                     containers.append(val)
     return results
 
+
 def get_database_name(config):
     """Get the name of the athena database using the current config settings
     Args:
@@ -151,10 +152,11 @@ def get_database_name(config):
     Returns:
         str: The name of the athena database
     """
-    prefix = config['global']['account']['prefix']
-    athena_config = config['lambda'].get('athena_partitioner_config')
+    prefix = config["global"]["account"]["prefix"]
+    athena_config = config["lambda"].get("athena_partitioner_config")
 
-    return athena_config.get('database_name', '{}_streamalert'.format(prefix))
+    return athena_config.get("database_name", "{}_streamalert".format(prefix))
+
 
 def get_data_file_format(config):
     """Get the data store format using the current config settings
@@ -163,6 +165,6 @@ def get_data_file_format(config):
     Returns:
         str: The data store format either "parquet" or "json"
     """
-    athena_config = config['lambda'].get('athena_partitioner_config', {})
+    athena_config = config["lambda"].get("athena_partitioner_config", {})
 
-    return athena_config.get('file_format')
+    return athena_config.get("file_format")

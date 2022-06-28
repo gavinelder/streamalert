@@ -31,7 +31,10 @@ LOGGER = get_logger(__name__)
 
 class AlertProcessor:
     """Orchestrates delivery of alerts to the appropriate dispatchers."""
-    ALERT_PROCESSOR = None  # AlertProcessor instance which can be re-used across Lambda invocations
+
+    ALERT_PROCESSOR = (
+        None  # AlertProcessor instance which can be re-used across Lambda invocations
+    )
     BACKOFF_MAX_TRIES = 5
 
     @classmethod
@@ -44,10 +47,12 @@ class AlertProcessor:
     def __init__(self):
         """Initialization logic that can be cached across invocations"""
         # Merge user-specified output configuration with the required output configuration
-        output_config = load_config(include={'outputs.json'})['outputs']
-        self.config = resources.merge_required_outputs(output_config, env['STREAMALERT_PREFIX'])
+        output_config = load_config(include={"outputs.json"})["outputs"]
+        self.config = resources.merge_required_outputs(
+            output_config, env["STREAMALERT_PREFIX"]
+        )
 
-        self.alerts_table = AlertTable(env['ALERTS_TABLE'])
+        self.alerts_table = AlertTable(env["ALERTS_TABLE"])
 
     def _create_dispatcher(self, output):
         """Create a dispatcher for the given output.
@@ -60,15 +65,18 @@ class AlertProcessor:
                 Returns None if the output is invalid or not defined in the config.
         """
         try:
-            service, descriptor = output.split(':')
+            service, descriptor = output.split(":")
         except ValueError:
-            LOGGER.error('Improperly formatted output [%s]. Outputs for rules must '
-                         'be declared with both a service and a descriptor for the '
-                         'integration (ie: \'slack:my_channel\')', output)
+            LOGGER.error(
+                "Improperly formatted output [%s]. Outputs for rules must "
+                "be declared with both a service and a descriptor for the "
+                "integration (ie: 'slack:my_channel')",
+                output,
+            )
             return None
 
         if service not in self.config or descriptor not in self.config[service]:
-            LOGGER.error('The output \'%s\' does not exist!', output)
+            LOGGER.error("The output '%s' does not exist!", output)
             return None
 
         return StreamAlertOutput.create_dispatcher(service, self.config)
@@ -88,14 +96,20 @@ class AlertProcessor:
             dispatcher = self._create_dispatcher(output)
             result[output] = dispatcher.dispatch(alert, output) if dispatcher else False
 
-        alert.outputs_sent = set(output for output, success in list(result.items()) if success)
+        alert.outputs_sent = set(
+            output for output, success in list(result.items()) if success
+        )
         return result
 
-    @backoff.on_exception(backoff.expo, ClientError,
-                          max_tries=BACKOFF_MAX_TRIES, jitter=backoff.full_jitter,
-                          on_backoff=backoff_handlers.backoff_handler(),
-                          on_success=backoff_handlers.success_handler(),
-                          on_giveup=backoff_handlers.giveup_handler())
+    @backoff.on_exception(
+        backoff.expo,
+        ClientError,
+        max_tries=BACKOFF_MAX_TRIES,
+        jitter=backoff.full_jitter,
+        on_backoff=backoff_handlers.backoff_handler(),
+        on_success=backoff_handlers.success_handler(),
+        on_giveup=backoff_handlers.giveup_handler(),
+    )
     def _update_table(self, alert, output_results):
         """Update the alerts table based on the results of the outputs.
 
@@ -125,11 +139,13 @@ class AlertProcessor:
                 An empty dict is returned if the Alert was improperly formatted.
         """
         # Grab the alert record from Dynamo (if needed).
-        if set(event) == {'AlertID', 'RuleName'}:
-            LOGGER.info('Retrieving %s from alerts table', event)
-            alert_record = self.alerts_table.get_alert_record(event['RuleName'], event['AlertID'])
+        if set(event) == {"AlertID", "RuleName"}:
+            LOGGER.info("Retrieving %s from alerts table", event)
+            alert_record = self.alerts_table.get_alert_record(
+                event["RuleName"], event["AlertID"]
+            )
             if not alert_record:
-                LOGGER.error('%s does not exist in the alerts table', event)
+                LOGGER.error("%s does not exist in the alerts table", event)
                 return {}
         else:
             alert_record = event
@@ -138,7 +154,7 @@ class AlertProcessor:
         try:
             alert = Alert.create_from_dynamo_record(alert_record)
         except AlertCreationError:
-            LOGGER.exception('Invalid alert %s', event)
+            LOGGER.exception("Invalid alert %s", event)
             return {}
 
         # Remove normalization key from the record.

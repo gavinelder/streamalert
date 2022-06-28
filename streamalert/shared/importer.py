@@ -41,7 +41,7 @@ def _python_file_paths(*paths):
     for folder in paths:
         for root, _, files in os.walk(folder):
             for file_name in files:
-                if file_name.endswith('.py') and not file_name.startswith('__'):
+                if file_name.endswith(".py") and not file_name.startswith("__"):
                     yield os.path.join(root, file_name)
 
 
@@ -55,7 +55,9 @@ def _path_to_module(path):
         NameError if a '.' appears anywhere in the path except the file extension.
     """
     base_name = os.path.splitext(path)[0]
-    if '.' in base_name:
-        raise NameError('Python file "{}" cannot be imported '
-                        'because of "." in the name'.format(path))
-    return base_name.replace('/', '.')
+    if "." in base_name:
+        raise NameError(
+            'Python file "{}" cannot be imported '
+            'because of "." in the name'.format(path)
+        )
+    return base_name.replace("/", ".")

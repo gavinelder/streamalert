@@ -24,13 +24,19 @@ To run terraform by hand, change to the terraform directory and run:
 terraform <cmd>
 """
 from abc import abstractmethod
-from argparse import _AppendAction, Action, ArgumentTypeError, RawDescriptionHelpFormatter
+from argparse import (
+    _AppendAction,
+    Action,
+    ArgumentTypeError,
+    RawDescriptionHelpFormatter,
+)
 import os
 import textwrap
 from streamalert.apps.config import AWS_RATE_RE, AWS_RATE_HELPER
 
 CLUSTERS = [
-    os.path.splitext(cluster)[0] for _, _, files in os.walk('./conf/clusters')
+    os.path.splitext(cluster)[0]
+    for _, _, files in os.walk("./conf/clusters")
     for cluster in files
 ]
 
@@ -43,15 +49,15 @@ def function_map():
     """
     # This is purposely not a constant because it is expected to be modifiable
     return {
-        'alert': 'alert_processor',
-        'alert_merger': 'alert_merger',
-        'apps': None,  # needs special handling
-        'athena': 'athena_partitioner',
-        'classifier': None,  # needs special handling
-        'rule': 'rules_engine',
-        'rule_promo': 'rule_promotion',
-        'scheduled_queries': 'scheduled_queries_runner',
-        'threat_intel_downloader': 'threat_intel_downloader',
+        "alert": "alert_processor",
+        "alert_merger": "alert_merger",
+        "apps": None,  # needs special handling
+        "athena": "athena_partitioner",
+        "classifier": None,  # needs special handling
+        "rule": "rules_engine",
+        "rule_promo": "rule_promotion",
+        "scheduled_queries": "scheduled_queries_runner",
+        "threat_intel_downloader": "threat_intel_downloader",
     }
 
 
@@ -59,6 +65,7 @@ class CLICommand:
     """
     An abstract class that encapsulates the logic of a single manage.py CLI command.
     """
+
     description = NotImplemented
 
     @classmethod
@@ -81,7 +88,9 @@ class UniqueSortedListAction(Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
         unique_items = set(values)
-        setattr(namespace, self.dest, sorted(unique_items))  # We want this to be consistent
+        setattr(
+            namespace, self.dest, sorted(unique_items)
+        )  # We want this to be consistent
 
 
 class UniqueSortedFileListAction(Action):
@@ -89,7 +98,9 @@ class UniqueSortedFileListAction(Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
         unique_items = {value.name for value in values}
-        setattr(namespace, self.dest, sorted(unique_items))  # We want this to be consistent
+        setattr(
+            namespace, self.dest, sorted(unique_items)
+        )  # We want this to be consistent
 
 
 class UniqueSortedFileListAppendAction(_AppendAction):
@@ -101,7 +112,9 @@ class UniqueSortedFileListAppendAction(_AppendAction):
     def __call__(self, parser, namespace, value, option_string=None):
         unique_items = set(getattr(namespace, self.dest, set()))
         unique_items.add(value.name)
-        setattr(namespace, self.dest, sorted(unique_items))  # We want this to be consistent
+        setattr(
+            namespace, self.dest, sorted(unique_items)
+        )  # We want this to be consistent
 
 
 class MutuallyExclusiveStagingAction(Action):
@@ -110,17 +123,17 @@ class MutuallyExclusiveStagingAction(Action):
     def __call__(self, parser, namespace, values, option_string=None):
         unique_items = set(values)
         error = (
-            'The following rules cannot be within both the \'--stage-rules\' argument '
-            'and the \'--unstage-rules\' argument: {}'
+            "The following rules cannot be within both the '--stage-rules' argument "
+            "and the '--unstage-rules' argument: {}"
         )
         if namespace.unstage_rules:
             offending_rules = unique_items.intersection(namespace.unstage_rules)
             if offending_rules:
-                raise parser.error(error.format(', '.join(list(offending_rules))))
+                raise parser.error(error.format(", ".join(list(offending_rules))))
         if namespace.stage_rules:
             offending_rules = unique_items.intersection(namespace.stage_rules)
             if offending_rules:
-                raise parser.error(error.format(', '.join(list(offending_rules))))
+                raise parser.error(error.format(", ".join(list(offending_rules))))
         setattr(namespace, self.dest, unique_items)
 
 
@@ -131,14 +144,15 @@ class DirectoryType:
         if os.path.isdir(value):
             return value
 
-        raise ArgumentTypeError('\'{}\' is not a directory'.format(value))
+        raise ArgumentTypeError("'{}' is not a directory".format(value))
 
 
 def add_timeout_arg(parser):
     """Add the timeout argument to a parser"""
+
     def _validator(val):
         """Validate acceptable inputs for the timeout of the function"""
-        error = 'Value for \'timeout\' must be an integer between 10 and 900'
+        error = "Value for 'timeout' must be an integer between 10 and 900"
         try:
             timeout = int(val)
         except ValueError:
@@ -150,24 +164,23 @@ def add_timeout_arg(parser):
         return timeout
 
     parser.add_argument(
-        '-t',
-        '--timeout',
+        "-t",
+        "--timeout",
         required=True,
         help=(
-            'The AWS Lambda function timeout value, in seconds. '
-            'This should be an integer between 10 and 900.'
+            "The AWS Lambda function timeout value, in seconds. "
+            "This should be an integer between 10 and 900."
         ),
-        type=_validator
+        type=_validator,
     )
 
 
 def add_memory_arg(parser):
     """Add the memory argument to a parser"""
+
     def _validator(val):
         """Validate the memory value to ensure it is between 128 and 3008 and a multiple of 64"""
-        error = (
-            'Value for \'memory\' must be an integer between 128 and 3008, and be a multiple of 64'
-        )
+        error = "Value for 'memory' must be an integer between 128 and 3008, and be a multiple of 64"
         try:
             memory = int(val)
         except ValueError:
@@ -182,69 +195,70 @@ def add_memory_arg(parser):
         return memory
 
     parser.add_argument(
-        '-m',
-        '--memory',
+        "-m",
+        "--memory",
         required=True,
         help=(
-            'The AWS Lambda function max memory value, in megabytes. '
-            'This should be an integer between 128 and 3008, and be a multiple of 64.'
+            "The AWS Lambda function max memory value, in megabytes. "
+            "This should be an integer between 128 and 3008, and be a multiple of 64."
         ),
-        type=_validator
+        type=_validator,
     )
 
 
 def add_schedule_expression_arg(parser):
     """Add the schedule expression argument to a parser"""
+
     def _validator(val):
         """Validate the schedule expression rate value for acceptable input"""
         rate_match = AWS_RATE_RE.match(val)
         if rate_match:
             return val
 
-        if val.startswith('rate('):
-            err = ('Invalid rate expression \'{}\'. For help see {}'
-                   .format(val, '{}#RateExpressions'.format(AWS_RATE_HELPER)))
+        if val.startswith("rate("):
+            err = "Invalid rate expression '{}'. For help see {}".format(
+                val, "{}#RateExpressions".format(AWS_RATE_HELPER)
+            )
             raise parser.error(err)
 
-        raise parser.error('Invalid expression \'{}\'. For help '
-                           'see {}'.format(val, AWS_RATE_HELPER))
+        raise parser.error(
+            "Invalid expression '{}'. For help " "see {}".format(val, AWS_RATE_HELPER)
+        )
 
     schedule_help = (
-        'The interval, defined using a \'rate\' expression, at which this function should '
-        'execute. Examples of acceptable input are: \'rate(1 hour)\', \'rate(2 days)\', and '
-        '\'rate(20 minutes)\'. For more information, see: {}'
+        "The interval, defined using a 'rate' expression, at which this function should "
+        "execute. Examples of acceptable input are: 'rate(1 hour)', 'rate(2 days)', and "
+        "'rate(20 minutes)'. For more information, see: {}"
     ).format(AWS_RATE_HELPER)
 
     parser.add_argument(
-        '-s',
-        '--schedule-expression',
+        "-s",
+        "--schedule-expression",
         required=True,
         help=schedule_help,
-        type=_validator
+        type=_validator,
     )
 
 
 def add_clusters_arg(parser, required=False):
     """Add ability to select 0 or more clusters to act against"""
     kwargs = {
-        'choices': CLUSTERS,
-        'help': (
-            'One or more clusters to target. '
-            'If omitted, this action will be performed against all clusters.'
-        ) if not required else 'One or more clusters to target',
-        'nargs': '+',
-        'action': UniqueSortedListAction,
-        'required': required
+        "choices": CLUSTERS,
+        "help": (
+            "One or more clusters to target. "
+            "If omitted, this action will be performed against all clusters."
+        )
+        if not required
+        else "One or more clusters to target",
+        "nargs": "+",
+        "action": UniqueSortedListAction,
+        "required": required,
     }
 
     if not required:
-        kwargs['default'] = CLUSTERS
+        kwargs["default"] = CLUSTERS
 
-    parser.add_argument(
-        '-c',
-        '--clusters',
-        **kwargs
-    )
+    parser.add_argument("-c", "--clusters", **kwargs)
 
 
 def set_parser_epilog(parser, epilog):
@@ -274,15 +288,16 @@ def add_default_lambda_args(lambda_parser):
     functions = sorted(function_map())
     # optionally allow for the name of 1+ functions being deployed/rolled back
     lambda_parser.add_argument(
-        '-f', '--functions',
+        "-f",
+        "--functions",
         choices=functions,
         default=functions,
-        metavar='FUNCTIONS',
+        metavar="FUNCTIONS",
         help=(
-            'One or more of the following functions to perform this action against: {}. '
-            'If omitted, this action will be performed against all functions.'
-        ).format(', '.join(functions)),
-        nargs='+',
+            "One or more of the following functions to perform this action against: {}. "
+            "If omitted, this action will be performed against all functions."
+        ).format(", ".join(functions)),
+        nargs="+",
         action=UniqueSortedListAction,
     )
 

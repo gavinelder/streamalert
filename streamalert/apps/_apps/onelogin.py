@@ -17,16 +17,16 @@ import re
 
 from . import AppIntegration, StreamAlertApp, get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
 @StreamAlertApp
 class OneLoginApp(AppIntegration):
     """OneLogin StreamAlert App"""
-    _ONELOGIN_EVENTS_URL = 'https://api.{}.onelogin.com/api/1/events'
-    _ONELOGIN_TOKEN_URL = 'https://api.{}.onelogin.com/auth/oauth2/v2/token' # nosec
-    _ONELOGIN_RATE_LIMIT_URL = 'https://api.{}.onelogin.com/auth/rate_limit'
+
+    _ONELOGIN_EVENTS_URL = "https://api.{}.onelogin.com/api/1/events"
+    _ONELOGIN_TOKEN_URL = "https://api.{}.onelogin.com/auth/oauth2/v2/token"  # nosec
+    _ONELOGIN_RATE_LIMIT_URL = "https://api.{}.onelogin.com/auth/rate_limit"
     # OneLogin API returns 50 events per page
     _MAX_EVENTS_LIMIT = 50
 
@@ -39,16 +39,16 @@ class OneLoginApp(AppIntegration):
 
     @classmethod
     def _type(cls):
-        return 'events'
+        return "events"
 
     @classmethod
     def service(cls):
-        return 'onelogin'
+        return "onelogin"
 
     @classmethod
     def date_formatter(cls):
         """OneLogin API expects the ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ"""
-        return '%Y-%m-%dT%H:%M:%SZ'
+        return "%Y-%m-%dT%H:%M:%SZ"
 
     def _token_endpoint(self):
         """Get the endpoint URL to retrieve tokens
@@ -56,7 +56,7 @@ class OneLoginApp(AppIntegration):
         Returns:
             str: Full URL to generate tokens for the OneLogin API
         """
-        return self._ONELOGIN_TOKEN_URL.format(self._config.auth['region'])
+        return self._ONELOGIN_TOKEN_URL.format(self._config.auth["region"])
 
     def _events_endpoint(self):
         """Get the endpoint URL to retrieve events
@@ -64,7 +64,7 @@ class OneLoginApp(AppIntegration):
         Returns:
             str: Full URL to retrieve events in the OneLogin API
         """
-        return self._ONELOGIN_EVENTS_URL.format(self._config.auth['region'])
+        return self._ONELOGIN_EVENTS_URL.format(self._config.auth["region"])
 
     def _rate_limit_endpoint(self):
         """Get the endpoint URL to retrieve rate limit details
@@ -72,7 +72,7 @@ class OneLoginApp(AppIntegration):
         Returns:
             str: Full URL to retrieve rate limit details in the OneLogin API
         """
-        return self._ONELOGIN_RATE_LIMIT_URL.format(self._config.auth['region'])
+        return self._ONELOGIN_RATE_LIMIT_URL.format(self._config.auth["region"])
 
     def _generate_headers(self):
         """Each request will request a new token to call the resources APIs.
@@ -86,25 +86,28 @@ class OneLoginApp(AppIntegration):
         if self._auth_headers:
             return True
 
-        authorization = 'client_id: {}, client_secret: {}'.format(
-            self._config.auth['client_id'], self._config.auth['client_secret'])
+        authorization = "client_id: {}, client_secret: {}".format(
+            self._config.auth["client_id"], self._config.auth["client_secret"]
+        )
 
-        headers_token = {'Authorization': authorization,
-                         'Content-Type': 'application/json'}
+        headers_token = {
+            "Authorization": authorization,
+            "Content-Type": "application/json",
+        }
 
-        result, response = self._make_post_request(self._token_endpoint(),
-                                                   headers_token,
-                                                   {'grant_type':'client_credentials'})
+        result, response = self._make_post_request(
+            self._token_endpoint(), headers_token, {"grant_type": "client_credentials"}
+        )
 
         if not result:
             return False
 
         if not response:
-            LOGGER.error('[%s] Response invalid, could not generate headers', self)
+            LOGGER.error("[%s] Response invalid, could not generate headers", self)
             return False
 
-        bearer = 'bearer:{}'.format(response.get('access_token'))
-        self._auth_headers = {'Authorization': bearer}
+        bearer = "bearer:{}".format(response.get("access_token"))
+        self._auth_headers = {"Authorization": bearer}
 
         return True
 
@@ -120,11 +123,12 @@ class OneLoginApp(AppIntegration):
         # Make sure we have authentication headers
         if not self._auth_headers:
             self._rate_limit_sleep = 0
-            LOGGER.error('[%s] No authentication headers set', self)
+            LOGGER.error("[%s] No authentication headers set", self)
             return
 
-        result, response = self._make_get_request(self._rate_limit_endpoint(),
-                                                  self._auth_headers)
+        result, response = self._make_get_request(
+            self._rate_limit_endpoint(), self._auth_headers
+        )
 
         if not result:
             self._rate_limit_sleep = 0
@@ -132,12 +136,12 @@ class OneLoginApp(AppIntegration):
 
         # Making sure we have a valid response
         if not response:
-            LOGGER.error('[%s] Response invalid, could not get rate limit info', self)
+            LOGGER.error("[%s] Response invalid, could not get rate limit info", self)
             self._rate_limit_sleep = 0
             return
 
-        self._rate_limit_sleep = response.get('data')['X-RateLimit-Reset']
-        LOGGER.info('[%s] Rate limit sleep set: %d', self, self._rate_limit_sleep)
+        self._rate_limit_sleep = response.get("data")["X-RateLimit-Reset"]
+        LOGGER.info("[%s] Rate limit sleep set: %d", self, self._rate_limit_sleep)
 
     def _get_onelogin_events(self):
         """Get all events from the endpoint for this timeframe
@@ -180,7 +184,7 @@ class OneLoginApp(AppIntegration):
         """
         # Make sure we have authentication headers
         if not self._auth_headers:
-            LOGGER.error('[%s] No authentication headers set', self)
+            LOGGER.error("[%s] No authentication headers set", self)
             return False
 
         # Are we just getting events or getting paginated events?
@@ -188,61 +192,69 @@ class OneLoginApp(AppIntegration):
             params = None
             request_url = self._next_page_url
         else:
-            params = {'since': self._last_timestamp}
+            params = {"since": self._last_timestamp}
             request_url = self._events_endpoint()
 
-        result, response = self._make_get_request(request_url, self._auth_headers, params)
+        result, response = self._make_get_request(
+            request_url, self._auth_headers, params
+        )
 
         if not result:
             # If we hit the rate limit, update the sleep time
-            if response and response.get('status'):
-                r_status = response.get('status')
-                if r_status['code'] == 400 and r_status['message'] == 'rate_limit_exceeded':
+            if response and response.get("status"):
+                r_status = response.get("status")
+                if (
+                    r_status["code"] == 400
+                    and r_status["message"] == "rate_limit_exceeded"
+                ):
                     self._set_rate_limit_sleep()
 
             return False
 
         # Fail if response is invalid
         if not response:
-            LOGGER.error('[%s] Received invalid response', self)
+            LOGGER.error("[%s] Received invalid response", self)
             return False
 
         # Set pagination link, if there is any
-        self._next_page_url = response['pagination']['next_link']
+        self._next_page_url = response["pagination"]["next_link"]
         self._more_to_poll = bool(self._next_page_url)
 
         # Adjust the last seen event, if the events list is not empty
-        if not response['data']:
-            LOGGER.info('[%s] Received empty list of events', self)
+        if not response["data"]:
+            LOGGER.info("[%s] Received empty list of events", self)
             return False
 
-        self._last_timestamp = response['data'][-1]['created_at']
+        self._last_timestamp = response["data"][-1]["created_at"]
 
         # Return the list of events to the caller so they can be send to the batcher
-        return response['data']
+        return response["data"]
 
     @classmethod
     def _required_auth_info(cls):
         return {
-            'region':
-                {
-                    'description': ('the region for the OneLogin API. This should be'
-                                    'just "en" or "us".'),
-                    'format': re.compile(r'^(en|us)$')
-                },
-            'client_secret':
-                {
-                    'description': ('the client secret for the OneLogin API. This '
-                                    'should be a string of 64 alphanumeric characters'),
-                    'format': re.compile(r'^[a-z0-9]{64}$')
-                },
-            'client_id':
-                {
-                    'description': ('the client id for the OneLogin API. This '
-                                    'should be a string of 64 alphanumeric characters'),
-                    'format': re.compile(r'^[a-z0-9]{64}$')
-                }
-            }
+            "region": {
+                "description": (
+                    "the region for the OneLogin API. This should be"
+                    'just "en" or "us".'
+                ),
+                "format": re.compile(r"^(en|us)$"),
+            },
+            "client_secret": {
+                "description": (
+                    "the client secret for the OneLogin API. This "
+                    "should be a string of 64 alphanumeric characters"
+                ),
+                "format": re.compile(r"^[a-z0-9]{64}$"),
+            },
+            "client_id": {
+                "description": (
+                    "the client id for the OneLogin API. This "
+                    "should be a string of 64 alphanumeric characters"
+                ),
+                "format": re.compile(r"^[a-z0-9]{64}$"),
+            },
+        }
 
     def _sleep_seconds(self):
         """Return the number of seconds this polling function should sleep for

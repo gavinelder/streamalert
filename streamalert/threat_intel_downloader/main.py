@@ -24,36 +24,38 @@ import requests
 from streamalert.shared.backoff_handlers import (
     backoff_handler,
     success_handler,
-    giveup_handler
+    giveup_handler,
 )
 from streamalert.shared.config import load_config, parse_lambda_arn
 from streamalert.shared.logger import get_logger
 from streamalert.threat_intel_downloader.exceptions import (
     ThreatStreamCredsError,
     ThreatStreamLambdaInvokeError,
-    ThreatStreamRequestsError
+    ThreatStreamRequestsError,
 )
-
 
 LOGGER = get_logger(__name__)
 
 
 class ThreatStream:
     """Class to retrieve IOCs from ThreatStream.com and store them in DynamoDB"""
-    _API_URL = 'https://api.threatstream.com'
-    _API_RESOURCE = 'intelligence'
-    _IOC_STATUS = 'active'
+
+    _API_URL = "https://api.threatstream.com"
+    _API_RESOURCE = "intelligence"
+    _IOC_STATUS = "active"
     # max IOC objects received from one API call, default is 0 (equal to 1000)
     _API_MAX_LIMIT = 1000
     _API_MAX_INDEX = 500000
     # Remaining time in seconds before lambda termination
     _END_TIME_BUFFER = 5
-    CRED_PARAMETER_NAME = 'threat_intel_downloader_api_creds'
+    CRED_PARAMETER_NAME = "threat_intel_downloader_api_creds"
 
-    EXCEPTIONS_TO_BACKOFF = (requests.exceptions.Timeout,
-                             requests.exceptions.ConnectionError,
-                             requests.exceptions.ChunkedEncodingError,
-                             ThreatStreamRequestsError)
+    EXCEPTIONS_TO_BACKOFF = (
+        requests.exceptions.Timeout,
+        requests.exceptions.ConnectionError,
+        requests.exceptions.ChunkedEncodingError,
+        ThreatStreamRequestsError,
+    )
     BACKOFF_MAX_RETRIES = 3
 
     def __init__(self, function_arn, timing_func):
@@ -74,45 +76,52 @@ class ThreatStream:
         """
 
         base_config = parse_lambda_arn(function_arn)
-        config = load_config(include={'lambda.json'})['lambda']
-        base_config.update(config.get('threat_intel_downloader_config', {}))
+        config = load_config(include={"lambda.json"})["lambda"]
+        base_config.update(config.get("threat_intel_downloader_config", {}))
         return base_config
 
     def _load_api_creds(self):
         """Retrieve ThreatStream API credentials from Parameter Store"""
         if self.api_user and self.api_key:
-            return # credentials already loaded from SSM
+            return  # credentials already loaded from SSM
 
         try:
-            ssm = boto3.client('ssm', self.region)
-            response = ssm.get_parameter(Name=self.CRED_PARAMETER_NAME, WithDecryption=True)
+            ssm = boto3.client("ssm", self.region)
+            response = ssm.get_parameter(
+                Name=self.CRED_PARAMETER_NAME, WithDecryption=True
+            )
         except ClientError:
-            LOGGER.exception('Failed to get SSM parameters')
+            LOGGER.exception("Failed to get SSM parameters")
             raise
 
         if not response:
-            raise ThreatStreamCredsError('Invalid response')
+            raise ThreatStreamCredsError("Invalid response")
 
         try:
-            decoded_creds = json.loads(response['Parameter']['Value'])
+            decoded_creds = json.loads(response["Parameter"]["Value"])
         except ValueError:
-            raise ThreatStreamCredsError('Cannot load value for parameter with name '
-                                         '\'{}\'. The value is not valid json: '
-                                         '\'{}\''.format(response['Parameter']['Name'],
-                                                         response['Parameter']['Value']))
+            raise ThreatStreamCredsError(
+                "Cannot load value for parameter with name "
+                "'{}'. The value is not valid json: "
+                "'{}'".format(
+                    response["Parameter"]["Name"], response["Parameter"]["Value"]
+                )
+            )
 
-        self.api_user = decoded_creds['api_user']
-        self.api_key = decoded_creds['api_key']
+        self.api_user = decoded_creds["api_user"]
+        self.api_key = decoded_creds["api_key"]
 
         if not (self.api_user and self.api_key):
-            raise ThreatStreamCredsError('API Creds Error')
+            raise ThreatStreamCredsError("API Creds Error")
 
-    @backoff.on_exception(backoff.constant,
-                          EXCEPTIONS_TO_BACKOFF,
-                          max_tries=BACKOFF_MAX_RETRIES,
-                          on_backoff=backoff_handler(),
-                          on_success=success_handler(),
-                          on_giveup=giveup_handler())
+    @backoff.on_exception(
+        backoff.constant,
+        EXCEPTIONS_TO_BACKOFF,
+        max_tries=BACKOFF_MAX_RETRIES,
+        on_backoff=backoff_handler(),
+        on_success=success_handler(),
+        on_giveup=giveup_handler(),
+    )
     def _connect(self, next_url):
         """Send API call to ThreatStream with next token and return parsed IOCs
 
@@ -122,27 +131,31 @@ class ThreatStream:
                 ThreatStream
         """
         intelligence = list()
-        https_req = requests.get('{}{}'.format(self._API_URL, next_url), timeout=10)
+        https_req = requests.get("{}{}".format(self._API_URL, next_url), timeout=10)
 
         next_url = None
         if https_req.status_code == 200:
             data = https_req.json()
-            if data.get('objects'):
-                intelligence.extend(self._process_data(data['objects']))
+            if data.get("objects"):
+                intelligence.extend(self._process_data(data["objects"]))
 
-            LOGGER.info('IOC Offset: %d', data['meta']['offset'])
-            if not (data['meta']['next'] and data['meta']['offset'] < self.threshold):
-                LOGGER.debug('Either next token is empty or IOC offset reaches threshold '
-                             '%d. Stop retrieve more IOCs.', self.threshold)
+            LOGGER.info("IOC Offset: %d", data["meta"]["offset"])
+            if not (data["meta"]["next"] and data["meta"]["offset"] < self.threshold):
+                LOGGER.debug(
+                    "Either next token is empty or IOC offset reaches threshold "
+                    "%d. Stop retrieve more IOCs.",
+                    self.threshold,
+                )
             else:
-                next_url = data['meta']['next']
+                next_url = data["meta"]["next"]
         elif https_req.status_code == 401:
-            raise ThreatStreamRequestsError('Response status code 401, unauthorized.')
+            raise ThreatStreamRequestsError("Response status code 401, unauthorized.")
         elif https_req.status_code == 500:
-            raise ThreatStreamRequestsError('Response status code 500, retry now.')
+            raise ThreatStreamRequestsError("Response status code 500, retry now.")
         else:
             raise ThreatStreamRequestsError(
-                'Unknown status code {}, do not retry.'.format(https_req.status_code))
+                "Unknown status code {}, do not retry.".format(https_req.status_code)
+            )
 
         self._finalize(intelligence, next_url)
 
@@ -159,7 +172,7 @@ class ThreatStream:
                 of IOCs is reached.
         """
         if intel:
-            LOGGER.info('Write %d IOCs to DynamoDB table', len(intel))
+            LOGGER.info("Write %d IOCs to DynamoDB table", len(intel))
             self._write_to_dynamodb_table(intel)
 
         if next_url and self.timing_func() > self._END_TIME_BUFFER * 1000:
@@ -169,17 +182,19 @@ class ThreatStream:
 
     def _invoke_lambda_function(self, next_url):
         """Invoke lambda function itself with next token to continually retrieve IOCs"""
-        LOGGER.debug('This invocation is invoked by lambda function self.')
-        lambda_client = boto3.client('lambda', region_name=self.region)
+        LOGGER.debug("This invocation is invoked by lambda function self.")
+        lambda_client = boto3.client("lambda", region_name=self.region)
         try:
             lambda_client.invoke(
-                FunctionName=self._config['function_name'],
-                InvocationType='Event',
-                Payload=json.dumps({'next_url': next_url}),
-                Qualifier=self._config['qualifier']
+                FunctionName=self._config["function_name"],
+                InvocationType="Event",
+                Payload=json.dumps({"next_url": next_url}),
+                Qualifier=self._config["qualifier"],
             )
         except ClientError as err:
-            raise ThreatStreamLambdaInvokeError('Error invoking function: {}'.format(err))
+            raise ThreatStreamLambdaInvokeError(
+                "Error invoking function: {}".format(err)
+            )
 
     @staticmethod
     def _epoch_time(time_str, days=90):
@@ -194,15 +209,17 @@ class ThreatStream:
                 default value which is current time + 90 days.
         """
         if not time_str:
-            return int((datetime.utcnow()
-                        + timedelta(days)
-                        - datetime.utcfromtimestamp(0)).total_seconds())
+            return int(
+                (
+                    datetime.utcnow() + timedelta(days) - datetime.utcfromtimestamp(0)
+                ).total_seconds()
+            )
 
         try:
             utc_time = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S.%fZ")
             return int((utc_time - datetime.utcfromtimestamp(0)).total_seconds())
         except ValueError:
-            LOGGER.error('Cannot convert expiration date \'%s\' to epoch time', time_str)
+            LOGGER.error("Cannot convert expiration date '%s' to epoch time", time_str)
             raise
 
     def _process_data(self, data):
@@ -249,31 +266,34 @@ class ThreatStream:
         results = list()
         for obj in data:
             for source in self.ioc_sources:
-                if source in obj['source'].lower():
-                    filtered_obj = {key: value for key, value in obj.items()
-                                    if key in self.ioc_keys}
-                    filtered_obj['expiration_ts'] = self._epoch_time(filtered_obj['expiration_ts'])
+                if source in obj["source"].lower():
+                    filtered_obj = {
+                        key: value for key, value in obj.items() if key in self.ioc_keys
+                    }
+                    filtered_obj["expiration_ts"] = self._epoch_time(
+                        filtered_obj["expiration_ts"]
+                    )
                     results.append(filtered_obj)
         return results
 
     def _write_to_dynamodb_table(self, intelligence):
         """Store IOCs to DynamoDB table"""
         try:
-            dynamodb = boto3.resource('dynamodb', region_name=self.region)
+            dynamodb = boto3.resource("dynamodb", region_name=self.region)
             table = dynamodb.Table(self.table_name)
             with table.batch_writer() as batch:
                 for ioc in intelligence:
                     batch.put_item(
                         Item={
-                            'ioc_value': ioc['value'],
-                            'ioc_type': ioc['type'],
-                            'sub_type': ioc['itype'],
-                            'source': ioc['source'],
-                            'expiration_ts': ioc['expiration_ts']
+                            "ioc_value": ioc["value"],
+                            "ioc_type": ioc["type"],
+                            "sub_type": ioc["itype"],
+                            "source": ioc["source"],
+                            "expiration_ts": ioc["expiration_ts"],
                         }
                     )
         except ClientError as err:
-            LOGGER.debug('DynamoDB client error: %s', err)
+            LOGGER.debug("DynamoDB client error: %s", err)
             raise
 
     def runner(self, event):
@@ -298,44 +318,46 @@ class ThreatStream:
         query = '(status="{}")+AND+({})+AND+NOT+({})'.format(
             self._IOC_STATUS,
             "+OR+".join(['type="{}"'.format(ioc) for ioc in self.ioc_types]),
-            "+OR+".join(['itype="{}"'.format(itype) for itype in self.excluded_sub_types])
+            "+OR+".join(
+                ['itype="{}"'.format(itype) for itype in self.excluded_sub_types]
+            ),
         )
         next_url = event.get(
-            'next_url',
-            '/api/v2/{}/?username={}&api_key={}&limit={}&q={}'.format(
+            "next_url",
+            "/api/v2/{}/?username={}&api_key={}&limit={}&q={}".format(
                 self._API_RESOURCE,
                 self.api_user,
                 self.api_key,
                 self._API_MAX_LIMIT,
-                query
-            )
+                query,
+            ),
         )
 
         self._connect(next_url)
 
     @property
     def excluded_sub_types(self):
-        return self._config['excluded_sub_types']
+        return self._config["excluded_sub_types"]
 
     @property
     def ioc_keys(self):
-        return self._config['ioc_keys']
+        return self._config["ioc_keys"]
 
     @property
     def ioc_sources(self):
-        return self._config['ioc_filters']
+        return self._config["ioc_filters"]
 
     @property
     def ioc_types(self):
-        return self._config['ioc_types']
+        return self._config["ioc_types"]
 
     @property
     def region(self):
-        return self._config['region']
+        return self._config["region"]
 
     @property
     def table_name(self):
-        return self._config['function_name']
+        return self._config["function_name"]
 
     @property
     def threshold(self):
@@ -344,4 +366,6 @@ class ThreatStream:
 
 def handler(event, context):
     """Lambda handler"""
-    ThreatStream(context.invoked_function_arn, context.get_remaining_time_in_millis).runner(event)
+    ThreatStream(
+        context.invoked_function_arn, context.get_remaining_time_in_millis
+    ).runner(event)

@@ -17,12 +17,12 @@ class LookupTablesConfiguration:
     @property
     def is_enabled(self):
         """Returns true when LookupTables is enabled. False otherwise."""
-        return self._configuration.get('enabled', False)
+        return self._configuration.get("enabled", False)
 
     @property
     def table_configurations(self):
         """Returns a dict keyed by table names, mapped to dict table configurations"""
-        return self._configuration.get('tables', {})
+        return self._configuration.get("tables", {})
 
     @property
     def table_names(self):
@@ -40,8 +40,11 @@ class LookupTablesConfiguration:
             tables:  Dict. Keyed by table names, mapping to dict configurations for each table.
 
         """
-        lookup_tables_configuration = config.get('lookup_tables', False)
-        if not (lookup_tables_configuration and lookup_tables_configuration.get('enabled', False)):
+        lookup_tables_configuration = config.get("lookup_tables", False)
+        if not (
+            lookup_tables_configuration
+            and lookup_tables_configuration.get("enabled", False)
+        ):
             return
 
         self._configuration = lookup_tables_configuration

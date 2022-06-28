@@ -38,34 +38,44 @@ def _rollback_production(lambda_client, function_name):
     Returns:
         bool: False if errors occurred, True otherwise
     """
-    version = lambda_client.get_alias(
-        FunctionName=function_name, Name='production')['FunctionVersion']
+    version = lambda_client.get_alias(FunctionName=function_name, Name="production")[
+        "FunctionVersion"
+    ]
 
-    if version == '$LATEST':
+    if version == "$LATEST":
         # This won't happen with Terraform, but the alias could have been manually changed.
-        LOGGER.error('%s:production is pointing to $LATEST instead of a published version',
-                     function_name)
+        LOGGER.error(
+            "%s:production is pointing to $LATEST instead of a published version",
+            function_name,
+        )
         return False
 
     current_version = int(version)
     if current_version == 1:
-        LOGGER.warning('%s:production is already at version 1', function_name)
+        LOGGER.warning("%s:production is already at version 1", function_name)
         return False
 
-    LOGGER.info('Rolling back %s:production from version %d => %d',
-                function_name, current_version, current_version - 1)
+    LOGGER.info(
+        "Rolling back %s:production from version %d => %d",
+        function_name,
+        current_version,
+        current_version - 1,
+    )
     try:
         lambda_client.update_alias(
-            FunctionName=function_name, Name='production', FunctionVersion=str(current_version - 1))
+            FunctionName=function_name,
+            Name="production",
+            FunctionVersion=str(current_version - 1),
+        )
     except ClientError:
-        LOGGER.exception('version not updated')
+        LOGGER.exception("version not updated")
         return False
 
     return True
 
 
 class RollbackCommand(CLICommand):
-    description = 'Rollback the specified AWS Lambda function(s)'
+    description = "Rollback the specified AWS Lambda function(s)"
 
     @classmethod
     def setup_subparser(cls, subparser):
@@ -73,12 +83,12 @@ class RollbackCommand(CLICommand):
         set_parser_epilog(
             subparser,
             epilog=(
-                '''\
+                """\
                 Example:
 
                     manage.py rollback --function rule
-                '''
-            )
+                """
+            ),
         )
 
         add_default_lambda_args(subparser)
@@ -104,31 +114,31 @@ class RollbackCommand(CLICommand):
             key: value for key, value in functions.items() if key in targeted_funcs
         }
 
-        LOGGER.info('Rolling back: %s', ', '.join(sorted(functions)))
+        LOGGER.info("Rolling back: %s", ", ".join(sorted(functions)))
 
-        prefix = config['global']['account']['prefix']
+        prefix = config["global"]["account"]["prefix"]
         clusters = sorted(options.clusters or config.clusters())
-        client = boto3.client('lambda')
+        client = boto3.client("lambda")
 
         # Track the success of rolling back the functions
         success = True
         for func, suffix in functions.items():
             if suffix:  # A suffix implies this is a standard function naming convention
                 success = success and _rollback_production(
-                    client,
-                    '{}_streamalert_{}'.format(prefix, suffix)
+                    client, "{}_streamalert_{}".format(prefix, suffix)
                 )
-            elif func == 'apps':  # Apps need special handling due to unique naming
+            elif func == "apps":  # Apps need special handling due to unique naming
                 for cluster in clusters:
-                    cluster_modules = config['clusters'][cluster]['modules']
-                    apps_config = cluster_modules.get('streamalert_apps', {})
+                    cluster_modules = config["clusters"][cluster]["modules"]
+                    apps_config = cluster_modules.get("streamalert_apps", {})
                     for lambda_name in sorted(apps_config):
                         success = success and _rollback_production(client, lambda_name)
-            elif func == 'classifier':  # Classifers need special handling due to clustering
+            elif (
+                func == "classifier"
+            ):  # Classifers need special handling due to clustering
                 for cluster in clusters:
                     success = success and _rollback_production(
-                        client,
-                        '{}_{}_streamalert_{}'.format(prefix, cluster, func)
+                        client, "{}_{}_streamalert_{}".format(prefix, cluster, func)
                     )
 
         return success

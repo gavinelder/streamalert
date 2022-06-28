@@ -18,10 +18,9 @@ import logging
 from streamalert.classifier.payload.payload_base import (
     PayloadRecord,
     RegisterInput,
-    StreamPayload
+    StreamPayload,
 )
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
@@ -33,7 +32,7 @@ class SnsPayload(StreamPayload):
 
     @classmethod
     def service(cls):
-        return 'sns'
+        return "sns"
 
     def _pre_parse(self):
         """Pre-parsing method for SNS records
@@ -44,8 +43,9 @@ class SnsPayload(StreamPayload):
             Instances of PayloadRecord back to the caller containing the current log data
         """
         LOGGER.debug(
-            'Pre-parsing record from SNS. MessageId: %s, EventSubscriptionArn: %s',
-            self.raw_record['Sns']['MessageId'],
-            self.raw_record['EventSubscriptionArn'])
+            "Pre-parsing record from SNS. MessageId: %s, EventSubscriptionArn: %s",
+            self.raw_record["Sns"]["MessageId"],
+            self.raw_record["EventSubscriptionArn"],
+        )
 
-        yield PayloadRecord(self.raw_record['Sns']['Message'])
+        yield PayloadRecord(self.raw_record["Sns"]["Message"])

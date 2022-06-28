@@ -24,28 +24,28 @@ from netaddr import IPNetwork
 from streamalert.shared.backoff_handlers import (
     backoff_handler,
     success_handler,
-    giveup_handler
+    giveup_handler,
 )
 from streamalert.shared.logger import get_logger
 from streamalert.shared.normalize import Normalizer
 from streamalert.shared.utils import in_network, valid_ip
-
 
 LOGGER = get_logger(__name__)
 
 
 class ThreatIntel:
     """Load threat intelligence data from DynamoDB and perform IOC detection"""
-    IOC_KEY = 'streamalert:ioc'
+
+    IOC_KEY = "streamalert:ioc"
 
     EXCEPTIONS_TO_BACKOFF = (ClientError,)
     BACKOFF_MAX_RETRIES = 3
 
     # DynamoDB Table settings
     MAX_QUERY_CNT = 100
-    PRIMARY_KEY = 'ioc_value'
-    SUB_TYPE_KEY = 'sub_type'
-    PROJECTION_EXPRESSION = '{},{}'.format(PRIMARY_KEY, SUB_TYPE_KEY)
+    PRIMARY_KEY = "ioc_value"
+    SUB_TYPE_KEY = "sub_type"
+    PROJECTION_EXPRESSION = "{},{}".format(PRIMARY_KEY, SUB_TYPE_KEY)
 
     _deserializer = TypeDeserializer()
     _client = None
@@ -56,8 +56,10 @@ class ThreatIntel:
         self._ioc_config = ioc_types_map
         self._excluded_iocs = self._setup_excluded_iocs(excluded_iocs)
 
-        region = env.get('AWS_REGION') or env.get('AWS_DEFAULT_REGION') or 'us-east-1'
-        ThreatIntel._client = ThreatIntel._client or boto3.client('dynamodb', region_name=region)
+        region = env.get("AWS_REGION") or env.get("AWS_DEFAULT_REGION") or "us-east-1"
+        ThreatIntel._client = ThreatIntel._client or boto3.client(
+            "dynamodb", region_name=region
+        )
 
     @property
     def _dynamodb(self):
@@ -67,11 +69,11 @@ class ThreatIntel:
     def _exceptions_to_giveup(err):
         """Function to decide if giveup backoff or not."""
         error_code = {
-            'AccessDeniedException',
-            'ProvisionedThroughputExceededException',
-            'ResourceNotFoundException'
+            "AccessDeniedException",
+            "ProvisionedThroughputExceededException",
+            "ResourceNotFoundException",
         }
-        return err.response['Error']['Code'] in error_code
+        return err.response["Error"]["Code"] in error_code
 
     def threat_detection(self, records):
         """Public instance method to run threat intelligence against normalized records
@@ -92,12 +94,12 @@ class ThreatIntel:
         potential_iocs = self._extract_ioc_values(records)
 
         if not potential_iocs:
-            LOGGER.debug('No IOCs extracted from records for processing')
+            LOGGER.debug("No IOCs extracted from records for processing")
             return
 
         # Query DynamoDB IOC type to verify if the extracted info are malicious IOC(s)
         for valid_ioc in self._process_ioc_values(list(potential_iocs)):
-            value = valid_ioc['ioc_value']
+            value = valid_ioc["ioc_value"]
             for ioc_type, record in potential_iocs[value]:
                 # Inserted the IOC info into the record
                 self._insert_ioc_info(record, ioc_type, value)
@@ -137,13 +139,13 @@ class ThreatIntel:
         Args:
             potential_iocs (list<str>): A list of potential IOC values
         """
-        LOGGER.debug('Checking %d potential IOCs for validity', len(potential_iocs))
+        LOGGER.debug("Checking %d potential IOCs for validity", len(potential_iocs))
         # Segment data before calling DynamoDB table with batch_get_item.
         for query_values in self._segment(potential_iocs):
             try:
                 query_result = self._query(query_values)
             except (ClientError, ParamValidationError):
-                LOGGER.exception('An error occurred while querying dynamodb table')
+                LOGGER.exception("An error occurred while querying dynamodb table")
                 continue
 
             for ioc in query_result:
@@ -163,7 +165,7 @@ class ThreatIntel:
         """
         end = len(potential_iocs)
         for index in range(0, end, cls.MAX_QUERY_CNT):
-            yield set(potential_iocs[index:min(index + cls.MAX_QUERY_CNT, end)])
+            yield set(potential_iocs[index : min(index + cls.MAX_QUERY_CNT, end)])
 
     def _query(self, values):
         """Instance method to query DynamoDB table
@@ -181,43 +183,49 @@ class ThreatIntel:
                     ]
             dict: A dict containing unprocesed keys.
         """
-        @backoff.on_predicate(backoff.fibo,
-                              lambda resp: bool(resp['UnprocessedKeys']),  # retry if this is true
-                              max_tries=2,  # only retry unprocessed key 2 times max
-                              on_backoff=backoff_handler(),
-                              on_success=success_handler(),
-                              on_giveup=giveup_handler())
-        @backoff.on_exception(backoff.expo,
-                              self.EXCEPTIONS_TO_BACKOFF,
-                              max_tries=self.BACKOFF_MAX_RETRIES,
-                              giveup=self._exceptions_to_giveup,
-                              on_backoff=backoff_handler(),
-                              on_success=success_handler(),
-                              on_giveup=giveup_handler())
+
+        @backoff.on_predicate(
+            backoff.fibo,
+            lambda resp: bool(resp["UnprocessedKeys"]),  # retry if this is true
+            max_tries=2,  # only retry unprocessed key 2 times max
+            on_backoff=backoff_handler(),
+            on_success=success_handler(),
+            on_giveup=giveup_handler(),
+        )
+        @backoff.on_exception(
+            backoff.expo,
+            self.EXCEPTIONS_TO_BACKOFF,
+            max_tries=self.BACKOFF_MAX_RETRIES,
+            giveup=self._exceptions_to_giveup,
+            on_backoff=backoff_handler(),
+            on_success=success_handler(),
+            on_giveup=giveup_handler(),
+        )
         def _run_query(query_values, results):
 
-            query_keys = [{self.PRIMARY_KEY: {'S': ioc}} for ioc in query_values if ioc]
+            query_keys = [{self.PRIMARY_KEY: {"S": ioc}} for ioc in query_values if ioc]
 
             response = self._dynamodb.batch_get_item(
                 RequestItems={
                     self._table: {
-                        'Keys': query_keys,
-                        'ProjectionExpression': self.PROJECTION_EXPRESSION
+                        "Keys": query_keys,
+                        "ProjectionExpression": self.PROJECTION_EXPRESSION,
                     }
                 }
             )
 
-            results.extend(self._deserialize(response['Responses'].get(self._table)))
+            results.extend(self._deserialize(response["Responses"].get(self._table)))
 
             # Log this as an error for now so it can be picked up in logs
-            if response['UnprocessedKeys']:
-                LOGGER.error('Retrying unprocessed keys in response: %s',
-                             response['UnprocessedKeys'])
+            if response["UnprocessedKeys"]:
+                LOGGER.error(
+                    "Retrying unprocessed keys in response: %s",
+                    response["UnprocessedKeys"],
+                )
                 # Strip out the successful keys so only the unprocesed ones are retried.
                 # This changes the list in place, so the called function sees the updated list
                 self._remove_processed_keys(
-                    query_values,
-                    response['UnprocessedKeys'][self._table]['Keys']
+                    query_values, response["UnprocessedKeys"][self._table]["Keys"]
                 )
 
             return response
@@ -265,8 +273,7 @@ class ThreatIntel:
 
         for raw_data in dynamodb_data:
             yield {
-                key: cls._deserializer.deserialize(val)
-                for key, val in raw_data.items()
+                key: cls._deserializer.deserialize(val) for key, val in raw_data.items()
             }
 
     def _is_excluded_ioc(self, ioc_type, ioc_value):
@@ -284,7 +291,7 @@ class ThreatIntel:
 
         exclusions = self._excluded_iocs[ioc_type]
 
-        if ioc_type == 'ip':
+        if ioc_type == "ip":
             # filter out *.amazonaws.com "IP"s
             return not valid_ip(ioc_value) or in_network(ioc_value, exclusions)
 
@@ -302,7 +309,7 @@ class ThreatIntel:
         """
         ioc_values = defaultdict(list)
         for payload in payloads:
-            record = payload['record']
+            record = payload["record"]
             if Normalizer.NORMALIZATION_KEY not in record:
                 continue
             normalized_values = record[Normalizer.NORMALIZATION_KEY]
@@ -310,8 +317,10 @@ class ThreatIntel:
                 # Look up mapped IOC type based on normalized CEF type
                 ioc_type = self._ioc_config.get(normalized_key)
                 if not ioc_type:
-                    LOGGER.debug('Skipping undefined IOC type for normalized key: %s',
-                                 normalized_key)
+                    LOGGER.debug(
+                        "Skipping undefined IOC type for normalized key: %s",
+                        normalized_key,
+                    )
                     continue
 
                 for value in values:
@@ -331,8 +340,8 @@ class ThreatIntel:
         excluded = {itype: set(iocs) for itype, iocs in excluded.items()}
 
         # Try to load IP addresses
-        if 'ip' in excluded:
-            excluded['ip'] = {IPNetwork(ip) for ip in excluded['ip']}
+        if "ip" in excluded:
+            excluded["ip"] = {IPNetwork(ip) for ip in excluded["ip"]}
 
         return excluded
 
@@ -346,17 +355,18 @@ class ThreatIntel:
         Returns:
             ThreatIntel: Class to be used for threat intelligence logic
         """
-        if 'threat_intel' not in config:
+        if "threat_intel" not in config:
             return
 
-        intel_config = config['threat_intel']
-        if not intel_config.get('enabled'):
+        intel_config = config["threat_intel"]
+        if not intel_config.get("enabled"):
             return
 
         # Threat Intel can be disabled for any given cluster
         enabled_clusters = {
-            cluster for cluster, values in config['clusters'].items()
-            if values.get('enable_threat_intel', False)
+            cluster
+            for cluster, values in config["clusters"].items()
+            if values.get("enable_threat_intel", False)
         }
 
         if not enabled_clusters:
@@ -366,13 +376,13 @@ class ThreatIntel:
         # {'normalized_key': 'ioc_type'} for simpler lookups
         ioc_config = {
             key: ioc_type
-            for ioc_type, keys in intel_config['normalized_ioc_types'].items()
+            for ioc_type, keys in intel_config["normalized_ioc_types"].items()
             for key in keys
         }
 
         return cls(
-            table=intel_config['dynamodb_table_name'],
+            table=intel_config["dynamodb_table_name"],
             enabled_clusters=enabled_clusters,
             ioc_types_map=ioc_config,
-            excluded_iocs=intel_config.get('excluded_iocs')
+            excluded_iocs=intel_config.get("excluded_iocs"),
         )

@@ -27,7 +27,7 @@ class MockCBAPI:
         def __init__(self):
             self.enabled = True
             self.md5hash = None
-            self.text = ''
+            self.text = ""
 
         @staticmethod
         def save():
@@ -45,7 +45,7 @@ class MockCBAPI:
         def banned(self):
             """Indicates whether binary is banned"""
             if self._banned:
-                return namedtuple('MockBanned', ['enabled'])(self._enabled)
+                return namedtuple("MockBanned", ["enabled"])(self._enabled)
             return False
 
     def __init__(self, **kwargs):
@@ -60,9 +60,9 @@ class MockCBAPI:
     @staticmethod
     def select(model, file_hash):
         if model == Binary:
-            if file_hash == 'BANNED_ENABLED_HASH':
+            if file_hash == "BANNED_ENABLED_HASH":
                 return MockCBAPI.MockBinary(banned=True, enabled=True, md5=file_hash)
-            if file_hash == 'BANNED_DISABLED_HASH':
+            if file_hash == "BANNED_DISABLED_HASH":
                 return MockCBAPI.MockBinary(banned=True, enabled=False, md5=file_hash)
             return MockCBAPI.MockBinary(banned=False, enabled=False, md5=file_hash)
         if model == BannedHash:

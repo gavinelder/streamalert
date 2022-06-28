@@ -15,72 +15,58 @@ limitations under the License.
 """
 from collections import OrderedDict
 
-from nose.tools import assert_equal
+from pytest import assert_equal
 
 from streamalert.classifier.parsers import KVParser
 
 
 class TestKVParser:
     """Test class for KVParser"""
+
     # pylint: disable=no-self-use,protected-access
 
     def test_parse(self):
         """KV Parser - Parse"""
         options = {
-            'schema': {
-                'name': 'string',
-                'result': 'string'
+            "schema": {"name": "string", "result": "string"},
+            "configuration": {
+                "separator": ":",
+                "delimiter": ",",
             },
-            'configuration': {
-                'separator': ':',
-                'delimiter': ',',
-            }
         }
-        data = 'name:joe bob,result:success'
+        data = "name:joe bob,result:success"
 
         # get parsed data
         parser = KVParser(options)
         result = parser.parse(data)
-        assert_equal(result, True)
+        assert result == True
 
-        expected_result = [
-            {
-                'name': 'joe bob',
-                'result': 'success'
-            }
-        ]
+        expected_result = [{"name": "joe bob", "result": "success"}]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_extract_record_invalid_field_count(self):
         """KV Parser - Extract Record, Invalid Field Count"""
-        options = {
-            'schema': {
-                'name': 'string',
-                'result': 'string'
-            }
-        }
-        data = 'name=foo'
+        options = {"schema": {"name": "string", "result": "string"}}
+        data = "name=foo"
 
         # get parsed data
         parser = KVParser(options)
-        assert_equal(parser._extract_record(data), False)
+        assert parser._extract_record(data) == False
 
     def test_extract_record_duplicate_fields(self):
         """KV Parser - Extract Record, Duplicate Fields"""
         options = {
-            'schema': OrderedDict([('name', 'string'), ('result', 'string'), ('test', 'string')])
+            "schema": OrderedDict(
+                [("name", "string"), ("result", "string"), ("test", "string")]
+            )
         }
-        data = 'name=foo result=bar name=baz'
+        data = "name=foo result=bar name=baz"
 
         # get parsed data
         parser = KVParser(options)
         result = parser._extract_record(data)
 
-        expected_result = {
-            'name': 'foo',
-            'result': 'bar',
-            'test': 'baz'
-        }
+        expected_result = {"name": "foo", "result": "bar", "test": "baz"}
 
-        assert_equal(result, expected_result)
+        assert result == expected_result

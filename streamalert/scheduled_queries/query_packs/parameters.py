@@ -29,38 +29,38 @@ class QueryParameterGenerator:
         self._clock = clock  # type: Clock
 
     def generate(self, parameter):
-        if parameter == 'utcdatehour_minus7day':
+        if parameter == "utcdatehour_minus7day":
             # https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
             time = self._clock.now - timedelta(days=7)
-            return time.strftime('%Y-%m-%d-%H')
+            return time.strftime("%Y-%m-%d-%H")
 
-        if parameter == 'utcdatehour_minus1hour':
+        if parameter == "utcdatehour_minus1hour":
             time = self._clock.now - timedelta(hours=1)
-            return time.strftime('%Y-%m-%d-%H')
+            return time.strftime("%Y-%m-%d-%H")
 
-        if parameter == 'utctimestamp_minus1hour':
+        if parameter == "utctimestamp_minus1hour":
             time = self._clock.now - timedelta(hours=1)
             return str(round(time.timestamp()))
 
-        if parameter == 'utcdatehour_minus2hour':
+        if parameter == "utcdatehour_minus2hour":
             time = self._clock.now - timedelta(hours=2)
-            return time.strftime('%Y-%m-%d-%H')
+            return time.strftime("%Y-%m-%d-%H")
 
-        if parameter == 'utcdatehour_minus1day':
+        if parameter == "utcdatehour_minus1day":
             time = self._clock.now - timedelta(days=1)
-            return time.strftime('%Y-%m-%d-%H')
+            return time.strftime("%Y-%m-%d-%H")
 
-        if parameter == 'utcdatehour_minus2day':
+        if parameter == "utcdatehour_minus2day":
             time = self._clock.now - timedelta(days=2)
-            return time.strftime('%Y-%m-%d-%H')
+            return time.strftime("%Y-%m-%d-%H")
 
-        if parameter == 'utcdatehour':
-            return self._clock.now.strftime('%Y-%m-%d-%H')
+        if parameter == "utcdatehour":
+            return self._clock.now.strftime("%Y-%m-%d-%H")
 
-        if parameter == 'utctimestamp':
+        if parameter == "utctimestamp":
             return str(round(self._clock.now.timestamp()))
 
-        if parameter == 'utcisotime':
+        if parameter == "utcisotime":
             return str(round(self._clock.now.timestamp()))
 
         self._logger.error(

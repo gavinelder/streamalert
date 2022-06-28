@@ -21,7 +21,6 @@ import json
 
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -31,9 +30,11 @@ class RuleCreationError(Exception):
 
 def rule(**opts):
     """Decorator to be used to register a rule"""
+
     def decorator(rule_func):
         """Rule decorator logic that returns instance of Rule"""
         return Rule(rule_func, **opts)
+
     return decorator
 
 
@@ -45,24 +46,25 @@ def disable(rule_instance):
 
 class Rule:
     """Rule class to handle processing"""
-    DEFAULT_RULE_DESCRIPTION = 'No rule description provided'
-    CHECKSUM_UNKNOWN = 'checksum unknown'
+
+    DEFAULT_RULE_DESCRIPTION = "No rule description provided"
+    CHECKSUM_UNKNOWN = "checksum unknown"
 
     _rules = {}
 
     def __init__(self, func, **kwargs):
         self.func = func
         self.name = func.__name__
-        self.datatypes = kwargs.get('datatypes')
-        self.logs = kwargs.get('logs')
-        self.matchers = kwargs.get('matchers')
-        self.merge_by_keys = kwargs.get('merge_by_keys')
-        self.merge_window_mins = kwargs.get('merge_window_mins') or 0
-        self.outputs = kwargs.get('outputs')
-        self.dynamic_outputs = kwargs.get('dynamic_outputs')
-        self.publishers = kwargs.get('publishers')
-        self.req_subkeys = kwargs.get('req_subkeys')
-        self.initial_context = kwargs.get('context')
+        self.datatypes = kwargs.get("datatypes")
+        self.logs = kwargs.get("logs")
+        self.matchers = kwargs.get("matchers")
+        self.merge_by_keys = kwargs.get("merge_by_keys")
+        self.merge_window_mins = kwargs.get("merge_window_mins") or 0
+        self.outputs = kwargs.get("outputs")
+        self.dynamic_outputs = kwargs.get("dynamic_outputs")
+        self.publishers = kwargs.get("publishers")
+        self.req_subkeys = kwargs.get("req_subkeys")
+        self.initial_context = kwargs.get("context")
         self.context = None
         self.disabled = False
         self._description = func.__doc__
@@ -75,15 +77,13 @@ class Rule:
             )
 
         if self.name in Rule._rules:
-            raise RuleCreationError('Rule [{}] already defined'.format(self.name))
+            raise RuleCreationError("Rule [{}] already defined".format(self.name))
 
         Rule._rules[self.name] = self
 
     def __str__(self):
-        return '<Rule: {}; outputs: {}; disabled: {}>'.format(
-            self.name,
-            self.outputs,
-            self.disabled
+        return "<Rule: {}; outputs: {}; disabled: {}>".format(
+            self.name, self.outputs, self.disabled
         )
 
     def __repr__(self):
@@ -117,7 +117,7 @@ class Rule:
         try:
             return func(record)
         except Exception:  # pylint: disable=broad-except
-            LOGGER.exception('Encountered error with matcher: %s', func.__name__)
+            LOGGER.exception("Encountered error with matcher: %s", func.__name__)
 
         return False
 
@@ -137,7 +137,7 @@ class Rule:
         if not rule_info:
             return False
 
-        return rule_info.get('Staged', False)
+        return rule_info.get("Staged", False)
 
     def process(self, record):
         """Process will call this rule's function on the passed record
@@ -158,8 +158,8 @@ class Rule:
 
             return self.func(record)
         except Exception:  # pylint: disable=broad-except
-            LOGGER.exception('Encountered error with rule: %s', self.name)
-            LOGGER.error('Record that resulted in error:\n%s', json.dumps(record))
+            LOGGER.exception("Encountered error with rule: %s", self.name)
+            LOGGER.error("Record that resulted in error:\n%s", json.dumps(record))
 
         return False
 
@@ -179,11 +179,11 @@ class Rule:
                     # This check is necessary to ensure changes to the docstring
                     # are allowed without altering the checksum
                     if not isinstance(expression, ast.Expr):
-                        md5.update(ast.dump(expression).encode('utf-8'))
+                        md5.update(ast.dump(expression).encode("utf-8"))
 
                 self._checksum = md5.hexdigest()
             except (TypeError, IndentationError, IndexError):
-                LOGGER.exception('Could not checksum rule function')
+                LOGGER.exception("Could not checksum rule function")
                 self._checksum = self.CHECKSUM_UNKNOWN
 
         return self._checksum
@@ -200,16 +200,13 @@ class Rule:
     def outputs_set(self):
         return set(self.outputs or [])
 
-
     @property
     def dynamic_outputs_set(self):
         return set(self.dynamic_outputs or [])
 
     @classmethod
     def disabled_rules(cls):
-        return {
-            name for name in cls._rules if cls._rules[name].disabled
-        }
+        return {name for name in cls._rules if cls._rules[name].disabled}
 
     @classmethod
     def disable(cls, name):
@@ -225,10 +222,16 @@ class Rule:
 
     @classmethod
     def rules_with_datatypes(cls):
-        return [item for item in list(Rule._rules.values())
-                if item.datatypes and not item.disabled]
+        return [
+            item
+            for item in list(Rule._rules.values())
+            if item.datatypes and not item.disabled
+        ]
 
     @classmethod
     def rules_for_log_type(cls, log_type):
-        return [item for item in list(Rule._rules.values())
-                if (item.logs is None or log_type in item.logs) and not item.disabled]
+        return [
+            item
+            for item in list(Rule._rules.values())
+            if (item.logs is None or log_type in item.logs) and not item.disabled
+        ]

@@ -21,23 +21,25 @@ import urllib3
 
 import backoff
 
-from streamalert.alert_processor.outputs.credentials.provider import OutputCredentialsProvider
+from streamalert.alert_processor.outputs.credentials.provider import (
+    OutputCredentialsProvider,
+)
 from streamalert.shared.backoff_handlers import (
     backoff_handler,
     success_handler,
-    giveup_handler
+    giveup_handler,
 )
 from streamalert.shared.helpers.boto import REGION
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 
-
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-OutputProperty = namedtuple('OutputProperty',
-                            'description, value, input_restrictions, mask_input, cred_requirement')
-OutputProperty.__new__.__defaults__ = ('', '', {' ', ':'}, False, False)
+OutputProperty = namedtuple(
+    "OutputProperty",
+    "description, value, input_restrictions, mask_input, cred_requirement",
+)
+OutputProperty.__new__.__defaults__ = ("", "", {" ", ":"}, False, False)
 
 
 class OutputRequestFailure(Exception):
@@ -50,23 +52,30 @@ class OutputRequestFailure(Exception):
 
 def retry_on_exception(exceptions):
     """Decorator function to attempt retry based on passed exceptions"""
+
     def real_decorator(func):
         """Actual decorator to retry on exceptions"""
-        @backoff.on_exception(backoff.expo,
-                              exceptions, # This is a tuple with exceptions
-                              max_tries=OutputDispatcher.MAX_RETRY_ATTEMPTS,
-                              jitter=backoff.full_jitter,
-                              on_backoff=backoff_handler(),
-                              on_success=success_handler(),
-                              on_giveup=giveup_handler())
+
+        @backoff.on_exception(
+            backoff.expo,
+            exceptions,  # This is a tuple with exceptions
+            max_tries=OutputDispatcher.MAX_RETRY_ATTEMPTS,
+            jitter=backoff.full_jitter,
+            on_backoff=backoff_handler(),
+            on_success=success_handler(),
+            on_giveup=giveup_handler(),
+        )
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
+
         return wrapper
+
     return real_decorator
 
 
 class StreamAlertOutput:
     """Class to be used as a decorator to register all OutputDispatcher subclasses"""
+
     _outputs = {}
 
     def __new__(cls, output):
@@ -103,7 +112,7 @@ class StreamAlertOutput:
         try:
             return cls._outputs[service]
         except KeyError:
-            LOGGER.error('Designated output service [%s] does not exist', service)
+            LOGGER.error("Designated output service [%s] does not exist", service)
 
     @classmethod
     def get_all_outputs(cls):
@@ -127,6 +136,7 @@ class OutputDispatcher(metaclass=ABCMeta):
         dispatch: handles the actual sending of alerts to the configured service. must
             be implemented by subclass
     """
+
     __service__ = NotImplemented
 
     # How many times it will attempt to retry something failing using backoff
@@ -144,7 +154,7 @@ class OutputDispatcher(metaclass=ABCMeta):
             self.__service__,
             config=config,
             defaults=self._get_default_properties(),
-            region=self.region
+            region=self.region,
         )
 
     def _load_creds(self, descriptor):
@@ -168,9 +178,9 @@ class OutputDispatcher(metaclass=ABCMeta):
             descriptor (str): Service descriptor
         """
         if success:
-            LOGGER.info('Successfully sent alert to %s:%s', cls.__service__, descriptor)
+            LOGGER.info("Successfully sent alert to %s:%s", cls.__service__, descriptor)
         else:
-            LOGGER.error('Failed to send alert to %s:%s', cls.__service__, descriptor)
+            LOGGER.error("Failed to send alert to %s:%s", cls.__service__, descriptor)
 
     @classmethod
     def _catch_exceptions(cls):
@@ -201,8 +211,13 @@ class OutputDispatcher(metaclass=ABCMeta):
         Returns:
             dict: Contains the http response object
         """
-        return requests.put(url, headers=headers, json=params,
-                            verify=verify, timeout=cls._DEFAULT_REQUEST_TIMEOUT)
+        return requests.put(
+            url,
+            headers=headers,
+            json=params,
+            verify=verify,
+            timeout=cls._DEFAULT_REQUEST_TIMEOUT,
+        )
 
     @classmethod
     def _put_request_retry(cls, url, params=None, headers=None, verify=True):
@@ -219,6 +234,7 @@ class OutputDispatcher(metaclass=ABCMeta):
         Raises:
             OutputRequestFailure
         """
+
         @retry_on_exception(cls._catch_exceptions())
         def do_put_request():
             """Decorated nested function to perform the request with retry/backoff"""
@@ -228,6 +244,7 @@ class OutputDispatcher(metaclass=ABCMeta):
                 raise OutputRequestFailure(resp)
 
             return resp
+
         return do_put_request()
 
     @classmethod
@@ -242,8 +259,13 @@ class OutputDispatcher(metaclass=ABCMeta):
         Returns:
             dict: Contains the http response object
         """
-        return requests.get(url, headers=headers, params=params,
-                            verify=verify, timeout=cls._DEFAULT_REQUEST_TIMEOUT)
+        return requests.get(
+            url,
+            headers=headers,
+            params=params,
+            verify=verify,
+            timeout=cls._DEFAULT_REQUEST_TIMEOUT,
+        )
 
     @classmethod
     def _get_request_retry(cls, url, params=None, headers=None, verify=True):
@@ -260,6 +282,7 @@ class OutputDispatcher(metaclass=ABCMeta):
         Raises:
             OutputRequestFailure
         """
+
         @retry_on_exception(cls._catch_exceptions())
         def do_get_request():
             """Decorated nested function to perform the request with retry/backoff"""
@@ -269,6 +292,7 @@ class OutputDispatcher(metaclass=ABCMeta):
                 raise OutputRequestFailure(resp)
 
             return resp
+
         return do_get_request()
 
     @classmethod
@@ -283,8 +307,13 @@ class OutputDispatcher(metaclass=ABCMeta):
         Returns:
             dict: Contains the http response object
         """
-        return requests.post(url, headers=headers, json=data,
-                             verify=verify, timeout=cls._DEFAULT_REQUEST_TIMEOUT)
+        return requests.post(
+            url,
+            headers=headers,
+            json=data,
+            verify=verify,
+            timeout=cls._DEFAULT_REQUEST_TIMEOUT,
+        )
 
     @classmethod
     def _post_request_retry(cls, url, data=None, headers=None, verify=True):
@@ -301,6 +330,7 @@ class OutputDispatcher(metaclass=ABCMeta):
         Raises:
             OutputRequestFailure
         """
+
         @retry_on_exception(cls._catch_exceptions())
         def do_post_request():
             """Decorated nested function to perform the request with retry/backoff"""
@@ -310,6 +340,7 @@ class OutputDispatcher(metaclass=ABCMeta):
                 raise OutputRequestFailure(resp)
 
             return resp
+
         return do_post_request()
 
     @classmethod
@@ -324,9 +355,11 @@ class OutputDispatcher(metaclass=ABCMeta):
         """
         success = response is not None and (200 <= response.status_code <= 299)
         if not success:
-            LOGGER.error('Encountered an error while sending to %s:\n%s',
-                         cls.__service__,
-                         response.content)
+            LOGGER.error(
+                "Encountered an error while sending to %s:\n%s",
+                cls.__service__,
+                response.content,
+            )
         return success
 
     @classmethod
@@ -358,7 +391,7 @@ class OutputDispatcher(metaclass=ABCMeta):
         Returns:
             [list<string>] List of descriptors for this service
         """
-        return service_config.get(cls.__service__, []) + [values['descriptor'].value]
+        return service_config.get(cls.__service__, []) + [values["descriptor"].value]
 
     @classmethod
     @abstractmethod
@@ -402,13 +435,17 @@ class OutputDispatcher(metaclass=ABCMeta):
         Returns:
             bool: True if alert was sent successfully, False otherwise
         """
-        LOGGER.info('Sending %s to %s', alert, output)
-        descriptor = output.split(':')[1]
+        LOGGER.info("Sending %s to %s", alert, output)
+        descriptor = output.split(":")[1]
         try:
             sent = bool(self._dispatch(alert, descriptor))
         except Exception:  # pylint: disable=broad-except
-            LOGGER.exception('Exception when sending %s to %s. Alert:\n%s',
-                             alert, output, repr(alert))
+            LOGGER.exception(
+                "Exception when sending %s to %s. Alert:\n%s",
+                alert,
+                output,
+                repr(alert),
+            )
             sent = False
 
         self._log_status(sent, descriptor)

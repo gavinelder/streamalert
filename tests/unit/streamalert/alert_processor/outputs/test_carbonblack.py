@@ -17,7 +17,7 @@ limitations under the License.
 from collections import OrderedDict
 
 from mock import call, patch, Mock, MagicMock
-from nose.tools import assert_false, assert_is_instance, assert_true
+from pytest import assert_false, assert_is_instance, assert_true
 
 from streamalert.alert_processor.outputs import carbonblack
 from streamalert.alert_processor.outputs.carbonblack import CarbonBlackOutput
@@ -26,17 +26,23 @@ from tests.unit.helpers.mocks import MockCBAPI
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 
 
-@patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS', 1)
+@patch(
+    "streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS",
+    1,
+)
 class TestCarbonBlackOutput:
     """Test class for CarbonBlackOutput"""
-    DESCRIPTOR = 'unit_test_carbonblack'
-    SERVICE = 'carbonblack'
-    OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'url': 'carbon.foo.bar',
-             'ssl_verify': 'Y',
-             'token': '1234567890127a3d7f37f4153270bff41b105899'}
 
-    @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
+    DESCRIPTOR = "unit_test_carbonblack"
+    SERVICE = "carbonblack"
+    OUTPUT = ":".join([SERVICE, DESCRIPTOR])
+    CREDS = {
+        "url": "carbon.foo.bar",
+        "ssl_verify": "Y",
+        "token": "1234567890127a3d7f37f4153270bff41b105899",
+    }
+
+    @patch("streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider")
     def setup(self, provider_constructor):
         """Setup before each method"""
         provider = MagicMock()
@@ -49,62 +55,65 @@ class TestCarbonBlackOutput:
 
     def test_get_user_defined_properties(self):
         """CarbonBlackOutput - User Defined Properties"""
-        assert_is_instance(CarbonBlackOutput.get_user_defined_properties(), OrderedDict)
+        assert isinstance(CarbonBlackOutput.get_user_defined_properties(), OrderedDict)
 
-    @patch('logging.Logger.error')
+    @patch("logging.Logger.error")
     def test_dispatch_no_context(self, mock_logger):
         """CarbonBlackOutput - Dispatch No Context"""
-        assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
-        mock_logger.assert_has_calls([
-            call('[%s] Alert must contain context to run actions', 'carbonblack'),
-            call('Failed to send alert to %s:%s', 'carbonblack', 'unit_test_carbonblack')
-        ])
+        assert not self._dispatcher.dispatch(get_alert(), self.OUTPUT)
+        mock_logger.assert_has_calls(
+            [
+                call("[%s] Alert must contain context to run actions", "carbonblack"),
+                call(
+                    "Failed to send alert to %s:%s",
+                    "carbonblack",
+                    "unit_test_carbonblack",
+                ),
+            ]
+        )
 
-    @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
+    @patch.object(carbonblack, "CbResponseAPI", side_effect=MockCBAPI)
     def test_dispatch_already_banned(self, mock_cb):
         """CarbonBlackOutput - Dispatch Already Banned"""
         alert_context = {
-            'carbonblack': {
-                'action': 'ban',
-                'value': 'BANNED_ENABLED_HASH'
-            }
+            "carbonblack": {"action": "ban", "value": "BANNED_ENABLED_HASH"}
         }
-        assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT)
 
-    @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
+    @patch.object(carbonblack, "CbResponseAPI", side_effect=MockCBAPI)
     def test_dispatch_banned_disabled(self, mock_cb):
         """CarbonBlackOutput - Dispatch Banned Disabled"""
         alert_context = {
-            'carbonblack': {
-                'action': 'ban',
-                'value': 'BANNED_DISABLED_HASH'
-            }
+            "carbonblack": {"action": "ban", "value": "BANNED_DISABLED_HASH"}
         }
-        assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT)
 
-    @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
+    @patch.object(carbonblack, "CbResponseAPI", side_effect=MockCBAPI)
     def test_dispatch_not_banned(self, mock_cb):
         """CarbonBlackOutput - Dispatch Not Banned"""
-        alert_context = {
-            'carbonblack': {
-                'action': 'ban',
-                'value': 'NOT_BANNED_HASH'
-            }
-        }
-        assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
+        alert_context = {"carbonblack": {"action": "ban", "value": "NOT_BANNED_HASH"}}
+        assert self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT)
 
-    @patch('logging.Logger.error')
-    @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
+    @patch("logging.Logger.error")
+    @patch.object(carbonblack, "CbResponseAPI", side_effect=MockCBAPI)
     def test_dispatch_invalid_action(self, mock_cb, mock_logger):
         """CarbonBlackOutput - Invalid Action"""
         alert_context = {
-            'carbonblack': {
-                'action': 'rickroll',
+            "carbonblack": {
+                "action": "rickroll",
             }
         }
-        assert_false(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
+        assert not self._dispatcher.dispatch(
+            get_alert(context=alert_context), self.OUTPUT
+        )
 
-        mock_logger.assert_has_calls([
-            call('[%s] Action not supported: %s', 'carbonblack', 'rickroll'),
-            call('Failed to send alert to %s:%s', 'carbonblack', 'unit_test_carbonblack')
-        ])
+        mock_logger.assert_has_calls(
+            [
+                call("[%s] Action not supported: %s", "carbonblack", "rickroll"),
+                call(
+                    "Failed to send alert to %s:%s",
+                    "carbonblack",
+                    "unit_test_carbonblack",
+                ),
+            ]
+        )

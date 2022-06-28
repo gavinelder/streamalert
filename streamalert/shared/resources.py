@@ -15,10 +15,11 @@ limitations under the License.
 """
 
 REQUIRED_OUTPUTS = {
-    'aws-firehose': {
-        'alerts': '{prefix}_streamalert_alert_delivery',
+    "aws-firehose": {
+        "alerts": "{prefix}_streamalert_alert_delivery",
     }
 }
+
 
 def get_required_outputs():
     """Iterates through the required outputs and collapses to the right format
@@ -26,9 +27,11 @@ def get_required_outputs():
     Returns:
         set: Set of required output services and names in the form service:name
     """
-    return {'{}:{}'.format(service, output)
-            for service, value in REQUIRED_OUTPUTS.items()
-            for output in value}
+    return {
+        "{}:{}".format(service, output)
+        for service, value in REQUIRED_OUTPUTS.items()
+        for output in value
+    }
 
 
 def merge_required_outputs(user_config, prefix):

@@ -18,7 +18,6 @@ from streamalert.scheduled_queries.config.services import ApplicationServices
 
 
 class ScheduledQueries:
-
     def __init__(self):
         # Ready all services
         self._services = ApplicationServices()
@@ -53,12 +52,10 @@ class ScheduledQueries:
         """
 
         # Start the function
-        self._services.logger.info('Running scheduled_queries lambda handler')
+        self._services.logger.info("Running scheduled_queries lambda handler")
+        self._services.logger.debug("Invocation event: %s", event)
         self._services.logger.debug(
-            'Invocation event: %s', event
-        )
-        self._services.logger.debug(
-            'ServiceContainer parameters: %s', get_streamquery_env_vars()
+            "ServiceContainer parameters: %s", get_streamquery_env_vars()
         )
 
         # Load up any prior state from the event passed in from the StepFunction
@@ -80,8 +77,8 @@ class ScheduledQueries:
         #
         # @see terraform/modules/tf_scheduled_queries/step_function.tf
         response = {
-            'done': 1 if done else 0,
-            'continue': 1,
+            "done": 1 if done else 0,
+            "continue": 1,
         }
         state_manager_loader.write_to_step_function_response(response)
 

@@ -22,14 +22,13 @@ from streamalert_cli.utils import (
 
 
 class RuleStagingCommand(CLICommand):
-    description = 'Perform actions related to rule staging'
+    description = "Perform actions related to rule staging"
 
     @classmethod
     def setup_subparser(cls, subparser):
         """Add the rule staging subparser: manage.py rule-staging [subcommand] [options]"""
         rule_staging_subparsers = subparser.add_subparsers(
-            dest='rule-staging subcommand',
-            required=True
+            dest="rule-staging subcommand", required=True
         )
 
         cls._setup_rule_staging_enable_subparser(rule_staging_subparsers)
@@ -42,25 +41,27 @@ class RuleStagingCommand(CLICommand):
         """Add the rule staging enable subparser: manage.py rule-staging enable"""
         rule_staging_enable_parser = generate_subparser(
             subparsers,
-            'enable',
-            description='Enable or disable the rule staging feature',
-            subcommand=True
+            "enable",
+            description="Enable or disable the rule staging feature",
+            subcommand=True,
         )
 
-        toggle_group = rule_staging_enable_parser.add_mutually_exclusive_group(required=True)
-        toggle_group.add_argument(
-            '-t',
-            '--true',
-            dest='enable',
-            help='Enable the rule staging feature',
-            action='store_true'
+        toggle_group = rule_staging_enable_parser.add_mutually_exclusive_group(
+            required=True
         )
         toggle_group.add_argument(
-            '-f',
-            '--false',
-            dest='enable',
-            help='Disable the rule staging feature',
-            action='store_false'
+            "-t",
+            "--true",
+            dest="enable",
+            help="Enable the rule staging feature",
+            action="store_true",
+        )
+        toggle_group.add_argument(
+            "-f",
+            "--false",
+            dest="enable",
+            help="Disable the rule staging feature",
+            action="store_false",
         )
 
     @staticmethod
@@ -68,26 +69,23 @@ class RuleStagingCommand(CLICommand):
         """Add the rule staging status subparser: manage.py rule-staging status"""
         rule_staging_status_parser = generate_subparser(
             subparsers,
-            'status',
-            description='List all rules within the rule database and their staging status',
-            subcommand=True
+            "status",
+            description="List all rules within the rule database and their staging status",
+            subcommand=True,
         )
 
         rule_staging_status_parser.add_argument(
-            '-v',
-            '--verbose',
-            action='store_true',
-            help='Output additional information for rules in the database'
+            "-v",
+            "--verbose",
+            action="store_true",
+            help="Output additional information for rules in the database",
         )
 
     @classmethod
     def _setup_rule_staging_stage_subparser(cls, subparsers):
         """Add the rule staging stage subparser: manage.py rule-staging stage"""
         rule_staging_stage_parser = generate_subparser(
-            subparsers,
-            'stage',
-            description='Stage the provided rules',
-            subcommand=True
+            subparsers, "stage", description="Stage the provided rules", subcommand=True
         )
 
         cls._add_default_rule_staging_args(rule_staging_stage_parser)
@@ -97,9 +95,9 @@ class RuleStagingCommand(CLICommand):
         """Add the rule staging unstage subparser: manage.py rule-staging unstage"""
         rule_staging_unstage_parser = generate_subparser(
             subparsers,
-            'unstage',
-            description='Unstage the provided rules',
-            subcommand=True
+            "unstage",
+            description="Unstage the provided rules",
+            subcommand=True,
         )
 
         cls._add_default_rule_staging_args(rule_staging_unstage_parser)
@@ -108,11 +106,11 @@ class RuleStagingCommand(CLICommand):
     def _add_default_rule_staging_args(subparser):
         """Add the default arguments to the rule staging parsers"""
         subparser.add_argument(
-            'rules',
+            "rules",
             action=UniqueSortedListAction,
             default=[],
-            help='One or more rule to perform this action against, seperated by spaces',
-            nargs='+'
+            help="One or more rule to perform this action against, seperated by spaces",
+            nargs="+",
         )
 
     @classmethod
@@ -127,15 +125,17 @@ class RuleStagingCommand(CLICommand):
         Returns:
             bool: False if errors occurred, True otherwise
         """
-        if options.subcommand == 'enable':
+        if options.subcommand == "enable":
             config.toggle_rule_staging(options.enable)
 
-        table_name = '{}_streamalert_rules'.format(config['global']['account']['prefix'])
-        if options.subcommand == 'status':
+        table_name = "{}_streamalert_rules".format(
+            config["global"]["account"]["prefix"]
+        )
+        if options.subcommand == "status":
             print(RuleTable(table_name).__str__(options.verbose))
 
-        if options.subcommand in {'stage', 'unstage'}:
-            stage = (options.subcommand == 'stage')
+        if options.subcommand in {"stage", "unstage"}:
+            stage = options.subcommand == "stage"
             table = RuleTable(table_name)
             for rule in options.rules:
                 table.toggle_staged_state(rule, stage)

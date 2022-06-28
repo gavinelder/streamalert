@@ -27,20 +27,22 @@ def generate_kinesis_events(cluster_name, cluster_dict, config):
     Returns:
         bool: Result of applying the kinesis_events module
     """
-    cluster_config = config['clusters'][cluster_name]['modules']
-    kinesis_events_enabled = bool(cluster_config['kinesis_events']['enabled'])
-    batch_size = cluster_config['kinesis_events'].get('batch_size', 100)
+    cluster_config = config["clusters"][cluster_name]["modules"]
+    kinesis_events_enabled = bool(cluster_config["kinesis_events"]["enabled"])
+    batch_size = cluster_config["kinesis_events"].get("batch_size", 100)
 
     # Kinesis events module
-    cluster_dict['module']['kinesis_events_{}'.format(cluster_name)] = {
-        'source': './modules/tf_kinesis_events',
-        'batch_size': batch_size,
-        'lambda_production_enabled': kinesis_events_enabled,
-        'lambda_role_id': '${{module.classifier_{}_lambda.role_id}}'.format(cluster_name),
-        'lambda_function_alias_arn': '${{module.classifier_{}_lambda.function_alias_arn}}'.format(
+    cluster_dict["module"]["kinesis_events_{}".format(cluster_name)] = {
+        "source": "./modules/tf_kinesis_events",
+        "batch_size": batch_size,
+        "lambda_production_enabled": kinesis_events_enabled,
+        "lambda_role_id": "${{module.classifier_{}_lambda.role_id}}".format(
             cluster_name
         ),
-        'kinesis_stream_arn': '${{module.kinesis_{}.arn}}'.format(cluster_name),
+        "lambda_function_alias_arn": "${{module.classifier_{}_lambda.function_alias_arn}}".format(
+            cluster_name
+        ),
+        "kinesis_stream_arn": "${{module.kinesis_{}.arn}}".format(cluster_name),
     }
 
     return True

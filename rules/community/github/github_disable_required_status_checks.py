@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['ghe:general'])
+@rule(logs=["ghe:general"])
 def github_disable_required_status_checks(rec):
     """
     author:       @mimeframe
@@ -14,8 +14,11 @@ def github_disable_required_status_checks(rec):
     reference:    https://help.github.com/articles/enabling-required-status-checks/
     """
     return (
-        rec['action'] == 'protected_branch.update_required_status_checks_enforcement_level' and
+        rec["action"]
+        == "protected_branch.update_required_status_checks_enforcement_level"
+        and
         # 0 => unchecked
         # 1 => enabled for users
         # 2 => enabled for users and admins ('Include administrators')
-        rec['data'].get('required_status_checks_enforcement_level') == 0)
+        rec["data"].get("required_status_checks_enforcement_level") == 0
+    )

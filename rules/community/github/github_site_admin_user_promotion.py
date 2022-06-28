@@ -2,7 +2,7 @@
 from streamalert.shared.rule import rule
 
 
-@rule(logs=['ghe:general'])
+@rule(logs=["ghe:general"])
 def github_site_admin_user_promotion(rec):
     """
     author:       @fusionrace, @mimeframe
@@ -11,4 +11,4 @@ def github_site_admin_user_promotion(rec):
     reference:    https://help.github.com/enterprise/2.11/admin/guides/
                   user-management/promoting-or-demoting-a-site-administrator/
     """
-    return rec['action'] == 'user.promote'
+    return rec["action"] == "user.promote"

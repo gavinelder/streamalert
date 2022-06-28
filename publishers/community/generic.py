@@ -23,7 +23,7 @@ from streamalert.shared.utils import get_keys
 @Register
 def add_record(alert, publication):
     """Publisher that adds the alert.record to the publication."""
-    publication['record'] = alert.record
+    publication["record"] = alert.record
 
     return publication
 
@@ -38,9 +38,9 @@ def blank(*_):
 def remove_internal_fields(_, publication):
     """This publisher removes fields from DefaultPublisher that are only useful internally"""
 
-    publication.pop('staged', None)
-    publication.pop('publishers', None)
-    publication.pop('outputs', None)
+    publication.pop("staged", None)
+    publication.pop("publishers", None)
+    publication.pop("outputs", None)
 
     return publication
 
@@ -97,7 +97,7 @@ def remove_fields(alert, publication):
     expression. Any such key is removed, and if the value is a nested dict, the entire dict
     branch underneath is removed.
     """
-    fields = alert.context.get('remove_fields', [])
+    fields = alert.context.get("remove_fields", [])
 
     for field in fields:
         publication = _delete_dictionary_fields(publication, field)
@@ -146,17 +146,24 @@ def enumerate_fields(_, publication):
 
     The output dict is an OrderedDict with keys sorted in alphabetical order.
     """
-    def _recursive_enumerate_fields(structure, output_reference, path=''):
+
+    def _recursive_enumerate_fields(structure, output_reference, path=""):
         if isinstance(structure, list):
             for index, item in enumerate(structure):
-                _recursive_enumerate_fields(item, output_reference, '{}[{}]'.format(path, index))
+                _recursive_enumerate_fields(
+                    item, output_reference, "{}[{}]".format(path, index)
+                )
 
         elif isinstance(structure, dict):
             for key in structure:
-                _recursive_enumerate_fields(structure[key], output_reference, '{prefix}{key}'.format(
-                    prefix='{}.'.format(path) if path else '',  # Omit first period
-                    key=key
-                ))
+                _recursive_enumerate_fields(
+                    structure[key],
+                    output_reference,
+                    "{prefix}{key}".format(
+                        prefix="{}.".format(path) if path else "",  # Omit first period
+                        key=key,
+                    ),
+                )
 
         else:
             output_reference[path] = structure
@@ -195,7 +202,7 @@ def populate_fields(alert, publication):
     """
 
     new_publication = {}
-    for populate_field in alert.context.get('populate_fields', []):
+    for populate_field in alert.context.get("populate_fields", []):
         extractions = get_keys(publication, populate_field)
         new_publication[populate_field] = extractions
 
@@ -210,7 +217,8 @@ class StringifyArrays(AlertPublisher):
     given DELIMITER. Subclass implementations of this can override the delimiter to join the
     string differently.
     """
-    DELIMITER = '\n'
+
+    DELIMITER = "\n"
 
     def publish(self, alert, publication):
         fringe = deque()

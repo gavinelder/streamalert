@@ -124,9 +124,7 @@ class TeamsOutput(OutputDispatcher):
             )
 
         if "@teams.buttons" in publication:
-            teams_card = cls._add_buttons(
-                teams_card, publication["@teams.buttons"]
-            )
+            teams_card = cls._add_buttons(teams_card, publication["@teams.buttons"])
 
         return teams_card
 
