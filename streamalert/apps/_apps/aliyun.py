@@ -194,7 +194,7 @@ class AliyunApp(AppIntegration):
         }
 
     @classmethod
-    def _sleep_seconds(cls):
+    def _sleep_seconds(cls): # pylint: disable=arguments-differ
         """Return the number of seconds this polling function should sleep for
         between requests to avoid failed requests. The Aliyun documentation doesn't
         list limits on the requests portion of the actionTrail feature, so the only

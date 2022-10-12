@@ -87,7 +87,7 @@ class SQSClient:
                     yield [record], 1
                 return
 
-            elif size + batch_size >= cls.MAX_SIZE:
+            if size + batch_size >= cls.MAX_SIZE:
                 yield batch[:], len(batch)
 
                 del batch[:]

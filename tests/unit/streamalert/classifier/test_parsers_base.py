@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 from nose.tools import assert_equal
 
-import streamalert.classifier.parsers as parsers
+from streamalert.classifier import parsers
 from streamalert.classifier.parsers import ParserBase
 
 

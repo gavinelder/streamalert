@@ -175,8 +175,7 @@ class OutputDispatcher(metaclass=ABCMeta):
             return default_exceptions + exceptions if isinstance(
                 exceptions, tuple) else default_exceptions + (exceptions, )
 
-        else:
-            return default_exceptions
+        return default_exceptions
 
     @classmethod
     def _get_exceptions_to_catch(cls):

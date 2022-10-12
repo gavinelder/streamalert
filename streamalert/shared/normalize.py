@@ -166,7 +166,7 @@ class Normalizer:
     RECORD_ID_KEY = 'streamalert_record_id'
 
     # Store the normalized types mapping to original keys from the records
-    _types_config = dict()
+    _types_config = {}
 
     @classmethod
     def match_types(cls, record, normalized_types):

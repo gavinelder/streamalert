@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import time
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod , abstractproperty
 from json import JSONDecodeError
 
 import boto3
@@ -121,7 +121,7 @@ class AppIntegration(metaclass=ABCMeta):
         Returns:
             str: The specific type of log (duo_auth, duo_admin, google_admin, etc)
         """
-        return '_'.join([cls.service(), cls._type()])
+        return '_'.join([cls.service(), cls._type()]) # pylint: disable=no-value-for-parameter
 
     @classmethod
     def required_auth_info(cls):

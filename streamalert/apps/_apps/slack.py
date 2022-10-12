@@ -60,7 +60,7 @@ class SlackApp(AppIntegration):
         raise NotImplementedError('Subclasses should implement the _type method')
 
     @classmethod
-    def _sleep_seconds(cls):
+    def _sleep_seconds(cls): # pylint: disable=arguments-differ
         raise NotImplementedError('Subclasses should implement the _sleep_seconds method')
 
     @classmethod

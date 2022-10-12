@@ -190,7 +190,7 @@ class AthenaPartitioner:
                      'ADD IF NOT EXISTS {partition_statement};'.format(
                          athena_table=athena_table, partition_statement=partition_statement))
 
-            if success := self._ATHENA_CLIENT.run_query(query=query):
+            if  self._ATHENA_CLIENT.run_query(query=query):
                 LOGGER.info('Successfully added the following partitions:\n%s',
                             json.dumps({athena_table: partitions[athena_table]}))
             else:

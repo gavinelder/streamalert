@@ -133,8 +133,8 @@ def add_timeout_arg(parser):
         error = 'Value for \'timeout\' must be an integer between 10 and 900'
         try:
             timeout = int(val)
-        except ValueError:
-            raise parser.error(error)
+        except ValueError as exc:
+            raise parser.error(error) from exc
 
         if not 10 <= timeout <= 900:
             raise parser.error(error)
@@ -157,8 +157,8 @@ def add_memory_arg(parser):
             'Value for \'memory\' must be an integer between 128 and 3008, and be a multiple of 64')
         try:
             memory = int(val)
-        except ValueError:
-            raise parser.error(error)
+        except ValueError as exc:
+            raise parser.error(error) from exc
 
         if not 128 <= memory <= 3008:
             raise parser.error(error)

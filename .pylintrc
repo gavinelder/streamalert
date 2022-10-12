@@ -53,25 +53,15 @@ confidence=
 # TODO: remove R1710 (inconsistent-return-statements)
 # TODO: remove C0111 (missing-docstring)
 disable=
-    similarities,
     fixme,
-    I0011,
-    E1102,
-    R1710,
-    C0111,
+    inconsistent-return-statements,
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
     consider-using-f-string,
-    no-else-return,
-    invalid-overridden-method,
-    arguments-differ,
-    consider-using-with,
     use-sequence-for-iteration,
-    no-value-for-parameter,
-    raise-missing-from,
-    use-dict-literal,
-    consider-using-from-import,
-    consider-using-dict-items,
-    unused-variable,
-    line-too-long
+    invalid-overridden-method,
+    consider-using-with
 
 
 

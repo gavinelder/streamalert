@@ -137,9 +137,7 @@ class MetricLogger:
         if lambda_function not in cls._available_metrics:
             LOGGER.error(
                 'Function \'%s\' not defined in available metrics. Options are: %s',
-                lambda_function, ', '.join(f"\'{key}\'" for key in cls._available_metrics
-                                           if cls._available_metrics[key]))
-
+                lambda_function, ', '.join(f"'{key}'" for key, _ in cls._available_metrics.items()))
             return
 
         if metric_name not in cls._available_metrics[lambda_function]:

@@ -58,7 +58,7 @@ class FirehoseClient:
     EXCEPTIONS_TO_BACKOFF = (ClientError, BotocoreConnectionError, HTTPClientError)
 
     # Set of enabled log types for firehose, loaded from configs
-    _ENABLED_LOGS = dict()
+    _ENABLED_LOGS = {}
 
     # The max length of the firehose stream name is 64. For streamalert data firehose,
     # we reserve 12 chars to have `streamalert_` as part of prefix. Please refer to

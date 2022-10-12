@@ -18,7 +18,7 @@ from unittest.mock import Mock, patch
 from botocore.exceptions import ClientError
 from nose.tools import assert_equal, assert_raises
 
-import streamalert.classifier.clients.sqs as sqs
+from streamalert.classifier.clients import sqs
 from streamalert.classifier.clients.sqs import SQSClient, SQSClientError
 
 

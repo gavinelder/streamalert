@@ -238,8 +238,8 @@ def _add_default_metric_alarms_args(alarm_parser, clustered=False):
         error = 'evaluation periods must be an integer greater than 0'
         try:
             period = int(val)
-        except ValueError:
-            raise alarm_parser.error(error)
+        except ValueError as err:
+            raise alarm_parser.error(error) from err
 
         if period <= 0:
             raise alarm_parser.error(error)
@@ -259,8 +259,8 @@ def _add_default_metric_alarms_args(alarm_parser, clustered=False):
         error = 'period must be an integer in multiples of 60'
         try:
             period = int(val)
-        except ValueError:
-            raise alarm_parser.error(error)
+        except ValueError as err:
+            raise alarm_parser.error(error) from err
 
         if period <= 0 or period % 60 != 0:
             raise alarm_parser.error(error)

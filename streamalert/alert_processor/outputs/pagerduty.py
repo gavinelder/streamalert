@@ -879,8 +879,7 @@ Errors:
 
         if event_incident := self._api_client.get_incident_by_key(incident_key):
             return event_incident.get('id')
-        else:
-            raise PagerdutySearchDelay('Received no PagerDuty response')
+        raise PagerdutySearchDelay('Received no PagerDuty response')
 
     def _verify_user_exists(self):
         """Verifies that the 'email_from' provided in the creds is valid and exists."""
@@ -923,9 +922,7 @@ Errors:
             } if (priority_id := next(
                 (item for item in priorities
                  if item["name"] == priority_name), {}).get('id', False)) else False
-
-        else:
-            return False
+        return False
 
 
 # pylint: disable=protected-access

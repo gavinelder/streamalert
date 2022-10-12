@@ -86,8 +86,8 @@ class TestCommand(CLICommand):
                    'and 1000').format(val)
             try:
                 count = int(val)
-            except TypeError:
-                raise test_rules_parser.error(err)
+            except TypeError as err:
+                raise test_rules_parser.error(err) from err
 
             if not 1 <= count <= 1000:
                 raise test_rules_parser.error(err)

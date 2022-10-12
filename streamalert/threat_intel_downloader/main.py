@@ -89,7 +89,10 @@ class ThreatStream:
         try:
             decoded_creds = json.loads(response['Parameter']['Value'])
         except ValueError as e:
-            raise ThreatStreamCredsError(f"Cannot load value for parameter with name '{response['Parameter']['Name']}'. " f"The value is not valid json: '{response['Parameter']['Value']}'") from e
+            raise ThreatStreamCredsError(
+                f"Cannot load value for parameter with name '{response['Parameter']['Name']}'. "
+                f"The value is not valid json: '{response['Parameter']['Value']}'"
+            ) from e
 
 
         self.api_user = decoded_creds['api_user']

@@ -196,7 +196,7 @@ class Rule:
 
     @classmethod
     def disabled_rules(cls):
-        return {name for name in cls._rules if cls._rules[name].disabled}
+        return {name for name, rule in cls._rules.items() if rule.disabled}
 
     @classmethod
     def disable(cls, name):

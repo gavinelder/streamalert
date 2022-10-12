@@ -97,6 +97,7 @@ class CLIConfig:
             # Without calling this here, an exception is raised when tempfile garbage collects
             temp_dir.cleanup()
 
+
         if os.path.exists(directory):
             shutil.rmtree(directory)  # shutil.copytree in python3.7 cannot handle existing dir
 

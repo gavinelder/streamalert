@@ -243,7 +243,9 @@ class AppConfig:
             try:
                 decoded_params[param['Name']] = json.loads(param['Value'])
             except ValueError as e:
-                raise AppConfigError(f"Could not load value for parameter with name \'{param['Name']}\'. The value is not valid json: \'{param['Value']}\'") from e
+                raise AppConfigError(
+                    f"Could not load value for parameter with name \'{param['Name']}\'. The value is not valid json: \'{param['Value']}\'"
+                ) from e
 
 
         return decoded_params, parameters['InvalidParameters']
@@ -287,7 +289,7 @@ class AppConfig:
             })
         except TypeError as err:
             raise AppStateError('Could not serialize state for name \'{}\'. Error: '
-                                '{}'.format(self._state_name, str(err)))
+                                '{}'.format(self._state_name, str(err))) from err
 
         @backoff.on_exception(backoff.expo,
                               ClientError,
@@ -307,7 +309,7 @@ class AppConfig:
         except ClientError as err:
             raise AppStateError('Could not save current state to parameter '
                                 'store with name \'{}\'. Response: '
-                                '{}'.format(self._state_name, err.response))
+                                '{}'.format(self._state_name, err.response)) from err
 
     @classmethod
     def _validate_event(cls, event):

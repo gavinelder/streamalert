@@ -301,23 +301,23 @@ class RulesEngine:
             True (bool): Output is valid
             False (bool): Output is invalid
         """
-        valid = False
 
         if not isinstance(output, str):
             # Case 1: output is not a string
             #   return False
             LOGGER.warning("Output (%s) is not a string", output)
             return False
-        elif ":" not in output:
+
+        if ":" not in output:
             # Case 2: output is a string but missing ":"
             #   Log warning and return False
             LOGGER.warning("Output (%s) is missing ':'", output)
 
             return False
-        else:
-            # Case 3: output is a string and contains ":"
-            # return True
-            return True
+
+        # Case 3: output is a string and contains ":"
+        # return True
+        return True
 
     @classmethod
     def _configure_publishers(cls, rule, requested_outputs):

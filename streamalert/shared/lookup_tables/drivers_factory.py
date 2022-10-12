@@ -16,8 +16,8 @@ def construct_persistence_driver(table_configuration):
         PersistenceDriver
     """
     # pylint: disable=import-outside-toplevel
-    import streamalert.shared.lookup_tables.driver_dynamodb as driver_dynamodb
-    import streamalert.shared.lookup_tables.driver_s3 as driver_s3
+    from streamalert.shared.lookup_tables import driver_dynamodb
+    from streamalert.shared.lookup_tables import driver_s3
     # pylint: enable=import-outside-toplevel
 
     driver_name = table_configuration.get('driver', False)
