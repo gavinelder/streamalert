@@ -65,12 +65,16 @@ class TerraformInitCommand(CLICommand):
         # build init infrastructure
         LOGGER.info('Building initial infrastructure')
         init_targets = [
-            'aws_s3_bucket.lambda_source', 'aws_s3_bucket.logging_bucket',
-            'aws_s3_bucket.streamalert_secrets', 'aws_s3_bucket.terraform_remote_state',
+            'aws_s3_bucket.lambda_source',
+            'aws_s3_bucket.logging_bucket',
+            'aws_s3_bucket.streamalert_secrets',
+            'aws_s3_bucket.terraform_remote_state',
             'aws_s3_bucket.streamalerts',
-            'aws_kms_key.server_side_encryption', 'aws_kms_alias.server_side_encryption',
-            'aws_kms_key.streamalert_secrets', 'aws_kms_alias.streamalert_secrets',
-            'module.streamalert_athena', #required for the alerts table
+            'aws_kms_key.server_side_encryption',
+            'aws_kms_alias.server_side_encryption',
+            'aws_kms_key.streamalert_secrets',
+            'aws_kms_alias.streamalert_secrets',
+            'module.streamalert_athena',  # required for the alerts table
             'aws_dynamodb_table.terraform_remote_state_lock'
         ]
 
@@ -124,16 +128,12 @@ class TerraformBuildCommand(CLICommand):
     @classmethod
     def setup_subparser(cls, subparser):
         """Add build subparser: manage.py build [options]"""
-        set_parser_epilog(
-            subparser,
-            epilog=(
-                '''\
+        set_parser_epilog(subparser,
+                          epilog=('''\
                 Example:
 
                     manage.py build --target alert_processor_lambda
-                '''
-            )
-        )
+                '''))
 
         _add_default_tf_args(subparser, add_cluster_args=False)
 
@@ -158,10 +158,7 @@ class TerraformBuildCommand(CLICommand):
             return
 
         target_modules, valid = _get_valid_tf_targets(config, options.target)
-        if not valid:
-            return False
-
-        return terraform_runner(config, targets=target_modules if target_modules else None)
+        return terraform_runner(config, targets=target_modules or None) if valid else False
 
 
 class TerraformDestroyCommand(CLICommand):
@@ -170,16 +167,12 @@ class TerraformDestroyCommand(CLICommand):
     @classmethod
     def setup_subparser(cls, subparser):
         """Add destroy subparser: manage.py destroy [options]"""
-        set_parser_epilog(
-            subparser,
-            epilog=(
-                '''\
+        set_parser_epilog(subparser,
+                          epilog=('''\
                 Example:
 
                     manage.py destroy --target aws_s3_bucket-streamalerts
-                '''
-            )
-        )
+                '''))
 
         _add_default_tf_args(subparser)
 
@@ -208,28 +201,19 @@ class TerraformDestroyCommand(CLICommand):
 
         if options.target:
             target_modules, valid = _get_valid_tf_targets(config, options.target)
-            if not valid:
-                return False
-
             return terraform_runner(
-                config,
-                destroy=True,
-                auto_approve=True,
-                targets=target_modules if target_modules else None
-            )
+                config, destroy=True, auto_approve=True, targets=target_modules
+                or None) if valid else False
 
         # Migrate back to local state so Terraform can successfully
         # destroy the S3 bucket used by the backend.
         # Do not check for terraform or aws creds again since these were checked above
-        if not terraform_generate_handler(config=config, init=True, check_tf=False,
-                                          check_creds=False):
+        if not terraform_generate_handler(
+                config=config, init=True, check_tf=False, check_creds=False):
             return False
 
-        if not run_command(['terraform', 'init'], cwd=config.build_directory):
-            return False
-
-        # Destroy all of the infrastructure
-        return terraform_runner(config, destroy=True, auto_approve=True)
+        return terraform_runner(config, destroy=True, auto_approve=True) if run_command(
+            ['terraform', 'init'], cwd=config.build_directory) else False
 
 
 class TerraformListTargetsCommand(CLICommand):
@@ -273,14 +257,11 @@ def _add_default_tf_args(tf_parser, add_cluster_args=True):
         '-t',
         '--target',
         metavar='TARGET',
-        help=(
-            'One or more Terraform module name to target. Use `list-targets` for a list '
-            'of available targets'
-        ),
+        help=('One or more Terraform module name to target. Use `list-targets` for a list '
+              'of available targets'),
         action=UniqueSortedListAction,
         default=[],
-        nargs='+'
-    )
+        nargs='+')
 
     if add_cluster_args:
         # Add the option to specify cluster(s)
@@ -298,30 +279,27 @@ def _get_valid_tf_targets(config, targets):
 
     for target in targets:
         matches = {
-            '{}.{}'.format(value_type, value) if value_type == 'module' else value
-            for value_type, values in modules.items()
-            for value in values
-            if fnmatch(value, target)
+            f'{value_type}.{value}' if value_type == 'module' else value
+            for value_type, values in modules.items() for value in values if fnmatch(value, target)
         }
+
         if not matches:
             LOGGER.error('Invalid terraform target supplied: %s', target)
             continue
         all_matches.update(matches)
 
     if not all_matches:
-        LOGGER.error(
-            'No terraform targets found matching supplied target(s): %s',
-            ', '.join(sorted(targets))
-        )
+        LOGGER.error('No terraform targets found matching supplied target(s): %s',
+                     ', '.join(sorted(targets)))
         return all_matches, False
 
     return all_matches, True
 
 
 def get_tf_modules(config, generate=False):
-    if generate:
-        if not terraform_generate_handler(config=config, check_tf=False, check_creds=False):
-            return False
+    if generate and not terraform_generate_handler(config=config, check_tf=False,
+                                                   check_creds=False):
+        return False
 
     modules = set()
     resources = set()
@@ -332,10 +310,8 @@ def get_tf_modules(config, generate=False):
                 with open(path, 'r') as tf_file:
                     tf_data = json.load(tf_file)
                     modules.update(set((tf_data['module'])))
-                    resources.update(
-                        '{}.{}'.format(resource, value)
-                        for resource, values in tf_data.get('resource', {}).items()
-                        for value in values
-                    )
+                    resources.update(f'{resource}.{value}'
+                                     for resource, values in tf_data.get('resource', {}).items()
+                                     for value in values)
 
     return {'module': modules, 'resource': resources}

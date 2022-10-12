@@ -13,11 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from nose.tools import (
-    assert_equal,
-    assert_false,
-    assert_true
-)
+from nose.tools import (assert_equal, assert_false, assert_true)
 
 from streamalert.shared.lookup_tables.configuration import LookupTablesConfiguration
 
@@ -25,7 +21,7 @@ from streamalert.shared.lookup_tables.configuration import LookupTablesConfigura
 class TestLookupTablesConfiguration:
     """Test shared LookupTablesConfiguration class."""
 
-    # pylint: disable=no-self-use,protected-access,too-many-public-methods
+    # pylint: disable=protected-access,too-many-public-methods
 
     @staticmethod
     def _basic_configuration():
@@ -62,10 +58,7 @@ class TestLookupTablesConfiguration:
     def test_configuration_table_names(self):
         """LookupTablesConfiguration - Basic Configuration - Table Names"""
         config = LookupTablesConfiguration(self._basic_configuration())
-        assert_equal(
-            config.table_names,
-            ['resource_map_prototype', 'resource_map_dynamodb']
-        )
+        assert_equal(config.table_names, ['resource_map_prototype', 'resource_map_dynamodb'])
 
     def test_configuration_table_configurations(self):
         """LookupTablesConfiguration - Basic Configuration - Table Configurations"""

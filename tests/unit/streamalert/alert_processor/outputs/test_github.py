@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=protected-access,attribute-defined-outside-init,no-self-use
+# pylint: disable=protected-access,attribute-defined-outside-init
 import base64
 
 from mock import patch, Mock, MagicMock
@@ -29,12 +29,13 @@ class TestGithubOutput:
     DESCRIPTOR = 'unit_test_repo'
     SERVICE = 'github'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'username': 'unit_test_user',
-             'access_token': 'unit_test_access_token',
-             'repository': 'unit_test_org/unit_test_repo',
-             'labels': 'label1,label2',
-             'api': 'https://api.github.com',
-            }
+    CREDS = {
+        'username': 'unit_test_user',
+        'access_token': 'unit_test_access_token',
+        'repository': 'unit_test_org/unit_test_repo',
+        'labels': 'label1,label2',
+        'api': 'https://api.github.com',
+    }
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -42,8 +43,7 @@ class TestGithubOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
         self._provider = provider
         self._dispatcher = GithubOutput(None)
 
@@ -52,7 +52,7 @@ class TestGithubOutput:
     def test_dispatch_success(self, url_mock, log_mock):
         """GithubOutput - Dispatch Success"""
         url_mock.return_value.status_code = 200
-        url_mock.return_value.json.return_value = dict()
+        url_mock.return_value.json.return_value = {}
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
@@ -62,24 +62,24 @@ class TestGithubOutput:
 
         credentials = url_mock.call_args[1]['headers']['Authorization'].split(' ')[-1]
         decoded_username_password = base64.b64decode(credentials)
-        assert_equal(decoded_username_password, "{}:{}".format(self.CREDS['username'],
-                                                               self.CREDS['access_token']).encode())
+        assert_equal(decoded_username_password,
+                     f"{self.CREDS['username']}:{self.CREDS['access_token']}".encode())
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.post')
     def test_dispatch_success_with_labels(self, url_mock, log_mock):
         """GithubOutput - Dispatch Success with Labels"""
         url_mock.return_value.status_code = 200
-        url_mock.return_value.json.return_value = dict()
+        url_mock.return_value.json.return_value = {}
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
         assert_equal(url_mock.call_args[1]['json']['labels'], ['label1', 'label2'])
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.error')
     @patch('requests.post')

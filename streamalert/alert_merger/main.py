@@ -24,7 +24,6 @@ from streamalert.shared.alert_table import AlertTable
 from streamalert.shared.logger import get_logger
 from streamalert.shared.metrics import ALERT_MERGER_NAME, MetricLogger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -96,11 +95,8 @@ class AlertMerger:
                 continue
 
             if idx >= self._alert_generator_limit:
-                LOGGER.warning(
-                    'Alert Merger reached alert limit of %d for rule "%s"',
-                    self._alert_generator_limit,
-                    rule_name
-                )
+                LOGGER.warning('Alert Merger reached alert limit of %d for rule "%s"',
+                               self._alert_generator_limit, rule_name)
                 return
 
     @staticmethod
@@ -146,12 +142,10 @@ class AlertMerger:
             # The alert is too big - the alert processor will have to pull it from Dynamo
             payload = json.dumps(alert.dynamo_key)
 
-        self.lambda_client.invoke(
-            FunctionName=self.alert_proc,
-            InvocationType='Event',
-            Payload=payload,
-            Qualifier='production'
-        )
+        self.lambda_client.invoke(FunctionName=self.alert_proc,
+                                  InvocationType='Event',
+                                  Payload=payload,
+                                  Qualifier='production')
 
         alert.dispatched = datetime.utcnow()
         self.table.mark_as_dispatched(alert)
@@ -182,8 +176,8 @@ class AlertMerger:
             for group in self._merge_groups(merge_enabled_alerts):
                 # Create a new merged Alert.
                 new_alert = Alert.merge(group.alerts)
-                LOGGER.info('Merged %d alerts into a new alert with ID %s',
-                            len(group.alerts), new_alert.alert_id)
+                LOGGER.info('Merged %d alerts into a new alert with ID %s', len(group.alerts),
+                            new_alert.alert_id)
                 merged_alerts.append(new_alert)
 
                 # Since we already guaranteed that the original alerts have sent to the unmerged
@@ -197,9 +191,8 @@ class AlertMerger:
                 self._dispatch_alert(alert)
 
         if alerts_to_delete:
-            self.table.delete_alerts([
-                (alert.rule_name, alert.alert_id) for alert in alerts_to_delete
-            ])
+            self.table.delete_alerts([(alert.rule_name, alert.alert_id)
+                                      for alert in alerts_to_delete])
 
 
 def handler(event, context):  # pylint: disable=unused-argument

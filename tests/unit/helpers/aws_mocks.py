@@ -45,8 +45,8 @@ class MockLambdaClient:
 
         return {
             'FunctionName': function_name,
-            'FunctionArn': 'arn:aws:lambda:region:account-id:function:{}'.format(function_name),
-            'Runtime': 'python3.7',
+            'FunctionArn': f'arn:aws:lambda:region:account-id:function:{function_name}',
+            'Runtime': 'python3.9',
             'Role': 'string',
             'Handler': 'main.handler',
             'CodeSize': 128,
@@ -61,9 +61,9 @@ class MockLambdaClient:
 
 class MockAthenaClient:
     """http://boto3.readthedocs.io/en/latest/reference/services/athena.html"""
-
     class MockAthenaPaginator:
         """Mock class for paginating athena results"""
+
         def __init__(self, func, pages):
             self._func = func
             self._pages = pages
@@ -112,9 +112,7 @@ class MockAthenaClient:
         new_query_id = new_query_execution['QueryExecution']['QueryExecutionId']
         self.query_executions[new_query_id] = new_query_execution
 
-        return {
-            'QueryExecutionId': new_query_id
-        }
+        return {'QueryExecutionId': new_query_id}
 
     def get_query_execution(self, **kwargs):
         """Get the status of an Athena Query Execution."""
@@ -125,7 +123,7 @@ class MockAthenaClient:
 
     def get_query_results(self, **kwargs):  # pylint: disable=unused-argument
         """Get the results of a executed query"""
-        return {'ResultSet': {'Rows': self.results if self.results else []}}
+        return {'ResultSet': {'Rows': self.results or []}}
 
     def get_paginator(self, func_name):
         """Return a MockAthenaPaginator to yield results"""
@@ -153,71 +151,52 @@ def create_lambda_function(function_name, region):
     if function_name.find(':') != -1:
         function_name = function_name.split(':')[0]
 
-    boto3.client('lambda', region_name=region).create_function(
-        FunctionName=function_name,
-        Runtime='python3.7',
-        Role='test-iam-role',
-        Handler='function.handler',
-        Description='test lambda function',
-        Timeout=3,
-        MemorySize=128,
-        Publish=True,
-        Code={
-            'ZipFile': _make_lambda_package()
-        }
-    )
+    boto3.client('lambda',
+                 region_name=region).create_function(FunctionName=function_name,
+                                                     Runtime='python3.9',
+                                                     Role='test-iam-role',
+                                                     Handler='function.handler',
+                                                     Description='test lambda function',
+                                                     Timeout=3,
+                                                     MemorySize=128,
+                                                     Publish=True,
+                                                     Code={'ZipFile': _make_lambda_package()})
 
 
 def setup_mock_alerts_table(table_name):
     """Create a mock DynamoDB alerts table used by rules engine, alert processor, alert merger"""
     put_mock_dynamod_data(
-        table_name,
-        {
-            'AttributeDefinitions': [
-                {
-                    'AttributeName': 'RuleName',
-                    'AttributeType': 'S'
-                },
-                {
-                    'AttributeName': 'AlertID',
-                    'AttributeType': 'S'
-                }
-            ],
-            'KeySchema': [
-                {
-                    'AttributeName': 'RuleName',
-                    'KeyType': 'HASH'
-                },
-                {
-                    'AttributeName': 'AlertID',
-                    'KeyType': 'RANGE'
-                }
-            ],
-        },
-        []
-    )
+        table_name, {
+            'AttributeDefinitions': [{
+                'AttributeName': 'RuleName',
+                'AttributeType': 'S'
+            }, {
+                'AttributeName': 'AlertID',
+                'AttributeType': 'S'
+            }],
+            'KeySchema': [{
+                'AttributeName': 'RuleName',
+                'KeyType': 'HASH'
+            }, {
+                'AttributeName': 'AlertID',
+                'KeyType': 'RANGE'
+            }],
+        }, [])
 
 
 def setup_mock_rules_table(table_name):
     """Create a mock DynamoDB rules table used by the CLI, rules engine, and rule promoter"""
     put_mock_dynamod_data(
-        table_name,
-        {
-            'AttributeDefinitions': [
-                {
-                    'AttributeName': 'RuleName',
-                    'AttributeType': 'S'
-                }
-            ],
-            'KeySchema': [
-                {
-                    'AttributeName': 'RuleName',
-                    'KeyType': 'HASH'
-                }
-            ]
-        },
-        []
-    )
+        table_name, {
+            'AttributeDefinitions': [{
+                'AttributeName': 'RuleName',
+                'AttributeType': 'S'
+            }],
+            'KeySchema': [{
+                'AttributeName': 'RuleName',
+                'KeyType': 'HASH'
+            }]
+        }, [])
 
 
 def put_mock_dynamod_data(table_name, schema, data):
@@ -239,10 +218,7 @@ def put_mock_dynamod_data(table_name, schema, data):
     """
 
     schema['TableName'] = table_name
-    schema['ProvisionedThroughput'] = {
-        'ReadCapacityUnits': 5,
-        'WriteCapacityUnits': 5
-    }
+    schema['ProvisionedThroughput'] = {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
 
     boto3.client('dynamodb', region_name='us-east-1').create_table(**schema)
 

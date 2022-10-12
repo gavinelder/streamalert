@@ -31,12 +31,10 @@ class TestStagingStatistic:
         """StagingStatistic - Setup"""
         # pylint: disable=attribute-defined-outside-init
         stage_time = datetime(year=2000, month=1, day=1, hour=1, minute=1, second=1)
-        self.statistic = StagingStatistic(
-            staged_at=stage_time,
-            staged_until=stage_time + timedelta(days=2),
-            current_time=stage_time + timedelta(days=1),
-            rule='test_rule'
-        )
+        self.statistic = StagingStatistic(staged_at=stage_time,
+                                          staged_until=stage_time + timedelta(days=2),
+                                          current_time=stage_time + timedelta(days=1),
+                                          rule='test_rule')
 
     def test_construct_compound_count_query(self):
         """StagingStatistic - Construct Compound Count Query"""
@@ -91,12 +89,10 @@ home#query/history/678cc350-d4e1-4296-86d5-9351b7f92ed4'''
     def test_comp(self):
         """StagingStatistic - Comparison"""
         self.statistic.alert_count = 200
-        second_stat = StagingStatistic(
-            staged_at='fake_staged_at_time',
-            staged_until='fake_staged_until_time',
-            current_time='fake_current_time',
-            rule='test_rule'
-        )
+        second_stat = StagingStatistic(staged_at='fake_staged_at_time',
+                                       staged_until='fake_staged_until_time',
+                                       current_time='fake_current_time',
+                                       rule='test_rule')
         second_stat.alert_count = 100
 
         assert_equal(self.statistic > second_stat, True)
@@ -104,12 +100,10 @@ home#query/history/678cc350-d4e1-4296-86d5-9351b7f92ed4'''
     def test_comp_no_alert_count(self):
         """StagingStatistic - Comparison when alert_count is default value"""
         # self.statistic.alert_count = 200
-        second_stat = StagingStatistic(
-            staged_at='fake_staged_at_time',
-            staged_until='fake_staged_until_time',
-            current_time='fake_current_time',
-            rule='test_rule'
-        )
+        second_stat = StagingStatistic(staged_at='fake_staged_at_time',
+                                       staged_until='fake_staged_until_time',
+                                       current_time='fake_current_time',
+                                       rule='test_rule')
         second_stat.alert_count = 100
 
         assert_equal(self.statistic > second_stat, False)

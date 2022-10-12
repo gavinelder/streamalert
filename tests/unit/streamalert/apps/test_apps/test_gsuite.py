@@ -221,9 +221,8 @@ class TestGSuiteReportsApp:
         with patch.object(self._app, '_activities_service') as service_mock:
             service_mock.list.return_value.execute.return_value = None
             assert_false(self._app._gather_logs())
-            log_mock.assert_called_with(
-                '[%s] No results received from the G Suite API request', self._app
-            )
+            log_mock.assert_called_with('[%s] No results received from the G Suite API request',
+                                        self._app)
 
     @patch('streamalert.apps._apps.gsuite.GSuiteReportsApp._create_service',
            Mock(return_value=True))
@@ -238,9 +237,8 @@ class TestGSuiteReportsApp:
             }
             service_mock.list.return_value.execute.return_value = payload
             assert_false(self._app._gather_logs())
-            log_mock.assert_called_with(
-                '[%s] No logs in response from G Suite API request', self._app
-            )
+            log_mock.assert_called_with('[%s] No logs in response from G Suite API request',
+                                        self._app)
 
     def test_gather_logs_remove_duplicate_events(self):
         """GSuiteReportsApp - Gather Logs, Remove duplicate events"""
@@ -252,8 +250,7 @@ class TestGSuiteReportsApp:
             }
             service_mock.list.return_value.execute.return_value = payload
             self._app._context['last_event_ids'] = [
-                -12345678901234567890 + 9,
-                -12345678901234567890 + 8
+                -12345678901234567890 + 9, -12345678901234567890 + 8
             ]
 
             assert_equal(len(self._app._gather_logs()), 8)
@@ -261,18 +258,17 @@ class TestGSuiteReportsApp:
             assert_equal(self._app._more_to_poll, False)
             assert_equal(self._app._context['last_event_ids'], [-12345678901234567890])
 
-
     @staticmethod
     def _get_sample_logs(count):
         """Helper function for returning sample gsuite (admin) logs"""
-
         def _get_timestamp(start_timestamp, subtract_seconds):
             timestamp = datetime.strptime(start_timestamp, GSuiteReportsApp.date_formatter())
             timestamp -= timedelta(seconds=subtract_seconds)
             return timestamp.strftime(GSuiteReportsApp.date_formatter())
 
         return [{
-            'kind': 'audit#activity',
+            'kind':
+            'audit#activity',
             'id': {
                 'time': _get_timestamp('2011-06-17T15:39:18.460000Z', index),
                 'uniqueQualifier': -12345678901234567890 + index,
@@ -285,28 +281,29 @@ class TestGSuiteReportsApp:
                 'profileId': 'user\'s unique G Suite profile ID',
                 'key': 'consumer key of requestor in OAuth 2LO requests'
             },
-            'ownerDomain': 'example.com',
-            'ipAddress': 'user\'s IP address',
-            'events': [
-                {
-                    'type': 'GROUP_SETTINGS',
-                    'name': 'CHANGE_GROUP_SETTING',
-                    'parameters': [
-                        {
-                            'name': 'SETTING_NAME',
-                            'value': 'WHO_CAN_JOIN',
-                            'intValue': 'integer value of parameter',
-                            'boolValue': 'boolean value of parameter'
-                        }
-                    ]
-                }
-            ]
+            'ownerDomain':
+            'example.com',
+            'ipAddress':
+            'user\'s IP address',
+            'events': [{
+                'type':
+                'GROUP_SETTINGS',
+                'name':
+                'CHANGE_GROUP_SETTING',
+                'parameters': [{
+                    'name': 'SETTING_NAME',
+                    'value': 'WHO_CAN_JOIN',
+                    'intValue': 'integer value of parameter',
+                    'boolValue': 'boolean value of parameter'
+                }]
+            }]
         } for index in range(count)]
 
 
 @raises(NotImplementedError)
 def test_type_not_implemented():
     """GSuiteReportsApp - Subclass Type Not Implemented"""
+
     # pylint: disable=protected-access,abstract-method
     class GSuiteFakeApp(GSuiteReportsApp):
         """Fake GSuiteReports app that should raise a NotImplementedError"""

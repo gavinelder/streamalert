@@ -52,27 +52,20 @@ class TestOneLoginApp:
         """OneLoginApp - Generate Headers, Bad Response"""
         self.set_config_values('us', 'bad_id', 'bad_secret')
         requests_mock.return_value = Mock(
-            status_code=404,
-            json=Mock(return_value={'message': 'something went wrong'})
-        )
+            status_code=404, json=Mock(return_value={'message': 'something went wrong'}))
         assert_false(self._app._generate_headers())
 
     @patch('requests.post')
     def test_generate_headers_empty_response(self, requests_mock):
         """OneLoginApp - Generate Headers, Empty Response"""
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=None)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=None))
         assert_false(self._app._generate_headers())
 
     @patch('requests.post')
     def test_generate_headers(self, requests_mock):
         """OneLoginApp - Generate Headers"""
         requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'access_token': 'this_is_a_token'})
-        )
+            status_code=200, json=Mock(return_value={'access_token': 'this_is_a_token'}))
         self._app._generate_headers()
         assert_equal(self._app._auth_headers['Authorization'], 'bearer:this_is_a_token')
 
@@ -98,7 +91,7 @@ class TestOneLoginApp:
             'user_id': 321,
             'event_type_id': 4321,
             'notes': 'Notes',
-            'ipaddr': '0.0.0.0', # nosec
+            'ipaddr': '0.0.0.0',  # nosec
             'actor_user_id': 987,
             'assuming_acting_user_id': 654,
             'role_id': 456,
@@ -136,19 +129,14 @@ class TestOneLoginApp:
         """OneLoginApp - Get OneLogin Events, Bad Response"""
         self._app._auth_headers = True
         requests_mock.return_value = Mock(
-            status_code=404,
-            json=Mock(return_value={'message': 'something went wrong'})
-        )
+            status_code=404, json=Mock(return_value={'message': 'something went wrong'}))
         assert_false(self._app._get_onelogin_events())
 
     @patch('requests.get')
     def test_get_onelogin_events_empty_response(self, requests_mock):
         """OneLoginApp - Get OneLogin Events, Empty Response"""
         self._app._auth_headers = True
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=None)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=None))
         assert_false(self._app._get_onelogin_events())
 
     @patch('requests.get')
@@ -156,19 +144,19 @@ class TestOneLoginApp:
         """OneLoginApp - Get OneLogin Events, Rate Limited"""
         self._app._auth_headers = True
         self._app._rate_limit_sleep = 1
-        err_limit_response = Mock(
-            status_code=400,
-            json=Mock(return_value={
-                'message': 'something went wrong',
-                'status': {'code': 400, 'message': 'rate_limit_exceeded'}
-            })
-        )
-        ok_limit_response = Mock(
-            status_code=200,
-            json=Mock(return_value={
-                'data': {'X-RateLimit-Reset': 123}
-            })
-        )
+        err_limit_response = Mock(status_code=400,
+                                  json=Mock(
+                                      return_value={
+                                          'message': 'something went wrong',
+                                          'status': {
+                                              'code': 400,
+                                              'message': 'rate_limit_exceeded'
+                                          }
+                                      }))
+        ok_limit_response = Mock(status_code=200,
+                                 json=Mock(return_value={'data': {
+                                     'X-RateLimit-Reset': 123
+                                 }}))
         requests_mock.side_effect = [err_limit_response, ok_limit_response]
         assert_false(self._app._get_onelogin_events())
         assert_equal(self._app._rate_limit_sleep, 123)
@@ -177,10 +165,13 @@ class TestOneLoginApp:
     def test_get_onelogin_events_empty_data(self, requests_mock):
         """OneLoginApp - Get OneLogin Events, Empty Data"""
         self._app._auth_headers = True
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'data': [], 'pagination': {'next_link': 'not'}})
-        )
+        requests_mock.return_value = Mock(status_code=200,
+                                          json=Mock(return_value={
+                                              'data': [],
+                                              'pagination': {
+                                                  'next_link': 'not'
+                                              }
+                                          }))
         assert_false(self._app._get_onelogin_events())
 
     @patch('requests.post')
@@ -188,9 +179,7 @@ class TestOneLoginApp:
         """OneLoginApp - Gather Events Entry Point, No Headers"""
         self.set_config_values('us', 'bad_id', 'bad_secret')
         requests_mock.return_value = Mock(
-            status_code=404,
-            json=Mock(return_value={'message': 'something went wrong'})
-        )
+            status_code=404, json=Mock(return_value={'message': 'something went wrong'}))
         assert_false(self._app._gather_logs())
 
     @patch('requests.get')
@@ -200,10 +189,7 @@ class TestOneLoginApp:
         self._app._auth_headers = True
         self._app._next_page_url = None
         self._app._last_timestamp = 1507698237
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(side_effect=[logs])
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(side_effect=[logs]))
         events = self._app._gather_logs()
         assert_equal(len(logs['data']), len(events))
         assert_equal(logs['pagination']['next_link'], self._app._next_page_url)
@@ -216,10 +202,7 @@ class TestOneLoginApp:
         self._app._auth_headers = True
         self._app._next_page_url = pagination
         self._app._last_timestamp = 1507698237
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(side_effect=[logs])
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(side_effect=[logs]))
         events = self._app._get_onelogin_events()
         assert_equal(len(logs['data']), len(events))
         assert_equal(logs['pagination']['next_link'], self._app._next_page_url)
@@ -231,10 +214,7 @@ class TestOneLoginApp:
         logs = self._get_sample_events(3, next_link)
         self._app._auth_headers = True
         self._app._next_page_url = next_link
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(side_effect=[logs])
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(side_effect=[logs]))
         events = self._app._get_onelogin_events()
         assert_equal(len(logs['data']), len(events))
         assert_equal(logs['pagination']['next_link'], self._app._next_page_url)
@@ -247,8 +227,9 @@ class TestOneLoginApp:
         new_rate_limit_sleep = 123
         requests_mock.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'data': {'X-RateLimit-Reset': new_rate_limit_sleep}})
-        )
+            json=Mock(return_value={'data': {
+                'X-RateLimit-Reset': new_rate_limit_sleep
+            }}))
         self._app._set_rate_limit_sleep()
         assert_equal(self._app._rate_limit_sleep, new_rate_limit_sleep)
 
@@ -265,9 +246,7 @@ class TestOneLoginApp:
         self._app._auth_headers = True
         self._app._rate_limit_sleep = 1
         requests_mock.return_value = Mock(
-            status_code=403,
-            json=Mock(return_value={'message': 'something went wrong'})
-        )
+            status_code=403, json=Mock(return_value={'message': 'something went wrong'}))
         self._app._set_rate_limit_sleep()
         assert_equal(self._app._rate_limit_sleep, 0)
 
@@ -276,10 +255,7 @@ class TestOneLoginApp:
         """OneLoginApp - Set OneLogin Rate Limit Sleep, Empty Response"""
         self._app._auth_headers = True
         self._app._rate_limit_sleep = 1
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=None)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=None))
         self._app._set_rate_limit_sleep()
         assert_equal(self._app._rate_limit_sleep, 0)
 
@@ -292,10 +268,12 @@ class TestOneLoginApp:
         assert_equal(self._app._token_endpoint(),
                      'https://api.us.onelogin.com/auth/oauth2/v2/token')
 
+
 def test_onelogin_events_type():
     """OneLoginApp - Verify Events Type"""
     # pylint: disable=protected-access
     assert_equal(OneLoginApp._type(), 'events')
+
 
 def test_onelogin_event_service():
     """OneLoginApp - Verify Service"""

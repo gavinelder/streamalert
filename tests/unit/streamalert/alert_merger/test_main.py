@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=attribute-defined-outside-init,no-self-use,protected-access
+# pylint: disable=attribute-defined-outside-init,protected-access
 from datetime import datetime, timedelta
 import os
 
@@ -35,18 +35,24 @@ class TestAlertMergeGroup:
 
     def test_add_mergeable(self):
         """Alert Merger - Merge Group - Add Alert to Group"""
-        alert = Alert('', {'key': True}, set(),
-                      merge_by_keys=['key'], merge_window=timedelta(minutes=5))
+        alert = Alert('', {'key': True},
+                      set(),
+                      merge_by_keys=['key'],
+                      merge_window=timedelta(minutes=5))
         group = main.AlertMergeGroup(alert)
         assert_true(group.add(alert))  # An alert can always merge with itself
         assert_equal([alert, alert], group.alerts)
 
     def test_add_not_mergeable(self):
         """Alert Merger - Merge Group - Did Not Add Alert to Group"""
-        alert1 = Alert('', {'key': True}, set(),
-                       merge_by_keys=['key'], merge_window=timedelta(minutes=5))
-        alert2 = Alert('', {'key': True}, set(),
-                       merge_by_keys=['other'], merge_window=timedelta(minutes=5))
+        alert1 = Alert('', {'key': True},
+                       set(),
+                       merge_by_keys=['key'],
+                       merge_window=timedelta(minutes=5))
+        alert2 = Alert('', {'key': True},
+                       set(),
+                       merge_by_keys=['other'],
+                       merge_window=timedelta(minutes=5))
         group = main.AlertMergeGroup(alert1)
         assert_false(group.add(alert2))
         assert_equal([alert1], group.alerts)
@@ -54,13 +60,13 @@ class TestAlertMergeGroup:
 
 class TestAlertMerger:
     """Tests for merger/main.py:AlertMerger class"""
-
-    @patch.dict(os.environ, {
-        'ALERT_PROCESSOR': _ALERT_PROCESSOR,
-        'ALERT_PROCESSOR_TIMEOUT_SEC': str(_ALERT_PROCESSOR_TIMEOUT_SEC),
-        'ALERTS_TABLE': _ALERTS_TABLE,
-        'AWS_DEFAULT_REGION': 'us-east-1'
-    })
+    @patch.dict(
+        os.environ, {
+            'ALERT_PROCESSOR': _ALERT_PROCESSOR,
+            'ALERT_PROCESSOR_TIMEOUT_SEC': str(_ALERT_PROCESSOR_TIMEOUT_SEC),
+            'ALERTS_TABLE': _ALERTS_TABLE,
+            'AWS_DEFAULT_REGION': 'us-east-1'
+        })
     def setup(self):
         """Alert Merger - Setup"""
         self.dynamo_mock = mock_dynamodb2()
@@ -80,10 +86,7 @@ class TestAlertMerger:
     @patch.object(main, 'LOGGER')
     def test_alert_generator(self, mock_logger):
         """Alert Merger - Sorted Alerts - Invalid Alerts are Logged"""
-        records = [
-            Alert('test_rule', {}, {'output'}).dynamo_record(),
-            {'Nonsense': 'Record'}
-        ]
+        records = [Alert('test_rule', {}, {'output'}).dynamo_record(), {'Nonsense': 'Record'}]
 
         with patch.object(self.merger.table, 'get_alert_records', return_value=records):
             result = list(self.merger._alert_generator('test_rule'))
@@ -96,20 +99,29 @@ class TestAlertMerger:
     def test_merge_groups_too_recent(self):
         """Alert Merger - Alert Collection - All Alerts Too Recent to Merge"""
         alerts = [
-            Alert('', {'key': True}, set(),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=10))
+            Alert('', {'key': True},
+                  set(),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=10))
         ]
         assert_equal([], main.AlertMerger._merge_groups(alerts))
 
     def test_merge_groups_single(self):
         """Alert Merger - Alert Collection - Single Merge Group"""
         alerts = [
-            Alert('', {'key': True}, set(),
+            Alert('', {'key': True},
+                  set(),
                   created=datetime(year=2000, month=1, day=1),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
-            Alert('', {'key': True, 'other': True}, set(),
-                  created=datetime(year=2000, month=1, day=1),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5))
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
+            Alert('', {
+                'key': True,
+                'other': True
+            },
+                set(),
+                created=datetime(year=2000, month=1, day=1),
+                merge_by_keys=['key'],
+                merge_window=timedelta(minutes=5))
         ]
 
         groups = main.AlertMerger._merge_groups(alerts)
@@ -120,45 +132,69 @@ class TestAlertMerger:
         """Alert Merger - Alert Collection - Complex Merge Groups"""
         alerts = [
             # Merge group 1 - key 'A' minutes 0-5
-            Alert('same_rule_name', {'key': 'A'}, set(),
+            Alert('same_rule_name', {'key': 'A'},
+                  set(),
                   created=datetime(year=2000, month=1, day=1),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
-            Alert('same_rule_name', {'key': 'A'}, set(),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
+            Alert('same_rule_name', {'key': 'A'},
+                  set(),
                   created=datetime(year=2000, month=1, day=1, minute=1),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
 
             # Merge group 2 - Key B minutes 0-5
-            Alert('same_rule_name', {'key': 'B'}, set(),
+            Alert('same_rule_name', {'key': 'B'},
+                  set(),
                   created=datetime(year=2000, month=1, day=1, minute=2),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
-            Alert('same_rule_name', {'key': 'B'}, set(),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
+            Alert('same_rule_name', {'key': 'B'},
+                  set(),
                   created=datetime(year=2000, month=1, day=1, minute=2, second=30),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
-            Alert('same_rule_name', {'key': 'B'}, set(),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
+            Alert('same_rule_name', {'key': 'B'},
+                  set(),
                   created=datetime(year=2000, month=1, day=1, minute=3),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
 
             # Merge group 3 - Different merge keys
-            Alert('same_rule_name', {'key': 'A', 'other': 'B'}, set(),
-                  created=datetime(year=2000, month=1, day=1, minute=4),
-                  merge_by_keys=['key', 'other'], merge_window=timedelta(minutes=5)),
-            Alert('same_rule_name', {'key': 'A', 'other': 'B'}, set(),
-                  created=datetime(year=2000, month=1, day=1, minute=5),
-                  merge_by_keys=['key', 'other'], merge_window=timedelta(minutes=5)),
+            Alert('same_rule_name', {
+                'key': 'A',
+                'other': 'B'
+            },
+                set(),
+                created=datetime(year=2000, month=1, day=1, minute=4),
+                merge_by_keys=['key', 'other'],
+                merge_window=timedelta(minutes=5)),
+            Alert('same_rule_name', {
+                'key': 'A',
+                'other': 'B'
+            },
+                set(),
+                created=datetime(year=2000, month=1, day=1, minute=5),
+                merge_by_keys=['key', 'other'],
+                merge_window=timedelta(minutes=5)),
 
             # Merge group 4 - key A minutes 50-55
-            Alert('same_rule_name', {'key': 'A'}, set(),
+            Alert('same_rule_name', {'key': 'A'},
+                  set(),
                   created=datetime(year=2000, month=1, day=1, minute=50),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
 
             # This alert (created now) is too recent to fit in any merge group.
-            Alert('same_rule_name', {'key': 'A'}, set(),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=10))
+            Alert('same_rule_name', {'key': 'A'},
+                  set(),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=10))
         ]
 
         groups = main.AlertMerger._merge_groups(alerts)
         assert_equal(4, len(groups))
-        assert_equal(alerts[0:2], groups[0].alerts)
+        assert_equal(alerts[:2], groups[0].alerts)
         assert_equal(alerts[2:5], groups[1].alerts)
         assert_equal(alerts[5:7], groups[2].alerts)
         assert_equal([alerts[7]], groups[3].alerts)
@@ -167,15 +203,17 @@ class TestAlertMerger:
     def test_merge_groups_limit_reached(self):
         """Alert Merger - Alert Collection - Max Alerts Per Group"""
         alerts = [
-            Alert('same_rule_name', {'key': 'A'}, set(),
+            Alert('same_rule_name', {'key': 'A'},
+                  set(),
                   created=datetime(year=2000, month=1, day=1),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
         ] * 5
 
         # Since max alerts per group is 2, it should create 3 merged groups.
         groups = main.AlertMerger._merge_groups(alerts)
         assert_equal(3, len(groups))
-        assert_equal(alerts[0:2], groups[0].alerts)
+        assert_equal(alerts[:2], groups[0].alerts)
         assert_equal(alerts[2:4], groups[1].alerts)
         assert_equal(alerts[4:], groups[2].alerts)
 
@@ -192,10 +230,15 @@ class TestAlertMerger:
             # 2 Alerts which will be merged (and will be be too large to send the entire record)
             Alert('merge_me', {'key': True}, {'output'},
                   created=datetime(year=2000, month=1, day=1),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
-            Alert('merge_me', {'key': True, 'other': 'abc'*50}, {'output'},
-                  created=datetime(year=2000, month=1, day=1, minute=1),
-                  merge_by_keys=['key'], merge_window=timedelta(minutes=5)),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
+            Alert('merge_me', {
+                'key': True,
+                'other': 'abc' * 50
+            }, {'output'},
+                created=datetime(year=2000, month=1, day=1, minute=1),
+                merge_by_keys=['key'],
+                merge_window=timedelta(minutes=5)),
 
             # Alert which has already sent successfully (will be deleted)
             Alert('already_sent', {}, {'output'}, outputs_sent={'output'})
@@ -208,12 +251,14 @@ class TestAlertMerger:
             call.info('Merged %d alerts into a new alert with ID %s', 2, ANY),
             call.info('Dispatching %s to %s (attempt %d)', ANY, _ALERT_PROCESSOR, 1),
             call.info('Dispatching %s to %s (attempt %d)', ANY, _ALERT_PROCESSOR, 1)
-        ], any_order=True)
+        ],
+            any_order=True)
 
     @patch.object(main, 'LOGGER')
     def test_dispatch_no_alerts(self, mock_logger):
         """Alert Merger - All Alerts Have Already Been Dispatched"""
-        with patch.object(self.merger.table, 'rule_names_generator',
+        with patch.object(self.merger.table,
+                          'rule_names_generator',
                           return_value=iter(['rule_name'])):
             self.merger.dispatch()
             mock_logger.assert_not_called()
@@ -223,7 +268,4 @@ class TestAlertMerger:
 def test_handler(mock_instance):
     """Alert Merger - Handler (Entry Point)"""
     main.handler(None, None)
-    mock_instance.assert_has_calls([
-        call.get_instance(),
-        call.get_instance().dispatch()
-    ])
+    mock_instance.assert_has_calls([call.get_instance(), call.get_instance().dispatch()])

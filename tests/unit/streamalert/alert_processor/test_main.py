@@ -16,30 +16,21 @@ limitations under the License.
 import os
 
 from mock import ANY, MagicMock, Mock, patch
-from nose.tools import (
-    assert_equal,
-    assert_is_instance,
-    assert_is_none
-)
+from nose.tools import (assert_equal, assert_is_instance, assert_is_none)
 
 from streamalert.alert_processor.main import AlertProcessor, handler
 from streamalert.alert_processor.outputs.output_base import OutputDispatcher
 from streamalert.shared.alert import Alert
 from streamalert.shared.config import load_config
 from streamalert.shared.normalize import Normalizer
-from tests.unit.streamalert.alert_processor import (
-    ALERTS_TABLE,
-    MOCK_ENV
-)
+from tests.unit.streamalert.alert_processor import (ALERTS_TABLE, MOCK_ENV)
 
-MOCK_ENV.update({
-    'ALERTS_TABLE': ALERTS_TABLE
-})
+MOCK_ENV.update({'ALERTS_TABLE': ALERTS_TABLE})
 
 
 class TestAlertProcessor:
     """Tests for alert_processor/main.py"""
-    # pylint: disable=no-member,no-self-use,protected-access
+    # pylint: disable=no-member,protected-access
 
     @patch('streamalert.alert_processor.main.load_config',
            Mock(return_value=load_config('tests/unit/conf/', validate=True)))
@@ -50,11 +41,10 @@ class TestAlertProcessor:
         """Alert Processor - Test Setup"""
         # pylint: disable=attribute-defined-outside-init
         self.processor = AlertProcessor()
-        self.alert = Alert(
-            'hello_world',
-            {'abc': 123, Normalizer.NORMALIZATION_KEY: {}},
-            {'slack:unit-test-channel'}
-        )
+        self.alert = Alert('hello_world', {
+            'abc': 123,
+            Normalizer.NORMALIZATION_KEY: {}
+        }, {'slack:unit-test-channel'})
 
     def test_init(self):
         """Alert Processor - Initialization"""
@@ -70,8 +60,8 @@ class TestAlertProcessor:
     def test_create_dispatcher_output_doesnt_exist(self, mock_logger):
         """Alert Processor - Create Dispatcher - Output Does Not Exist"""
         assert_is_none(self.processor._create_dispatcher('slack:no-such-channel'))
-        mock_logger.error.called_once_with(
-            'The output \'%s\' does not exist!', 'slack:no-such-channel')
+        mock_logger.error.called_once_with('The output \'%s\' does not exist!',
+                                           'slack:no-such-channel')
 
     @patch.dict(os.environ, MOCK_ENV)
     def test_create_dispatcher(self):
@@ -117,15 +107,16 @@ class TestAlertProcessor:
     def test_update_alerts_table_delete(self):
         """Alert Processor - Update Alerts Table - Delete Item"""
         self.processor._update_table(self.alert, {'out1': True, 'out2': True})
-        self.processor.alerts_table.delete_alerts.assert_called_once_with(
-            [(self.alert.rule_name, self.alert.alert_id)])
+        self.processor.alerts_table.delete_alerts.assert_called_once_with([(self.alert.rule_name,
+                                                                            self.alert.alert_id)])
 
     def test_update_alerts_table_update(self):
         """Alert Processor - Update Alerts Table - Update With Failed Outputs"""
         self.processor._update_table(self.alert, {'out1': True, 'out2': False, 'out3': False})
         self.processor.alerts_table.update_sent_outputs.assert_called_once_with(self.alert)
 
-    @patch.object(AlertProcessor, '_send_to_outputs',
+    @patch.object(AlertProcessor,
+                  '_send_to_outputs',
                   return_value={'slack:unit-test-channel': True})
     @patch.object(AlertProcessor, '_update_table')
     def test_run_full_event(self, mock_send_alerts, mock_update_table):
@@ -142,7 +133,8 @@ class TestAlertProcessor:
         assert_equal({}, result)
         mock_logger.exception.called_once_with('Invalid alert %s', {'Record': 'Nonsense'})
 
-    @patch.object(AlertProcessor, '_send_to_outputs',
+    @patch.object(AlertProcessor,
+                  '_send_to_outputs',
                   return_value={'slack:unit-test-channel': True})
     @patch.object(AlertProcessor, '_update_table')
     def test_run_get_alert_from_dynamo(self, mock_send_alerts, mock_update_table):
@@ -162,8 +154,8 @@ class TestAlertProcessor:
         """Alert Processor - Run - Alert Does Not Exist"""
         self.processor.alerts_table.get_alert_record = MagicMock(return_value=None)
         self.processor.run(self.alert.dynamo_key)
-        mock_logger.error.assert_called_once_with(
-            '%s does not exist in the alerts table', self.alert.dynamo_key)
+        mock_logger.error.assert_called_once_with('%s does not exist in the alerts table',
+                                                  self.alert.dynamo_key)
 
     @patch.dict(os.environ, MOCK_ENV)
     @patch.object(AlertProcessor, 'run', return_value={'output': True})

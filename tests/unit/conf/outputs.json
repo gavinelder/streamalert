@@ -30,7 +30,7 @@
   "slack": [
     "unit_test_channel"
   ],
-   "jira-v2": [
+  "jira-v2": [
     "unit_test_channel"
   ]
 }

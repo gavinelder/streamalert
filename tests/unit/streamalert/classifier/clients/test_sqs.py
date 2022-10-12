@@ -23,13 +23,14 @@ from streamalert.classifier.clients.sqs import SQSClient, SQSClientError
 
 class TestSQSClient:
     """Test class for SQSClient"""
-    # pylint: disable=protected-access,no-self-use,attribute-defined-outside-init
+
+    # pylint: disable=protected-access,attribute-defined-outside-init
 
     def setup(self):
         """SQSClient - Setup"""
         # patch to speed up unit tests slightly
         with patch('boto3.resource'), \
-             patch.dict('os.environ', {'SQS_QUEUE_URL': 'test_url'}):
+                patch.dict('os.environ', {'SQS_QUEUE_URL': 'test_url'}):
 
             self._client = SQSClient()
 
@@ -39,16 +40,12 @@ class TestSQSClient:
 
     def _sample_payloads(self, count=1):
         return [
-            Mock(
-                sqs_messages=[
-                    {
-                        'log_schema_type': 'log_type_{}'.format(i),
-                        'record': {
-                            'key_{}'.format(i): 'value_{}'.format(i)
-                        }
-                    }
-                ]
-            ) for i in range(count)
+            Mock(sqs_messages=[{
+                'log_schema_type': f'log_type_{i}',
+                'record': {
+                    f'key_{i}': f'value_{i}'
+                }
+            }]) for i in range(count)
         ]
 
     def test_init_no_queue_url(self):
@@ -100,10 +97,7 @@ class TestSQSClient:
 
         result = list(SQSClient._segment_records(records))
 
-        expected_result = [
-            ([large_rec], 1),
-            ([small_rec] * 3, 3)
-        ]
+        expected_result = [([large_rec], 1), ([small_rec] * 3, 3)]
 
         assert_equal(result, expected_result)
 
@@ -116,10 +110,7 @@ class TestSQSClient:
 
         result = list(SQSClient._segment_records(records))
 
-        expected_result = [
-            ([large_rec], 1),
-            ([small_rec], 1)
-        ]
+        expected_result = [([large_rec], 1), ([small_rec], 1)]
 
         assert_equal(result, expected_result)
 
@@ -138,32 +129,21 @@ class TestSQSClient:
         self._client._finalize(response, 10)
 
         log_mock.assert_called_with(
-            'Successfully sent message with %d records to %s with MessageId %s',
-            10,
-            url,
-            response
-        )
+            'Successfully sent message with %d records to %s with MessageId %s', 10, url, response)
 
     @patch.object(SQSClient, 'MAX_BACKOFF_ATTEMPTS', 1)
     def test_send_message(self):
         """SQSClient - Send Messages"""
-        records = [
-            'test_message_00',
-            'test_message_01'
-        ]
+        records = ['test_message_00', 'test_message_01']
 
-        SQSClient._queue.send_message.side_effect = [
-            {
-                'MD5OfMessageBody': '8d110f3d795665a3b26cac774b995170',
-                'MD5OfMessageAttributes': '8cac774b995170d110f3d795665a3b26',
-                'MessageId': '8fb984ee-b44c-4a68-992f-4f7aae23ae07',
-                'SequenceNumber': '0'
-            }
-        ]
+        SQSClient._queue.send_message.side_effect = [{
+            'MD5OfMessageBody': '8d110f3d795665a3b26cac774b995170',
+            'MD5OfMessageAttributes': '8cac774b995170d110f3d795665a3b26',
+            'MessageId': '8fb984ee-b44c-4a68-992f-4f7aae23ae07',
+            'SequenceNumber': '0'
+        }]
 
-        expected_call = {
-            'MessageBody': '[test_message_00,test_message_01]'
-        }
+        expected_call = {'MessageBody': '[test_message_00,test_message_01]'}
 
         self._client._send_message(records)
 
@@ -182,9 +162,7 @@ class TestSQSClient:
     def test_payload_messages(self):
         """SQSClient - Payload Records"""
         payloads = self._sample_payloads()
-        expected_result = [
-            '{"log_schema_type":"log_type_0","record":{"key_0":"value_0"}}'
-        ]
+        expected_result = ['{"log_schema_type":"log_type_0","record":{"key_0":"value_0"}}']
         result = SQSClient._payload_messages(payloads)
         assert_equal(result, expected_result)
 
@@ -192,8 +170,6 @@ class TestSQSClient:
     def test_send(self, send_message_mock):
         """SQSClient - Send"""
         payloads = self._sample_payloads()
-        expected_batch = [
-            '{"log_schema_type":"log_type_0","record":{"key_0":"value_0"}}'
-        ]
+        expected_batch = ['{"log_schema_type":"log_type_0","record":{"key_0":"value_0"}}']
         self._client.send(payloads)
         send_message_mock.assert_called_with(expected_batch)

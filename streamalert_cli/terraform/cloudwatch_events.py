@@ -51,7 +51,7 @@ def generate_cloudwatch_events(cluster_name, cluster_dict, config):
         LOGGER.debug('CloudWatch events module is not enabled')
         return True  # not an error
 
-    tf_module_name = 'cloudwatch_events_{}'.format(cluster_name)
+    tf_module_name = f'cloudwatch_events_{cluster_name}'
 
     # Using this syntax to allow for override via empty event pattern
     event_pattern = None
@@ -78,15 +78,14 @@ def generate_cloudwatch_events(cluster_name, cluster_dict, config):
 
     region_map = _map_regions(cross_account_settings)
     for region, values in region_map.items():
-        tf_module_name = 'cloudwatch_events_cross_account_{}_{}'.format(cluster_name, region)
+        tf_module_name = f'cloudwatch_events_cross_account_{cluster_name}_{region}'
         cluster_dict['module'][tf_module_name] = {
             'source': './modules/tf_cloudwatch_events/cross_account',
             'region': region,
             'accounts': sorted(values.get('accounts', [])),
             'organizations': sorted(values.get('organizations', [])),
             'providers': {
-                # use the aliased provider for this region from providers.tf
-                'aws': 'aws.{}'.format(region)
+                'aws': f'aws.{region}'
             }
         }
 

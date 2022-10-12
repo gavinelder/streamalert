@@ -40,6 +40,7 @@ class DynamoDBDriver(PersistenceDriver):
     (!) NOTE: Currently, both the partition key and the sort key *MUST* be string types. It is
         not possible to have a non-string type for either of these.
     """
+
     def __init__(self, configuration):
         # Example configuration:
         # {
@@ -78,7 +79,7 @@ class DynamoDBDriver(PersistenceDriver):
 
     @property
     def id(self):
-        return '{}:{}'.format(self.driver_type, self._dynamo_db_table)
+        return f'{self.driver_type}:{self._dynamo_db_table}'
 
     def initialize(self):
         # Setup DynamoDB client
@@ -90,9 +91,8 @@ class DynamoDBDriver(PersistenceDriver):
             self._table = resource.Table(self._dynamo_db_table)
             _ = self._table.table_arn  # This is only here to blow up on invalid tables
         except ClientError as err:
-            message = (
-                'LookupTable ({}): Encountered error while connecting with DynamoDB: \'{}\''
-            ).format(self.id, err.response['Error']['Message'])
+            message = f"LookupTable ({self.id}): Encountered error while connecting with DynamoDB: \'{err.response['Error']['Message']}\'"
+
             raise LookupTablesInitializationError(message)
 
     def commit(self):
@@ -101,12 +101,8 @@ class DynamoDBDriver(PersistenceDriver):
 
             if LOGGER_DEBUG_ENABLED:
                 # Guard json.dumps calls due to its expensive computation
-                LOGGER.debug(
-                    'LookupTable (%s): Updating key \'%s\' with schema (%s)',
-                    self.id,
-                    key,
-                    json.dumps(key_schema)
-                )
+                LOGGER.debug('LookupTable (%s): Updating key \'%s\' with schema (%s)', self.id, key,
+                             json.dumps(key_schema))
 
             try:
                 item = key_schema
@@ -126,8 +122,7 @@ class DynamoDBDriver(PersistenceDriver):
 
             except (ClientError, ConnectTimeoutError, ReadTimeoutError):
                 raise LookupTablesInitializationError(
-                    'LookupTable ({}): Failure to set key'.format(self.id)
-                )
+                    f'LookupTable ({self.id}): Failure to set key')
 
         self._dirty_rows = {}
 
@@ -147,18 +142,10 @@ class DynamoDBDriver(PersistenceDriver):
         If it needs a reload, this method will appropriately call reload.
         """
         if self._cache.has(key):
-            LOGGER.debug(
-                'LookupTable (%s): Key %s does not need refresh. TTL: %s',
-                self.id,
-                key,
-                self._cache.ttl(key)
-            )
+            LOGGER.debug('LookupTable (%s): Key %s does not need refresh. TTL: %s', self.id, key,
+                         self._cache.ttl(key))
         else:
-            LOGGER.info(
-                'LookupTable (%s): Key %s needs refresh, starting now.',
-                self.id,
-                key
-            )
+            LOGGER.info('LookupTable (%s): Key %s needs refresh, starting now.', self.id, key)
             self._load(key)
 
     def _load(self, key):
@@ -166,12 +153,8 @@ class DynamoDBDriver(PersistenceDriver):
 
         if LOGGER_DEBUG_ENABLED:
             # Guard json.dumps calls due to its expensive computation
-            LOGGER.debug(
-                'LookupTable (%s): Loading key \'%s\' with schema (%s)',
-                self.id,
-                key,
-                json.dumps(key_schema)
-            )
+            LOGGER.debug('LookupTable (%s): Loading key \'%s\' with schema (%s)', self.id, key,
+                         json.dumps(key_schema))
 
         try:
             get_item_args = {
@@ -193,13 +176,9 @@ class DynamoDBDriver(PersistenceDriver):
 
         except (ConnectTimeoutError, ReadTimeoutError):
             # Catching timeouts
-            LOGGER.error(
-                'LookupTable (%s): Reading from DynamoDB timed out',
-                self.id
-            )
+            LOGGER.error('LookupTable (%s): Reading from DynamoDB timed out', self.id)
             raise LookupTablesInitializationError(
-                'LookupTable ({}): Reading from DynamoDB timed out'.format(self.id)
-            )
+                f'LookupTable ({self.id}): Reading from DynamoDB timed out')
 
         if 'Item' not in response:
             self._cache.set_blank(key, self._cache_refresh_minutes)
@@ -209,16 +188,11 @@ class DynamoDBDriver(PersistenceDriver):
             self._cache.set_blank(key, self._cache_refresh_minutes)
             LOGGER.error(
                 'LookupTable (%s): Requested value key %s seems to be missing from the table.',
-                self.id,
-                self._dynamo_db_value_key
-            )
+                self.id, self._dynamo_db_value_key)
             return
 
-        self._cache.set(
-            key,
-            response['Item'][self._dynamo_db_value_key],
-            self._cache_refresh_minutes
-        )
+        self._cache.set(key, response['Item'][self._dynamo_db_value_key],
+                        self._cache_refresh_minutes)
 
     def _convert_key_to_key_schema(self, key):
         """
@@ -235,10 +209,9 @@ class DynamoDBDriver(PersistenceDriver):
             components = key.split(self._key_delimiter, 2)
             if len(components) != 2:
                 message = (
-                    'LookupTable ({}): Invalid key. The requested table requires a sort key, '
-                    'which the provided key (\'{}\') does not provide, given the configured '
-                    'delimiter: \'{}\''
-                ).format(self.id, key, self._key_delimiter)
+                    f"LookupTable ({self.id}): Invalid key. The requested table requires a sort key, which the provided key ('{key}') "
+                    f"does not provide, given the configured delimiter: '{self._key_delimiter}'"
+                )
                 raise LookupTablesInitializationError(message)
 
             return {

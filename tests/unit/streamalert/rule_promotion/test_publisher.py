@@ -25,31 +25,33 @@ from streamalert.shared import athena, config
 
 class TestStatsPublisher:
     """Tests for rule_promotion/publisher.py:StatsPublisher"""
+
     # pylint: disable=protected-access
 
     def setup(self):
         """StatsPublisher - Setup"""
         # pylint: disable=attribute-defined-outside-init
-        self.publisher = StatsPublisher(
-            config=config.load_config('tests/unit/conf/'),
-            athena_client=None,
-            current_time=datetime(year=2000, month=1, day=1, hour=1, minute=1, second=1)
-        )
+        self.publisher = StatsPublisher(config=config.load_config('tests/unit/conf/'),
+                                        athena_client=None,
+                                        current_time=datetime(year=2000,
+                                                              month=1,
+                                                              day=1,
+                                                              hour=1,
+                                                              minute=1,
+                                                              second=1))
 
     @staticmethod
     def _get_fake_stats(count=2):
         """Helper function to return fake StagingStatistics"""
         stage_time = datetime(year=2000, month=1, day=1, hour=1, minute=1, second=1)
         for i in range(count):
-            stat = StagingStatistic(
-                staged_at=stage_time,
-                staged_until=stage_time + timedelta(days=2),
-                current_time=stage_time + timedelta(days=1),
-                rule='test_rule_{}'.format(i)
-            )
+            stat = StagingStatistic(staged_at=stage_time,
+                                    staged_until=stage_time + timedelta(days=2),
+                                    current_time=stage_time + timedelta(days=1),
+                                    rule=f'test_rule_{i}')
+
             stat.alert_count = i + 1
             yield stat
-
 
     def test_formatted_sns_topic_arn_default(self):
         """StatsPublisher - Format SNS Topic, Default"""
@@ -66,10 +68,8 @@ class TestStatsPublisher:
             }
         }
         topic = self.publisher.formatted_sns_topic_arn(test_config)
-        assert_equal(
-            topic,
-            'arn:aws:sns:us-east-1:123456789012:unit-test_streamalert_rule_staging_stats'
-        )
+        assert_equal(topic,
+                     'arn:aws:sns:us-east-1:123456789012:unit-test_streamalert_rule_staging_stats')
 
     def test_formatted_sns_topic_arn_hard_coded(self):
         """StatsPublisher - Format SNS Topic, Hard-Coded"""

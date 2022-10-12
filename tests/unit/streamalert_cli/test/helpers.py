@@ -24,11 +24,10 @@ def basic_test_file_json(**kwargs):
 
 
 @nottest
-def basic_test_event_data(
-        log='misc_log_type',
-        service='unit-test-service',
-        source='unit-test-source',
-        override_data=None):
+def basic_test_event_data(log='misc_log_type',
+                          service='unit-test-service',
+                          source='unit-test-source',
+                          override_data=None):
     result = {
         'data': {
             'key': 'value'
@@ -37,9 +36,7 @@ def basic_test_event_data(
         'log': log,
         'service': service,
         'source': source,
-        'trigger_rules': [
-            'misc_rule'
-        ]
+        'trigger_rules': ['misc_rule']
     }
 
     if override_data:

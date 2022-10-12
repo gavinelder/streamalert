@@ -20,7 +20,8 @@ from streamalert.classifier.parsers import SyslogParser
 
 class TestSyslogParser:
     """Test class for SyslogParser"""
-    # pylint: disable=no-self-use,protected-access
+
+    # pylint: disable=protected-access
 
     def test_parse(self):
         """Syslog Parser - Parse"""
@@ -32,11 +33,9 @@ class TestSyslogParser:
                 'message': 'string'
             }
         }
-        data = (
-            'Jan 26 19:35:33 vagrant-ubuntu-trusty-64 '
-            'sudo: pam_unix(sudo:session): '
-            'session opened for user root by (uid=0)'
-        )
+        data = ('Jan 26 19:35:33 vagrant-ubuntu-trusty-64 '
+                'sudo: pam_unix(sudo:session): '
+                'session opened for user root by (uid=0)')
 
         expected_record = {
             'timestamp': 'Jan 26 19:35:33',

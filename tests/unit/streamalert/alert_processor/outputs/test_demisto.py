@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,unused-argument,attribute-defined-outside-init,protected-access
+# pylint: disable=unused-argument,attribute-defined-outside-init,protected-access
 from collections import OrderedDict
 from datetime import datetime
 
@@ -49,32 +49,106 @@ SAMPLE_CONTEXT = {
 
 # Order matters in this test!
 EXPECTED_LABELS_FOR_SAMPLE_ALERT = [
-    {'type': 'cluster', 'value': ''},
-    {'type': 'context.demisto.baz', 'value': 'buzz'},
-    {'type': 'context.demisto.deepArray[0].key', 'value': 'value'},
-    {'type': 'context.demisto.deepArray[1].key', 'value': 'value2'},
-    {'type': 'context.demisto.deepArray[2].integer', 'value': '0'},
-    {'type': 'context.demisto.deepArray[3].bool', 'value': 'True'},
-    {'type': 'context.demisto.foo', 'value': 'bar'},
-    {'type': 'created', 'value': '2019-01-01T00:00:00.000000Z'},
-    {'type': 'id', 'value': '79192344-4a6d-4850-8d06-9c3fef1060a4'},
-    {'type': 'log_source', 'value': 'carbonblack:binarystore.file.added'},
-    {'type': 'log_type', 'value': 'json'},
-    {'type': 'outputs[0]', 'value': 'slack:unit_test_channel'},
-    {'type': 'record.cb_server', 'value': 'cbserver'},
-    {'type': 'record.compressed_size', 'value': '9982'},
-    {'type': 'record.file_path',
-     'value': '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip'},
-    {'type': 'record.md5', 'value': '0F9AA55DA3BDE84B35656AD8911A22E1'},
-    {'type': 'record.node_id', 'value': '1'},
-    {'type': 'record.size', 'value': '21504'},
-    {'type': 'record.timestamp', 'value': '1496947381.18'},
-    {'type': 'record.type', 'value': 'binarystore.file.added'},
-    {'type': 'rule_description', 'value': 'Info about this rule and what actions to take'},
-    {'type': 'rule_name', 'value': 'cb_binarystore_file_added'},
-    {'type': 'source_entity', 'value': 'corp-prefix.prod.cb.region'},
-    {'type': 'source_service', 'value': 's3'},
-    {'type': 'staged', 'value': 'False'},
+    {
+        'type': 'cluster',
+        'value': ''
+    },
+    {
+        'type': 'context.demisto.baz',
+        'value': 'buzz'
+    },
+    {
+        'type': 'context.demisto.deepArray[0].key',
+        'value': 'value'
+    },
+    {
+        'type': 'context.demisto.deepArray[1].key',
+        'value': 'value2'
+    },
+    {
+        'type': 'context.demisto.deepArray[2].integer',
+        'value': '0'
+    },
+    {
+        'type': 'context.demisto.deepArray[3].bool',
+        'value': 'True'
+    },
+    {
+        'type': 'context.demisto.foo',
+        'value': 'bar'
+    },
+    {
+        'type': 'created',
+        'value': '2019-01-01T00:00:00.000000Z'
+    },
+    {
+        'type': 'id',
+        'value': '79192344-4a6d-4850-8d06-9c3fef1060a4'
+    },
+    {
+        'type': 'log_source',
+        'value': 'carbonblack:binarystore.file.added'
+    },
+    {
+        'type': 'log_type',
+        'value': 'json'
+    },
+    {
+        'type': 'outputs[0]',
+        'value': 'slack:unit_test_channel'
+    },
+    {
+        'type': 'record.cb_server',
+        'value': 'cbserver'
+    },
+    {
+        'type': 'record.compressed_size',
+        'value': '9982'
+    },
+    {
+        'type': 'record.file_path',
+        'value': '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip'
+    },
+    {
+        'type': 'record.md5',
+        'value': '0F9AA55DA3BDE84B35656AD8911A22E1'
+    },
+    {
+        'type': 'record.node_id',
+        'value': '1'
+    },
+    {
+        'type': 'record.size',
+        'value': '21504'
+    },
+    {
+        'type': 'record.timestamp',
+        'value': '1496947381.18'
+    },
+    {
+        'type': 'record.type',
+        'value': 'binarystore.file.added'
+    },
+    {
+        'type': 'rule_description',
+        'value': 'Info about this rule and what actions to take'
+    },
+    {
+        'type': 'rule_name',
+        'value': 'cb_binarystore_file_added'
+    },
+    {
+        'type': 'source_entity',
+        'value': 'corp-prefix.prod.cb.region'
+    },
+    {
+        'type': 'source_service',
+        'value': 's3'
+    },
+    {
+        'type': 'staged',
+        'value': 'False'
+    },
 ]
 
 
@@ -94,8 +168,7 @@ class TestDemistoOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
 
         self._provider = provider
         self._dispatcher = DemistoOutput(None)
@@ -132,33 +205,21 @@ class TestDemistoOutput:
 
         class Matcher:
             def __eq__(self, other):
-                if other == expected_data:
-                    return True
+                return other == expected_data
 
-                # If you have trouble debugging the differences of the large JSON dicts like I did,
-                # pretty print the result!
-                #
-                # import pprint
-                # pp = pprint.PrettyPrinter(indent=4)
-                # pp.pprint(other)
-                return False
-
-        request_mock.assert_called_with(
-            'https://demisto.awesome-website.io/incident',
-            headers={
-                'Accept': 'application/json',
-                'Content-type': 'application/json',
-                'Authorization': 'aaaabbbbccccddddeeeeffff',
-            },
-            json=Matcher(),
-            verify=False,
-            timeout=3.05
-        )
+        request_mock.assert_called_with('https://demisto.awesome-website.io/incident',
+                                        headers={
+                                            'Accept': 'application/json',
+                                            'Content-type': 'application/json',
+                                            'Authorization': 'aaaabbbbccccddddeeeeffff',
+                                        },
+                                        json=Matcher(),
+                                        verify=False,
+                                        timeout=3.05)
 
     @patch('logging.Logger.exception')
     @patch('requests.post')
-    @patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS',
-           1)
+    @patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS', 1)
     def test_dispatch_fail(self, request_mock, logger_spy):
         """DemistoOutput - Dispatch Success, Response is Failure"""
 
@@ -176,6 +237,7 @@ class TestDemistoOutput:
         class Matcher:
             def __eq__(self, other):
                 return isinstance(other, OutputRequestFailure)
+
         logger_spy.assert_called_with('Failed to create Demisto incident: %s.', Matcher())
 
 

@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,protected-access
+# pylint: disable=protected-access
 import os
 import importlib
 
@@ -38,7 +38,7 @@ class TestMetrics:
         shared.metrics.MetricLogger.log_metric('classifier', 'FailedParsed', '')
 
         assert_equal(log_mock.call_args[0][0], 'Metric name (\'%s\') not defined for '
-                                               '\'%s\' function. Options are: %s')
+                     '\'%s\' function. Options are: %s')
         assert_equal(log_mock.call_args[0][1], 'FailedParsed')
         assert_equal(log_mock.call_args[0][2], 'classifier')
 
@@ -47,9 +47,8 @@ class TestMetrics:
         """Metrics - Valid Metric"""
         shared.metrics.MetricLogger.log_metric('classifier', 'FailedParses', 100)
 
-        log_mock.assert_called_with(
-            '{"metric_name": "%s", "metric_value": %s}', 'FailedParses', 100
-        )
+        log_mock.assert_called_with('{"metric_name": "%s", "metric_value": %s}', 'FailedParses',
+                                    100)
 
     @patch('logging.Logger.debug')
     def test_disabled_metrics(self, log_mock):
@@ -68,5 +67,4 @@ class TestMetrics:
             importlib.reload(shared.metrics)
 
             log_mock.assert_called_with('Invalid value for metric toggling, '
-                                        'expected 0 or 1: %s',
-                                        ANY)
+                                        'expected 0 or 1: %s', ANY)

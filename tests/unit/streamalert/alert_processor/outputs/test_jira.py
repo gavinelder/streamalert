@@ -27,12 +27,14 @@ class TestJiraOutput:
     DESCRIPTOR = 'unit_test_jira'
     SERVICE = 'jira'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'username': 'jira@foo.bar',
-             'password': 'jirafoobar',
-             'url': 'jira.foo.bar',
-             'project_key': 'foobar',
-             'issue_type': 'Task',
-             'aggregate': 'yes'}
+    CREDS = {
+        'username': 'jira@foo.bar',
+        'password': 'jirafoobar',
+        'url': 'jira.foo.bar',
+        'project_key': 'foobar',
+        'issue_type': 'Task',
+        'aggregate': 'yes'
+    }
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -40,8 +42,7 @@ class TestJiraOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
         self._provider = provider
         self._dispatcher = JiraOutput(None)
         self._dispatcher._base_url = self.CREDS['url']
@@ -61,8 +62,8 @@ class TestJiraOutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.get')
@@ -80,8 +81,8 @@ class TestJiraOutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.get')
@@ -99,8 +100,8 @@ class TestJiraOutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('requests.get')
     def test_get_comments_success(self, get_mock):
@@ -148,7 +149,7 @@ class TestJiraOutput:
         # setup unsuccesful auth response
         post_mock.return_value.status_code = 400
         post_mock.return_value.content = 'content'
-        post_mock.return_value.json.return_value = dict()
+        post_mock.return_value.json.return_value = {}
 
         assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
@@ -178,7 +179,7 @@ class TestJiraOutput:
         type(post_mock.return_value).status_code = PropertyMock(side_effect=[200, 400])
         auth_resp = {'session': {'name': 'cookie_name', 'value': 'cookie_value'}}
         post_mock.return_value.content = 'some bad content'
-        post_mock.return_value.json.side_effect = [auth_resp, dict()]
+        post_mock.return_value.json.side_effect = [auth_resp, {}]
 
         assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
@@ -196,7 +197,7 @@ class TestJiraOutput:
         type(post_mock.return_value).status_code = PropertyMock(side_effect=[200, 400])
         auth_resp = {'session': {'name': 'cookie_name', 'value': 'cookie_value'}}
         post_mock.return_value.content = 'some bad content'
-        post_mock.return_value.json.side_effect = [auth_resp, dict()]
+        post_mock.return_value.json.side_effect = [auth_resp, {}]
 
         assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
@@ -235,8 +236,9 @@ class TestJiraOutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Encountered an error when adding alert to existing Jira '
-                                    'issue %s. Attempting to create new Jira issue.', 5000)
+        log_mock.assert_called_with(
+            'Encountered an error when adding alert to existing Jira '
+            'issue %s. Attempting to create new Jira issue.', 5000)
 
     @patch('logging.Logger.error')
     def test_dispatch_bad_descriptor(self, log_error_mock):
@@ -244,5 +246,5 @@ class TestJiraOutput:
         assert_false(
             self._dispatcher.dispatch(get_alert(), ':'.join([self.SERVICE, 'bad_descriptor'])))
 
-        log_error_mock.assert_called_with('Failed to send alert to %s:%s',
-                                          self.SERVICE, 'bad_descriptor')
+        log_error_mock.assert_called_with('Failed to send alert to %s:%s', self.SERVICE,
+                                          'bad_descriptor')

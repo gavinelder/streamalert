@@ -32,7 +32,8 @@ class TestDynamoDBDriver:
 
     This was largely ported over from test_lookup_tables.py from the old implementation.
     """
-    # pylint: disable=protected-access,attribute-defined-outside-init,no-self-use
+
+    # pylint: disable=protected-access,attribute-defined-outside-init
     def setup(self):
         """LookupTables - Setup S3 bucket mocking"""
         self.config = load_config('tests/unit/conf')
@@ -40,68 +41,51 @@ class TestDynamoDBDriver:
         self._dynamodb_mock.start()
 
         self._driver = construct_persistence_driver(
-            self.config['lookup_tables']['tables']['dinosaur']
-        )
-        self._bad_driver = construct_persistence_driver(
-            {
-                'driver': 'dynamodb',
-                'table': 'table???',
-                'partition_key': '??',
-                'value_key': '?zlaerf',
-            }
-        )
+            self.config['lookup_tables']['tables']['dinosaur'])
+        self._bad_driver = construct_persistence_driver({
+            'driver': 'dynamodb',
+            'table': 'table???',
+            'partition_key': '??',
+            'value_key': '?zlaerf',
+        })
 
         self._put_mock_tables()
 
     def _put_mock_tables(self):
         # Build a new dynamodb schema matching the tables configured
         put_mock_dynamod_data(
-            'table_name',
-            {
-                'AttributeDefinitions': [
-                    {
-                        'AttributeName': 'MyPartitionKey',
-                        'AttributeType': 'S'
-                    },
-                    {
-                        'AttributeName': 'MySortKey',
-                        'AttributeType': 'S'
-                    }
-                ],
-                'KeySchema': [
-                    {
-                        'AttributeName': 'MyPartitionKey',
-                        'KeyType': 'HASH'
-                    },
-                    {
-                        'AttributeName': 'MySortKey',
-                        'KeyType': 'RANGE'
-                    }
-                ]
-            },
-            [
-                {
-                    'MyPartitionKey': 'aaaa',
-                    'MySortKey': '1',
-                    'MyValueKey': 'could_this_be_a_foo?',
-                },
-                {
-                    'MyPartitionKey': 'aaaa',
-                    'MySortKey': '2',
-                    'MyValueKey': 'or_is_this_just_fantasy?',
-                },
-                {
-                    'MyPartitionKey': 'aaaa',
-                    'MySortKey': '3',
-                    'MyValueKey': 'no_couldnt_be',
-                },
-                {
-                    'MyPartitionKey': 'bbbb',
-                    'MySortKey': '1',
-                    'MyValueKey': 'beeffedfeedbeefdeaddeafbeddab',
-                }
-            ]
-        )
+            'table_name', {
+                'AttributeDefinitions': [{
+                    'AttributeName': 'MyPartitionKey',
+                    'AttributeType': 'S'
+                }, {
+                    'AttributeName': 'MySortKey',
+                    'AttributeType': 'S'
+                }],
+                'KeySchema': [{
+                    'AttributeName': 'MyPartitionKey',
+                    'KeyType': 'HASH'
+                }, {
+                    'AttributeName': 'MySortKey',
+                    'KeyType': 'RANGE'
+                }]
+            }, [{
+                'MyPartitionKey': 'aaaa',
+                'MySortKey': '1',
+                'MyValueKey': 'could_this_be_a_foo?',
+            }, {
+                'MyPartitionKey': 'aaaa',
+                'MySortKey': '2',
+                'MyValueKey': 'or_is_this_just_fantasy?',
+            }, {
+                'MyPartitionKey': 'aaaa',
+                'MySortKey': '3',
+                'MyValueKey': 'no_couldnt_be',
+            }, {
+                'MyPartitionKey': 'bbbb',
+                'MySortKey': '1',
+                'MyValueKey': 'beeffedfeedbeefdeaddeafbeddab',
+            }])
 
     def teardown(self):
         self._dynamodb_mock.stop()
@@ -110,10 +94,8 @@ class TestDynamoDBDriver:
     def test_initialize(self, mock_logger):
         """LookupTables - Drivers - DynamoDB Driver - Init"""
         self._driver.initialize()
-        mock_logger.assert_any_call(
-            'LookupTable (%s): Running initialization routine',
-            'dynamodb:table_name'
-        )
+        mock_logger.assert_any_call('LookupTable (%s): Running initialization routine',
+                                    'dynamodb:table_name')
 
     def test_get(self):
         """LookupTables - Drivers - DynamoDB Driver - Get Key"""
@@ -132,10 +114,7 @@ class TestDynamoDBDriver:
 
     def test_non_existent_table_key(self):
         """LookupTables - Drivers - DynamoDB Driver - Get - Non-existent Table"""
-        assert_raises(
-            LookupTablesInitializationError,
-            self._bad_driver.initialize
-        )
+        assert_raises(LookupTablesInitializationError, self._bad_driver.initialize)
 
     @patch('boto3.resource')
     @patch('logging.Logger.error')
@@ -150,10 +129,8 @@ class TestDynamoDBDriver:
 
         assert_raises(LookupTablesInitializationError, self._driver.get, 'bbbb:1')
 
-        mock_logger.assert_any_call(
-            'LookupTable (%s): Reading from DynamoDB timed out',
-            'dynamodb:table_name'
-        )
+        mock_logger.assert_any_call('LookupTable (%s): Reading from DynamoDB timed out',
+                                    'dynamodb:table_name')
 
     @patch('logging.Logger.info')
     def test_refresh_on_first_read(self, mock_logger):
@@ -164,11 +141,8 @@ class TestDynamoDBDriver:
 
         assert_equal(self._driver.get('bbbb:1', '?'), 'beeffedfeedbeefdeaddeafbeddab')
 
-        mock_logger.assert_called_with(
-            'LookupTable (%s): Key %s needs refresh, starting now.',
-            'dynamodb:table_name',
-            'bbbb:1'
-        )
+        mock_logger.assert_called_with('LookupTable (%s): Key %s needs refresh, starting now.',
+                                       'dynamodb:table_name', 'bbbb:1')
 
         assert_true(self._driver._cache.has('bbbb:1'))
 
@@ -183,15 +157,13 @@ class TestDynamoDBDriver:
 
         # Wind the "clock" forward JUST before it needs a refresh
         self._driver._cache._clock.time_machine(
-            datetime(year=3000, month=1, day=1, minute=2, second=59)
-        )
+            datetime(year=3000, month=1, day=1, minute=2, second=59))
 
         assert_equal(self._driver.get('bbbb:1'), 'stale')
 
-        mock_logger.assert_any_call(
-            'LookupTable (%s): Key %s does not need refresh. TTL: %s',
-            'dynamodb:table_name', 'bbbb:1', datetime(year=3000, month=1, day=1, minute=3)
-        )
+        mock_logger.assert_any_call('LookupTable (%s): Key %s does not need refresh. TTL: %s',
+                                    'dynamodb:table_name', 'bbbb:1',
+                                    datetime(year=3000, month=1, day=1, minute=3))
 
     @patch('logging.Logger.info')
     def test_needs_refresh(self, mock_logger):
@@ -204,16 +176,12 @@ class TestDynamoDBDriver:
 
         # Wind the "clock" forward JUST AFTER it needs a refresh
         self._driver._cache._clock.time_machine(
-            datetime(year=3000, month=1, day=1, minute=3, second=1)
-        )
+            datetime(year=3000, month=1, day=1, minute=3, second=1))
 
         assert_equal(self._driver.get('bbbb:1'), 'beeffedfeedbeefdeaddeafbeddab')
 
-        mock_logger.assert_called_with(
-            'LookupTable (%s): Key %s needs refresh, starting now.',
-            'dynamodb:table_name',
-            'bbbb:1'
-        )
+        mock_logger.assert_called_with('LookupTable (%s): Key %s needs refresh, starting now.',
+                                       'dynamodb:table_name', 'bbbb:1')
 
     def test_set_commit_get(self, ):
         """LookupTables - Drivers - DynamoDB Driver - Set/Commmit - Can be refetched"""
@@ -230,7 +198,7 @@ class TestDynamoDBDriver:
         assert_raises(LookupTablesInitializationError, self._driver.get, 'invalid-key')
 
 
-# pylint: disable=protected-access,attribute-defined-outside-init,no-self-use,invalid-name
+# pylint: disable=protected-access,attribute-defined-outside-init,invalid-name
 class TestDynamoDBDriver_MultiTable:
     """
     Tests the DynamoDB Driver, but it tests with a variety of drivers built over the same table,
@@ -245,48 +213,36 @@ class TestDynamoDBDriver_MultiTable:
         self._dynamodb_mock.start()
 
         self._int_driver = construct_persistence_driver(
-            self.config['lookup_tables']['tables']['dinosaur_multi_int']
-        )
+            self.config['lookup_tables']['tables']['dinosaur_multi_int'])
         self._string_driver = construct_persistence_driver(
-            self.config['lookup_tables']['tables']['dinosaur_multi_string']
-        )
+            self.config['lookup_tables']['tables']['dinosaur_multi_string'])
         self._dict_driver = construct_persistence_driver(
-            self.config['lookup_tables']['tables']['dinosaur_multi_dict']
-        )
+            self.config['lookup_tables']['tables']['dinosaur_multi_dict'])
 
         self._put_mock_tables()
 
     def _put_mock_tables(self):
         # Build a new dynamodb schema matching the tables configured
         put_mock_dynamod_data(
-            'multi_table',
-            {
-                'AttributeDefinitions': [
-                    {
-                        'AttributeName': 'Pkey',
-                        'AttributeType': 'S'
-                    }
-                ],
-                'KeySchema': [
-                    {
-                        'AttributeName': 'Pkey',
-                        'KeyType': 'HASH'
-                    }
-                ],
-            },
-            [
-                {
-                    'Pkey': 'aaaa-bbbb-cccc',
-                    'IntegerField': 123,
-                    'StringField': 'hello world!',
-                    'DictField': {
-                        'message': {
-                            'depth': 'Will this work?'
-                        }
+            'multi_table', {
+                'AttributeDefinitions': [{
+                    'AttributeName': 'Pkey',
+                    'AttributeType': 'S'
+                }],
+                'KeySchema': [{
+                    'AttributeName': 'Pkey',
+                    'KeyType': 'HASH'
+                }],
+            }, [{
+                'Pkey': 'aaaa-bbbb-cccc',
+                'IntegerField': 123,
+                'StringField': 'hello world!',
+                'DictField': {
+                    'message': {
+                        'depth': 'Will this work?'
                     }
                 }
-            ]
-        )
+            }])
 
     def teardown(self):
         self._dynamodb_mock.stop()

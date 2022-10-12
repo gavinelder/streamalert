@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,protected-access
+# pylint: disable=protected-access
 
 from mock import call, patch
 from nose.tools import assert_equal, assert_raises
@@ -24,6 +24,7 @@ from streamalert.shared.importer import import_folders, _path_to_module, _python
 
 class RuleImportTest(fake_filesystem_unittest.TestCase):
     """Test rule import logic with a mocked filesystem."""
+
     # pylint: disable=protected-access
 
     def setUp(self):
@@ -45,9 +46,7 @@ class RuleImportTest(fake_filesystem_unittest.TestCase):
         """Rule - Python File Paths"""
         result = set(_python_file_paths('matchers', 'rules'))
         expected = {
-            'matchers/default.py',
-            'rules/example.py',
-            'rules/community/cloudtrail/critical_api.py'
+            'matchers/default.py', 'rules/example.py', 'rules/community/cloudtrail/critical_api.py'
         }
         assert_equal(expected, result)
 
@@ -75,4 +74,5 @@ class RuleImportTest(fake_filesystem_unittest.TestCase):
             call('matchers.default'),
             call('rules.example'),
             call('rules.community.cloudtrail.critical_api')
-        ], any_order=True)
+        ],
+            any_order=True)

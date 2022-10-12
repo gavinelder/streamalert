@@ -18,8 +18,10 @@ from nose.tools import assert_equal
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import common, firehose
 
+
 class TestFirehoseGenerate:
     """Class for testing firehose generation code"""
+
     #pylint: disable=attribute-defined-outside-init
 
     def setup(self):
@@ -29,11 +31,8 @@ class TestFirehoseGenerate:
 
     @staticmethod
     def _get_expected_schema():
-        return [
-            ('nested_key_01', 'string'),
-            ('nested_key_02', 'string'),
-            ('streamalert:envelope_keys', 'struct<env_key_01:string,env_key_02:string>')
-        ]
+        return [('nested_key_01', 'string'), ('nested_key_02', 'string'),
+                ('streamalert:envelope_keys', 'struct<env_key_01:string,env_key_02:string>')]
 
     def _default_firehose_config(self):
         return {
@@ -64,9 +63,7 @@ class TestFirehoseGenerate:
         cluster_dict = common.infinitedict()
 
         # Add an enabled log, with no alarm configuration (aka: alarms disabled)
-        self.config['global']['infrastructure']['firehose']['enabled_logs'] = {
-            'json:embedded': {}
-        }
+        self.config['global']['infrastructure']['firehose']['enabled_logs'] = {'json:embedded': {}}
 
         firehose.generate_firehose(self._logging_bucket_name, cluster_dict, self.config)
 
@@ -107,21 +104,32 @@ class TestFirehoseGenerate:
             'module': {
                 'kinesis_firehose_setup': self._default_firehose_config(),
                 'kinesis_firehose_json_embedded': {
-                    'source': './modules/tf_kinesis_firehose_delivery_stream',
-                    'buffer_size': 128,
-                    'buffer_interval': 900,
-                    'file_format': 'parquet',
-                    'stream_name': 'unit_test_streamalert_json_embedded',
-                    'role_arn': '${module.kinesis_firehose_setup.firehose_role_arn}',
-                    's3_bucket_name': 'unit-test-streamalert-data',
-                    'kms_key_arn': '${aws_kms_key.server_side_encryption.arn}',
-                    'enable_alarm': True,
-                    'alarm_actions': [
-                        'arn:aws:sns:us-west-1:12345678910:unit-test_streamalert_monitoring'
-                    ],
-                    'glue_catalog_db_name': 'unit-test_streamalert',
-                    'glue_catalog_table_name': 'json_embedded',
-                    'schema': self._get_expected_schema()
+                    'source':
+                    './modules/tf_kinesis_firehose_delivery_stream',
+                    'buffer_size':
+                    128,
+                    'buffer_interval':
+                    900,
+                    'file_format':
+                    'parquet',
+                    'stream_name':
+                    'unit_test_streamalert_json_embedded',
+                    'role_arn':
+                    '${module.kinesis_firehose_setup.firehose_role_arn}',
+                    's3_bucket_name':
+                    'unit-test-streamalert-data',
+                    'kms_key_arn':
+                    '${aws_kms_key.server_side_encryption.arn}',
+                    'enable_alarm':
+                    True,
+                    'alarm_actions':
+                    ['arn:aws:sns:us-west-1:12345678910:unit-test_streamalert_monitoring'],
+                    'glue_catalog_db_name':
+                    'unit-test_streamalert',
+                    'glue_catalog_table_name':
+                    'json_embedded',
+                    'schema':
+                    self._get_expected_schema()
                 }
             }
         }
@@ -148,24 +156,38 @@ class TestFirehoseGenerate:
             'module': {
                 'kinesis_firehose_setup': self._default_firehose_config(),
                 'kinesis_firehose_json_embedded': {
-                    'source': './modules/tf_kinesis_firehose_delivery_stream',
-                    'buffer_size': 128,
-                    'buffer_interval': 900,
-                    'file_format': 'parquet',
-                    'stream_name': 'unit_test_streamalert_json_embedded',
-                    'role_arn': '${module.kinesis_firehose_setup.firehose_role_arn}',
-                    's3_bucket_name': 'unit-test-streamalert-data',
-                    'kms_key_arn': '${aws_kms_key.server_side_encryption.arn}',
-                    'enable_alarm': True,
-                    'evaluation_periods': 10,
-                    'period_seconds': 3600,
-                    'alarm_threshold': 100000,
-                    'alarm_actions': [
-                        'arn:aws:sns:us-west-1:12345678910:unit-test_streamalert_monitoring'
-                    ],
-                    'glue_catalog_db_name': 'unit-test_streamalert',
-                    'glue_catalog_table_name': 'json_embedded',
-                    'schema': self._get_expected_schema()
+                    'source':
+                    './modules/tf_kinesis_firehose_delivery_stream',
+                    'buffer_size':
+                    128,
+                    'buffer_interval':
+                    900,
+                    'file_format':
+                    'parquet',
+                    'stream_name':
+                    'unit_test_streamalert_json_embedded',
+                    'role_arn':
+                    '${module.kinesis_firehose_setup.firehose_role_arn}',
+                    's3_bucket_name':
+                    'unit-test-streamalert-data',
+                    'kms_key_arn':
+                    '${aws_kms_key.server_side_encryption.arn}',
+                    'enable_alarm':
+                    True,
+                    'evaluation_periods':
+                    10,
+                    'period_seconds':
+                    3600,
+                    'alarm_threshold':
+                    100000,
+                    'alarm_actions':
+                    ['arn:aws:sns:us-west-1:12345678910:unit-test_streamalert_monitoring'],
+                    'glue_catalog_db_name':
+                    'unit-test_streamalert',
+                    'glue_catalog_table_name':
+                    'json_embedded',
+                    'schema':
+                    self._get_expected_schema()
                 }
             }
         }
@@ -214,9 +236,7 @@ class TestFirehoseGenerate:
         cluster_dict = common.infinitedict()
 
         # Add an enabled log, with no alarm configuration (aka: alarms disabled)
-        self.config['global']['infrastructure']['firehose']['enabled_logs'] = {
-            'json:embedded': {}
-        }
+        self.config['global']['infrastructure']['firehose']['enabled_logs'] = {'json:embedded': {}}
 
         firehose.generate_firehose(self._logging_bucket_name, cluster_dict, self.config)
 

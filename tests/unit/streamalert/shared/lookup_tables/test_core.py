@@ -29,7 +29,8 @@ class TestLookupTablesCore:
     """
     Tests LookupTablesCore
     """
-    # pylint: disable=protected-access,attribute-defined-outside-init,no-self-use
+
+    # pylint: disable=protected-access,attribute-defined-outside-init
     def setup(self):
         """LookupTables - Setup S3 bucket mocking"""
         self.config = load_config('tests/unit/conf')
@@ -42,59 +43,46 @@ class TestLookupTablesCore:
 
         self._put_mock_data()
 
-        self._lookup_tables = LookupTables.get_instance(
-            config=self.config,
-            reset=True
-        )
+        self._lookup_tables = LookupTables.get_instance(config=self.config, reset=True)
 
     def _put_mock_data(self):
         # S3 mock data
-        put_mock_s3_object('bucket_name', 'foo.json', json.dumps({
-            'key_1': 'foo_1',
-            'key_2': 'foo_2',
-        }))
+        put_mock_s3_object('bucket_name', 'foo.json',
+                           json.dumps({
+                               'key_1': 'foo_1',
+                               'key_2': 'foo_2',
+                           }))
         put_mock_s3_object(
             'bucket_name', 'bar.json',
-            zlib.compress(json.dumps({
-                'key_1': 'compressed_bar_1',
-                'key_2': 'compressed_bar_2',
-            }).encode())
-        )
+            zlib.compress(
+                json.dumps({
+                    'key_1': 'compressed_bar_1',
+                    'key_2': 'compressed_bar_2',
+                }).encode()))
 
         # DynamoDB Mock data
         # Build a new dynamodb schema matching the tables configured
         put_mock_dynamod_data(
-            'table_name',
-            {
-                'AttributeDefinitions': [
-                    {
-                        'AttributeName': 'MyPartitionKey',
-                        'AttributeType': 'S'
-                    },
-                    {
-                        'AttributeName': 'MySortKey',
-                        'AttributeType': 'S'
-                    }
-                ],
-                'KeySchema': [
-                    {
-                        'AttributeName': 'MyPartitionKey',
-                        'KeyType': 'HASH'
-                    },
-                    {
-                        'AttributeName': 'MySortKey',
-                        'KeyType': 'RANGE'
-                    }
-                ],
-            },
-            [
-                {
-                    'MyPartitionKey': 'aaaa',
-                    'MySortKey': '1',
-                    'MyValueKey': 'Over 9000!',
-                }
-            ]
-        )
+            'table_name', {
+                'AttributeDefinitions': [{
+                    'AttributeName': 'MyPartitionKey',
+                    'AttributeType': 'S'
+                }, {
+                    'AttributeName': 'MySortKey',
+                    'AttributeType': 'S'
+                }],
+                'KeySchema': [{
+                    'AttributeName': 'MyPartitionKey',
+                    'KeyType': 'HASH'
+                }, {
+                    'AttributeName': 'MySortKey',
+                    'KeyType': 'RANGE'
+                }],
+            }, [{
+                'MyPartitionKey': 'aaaa',
+                'MySortKey': '1',
+                'MyValueKey': 'Over 9000!',
+            }])
 
     def teardown(self):
         self.s3_mock.stop()
@@ -121,10 +109,5 @@ class TestLookupTablesCore:
         assert_equal(table.get('key_2'), None)
 
         mock_logger.assert_any_call(
-            (
-                'Nonexistent LookupTable \'%s\' referenced. Defaulting to null table. '
-                'Valid tables were (%s)'
-            ),
-            'does-not-exist',
-            ANY
-        )
+            ('Nonexistent LookupTable \'%s\' referenced. Defaulting to null table. '
+             'Valid tables were (%s)'), 'does-not-exist', ANY)

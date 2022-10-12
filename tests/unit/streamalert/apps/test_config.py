@@ -32,7 +32,7 @@ from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 @patch.object(AppConfig, 'MAX_STATE_SAVE_TRIES', 1)
 class TestAppConfig:
     """Test class for AppConfig"""
-    # pylint: disable=protected-access,no-self-use,too-many-public-methods
+    # pylint: disable=protected-access,too-many-public-methods
 
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
     def setup(self):
@@ -80,7 +80,7 @@ class TestAppConfig:
             'app_type': 'test_app',
             'schedule_expression': 'rate(10 minutes)',
             'destination_function_name':
-                'unit_test_prefix_unit_test_cluster_streamalert_classifier',
+            'unit_test_prefix_unit_test_cluster_streamalert_classifier',
             'invocation_type': 'successive'
         }
         assert_dict_equal(event, expected_event)
@@ -114,13 +114,11 @@ class TestAppConfig:
     def test_get_parameters_invalid_json(self):
         """AppConfig - Get Parameters, Invalid JSON"""
         with patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'}):
-            key = '{}_state'.format(self._test_app_name)
-            boto3.client('ssm').put_parameter(
-                Name=key,
-                Value='foobar',
-                Type='SecureString',
-                Overwrite=True
-            )
+            key = f'{self._test_app_name}_state'
+            boto3.client('ssm').put_parameter(Name=key,
+                                              Value='foobar',
+                                              Type='SecureString',
+                                              Overwrite=True)
             self._config._get_parameters(key)
 
     @raises(AppConfigError)
@@ -129,8 +127,11 @@ class TestAppConfig:
         """AppConfig - Get Parameters, ClientError"""
         with patch.object(AppConfig, 'MAX_STATE_SAVE_TRIES', 1):
             client_mock.get_parameters.side_effect = ClientError(
-                {'Error': {'Code': 'TEST', 'Message': 'BadError'}}, 'GetParameters')
-            self._config._get_parameters('{}_state'.format(self._test_app_name))
+                {'Error': {
+                    'Code': 'TEST',
+                    'Message': 'BadError'
+                }}, 'GetParameters')
+            self._config._get_parameters(f'{self._test_app_name}_state')
 
     @patch('streamalert.apps.config.json')
     def test_get_parameters_bad_names(self, json_mock):
@@ -148,8 +149,9 @@ class TestAppConfig:
     def test_save_state_error(self, client_mock):
         """AppConfig - Save State, Error"""
         with patch.object(AppConfig, 'MAX_STATE_SAVE_TRIES', 1):
-            client_mock.put_parameter.side_effect = ClientError(
-                {'Error': {'Code': 'TEST'}}, 'PutParameter')
+            client_mock.put_parameter.side_effect = ClientError({'Error': {
+                'Code': 'TEST'
+            }}, 'PutParameter')
             self._config._save_state()
 
     @patch('logging.Logger.error')

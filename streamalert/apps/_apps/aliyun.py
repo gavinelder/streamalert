@@ -23,7 +23,6 @@ from aliyunsdkactiontrail.request.v20171204 import LookupEventsRequest
 
 from . import AppIntegration, StreamAlertApp, get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -160,15 +159,15 @@ class AliyunApp(AppIntegration):
     @classmethod
     def _required_auth_info(cls):
         """Required credentials for access to the resources"""
-
         def region_validator(region):
             """Region names pulled from https://www.alibabacloud.com/help/doc-detail/40654.htm"""
 
-            if region in {'cn-qingdao', 'cn-beijing', 'cn-zhangjiakou', 'cn-huhehaote',
-                          'cn-hangzhou', 'cn-shanghai', 'cn-shenzhen', 'cn-hongkong',
-                          'ap-southeast-1', 'ap-southeast-2', 'ap-southeast-3', 'ap-southeast-5',
-                          'ap-northeast-1', 'ap-south-1', 'us-west-1', 'us-east-1',
-                          'eu-central-1', 'me-east-1'}:
+            if region in {
+                    'cn-qingdao', 'cn-beijing', 'cn-zhangjiakou', 'cn-huhehaote', 'cn-hangzhou',
+                    'cn-shanghai', 'cn-shenzhen', 'cn-hongkong', 'ap-southeast-1', 'ap-southeast-2',
+                    'ap-southeast-3', 'ap-southeast-5', 'ap-northeast-1', 'ap-south-1', 'us-west-1',
+                    'us-east-1', 'eu-central-1', 'me-east-1'
+            }:
                 return region
             return False
 
@@ -176,17 +175,20 @@ class AliyunApp(AppIntegration):
             'access_key_id': {
                 'description': ('The access key id generated for a RAM user. This '
                                 'should be a string of alphanumeric characters.'),
-                'format': re.compile(r'.*')
+                'format':
+                re.compile(r'.*')
             },
             'access_key_secret': {
                 'description': ('The access key secret generated for a RAM user. This '
                                 'should be a string of alphanumeric characters.'),
-                'format': re.compile(r'.*')
+                'format':
+                re.compile(r'.*')
             },
             'region_id': {
                 'description': ('The region for the Aliyun API. This should be '
                                 'a string like \'ap-northeast-1\'.'),
-                'format': region_validator
+                'format':
+                region_validator
             },
         }
 

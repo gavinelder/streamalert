@@ -6,7 +6,6 @@ import requests
 
 from . import AppIntegration, StreamAlertApp, get_logger
 
-
 LOGGER = get_logger(__name__)
 
 
@@ -53,8 +52,10 @@ class IntercomApp(AppIntegration):
 
     def _gather_logs(self):
         # Generate headers
-        headers = {'Authorization': "Bearer %s" % self._config.auth['token'],
-                   'Accept': 'application/json'}
+        headers = {
+            'Authorization': f"Bearer {self._config.auth['token']}",
+            'Accept': 'application/json'
+        }
 
         # Results are paginated with a page url field provided that is used in subsequent queries.
         # If this field exists, make a a query to the page url, and if not, make a fresh query to
@@ -64,8 +65,10 @@ class IntercomApp(AppIntegration):
             params = None
             url = self._next_page
         else:
-            params = {'created_at_before': int(calendar.timegm(time.gmtime())),
-                      'created_at_after': self._last_timestamp}
+            params = {
+                'created_at_before': int(calendar.timegm(time.gmtime())),
+                'created_at_after': self._last_timestamp
+            }
             url = self._INTERCOM_LOGS_URL
 
         LOGGER.info("Requesting events from: %s params: %s", url, params)
@@ -80,10 +83,9 @@ class IntercomApp(AppIntegration):
             return False
 
         activities = [
-            activity
-            for activity
-            in response['activity_logs']
-            if int(activity['created_at']) > self._last_timestamp]
+            activity for activity in response['activity_logs']
+            if int(activity['created_at']) > self._last_timestamp
+        ]
 
         if not activities:
             return False

@@ -111,50 +111,49 @@ class TestAliyunApp:
     def test_gather_logs_last_timestamp(self, client_mock, sleep_mock, batcher_mock, _):
         """AliyunApp - Test last_timestamp"""
         # mock 3 responses
-        mock_resps = [
-            {
-                'NextToken': '50',
-                'RequestId': 'AAAAAAAA',
-                'Events': [
-                    {
-                        'eventTime': '2018-06-23T19:29:00Z'
-                    },
-                    {
-                        'eventTime': '2018-06-23T19:28:00Z'
-                    }
-                ],
-                'EndTime': '2018-07-23T19:28:00Z',
-                'StartTime': '2018-06-23T19:28:30Z'
-            },
-            {
-                'NextToken': '100',
-                'RequestId': 'BBBBBBBBB',
-                'Events': [
-                    {
-                        'eventTime': '2018-06-24T19:29:00Z'
-                    },
-                    {
-                        'eventTime': '2018-06-24T19:28:00Z'
-                    }
-                ],
-                'EndTime': '2018-07-23T19:28:00Z',
-                'StartTime': '2018-06-23T19:28:30Z'
-            },
-            {
-                'NextToken': '150',
-                'RequestId': 'CCCCCCCC',
-                'Events': [
-                    {
-                        'eventTime': '2018-06-25T19:29:00Z'
-                    },
-                    {
-                        'eventTime': '2018-06-25T19:28:00Z'
-                    }
-                ],
-                'EndTime': '2018-07-23T19:28:00Z',
-                'StartTime': '2018-06-23T19:28:30Z'
-            }
-        ]
+        mock_resps = [{
+            'NextToken':
+            '50',
+            'RequestId':
+            'AAAAAAAA',
+            'Events': [{
+                'eventTime': '2018-06-23T19:29:00Z'
+            }, {
+                'eventTime': '2018-06-23T19:28:00Z'
+            }],
+            'EndTime':
+            '2018-07-23T19:28:00Z',
+            'StartTime':
+            '2018-06-23T19:28:30Z'
+        }, {
+            'NextToken':
+            '100',
+            'RequestId':
+            'BBBBBBBBB',
+            'Events': [{
+                'eventTime': '2018-06-24T19:29:00Z'
+            }, {
+                'eventTime': '2018-06-24T19:28:00Z'
+            }],
+            'EndTime':
+            '2018-07-23T19:28:00Z',
+            'StartTime':
+            '2018-06-23T19:28:30Z'
+        }, {
+            'NextToken':
+            '150',
+            'RequestId':
+            'CCCCCCCC',
+            'Events': [{
+                'eventTime': '2018-06-25T19:29:00Z'
+            }, {
+                'eventTime': '2018-06-25T19:28:00Z'
+            }],
+            'EndTime':
+            '2018-07-23T19:28:00Z',
+            'StartTime':
+            '2018-06-23T19:28:30Z'
+        }]
         client_mock.side_effect = [json.dumps(r, separators=(',', ':')) for r in mock_resps]
 
         # Mock remaining time. _sleep_seconds() methods will be called twice when

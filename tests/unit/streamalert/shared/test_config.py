@@ -39,18 +39,15 @@ from tests.unit.helpers.config import basic_streamalert_config
 def get_mock_lambda_context(func_name, milliseconds=100):
     """Helper function to create a fake context object using Mock"""
     arn = 'arn:aws:lambda:us-east-1:123456789012:function:{}:development'
-    context = Mock(
-        invoked_function_arn=(arn.format(func_name)),
-        function_name=func_name,
-        function_version='production',
-        get_remaining_time_in_millis=Mock(return_value=milliseconds)
-    )
-
-    return context
+    return Mock(invoked_function_arn=(arn.format(func_name)),
+                function_name=func_name,
+                function_version='production',
+                get_remaining_time_in_millis=Mock(return_value=milliseconds))
 
 
 class TestConfigLoading(fake_filesystem_unittest.TestCase):
     """Test config loading logic with a mocked filesystem."""
+
     # pylint: disable=protected-access
 
     def setUp(self):
@@ -67,14 +64,10 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
         self.fs.create_file('conf/lambda.json', contents='{}')
         self.fs.create_file('conf/logs.json', contents='{}')
         self.fs.create_file('conf/outputs.json', contents='{}')
-        self.fs.create_file(
-            'conf/threat_intel.json',
-            contents=json.dumps(config_data['threat_intel'])
-        )
-        self.fs.create_file(
-            'conf/normalized_types.json',
-            contents=json.dumps(config_data['normalized_types'])
-        )
+        self.fs.create_file('conf/threat_intel.json',
+                            contents=json.dumps(config_data['threat_intel']))
+        self.fs.create_file('conf/normalized_types.json',
+                            contents=json.dumps(config_data['normalized_types']))
         self.fs.create_file(
             'conf/schemas/csv.json',
             contents='{"csv_log2": {"schema": {"data": "string","uid": "integer"},"parser": "csv"}}'
@@ -88,16 +81,13 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
         self.fs.create_file('conf_schemas/outputs.json', contents='{}')
         self.fs.create_file(
             'conf_schemas/schemas/csv.json',
-            contents='{"csv_log": {"schema": {"data": "string","uid": "integer"},"parser": "csv"}}'
-        )
+            contents='{"csv_log": {"schema": {"data": "string","uid": "integer"},"parser": "csv"}}')
         self.fs.create_file(
             'conf_schemas/schemas/json.json',
-            contents='{"json_log": {"schema": {"name": "string"},"parser": "json"}}'
-        )
+            contents='{"json_log": {"schema": {"name": "string"},"parser": "json"}}')
         self.fs.create_file(
             'conf_schemas/schemas/json_log_with_dots.json',
-            contents='{"json:log.with.dots": {"schema": {"name": "string"},"parser": "json"}}'
-        )
+            contents='{"json:log.with.dots": {"schema": {"name": "string"},"parser": "json"}}')
 
     def test_load_invalid_file(self):
         """Shared - Config Loading - Bad JSON"""
@@ -114,13 +104,7 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
         """Shared - Config Loading - All"""
         config = load_config()
         expected_keys = {
-            'clusters',
-            'global',
-            'lambda',
-            'logs',
-            'outputs',
-            'threat_intel',
-            'normalized_types'
+            'clusters', 'global', 'lambda', 'logs', 'outputs', 'threat_intel', 'normalized_types'
         }
         assert_equal(set(config), expected_keys)
 
@@ -128,27 +112,14 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
     def test_load_exclude():
         """Shared - Config Loading - Exclude"""
         config = load_config(exclude={'global.json', 'logs.json'})
-        expected_keys = {
-            'clusters',
-            'lambda',
-            'outputs',
-            'threat_intel',
-            'normalized_types'
-        }
+        expected_keys = {'clusters', 'lambda', 'outputs', 'threat_intel', 'normalized_types'}
         assert_equal(set(config), expected_keys)
 
     @staticmethod
     def test_load_exclude_clusters():
         """Shared - Config Loading - Exclude Clusters"""
         config = load_config(exclude={'clusters'})
-        expected_keys = {
-            'global',
-            'lambda',
-            'logs',
-            'outputs',
-            'threat_intel',
-            'normalized_types'
-        }
+        expected_keys = {'global', 'lambda', 'logs', 'outputs', 'threat_intel', 'normalized_types'}
         assert_equal(set(config), expected_keys)
 
     @staticmethod
@@ -191,7 +162,6 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
 
 class TestConfigValidation:
     """Test config validation"""
-    # pylint: disable=no-self-use
 
     def test_config_no_schema(self):
         """Shared - Config Validator - No Schema in Log"""
@@ -268,9 +238,7 @@ class TestConfigValidation:
         config = basic_streamalert_config()
 
         # Set the sources value to contain an invalid data source ('sqs')
-        config['threat_intel'] = {
-            'normalized_ioc_types': {'ip': ['foobar']}
-        }
+        config['threat_intel'] = {'normalized_ioc_types': {'ip': ['foobar']}}
 
         config['normalized_types'] = {'log_type': {'sourceAddress': ['ip_address']}}
 
@@ -282,9 +250,7 @@ class TestConfigValidation:
         config = basic_streamalert_config()
 
         # Set the sources value to contain an invalid data source ('sqs')
-        config['threat_intel'] = {
-            'normalized_ioc_types': {'ip': ['foobar']}
-        }
+        config['threat_intel'] = {'normalized_ioc_types': {'ip': ['foobar']}}
         if 'normalized_types' in config:
             del config['normalized_types']
 
@@ -332,7 +298,6 @@ class TestConfigArtifactExtractor():
     def test_artifact_extractor_disabled_by_default(self):
         """Shared - artifact extractor is disabled with default config"""
         assert_false(artifact_extractor_enabled(self.default_conf_data))
-
 
     def test_artifact_extractor(self):
         """Shared - test artifact_extractor_enabled helper"""

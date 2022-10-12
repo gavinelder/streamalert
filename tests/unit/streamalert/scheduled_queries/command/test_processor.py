@@ -36,12 +36,10 @@ class TestCommandProcessor:
         manager_factory = MagicMock()
         manager_factory.new_manager.return_value = self._manager
 
-        self._processor = CommandProcessor(
-            logger=self._logger,
-            kinesis=self._kinesis,
-            state_manager=self._state_manager,
-            manager_factory=manager_factory
-        )
+        self._processor = CommandProcessor(logger=self._logger,
+                                           kinesis=self._kinesis,
+                                           state_manager=self._state_manager,
+                                           manager_factory=manager_factory)
 
     def test_nonblocking_single_pass_not_finished(self):
         """StreamQuery - CommandProcessor - nonblocking_single_pass - Not Finished"""
@@ -57,13 +55,9 @@ class TestCommandProcessor:
         query_pack = MagicMock(name='MockQueryPack')
         query_pack.query_execution_id = '1111-2222'
         query_pack.query_execution.is_succeeded.return_value = True
-        self._manager.finished_query_packs = [
-            query_pack
-        ]
+        self._manager.finished_query_packs = [query_pack]
         self._manager.num_registered_queries = 1
-        self._state_manager.get.return_value = {
-            'sent_to_streamalert': False
-        }
+        self._state_manager.get.return_value = {'sent_to_streamalert': False}
 
         result = self._processor.nonblocking_single_pass()
 
@@ -75,13 +69,9 @@ class TestCommandProcessor:
         query_pack = MagicMock(name='MockQueryPack')
         query_pack.query_execution_id = '1111-2222'
         query_pack.query_execution.is_succeeded.return_value = False
-        self._manager.finished_query_packs = [
-            query_pack
-        ]
+        self._manager.finished_query_packs = [query_pack]
         self._manager.num_registered_queries = 1
-        self._state_manager.get.return_value = {
-            'sent_to_streamalert': False
-        }
+        self._state_manager.get.return_value = {'sent_to_streamalert': False}
 
         result = self._processor.nonblocking_single_pass()
 
@@ -94,13 +84,9 @@ class TestCommandProcessor:
         query_pack = MagicMock(name='MockQueryPack')
         query_pack.query_execution_id = '1111-2222'
         query_pack.query_execution.is_succeeded.return_value = True
-        self._manager.finished_query_packs = [
-            query_pack
-        ]
+        self._manager.finished_query_packs = [query_pack]
         self._manager.num_registered_queries = 1
-        self._state_manager.get.return_value = {
-            'sent_to_streamalert': True
-        }
+        self._state_manager.get.return_value = {'sent_to_streamalert': True}
 
         result = self._processor.nonblocking_single_pass()
 

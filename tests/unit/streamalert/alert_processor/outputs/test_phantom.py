@@ -19,14 +19,14 @@ from nose.tools import assert_false, assert_true
 from streamalert.alert_processor.outputs.phantom import PhantomOutput
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 
+
 @patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS', 1)
 class TestPhantomOutput:
     """Test class for PhantomOutput"""
     DESCRIPTOR = 'unit_test_phantom'
     SERVICE = 'phantom'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'url': 'http://phantom.foo.bar',
-             'ph_auth_token': 'mocked_auth_token'}
+    CREDS = {'url': 'http://phantom.foo.bar', 'ph_auth_token': 'mocked_auth_token'}
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -34,8 +34,7 @@ class TestPhantomOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
 
         self._provider = provider
         self._dispatcher = PhantomOutput(None)
@@ -53,8 +52,8 @@ class TestPhantomOutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.get')
@@ -70,8 +69,8 @@ class TestPhantomOutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.error')
     @patch('requests.get')
@@ -133,7 +132,7 @@ class TestPhantomOutput:
         get_mock.return_value.json.return_value = {'count': 0, 'data': []}
         # _setup_container
         post_mock.return_value.status_code = 200
-        post_mock.return_value.json.return_value = dict()
+        post_mock.return_value.json.return_value = {}
 
         assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
@@ -162,8 +161,8 @@ class TestPhantomOutput:
         assert_false(
             self._dispatcher.dispatch(get_alert(), ':'.join([self.SERVICE, 'bad_descriptor'])))
 
-        log_error_mock.assert_called_with('Failed to send alert to %s:%s',
-                                          self.SERVICE, 'bad_descriptor')
+        log_error_mock.assert_called_with('Failed to send alert to %s:%s', self.SERVICE,
+                                          'bad_descriptor')
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher._get_request')
     @patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher._post_request')
@@ -174,12 +173,11 @@ class TestPhantomOutput:
         # NOTE(bobby): Is this supposed to require failing status codes?
         get_mock.return_value.status_code = 404
         post_mock.return_value.status_code = 404
-        assert_false(PhantomOutput._setup_container('rule_name',
-                                                    rule_description,
-                                                    self.CREDS['url'],
-                                                    headers))
+        assert_false(
+            PhantomOutput._setup_container('rule_name', rule_description, self.CREDS['url'],
+                                           headers))
 
-        full_url = '{}/rest/container'.format(self.CREDS['url'])
+        full_url = f"{self.CREDS['url']}/rest/container"
         params = {'_filter_name': '"rule_name"', 'page_size': 1}
         get_mock.assert_has_calls([call(full_url, params, headers, False)])
         ph_container = {'name': 'rule_name', 'description': rule_description}

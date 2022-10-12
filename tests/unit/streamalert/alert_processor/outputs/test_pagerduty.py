@@ -20,11 +20,9 @@ from mock import patch, Mock, MagicMock, call
 from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert.alert_processor.outputs.output_base import OutputDispatcher, OutputRequestFailure
-from streamalert.alert_processor.outputs.pagerduty import (
-    PagerDutyOutput,
-    PagerDutyOutputV2,
-    PagerDutyIncidentOutput,
-    WorkContext, PagerDutyRestApiClient, JsonHttpProvider)
+from streamalert.alert_processor.outputs.pagerduty import (PagerDutyOutput, PagerDutyOutputV2,
+                                                           PagerDutyIncidentOutput, WorkContext,
+                                                           PagerDutyRestApiClient, JsonHttpProvider)
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 
 
@@ -34,8 +32,10 @@ class TestPagerDutyOutput:
     DESCRIPTOR = 'unit_test_pagerduty'
     SERVICE = 'pagerduty'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'url': 'http://pagerduty.foo.bar/create_event.json',
-             'service_key': 'mocked_service_key'}
+    CREDS = {
+        'url': 'http://pagerduty.foo.bar/create_event.json',
+        'service_key': 'mocked_service_key'
+    }
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -43,8 +43,7 @@ class TestPagerDutyOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
         self._provider = provider
         self._dispatcher = PagerDutyOutput(None)
 
@@ -63,8 +62,8 @@ class TestPagerDutyOutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
         post_mock.assert_called_with(
             'http://pagerduty.foo.bar/create_event.json',
@@ -91,8 +90,7 @@ class TestPagerDutyOutput:
                 'description': 'StreamAlert Rule Triggered - cb_binarystore_file_added'
             },
             timeout=3.05,
-            verify=True
-        )
+            verify=True)
 
     @patch('logging.Logger.error')
     @patch('requests.post')
@@ -118,58 +116,63 @@ class TestPagerDutyOutput:
     def test_dispatch_success_with_contexts(self, post_mock, log_mock, compose_alert):
         """PagerDutyOutput - Dispatch Success"""
         compose_alert.return_value = {
-            '@pagerduty.contexts': [
-                {
-                    'type': 'link',
-                    'href': 'https://streamalert.io',
-                    'text': 'Link text'
-                },
-                {
-                    'type': 'image',
-                    'src': 'https://streamalert.io/en/stable/_images/sa-complete-arch.png',
-                }
-            ]
+            '@pagerduty.contexts': [{
+                'type': 'link',
+                'href': 'https://streamalert.io',
+                'text': 'Link text'
+            }, {
+                'type':
+                'image',
+                'src':
+                'https://streamalert.io/en/stable/_images/sa-complete-arch.png',
+            }]
         }
 
         RequestMocker.setup_mock(post_mock)
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
         post_mock.assert_called_with(
             'http://pagerduty.foo.bar/create_event.json',
             headers=None,
             json={
-                'client_url': '',
-                'event_type': 'trigger',
-                'contexts': [
-                    {
-                        'text': 'Link text',
-                        'href': 'https://streamalert.io', 'type': 'link'
-                    },
-                    {
-                        'src': 'https://streamalert.io/en/stable/_images/sa-complete-arch.png',
-                        'type': 'image'
-                    }
-                ],
-                'client': 'streamalert',
+                'client_url':
+                '',
+                'event_type':
+                'trigger',
+                'contexts': [{
+                    'text': 'Link text',
+                    'href': 'https://streamalert.io',
+                    'type': 'link'
+                }, {
+                    'src': 'https://streamalert.io/en/stable/_images/sa-complete-arch.png',
+                    'type': 'image'
+                }],
+                'client':
+                'streamalert',
                 'details': {
                     'record': {
-                        'compressed_size': '9982', 'node_id': '1', 'cb_server': 'cbserver',
-                        'timestamp': '1496947381.18', 'md5': '0F9AA55DA3BDE84B35656AD8911A22E1',
+                        'compressed_size': '9982',
+                        'node_id': '1',
+                        'cb_server': 'cbserver',
+                        'timestamp': '1496947381.18',
+                        'md5': '0F9AA55DA3BDE84B35656AD8911A22E1',
                         'type': 'binarystore.file.added',
                         'file_path': '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip',
                         'size': '21504'
                     },
                     'description': 'Info about this rule and what actions to take'
                 },
-                'service_key': 'mocked_service_key',
-                'description': 'StreamAlert Rule Triggered - cb_binarystore_file_added'
+                'service_key':
+                'mocked_service_key',
+                'description':
+                'StreamAlert Rule Triggered - cb_binarystore_file_added'
             },
-            timeout=3.05, verify=True
-        )
+            timeout=3.05,
+            verify=True)
 
 
 @patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS', 1)
@@ -178,8 +181,10 @@ class TestPagerDutyOutputV2:
     DESCRIPTOR = 'unit_test_pagerduty-v2'
     SERVICE = 'pagerduty-v2'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'url': 'http://pagerduty.foo.bar/create_event.json',
-             'routing_key': 'mocked_routing_key'}
+    CREDS = {
+        'url': 'http://pagerduty.foo.bar/create_event.json',
+        'routing_key': 'mocked_routing_key'
+    }
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -187,8 +192,7 @@ class TestPagerDutyOutputV2:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
         self._provider = provider
         self._dispatcher = PagerDutyOutputV2(None)
 
@@ -213,33 +217,39 @@ class TestPagerDutyOutputV2:
                 'client': 'StreamAlert',
                 'client_url': None,
                 'payload': {
-                    'custom_details': OrderedDict(
-                        [
-                            ('description', 'Info about this rule and what actions to take'),
-                            ('record', {
-                                'compressed_size': '9982', 'node_id': '1', 'cb_server': 'cbserver',
-                                'timestamp': '1496947381.18',
-                                'md5': '0F9AA55DA3BDE84B35656AD8911A22E1',
-                                'type': 'binarystore.file.added',
-                                'file_path': '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip',
-                                'size': '21504'
-                            })
-                        ]
-                    ),
-                    'source': 'carbonblack:binarystore.file.added',
-                    'severity': 'critical',
-                    'summary': 'StreamAlert Rule Triggered - cb_binarystore_file_added',
-                    'component': None,
-                    'group': None,
-                    'class': None,
+                    'custom_details':
+                    OrderedDict([('description', 'Info about this rule and what actions to take'),
+                                 ('record', {
+                                     'compressed_size': '9982',
+                                     'node_id': '1',
+                                     'cb_server': 'cbserver',
+                                     'timestamp': '1496947381.18',
+                                     'md5': '0F9AA55DA3BDE84B35656AD8911A22E1',
+                                     'type': 'binarystore.file.added',
+                                     'file_path':
+                                     '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip',
+                                     'size': '21504'
+                                 })]),
+                    'source':
+                    'carbonblack:binarystore.file.added',
+                    'severity':
+                    'critical',
+                    'summary':
+                    'StreamAlert Rule Triggered - cb_binarystore_file_added',
+                    'component':
+                    None,
+                    'group':
+                    None,
+                    'class':
+                    None,
                 },
                 'routing_key': 'mocked_routing_key',
                 'images': [],
                 'links': [],
                 'dedup_key': 'unit_test_pagerduty-v2:79192344-4a6d-4850-8d06-9c3fef1060a4',
             },
-            timeout=3.05, verify=True
-        )
+            timeout=3.05,
+            verify=True)
 
     @patch('logging.Logger.info')
     @patch('requests.post')
@@ -249,8 +259,8 @@ class TestPagerDutyOutputV2:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.error')
     @patch('requests.post')
@@ -282,14 +292,16 @@ class TestPagerDutyIncidentOutput:
     DESCRIPTOR = 'unit_test_pagerduty-incident'
     SERVICE = 'pagerduty-incident'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'api': 'https://api.pagerduty.com',
-             'token': 'mocked_token',
-             'service_name': 'mocked_service_name',
-             'service_id': 'mocked_service_id',
-             'escalation_policy': 'mocked_escalation_policy',
-             'escalation_policy_id': 'mocked_escalation_policy_id',
-             'email_from': 'email@domain.com',
-             'integration_key': 'mocked_key'}
+    CREDS = {
+        'api': 'https://api.pagerduty.com',
+        'token': 'mocked_token',
+        'service_name': 'mocked_service_name',
+        'service_id': 'mocked_service_id',
+        'escalation_policy': 'mocked_escalation_policy',
+        'escalation_policy_id': 'mocked_escalation_policy_id',
+        'email_from': 'email@domain.com',
+        'integration_key': 'mocked_key'
+    }
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -297,8 +309,7 @@ class TestPagerDutyIncidentOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
         self._provider = provider
         self._dispatcher = PagerDutyIncidentOutput(None)
         self._dispatcher._base_url = self.CREDS['api']
@@ -331,36 +342,40 @@ class TestPagerDutyIncidentOutput:
                 'client_url': None,
                 'client': 'StreamAlert',
                 'payload': {
-                    'custom_details': OrderedDict(
-                        [
-                            ('description', 'Info about this rule and what actions to take'),
-                            ('record',
-                             {
-                                 'compressed_size': '9982',
-                                 'node_id': '1',
-                                 'cb_server': 'cbserver',
-                                 'timestamp': '1496947381.18',
-                                 'md5': '0F9AA55DA3BDE84B35656AD8911A22E1',
-                                 'type': 'binarystore.file.added',
-                                 'file_path': '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip',
-                                 'size': '21504'
-                             })
-                        ]
-                    ),
-                    'group': None,
-                    'severity': 'critical',
-                    'component': None,
-                    'summary': 'StreamAlert Rule Triggered - cb_binarystore_file_added',
-                    'source': 'carbonblack:binarystore.file.added',
-                    'class': None
+                    'custom_details':
+                    OrderedDict([('description', 'Info about this rule and what actions to take'),
+                                 ('record', {
+                                     'compressed_size': '9982',
+                                     'node_id': '1',
+                                     'cb_server': 'cbserver',
+                                     'timestamp': '1496947381.18',
+                                     'md5': '0F9AA55DA3BDE84B35656AD8911A22E1',
+                                     'type': 'binarystore.file.added',
+                                     'file_path':
+                                     '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip',
+                                     'size': '21504'
+                                 })]),
+                    'group':
+                    None,
+                    'severity':
+                    'critical',
+                    'component':
+                    None,
+                    'summary':
+                    'StreamAlert Rule Triggered - cb_binarystore_file_added',
+                    'source':
+                    'carbonblack:binarystore.file.added',
+                    'class':
+                    None
                 },
                 'links': [],
                 'images': [],
                 'event_action': 'trigger',
                 'routing_key': 'mocked_key',
                 'dedup_key': 'unit_test_pagerduty-incident:79192344-4a6d-4850-8d06-9c3fef1060a4'
-            }, timeout=3.05, verify=True
-        )
+            },
+            timeout=3.05,
+            verify=True)
 
     @patch('requests.put')
     @patch('requests.post')
@@ -383,7 +398,8 @@ class TestPagerDutyIncidentOutput:
                 'From': 'email@domain.com',
                 'Content-Type': 'application/json',
                 'Authorization': 'Token token=mocked_token',
-                'Accept': 'application/vnd.pagerduty+json;version=2'},
+                'Accept': 'application/vnd.pagerduty+json;version=2'
+            },
             json={
                 'incident': {
                     'body': {
@@ -402,8 +418,8 @@ class TestPagerDutyIncidentOutput:
                     'title': 'StreamAlert Incident - Rule triggered: cb_binarystore_file_added'
                 }
             },
-            timeout=3.05, verify=False
-        )
+            timeout=3.05,
+            verify=False)
 
     @patch('requests.put')
     @patch('requests.post')
@@ -417,11 +433,7 @@ class TestPagerDutyIncidentOutput:
         RequestMocker.setup_mock(post_mock)
         RequestMocker.setup_mock(put_mock)
 
-        ctx = {
-            'pagerduty-incident': {
-                'assigned_user': 'valid_user'
-            }
-        }
+        ctx = {'pagerduty-incident': {'assigned_user': 'valid_user'}}
         self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT)
 
         put_mock.assert_any_call(
@@ -446,17 +458,16 @@ class TestPagerDutyIncidentOutput:
                     'type': 'incident',
 
                     # Assignment here; the valid_user_id comes from the /users API
-                    'assignments': [
-                        {
-                            'assignee': {
-                                'type': 'user_reference', 'id': 'valid_user_id'
-                            }
+                    'assignments': [{
+                        'assignee': {
+                            'type': 'user_reference',
+                            'id': 'valid_user_id'
                         }
-                    ],
+                    }],
                 }
             },
-            timeout=3.05, verify=False
-        )
+            timeout=3.05,
+            verify=False)
 
     @patch('logging.Logger.warning')
     @patch('logging.Logger.info')
@@ -470,7 +481,6 @@ class TestPagerDutyIncidentOutput:
         When a user is assigned but the email address is not found in PagerDuty, the call
         should still succeed. It should log a warning and default to using the escalation policy.
         """
-
         def invalid_user_matcher(*args, **kwargs):
             if args[0] != 'https://api.pagerduty.com/users':
                 return False
@@ -480,14 +490,13 @@ class TestPagerDutyIncidentOutput:
 
         RequestMocker.setup_mock(post_mock)
         RequestMocker.setup_mock(put_mock)
-        RequestMocker.setup_mock(
-            get_mock,
-            [
-                [invalid_user_matcher, 200, {'users': []}],
-                ['/users', 200, RequestMocker.USERS_JSON],
-                ['/incidents', 200, RequestMocker.INCIDENTS_JSON],
-            ]
-        )
+        RequestMocker.setup_mock(get_mock, [
+            [invalid_user_matcher, 200, {
+                'users': []
+            }],
+            ['/users', 200, RequestMocker.USERS_JSON],
+            ['/incidents', 200, RequestMocker.INCIDENTS_JSON],
+        ])
 
         ctx = {'pagerduty-incident': {'assigned_user': 'invalid_user'}}
         assert_true(self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT))
@@ -520,16 +529,13 @@ class TestPagerDutyIncidentOutput:
                     },
                 }
             },
-            timeout=3.05, verify=False
-        )
+            timeout=3.05,
+            verify=False)
 
-        log_warn_mock.assert_called_with(
-            '[%s] Assignee (%s) could not be found in PagerDuty',
-            self.SERVICE,
-            'invalid_user'
-        )
-        log_info_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                         self.SERVICE, self.DESCRIPTOR)
+        log_warn_mock.assert_called_with('[%s] Assignee (%s) could not be found in PagerDuty',
+                                         self.SERVICE, 'invalid_user')
+        log_info_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                         self.DESCRIPTOR)
 
     @patch('streamalert.alert_processor.outputs.pagerduty.compose_alert')
     @patch('requests.put')
@@ -545,9 +551,7 @@ class TestPagerDutyIncidentOutput:
         RequestMocker.setup_mock(post_mock)
         RequestMocker.setup_mock(put_mock)
 
-        compose_alert.return_value = {
-            '@pagerduty-incident.urgency': 'low'
-        }
+        compose_alert.return_value = {'@pagerduty-incident.urgency': 'low'}
 
         ctx = {}
         self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT)
@@ -581,16 +585,16 @@ class TestPagerDutyIncidentOutput:
                     'urgency': 'low',
                 }
             },
-            timeout=3.05, verify=False
-        )
+            timeout=3.05,
+            verify=False)
 
     @patch('logging.Logger.warning')
     @patch('streamalert.alert_processor.outputs.pagerduty.compose_alert')
     @patch('requests.put')
     @patch('requests.post')
     @patch('requests.get')
-    def test_dispatch_sends_correct_bad_urgency(self, get_mock, post_mock, put_mock,
-                                                compose_alert, log_mock):
+    def test_dispatch_sends_correct_bad_urgency(self, get_mock, post_mock, put_mock, compose_alert,
+                                                log_mock):
         """PagerDutyIncidentOutput - Dispatch Success, Good User, Omit Bad Urgency
 
         When an urgency is provided that is not valid, it should omit it entirely.
@@ -599,9 +603,7 @@ class TestPagerDutyIncidentOutput:
         RequestMocker.setup_mock(post_mock)
         RequestMocker.setup_mock(put_mock)
 
-        compose_alert.return_value = {
-            '@pagerduty-incident.urgency': 'asdf'
-        }
+        compose_alert.return_value = {'@pagerduty-incident.urgency': 'asdf'}
 
         ctx = {}
         self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT)
@@ -634,8 +636,8 @@ class TestPagerDutyIncidentOutput:
                     # urgency is omitted here because the original urgency was invalid
                 }
             },
-            timeout=3.05, verify=False
-        )
+            timeout=3.05,
+            verify=False)
         log_mock.assert_called_with('[%s] Invalid pagerduty incident urgency: "%s"',
                                     'pagerduty-incident', 'asdf')
 
@@ -652,11 +654,7 @@ class TestPagerDutyIncidentOutput:
         RequestMocker.setup_mock(post_mock)
         RequestMocker.setup_mock(put_mock)
 
-        ctx = {
-            'pagerduty-incident': {
-                'assigned_policy_id': 'valid_policy_id'
-            }
-        }
+        ctx = {'pagerduty-incident': {'assigned_policy_id': 'valid_policy_id'}}
         assert_true(self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT))
 
         put_mock.assert_any_call(
@@ -685,11 +683,11 @@ class TestPagerDutyIncidentOutput:
                     'type': 'incident',
                 }
             },
-            timeout=3.05, verify=False
-        )
+            timeout=3.05,
+            verify=False)
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.put')
@@ -743,11 +741,11 @@ class TestPagerDutyIncidentOutput:
                     }
                 }
             },
-            timeout=3.05, verify=False
-        )
+            timeout=3.05,
+            verify=False)
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.put')
@@ -759,25 +757,24 @@ class TestPagerDutyIncidentOutput:
         RequestMocker.setup_mock(post_mock)
         RequestMocker.setup_mock(put_mock)
 
-        ctx = {
-            'pagerduty-incident': {
-                'note': 'This is just a note'
-            }
-        }
+        ctx = {'pagerduty-incident': {'note': 'This is just a note'}}
         assert_true(self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT))
 
-        post_mock.assert_any_call(
-            'https://api.pagerduty.com/incidents/incident_id/notes',
-            headers={'From': 'email@domain.com',
-                     'Content-Type': 'application/json',
-                     'Authorization': 'Token token=mocked_token',
-                     'Accept': 'application/vnd.pagerduty+json;version=2'},
-            json={'note': {'content': 'This is just a note'}},
-            timeout=3.05, verify=False
-        )
+        post_mock.assert_any_call('https://api.pagerduty.com/incidents/incident_id/notes',
+                                  headers={
+                                      'From': 'email@domain.com',
+                                      'Content-Type': 'application/json',
+                                      'Authorization': 'Token token=mocked_token',
+                                      'Accept': 'application/vnd.pagerduty+json;version=2'
+                                  },
+                                  json={'note': {
+                                      'content': 'This is just a note'
+                                  }},
+                                  timeout=3.05,
+                                  verify=False)
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.put')
@@ -789,11 +786,7 @@ class TestPagerDutyIncidentOutput:
         RequestMocker.setup_mock(post_mock)
         RequestMocker.setup_mock(put_mock)
 
-        ctx = {
-            'pagerduty-incident': {
-                'note': None
-            }
-        }
+        ctx = {'pagerduty-incident': {'note': None}}
         assert_true(self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT))
 
         def notes_api_call(*args, **_):
@@ -801,8 +794,8 @@ class TestPagerDutyIncidentOutput:
 
         RequestMocker.assert_mock_with_no_calls_like(post_mock, notes_api_call)
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.put')
@@ -816,8 +809,8 @@ class TestPagerDutyIncidentOutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.error')
     @patch('requests.post')
@@ -829,13 +822,12 @@ class TestPagerDutyIncidentOutput:
         This causes significant problems on the PagerDuty API so we want to error out early.
         """
         RequestMocker.setup_mock(post_mock)
-        RequestMocker.setup_mock(
-            get_mock,
-            [
-                ['/users', 200, {'users': []}],
-                ['/incidents', 200, RequestMocker.INCIDENTS_JSON],
-            ]
-        )
+        RequestMocker.setup_mock(get_mock, [
+            ['/users', 200, {
+                'users': []
+            }],
+            ['/incidents', 200, RequestMocker.INCIDENTS_JSON],
+        ])
 
         assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
@@ -850,12 +842,9 @@ class TestPagerDutyIncidentOutput:
         Tests behavior if the /enqueue API call fails.
         """
         RequestMocker.setup_mock(get_mock)
-        RequestMocker.setup_mock(
-            post_mock,
-            [
-                ['/enqueue', 400, {}],
-            ]
-        )
+        RequestMocker.setup_mock(post_mock, [
+            ['/enqueue', 400, {}],
+        ])
 
         assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
@@ -873,12 +862,9 @@ class TestPagerDutyIncidentOutput:
         """
         RequestMocker.setup_mock(get_mock)
         RequestMocker.setup_mock(post_mock)
-        RequestMocker.setup_mock(
-            put_mock,
-            [
-                [re.compile(r'^.*/incidents/[a-zA-Z0-9-_]+$'), 400, {}],
-            ]
-        )
+        RequestMocker.setup_mock(put_mock, [
+            [re.compile(r'^.*/incidents/[a-zA-Z0-9-_]+$'), 400, {}],
+        ])
 
         assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
@@ -898,12 +884,13 @@ class TestPagerDutyIncidentOutput:
         """
         RequestMocker.setup_mock(get_mock)
         RequestMocker.setup_mock(post_mock)
-        RequestMocker.setup_mock(
-            put_mock,
-            [
-                [re.compile(r'^.*/incidents/[a-zA-Z0-9-_]+$'), 200, {'incident': {'not_id': '?'}}],
-            ]
-        )
+        RequestMocker.setup_mock(put_mock, [
+            [re.compile(r'^.*/incidents/[a-zA-Z0-9-_]+$'), 200, {
+                'incident': {
+                    'not_id': '?'
+                }
+            }],
+        ])
 
         assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
         log_mock.assert_any_call('[%s] Incident is missing "id"??', self.SERVICE)
@@ -937,16 +924,15 @@ class TestPagerDutyIncidentOutput:
         }
         assert_true(self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT))
 
-        get_mock.assert_any_call(
-            'https://api.pagerduty.com/users',
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': 'Token token=mocked_token',
-                'Accept': 'application/vnd.pagerduty+json;version=2'
-            },
-            params={'query': 'responder1@airbnb.com'},
-            timeout=3.05, verify=False
-        )
+        get_mock.assert_any_call('https://api.pagerduty.com/users',
+                                 headers={
+                                     'Content-Type': 'application/json',
+                                     'Authorization': 'Token token=mocked_token',
+                                     'Accept': 'application/vnd.pagerduty+json;version=2'
+                                 },
+                                 params={'query': 'responder1@airbnb.com'},
+                                 timeout=3.05,
+                                 verify=False)
 
         post_mock.assert_any_call(
             'https://api.pagerduty.com/incidents/incident_id/responder_requests',
@@ -957,24 +943,22 @@ class TestPagerDutyIncidentOutput:
                 'Accept': 'application/vnd.pagerduty+json;version=2'
             },
             json={
-                'requester_id': 'valid_user_id',
-                'message': 'I am tea kettle short and stout',
-                'responder_request_targets': [
-                    {
-                        'responder_request_target': {
-                            'type': 'user_reference',
-                            'id': 'valid_user_id'
-                        }
+                'requester_id':
+                'valid_user_id',
+                'message':
+                'I am tea kettle short and stout',
+                'responder_request_targets': [{
+                    'responder_request_target': {
+                        'type': 'user_reference',
+                        'id': 'valid_user_id'
                     }
-                ]
+                }]
             },
             timeout=3.05,
-            verify=False
-        )
+            verify=False)
 
-        log_mock.assert_called_with(
-            'Successfully sent alert to %s:%s', self.SERVICE, self.DESCRIPTOR
-        )
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     @patch('requests.put')
@@ -996,16 +980,15 @@ class TestPagerDutyIncidentOutput:
         }
         assert_true(self._dispatcher.dispatch(get_alert(context=ctx), self.OUTPUT))
 
-        get_mock.assert_any_call(
-            'https://api.pagerduty.com/users',
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': 'Token token=mocked_token',
-                'Accept': 'application/vnd.pagerduty+json;version=2'
-            },
-            params={'query': 'responder1@airbnb.com'},
-            timeout=3.05, verify=False
-        )
+        get_mock.assert_any_call('https://api.pagerduty.com/users',
+                                 headers={
+                                     'Content-Type': 'application/json',
+                                     'Authorization': 'Token token=mocked_token',
+                                     'Accept': 'application/vnd.pagerduty+json;version=2'
+                                 },
+                                 params={'query': 'responder1@airbnb.com'},
+                                 timeout=3.05,
+                                 verify=False)
 
         post_mock.assert_any_call(
             'https://api.pagerduty.com/incidents/incident_id/responder_requests',
@@ -1016,32 +999,30 @@ class TestPagerDutyIncidentOutput:
                 'Accept': 'application/vnd.pagerduty+json;version=2'
             },
             json={
-                'requester_id': 'valid_user_id',
-                'message': 'An incident was reported that requires your attention.',
-                'responder_request_targets': [
-                    {
-                        'responder_request_target': {
-                            'type': 'user_reference',
-                            'id': 'valid_user_id'
-                        }
+                'requester_id':
+                'valid_user_id',
+                'message':
+                'An incident was reported that requires your attention.',
+                'responder_request_targets': [{
+                    'responder_request_target': {
+                        'type': 'user_reference',
+                        'id': 'valid_user_id'
                     }
-                ]
+                }]
             },
             timeout=3.05,
-            verify=False
-        )
+            verify=False)
 
-        log_mock.assert_called_with(
-            'Successfully sent alert to %s:%s', self.SERVICE, self.DESCRIPTOR
-        )
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.error')
     @patch('logging.Logger.info')
     @patch('requests.put')
     @patch('requests.post')
     @patch('requests.get')
-    def test_dispatch_request_responder_not_valid(self, get_mock, post_mock, put_mock,
-                                                  log_mock, log_error_mock):
+    def test_dispatch_request_responder_not_valid(self, get_mock, post_mock, put_mock, log_mock,
+                                                  log_error_mock):
         """PagerDutyIncidentOutput - Dispatch Success, Responder not valid
 
         When a responer is requested but the email is not associated with a PD user, it will
@@ -1057,14 +1038,13 @@ class TestPagerDutyIncidentOutput:
 
         RequestMocker.setup_mock(post_mock)
         RequestMocker.setup_mock(put_mock)
-        RequestMocker.setup_mock(
-            get_mock,
-            [
-                [invalid_user_matcher, 200, {'users': []}],
-                ['/users', 200, RequestMocker.USERS_JSON],
-                ['/incidents', 200, RequestMocker.INCIDENTS_JSON],
-            ]
-        )
+        RequestMocker.setup_mock(get_mock, [
+            [invalid_user_matcher, 200, {
+                'users': []
+            }],
+            ['/users', 200, RequestMocker.USERS_JSON],
+            ['/incidents', 200, RequestMocker.INCIDENTS_JSON],
+        ])
 
         ctx = {
             'pagerduty-incident': {
@@ -1078,33 +1058,31 @@ class TestPagerDutyIncidentOutput:
 
         RequestMocker.assert_mock_with_no_calls_like(post_mock, responder_request_calls)
         log_error_mock.assert_called_with(
-            (
-                '[pagerduty-incident] Failed to request a responder (invalid_responder@airbnb.com)'
-                ' on incident (incident_id)'
-            )
-        )
+            ('[pagerduty-incident] Failed to request a responder (invalid_responder@airbnb.com)'
+             ' on incident (incident_id)'))
 
         expected_note = (
             'StreamAlert failed to correctly setup this incident. Please contact your '
             'StreamAlert administrator.\n\nErrors:\n- [pagerduty-incident] Failed to request '
-            'a responder (invalid_responder@airbnb.com) on incident (incident_id)'
-        )
-        post_mock.assert_any_call(
-            'https://api.pagerduty.com/incidents/incident_id/notes',
-            headers={'From': 'email@domain.com',
-                     'Content-Type': 'application/json',
-                     'Authorization': 'Token token=mocked_token',
-                     'Accept': 'application/vnd.pagerduty+json;version=2'},
-            json={'note': {'content': expected_note}},
-            timeout=3.05, verify=False
-        )
+            'a responder (invalid_responder@airbnb.com) on incident (incident_id)')
+        post_mock.assert_any_call('https://api.pagerduty.com/incidents/incident_id/notes',
+                                  headers={
+                                      'From': 'email@domain.com',
+                                      'Content-Type': 'application/json',
+                                      'Authorization': 'Token token=mocked_token',
+                                      'Accept': 'application/vnd.pagerduty+json;version=2'
+                                  },
+                                  json={'note': {
+                                      'content': expected_note
+                                  }},
+                                  timeout=3.05,
+                                  verify=False)
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
-        log_mock.assert_called_with(
-            'Successfully sent alert to %s:%s', self.SERVICE, self.DESCRIPTOR
-        )
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
 
 @patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS', 1)
@@ -1115,14 +1093,16 @@ class TestWorkContext:
     DESCRIPTOR = 'unit_test_pagerduty-incident'
     SERVICE = 'pagerduty-incident'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'api': 'https://api.pagerduty.com',
-             'token': 'mocked_token',
-             'service_name': 'mocked_service_name',
-             'service_id': 'mocked_service_id',
-             'escalation_policy': 'mocked_escalation_policy',
-             'escalation_policy_id': 'mocked_escalation_policy_id',
-             'email_from': 'email@domain.com',
-             'integration_key': 'mocked_key'}
+    CREDS = {
+        'api': 'https://api.pagerduty.com',
+        'token': 'mocked_token',
+        'service_name': 'mocked_service_name',
+        'service_id': 'mocked_service_id',
+        'escalation_policy': 'mocked_escalation_policy',
+        'escalation_policy_id': 'mocked_escalation_policy_id',
+        'email_from': 'email@domain.com',
+        'integration_key': 'mocked_key'
+    }
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -1130,8 +1110,7 @@ class TestWorkContext:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
         dispatcher = PagerDutyIncidentOutput(None)
         self._work = WorkContext(dispatcher, self.CREDS)
 
@@ -1156,8 +1135,7 @@ class TestWorkContext:
             params=None,
             timeout=3.05,
             # verify=False  # FIXME (derek.wang) Before the refactor this was False. Why?
-            verify=True
-        )
+            verify=True)
 
     @patch('requests.get')
     def test_get_standardized_priority_success(self, get_mock):
@@ -1242,8 +1220,7 @@ class TestWorkContext:
             params={'query': 'user_to_assign'},
             timeout=3.05,
             # verify=False  # FIXME (derek.wang) before the refactor, this was False. Why?
-            verify=True
-        )
+            verify=True)
 
     @patch('requests.get')
     def test_get_incident_assignment_user(self, get_mock):
@@ -1292,7 +1269,6 @@ class TestWorkContext:
 @patch('streamalert.alert_processor.outputs.pagerduty.PagerDutyIncidentOutput.BACKOFF_MAX', 0)
 @patch('streamalert.alert_processor.outputs.pagerduty.PagerDutyIncidentOutput.BACKOFF_TIME', 0)
 class TestPagerDutyRestApiClient:
-
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, _):
         dispatcher = PagerDutyIncidentOutput(None)
@@ -1321,21 +1297,21 @@ class TestPagerDutyRestApiClient:
 
         post_mock.assert_has_calls(
             [
-                call(
-                    Anything(),
-                    headers=Anything(), json=Anything(), timeout=Anything(),
-                    verify=VerifyIsCalledWith(True)
-                ),
-                call(
-                    Anything(),
-                    headers=Anything(), json=Anything(), timeout=Anything(),
-                    verify=VerifyIsCalledWith(False)
-                ),
-                call(
-                    Anything(),
-                    headers=Anything(), json=Anything(), timeout=Anything(),
-                    verify=VerifyIsCalledWith(False)
-                ),
+                call(Anything(),
+                     headers=Anything(),
+                     json=Anything(),
+                     timeout=Anything(),
+                     verify=VerifyIsCalledWith(True)),
+                call(Anything(),
+                     headers=Anything(),
+                     json=Anything(),
+                     timeout=Anything(),
+                     verify=VerifyIsCalledWith(False)),
+                call(Anything(),
+                     headers=Anything(),
+                     json=Anything(),
+                     timeout=Anything(),
+                     verify=VerifyIsCalledWith(False)),
             ],
             # So the problem with assert_has_calls() is that it requires you to declare all calls
             # including chained calls. This doesn't work because we do a bunch of random stuff
@@ -1345,8 +1321,7 @@ class TestPagerDutyRestApiClient:
             # By setting any_order=True, we ensure all of the above calls are made at least once.
             # We lose out on the ability to detect that we called verify=True FIRST (before the
             # two verify=False calls)... but, oh well?
-            any_order=True
-        )
+            any_order=True)
 
     @patch('requests.post')
     def test_add_note_incident_sends_correct_request(self, post_mock):
@@ -1355,18 +1330,18 @@ class TestPagerDutyRestApiClient:
 
         self._api_client.add_note('incident_id', 'this is the note')
 
-        post_mock.assert_called_with(
-            'https://api.pagerduty.com/incidents/incident_id/notes',
-            headers={
-                'From': 'user@email.com',
-                'Content-Type': 'application/json',
-                'Authorization': 'Token token=mocked_token',
-                'Accept': 'application/vnd.pagerduty+json;version=2'
-            },
-            json={'note': {'content': 'this is the note'}},
-            timeout=3.05,
-            verify=True
-        )
+        post_mock.assert_called_with('https://api.pagerduty.com/incidents/incident_id/notes',
+                                     headers={
+                                         'From': 'user@email.com',
+                                         'Content-Type': 'application/json',
+                                         'Authorization': 'Token token=mocked_token',
+                                         'Accept': 'application/vnd.pagerduty+json;version=2'
+                                     },
+                                     json={'note': {
+                                         'content': 'this is the note'
+                                     }},
+                                     timeout=3.05,
+                                     verify=True)
 
     @patch('requests.post')
     def test_add_note_incident_success(self, post_mock):
@@ -1419,18 +1394,16 @@ class TestPagerDutyRestApiClient:
 
         self._api_client.get_escalation_policy_by_id('PDUDOHF')
 
-        get_mock.assert_called_with(
-            'https://api.pagerduty.com/escalation_policies',
-            headers={
-                'From': 'user@email.com', 'Content-Type': 'application/json',
-                'Authorization': 'Token token=mocked_token',
-                'Accept': 'application/vnd.pagerduty+json;version=2'
-            },
-            params={
-                'query': 'PDUDOHF'
-            },
-            timeout=3.05, verify=True
-        )
+        get_mock.assert_called_with('https://api.pagerduty.com/escalation_policies',
+                                    headers={
+                                        'From': 'user@email.com',
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Token token=mocked_token',
+                                        'Accept': 'application/vnd.pagerduty+json;version=2'
+                                    },
+                                    params={'query': 'PDUDOHF'},
+                                    timeout=3.05,
+                                    verify=True)
 
     @patch('requests.get')
     def test_get_escalation_policy_success(self, get_mock):
@@ -1445,25 +1418,17 @@ class TestPagerDutyRestApiClient:
 
 
 class TestJsonHttpProvider:
-
     def setup(self):
         self._dispatcher = MagicMock(spec=OutputDispatcher)
         self._http = JsonHttpProvider(self._dispatcher)
 
     def test_get_sends_correct_arguments(self):
         """JsonHttpProvider - Get - Arguments"""
-        self._http.get(
-            'http://airbnb.com',
-            {'q': 'zz'},
-            headers={'Accept': 'application/tofu'},
-            verify=True
-        )
-        self._dispatcher._get_request_retry.assert_called_with(
-            'http://airbnb.com',
-            {'q': 'zz'},
-            {'Accept': 'application/tofu'},
-            True
-        )
+        self._http.get('http://airbnb.com', {'q': 'zz'},
+                       headers={'Accept': 'application/tofu'},
+                       verify=True)
+        self._dispatcher._get_request_retry.assert_called_with('http://airbnb.com', {'q': 'zz'},
+                                                               {'Accept': 'application/tofu'}, True)
 
     def test_get_returns_false_on_error(self):
         """JsonHttpProvider - Get - Error"""
@@ -1472,18 +1437,12 @@ class TestJsonHttpProvider:
 
     def test_post_sends_correct_arguments(self):
         """JsonHttpProvider - Post - Arguments"""
-        self._http.post(
-            'http://airbnb.com',
-            {'q': 'zz'},
-            headers={'Accept': 'application/tofu'},
-            verify=True
-        )
-        self._dispatcher._post_request_retry.assert_called_with(
-            'http://airbnb.com',
-            {'q': 'zz'},
-            {'Accept': 'application/tofu'},
-            True
-        )
+        self._http.post('http://airbnb.com', {'q': 'zz'},
+                        headers={'Accept': 'application/tofu'},
+                        verify=True)
+        self._dispatcher._post_request_retry.assert_called_with('http://airbnb.com', {'q': 'zz'},
+                                                                {'Accept': 'application/tofu'},
+                                                                True)
 
     def test_post_returns_false_on_error(self):
         """JsonHttpProvider - Post - Error"""
@@ -1492,18 +1451,11 @@ class TestJsonHttpProvider:
 
     def test_put_sends_correct_arguments(self):
         """JsonHttpProvider - Post - Arguments"""
-        self._http.put(
-            'http://airbnb.com',
-            {'q': 'zz'},
-            headers={'Accept': 'application/tofu'},
-            verify=True
-        )
-        self._dispatcher._put_request_retry.assert_called_with(
-            'http://airbnb.com',
-            {'q': 'zz'},
-            {'Accept': 'application/tofu'},
-            True
-        )
+        self._http.put('http://airbnb.com', {'q': 'zz'},
+                       headers={'Accept': 'application/tofu'},
+                       verify=True)
+        self._dispatcher._put_request_retry.assert_called_with('http://airbnb.com', {'q': 'zz'},
+                                                               {'Accept': 'application/tofu'}, True)
 
     def test_put_returns_false_on_error(self):
         """JsonHttpProvider - Put - Error"""
@@ -1523,18 +1475,13 @@ class TestWorkContextUnit:
         merged_incident = {'id': '12345678'}
         note = {'id': 'notepaid'}
         work = WorkContext(
-            MagicMock(
-                spec=OutputDispatcher,
-                __service__='test'
-            ),
-            {
+            MagicMock(spec=OutputDispatcher, __service__='test'), {
                 'email_from': 'test@test.test',
                 'escalation_policy_id': 'EP123123',
                 'service_id': 'SP123123',
                 'token': 'zzzzzzzzzz',
                 'api': 'https://api.pagerduty.com',
-            }
-        )
+            })
         work.verify_user_exists = MagicMock(return_value=True)
         work._update_base_incident = MagicMock(return_value=incident)
         work._create_base_alert_event = MagicMock(return_value=event)
@@ -1585,8 +1532,7 @@ class TestWorkContextUnit:
         assert_true(result)
 
         self._work._add_instability_note.assert_called_with(
-            'ABCDEFGH', ['[test] Failed to add note to incident (ABCDEFGH)']
-        )
+            'ABCDEFGH', ['[test] Failed to add note to incident (ABCDEFGH)'])
 
 
 class StringThatStartsWith(str):
@@ -1602,11 +1548,17 @@ class RequestMocker:
     PRIORITIES_JSON = {'priorities': [{'id': 'priority_id', 'name': 'priority_name'}]}
     EVENT_JSON = {'dedup_key': 'returned_dedup_key'}
     NOTE_JSON = {'note': {'id': 'note_id'}}
-    RESPONDER_JSON = {'responder_request': {
-        'incident': {'id': 'incident_id'},
-        'requester': {'id': 'responder_user_id'},
-        'responder_request_targets': []
-    }}
+    RESPONDER_JSON = {
+        'responder_request': {
+            'incident': {
+                'id': 'incident_id'
+            },
+            'requester': {
+                'id': 'responder_user_id'
+            },
+            'responder_request_targets': []
+        }
+    }
 
     @staticmethod
     def assert_mock_with_no_calls_like(mock, condition):
@@ -1619,11 +1571,10 @@ class RequestMocker:
                 failed.append(index)
 
         assert_false(
-            failed,
-            (
-                'Failed to assert that mock was not called.\nOut of {} calls, '
-                'calls {} failed the condition.'
-            ).format(len(calls), ', '.join(['#{}'.format(idx) for idx in failed]))
+            failed, (
+                f"Failed to assert that mock was not called.\nOut of {len(calls)} calls"
+                f", calls {', '.join([f'#{idx}' for idx in failed])} failed the condition."
+            )
         )
 
     @classmethod

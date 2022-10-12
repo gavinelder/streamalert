@@ -17,13 +17,9 @@ import logging
 import base64
 import zlib
 
-from streamalert.classifier.payload.payload_base import (
-    PayloadRecord,
-    RegisterInput,
-    StreamPayload
-)
+from streamalert.classifier.payload.payload_base import (PayloadRecord, RegisterInput,
+                                                         StreamPayload)
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
@@ -32,7 +28,6 @@ LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
 @RegisterInput
 class KinesisPayload(StreamPayload):
     """KinesisPayload class"""
-
     @classmethod
     def service(cls):
         return 'kinesis'

@@ -20,7 +20,8 @@ from streamalert_cli.terraform import common, classifier
 
 class TestTerraformGenerateClassifier:
     """CLI Terraform Generate, Classifier"""
-    # pylint: disable=no-self-use,attribute-defined-outside-init
+
+    # pylint: disable=attribute-defined-outside-init
 
     def setup(self):
         """CLI Terraform Generate, Classifier - Setup"""
@@ -41,9 +42,7 @@ class TestTerraformGenerateClassifier:
                 'test': {
                     'classifier_config': {
                         'inputs': {
-                            'aws-sns': [
-                                'arn:aws:sns:us-east-1:123456789012:foo_bar'
-                            ]
+                            'aws-sns': ['arn:aws:sns:us-east-1:123456789012:foo_bar']
                         },
                         'log_level': 'info',
                         'log_retention_days': 14,
@@ -75,30 +74,32 @@ class TestTerraformGenerateClassifier:
     def test_generate_classifier(self):
         """CLI - Terraform Generate, Classifier"""
         cluster_dict = common.infinitedict()
-        classifier.generate_classifier(
-            'test',
-            cluster_dict,
-            self.config
-        )
+        classifier.generate_classifier('test', cluster_dict, self.config)
 
         expected_result = {
             'module': {
                 'classifier_test_iam': {
-                    'source': './modules/tf_classifier',
-                    'account_id': '123456789012',
-                    'region': 'us-east-1',
-                    'prefix': 'unit-test',
-                    'firehose_use_prefix': True,
-                    'function_role_id': '${module.classifier_test_lambda.role_id}',
-                    'function_alias_arn': '${module.classifier_test_lambda.function_alias_arn}',
-                    'function_name': '${module.classifier_test_lambda.function_name}',
-                    'classifier_sqs_queue_arn': '${module.globals.classifier_sqs_queue_arn}',
-                    'classifier_sqs_sse_kms_key_arn': (
-                        '${module.globals.classifier_sqs_sse_kms_key_arn}'
-                    ),
-                    'input_sns_topics': [
-                        'arn:aws:sns:us-east-1:123456789012:foo_bar'
-                    ]
+                    'source':
+                    './modules/tf_classifier',
+                    'account_id':
+                    '123456789012',
+                    'region':
+                    'us-east-1',
+                    'prefix':
+                    'unit-test',
+                    'firehose_use_prefix':
+                    True,
+                    'function_role_id':
+                    '${module.classifier_test_lambda.role_id}',
+                    'function_alias_arn':
+                    '${module.classifier_test_lambda.function_alias_arn}',
+                    'function_name':
+                    '${module.classifier_test_lambda.function_name}',
+                    'classifier_sqs_queue_arn':
+                    '${module.globals.classifier_sqs_queue_arn}',
+                    'classifier_sqs_sse_kms_key_arn':
+                    ('${module.globals.classifier_sqs_sse_kms_key_arn}'),
+                    'input_sns_topics': ['arn:aws:sns:us-east-1:123456789012:foo_bar']
                 },
                 'classifier_test_lambda': {
                     'alarm_actions': ['arn:aws:sns:us-east-1:123456789012:test_topic'],
@@ -128,9 +129,7 @@ class TestTerraformGenerateClassifier:
                     'timeout_sec': 60,
                     'vpc_security_group_ids': [],
                     'vpc_subnet_ids': [],
-                    'input_sns_topics': [
-                        'arn:aws:sns:us-east-1:123456789012:foo_bar'
-                    ]
+                    'input_sns_topics': ['arn:aws:sns:us-east-1:123456789012:foo_bar']
                 }
             }
         }

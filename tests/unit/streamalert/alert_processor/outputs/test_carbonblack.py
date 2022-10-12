@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,unused-argument,attribute-defined-outside-init,protected-access
+# pylint: disable=unused-argument,attribute-defined-outside-init,protected-access
 from collections import OrderedDict
 
 from mock import call, patch, Mock, MagicMock
@@ -32,9 +32,11 @@ class TestCarbonBlackOutput:
     DESCRIPTOR = 'unit_test_carbonblack'
     SERVICE = 'carbonblack'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'url': 'carbon.foo.bar',
-             'ssl_verify': 'Y',
-             'token': '1234567890127a3d7f37f4153270bff41b105899'}
+    CREDS = {
+        'url': 'carbon.foo.bar',
+        'ssl_verify': 'Y',
+        'token': '1234567890127a3d7f37f4153270bff41b105899'
+    }
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -42,8 +44,7 @@ class TestCarbonBlackOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
         self._provider = provider
         self._dispatcher = CarbonBlackOutput(CONFIG)
 
@@ -63,34 +64,19 @@ class TestCarbonBlackOutput:
     @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
     def test_dispatch_already_banned(self, mock_cb):
         """CarbonBlackOutput - Dispatch Already Banned"""
-        alert_context = {
-            'carbonblack': {
-                'action': 'ban',
-                'value': 'BANNED_ENABLED_HASH'
-            }
-        }
+        alert_context = {'carbonblack': {'action': 'ban', 'value': 'BANNED_ENABLED_HASH'}}
         assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
 
     @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
     def test_dispatch_banned_disabled(self, mock_cb):
         """CarbonBlackOutput - Dispatch Banned Disabled"""
-        alert_context = {
-            'carbonblack': {
-                'action': 'ban',
-                'value': 'BANNED_DISABLED_HASH'
-            }
-        }
+        alert_context = {'carbonblack': {'action': 'ban', 'value': 'BANNED_DISABLED_HASH'}}
         assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
 
     @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
     def test_dispatch_not_banned(self, mock_cb):
         """CarbonBlackOutput - Dispatch Not Banned"""
-        alert_context = {
-            'carbonblack': {
-                'action': 'ban',
-                'value': 'NOT_BANNED_HASH'
-            }
-        }
+        alert_context = {'carbonblack': {'action': 'ban', 'value': 'NOT_BANNED_HASH'}}
         assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
 
     @patch('logging.Logger.error')

@@ -31,7 +31,6 @@ from tests.unit.helpers.aws_mocks import MockAthenaClient
 @patch('time.sleep', Mock())
 class TestAthenaPartitioner:
     """Test class for AthenaPartitioner when output data in Parquet format"""
-
     @patch('streamalert.athena_partitioner.main.load_config',
            Mock(return_value=load_config('tests/unit/conf/')))
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
@@ -131,51 +130,43 @@ class TestAthenaPartitioner:
     def test_get_partitions_from_keys_error(self, log_mock):
         """AthenaPartitioner - Get Partitions From Keys, Bad Key"""
         bad_key = b'bad_match_string'
-        self._partitioner._s3_buckets_and_keys = {
-            'unit-test-streamalerts': {
-                bad_key
-            }
-        }
+        self._partitioner._s3_buckets_and_keys = {'unit-test-streamalerts': {bad_key}}
 
         result = self._partitioner._get_partitions_from_keys()
 
         log_mock.assert_called_with('The key %s does not match any regex, skipping',
                                     bad_key.decode('utf-8'))
-        assert_equal(result, dict())
+        assert_equal(result, {})
 
     @staticmethod
     def _s3_record(count):
         return {
-            'Records': [
-                {
-                    's3': {
-                        'bucket': {
-                            'name': 'unit-test-streamalerts'
-                        },
-                        'object': {
-                            'key': ('parquet/alerts/dt=2017-08-{:02d}-'
-                                    '14/02/test.json'.format(val+1))
-                        }
+            'Records': [{
+                's3': {
+                    'bucket': {
+                        'name': 'unit-test-streamalerts'
+                    },
+                    'object': {
+                        'key': ('parquet/alerts/dt=2017-08-{:02d}-'
+                                '14/02/test.json'.format(val + 1))
                     }
-                } for val in range(count)
-            ]
+                }
+            } for val in range(count)]
         }
 
     @staticmethod
     def _s3_record_placeholder_file():
         return {
-            'Records': [
-                {
-                    's3': {
-                        'bucket': {
-                            'name': 'unit-test-streamalerts'
-                        },
-                        'object': {
-                            'key': 'parquet/alerts/dt=2017-08-01-14/02/test.json_$folder$'
-                        }
+            'Records': [{
+                's3': {
+                    'bucket': {
+                        'name': 'unit-test-streamalerts'
+                    },
+                    'object': {
+                        'key': 'parquet/alerts/dt=2017-08-01-14/02/test.json_$folder$'
                     }
                 }
-            ]
+            }]
         }
 
     @staticmethod
@@ -187,15 +178,13 @@ class TestAthenaPartitioner:
             count = min(count, 30)
             body = json.dumps(TestAthenaPartitioner._s3_record(count))
         return {
-            'Records': [
-                {
-                    'body': body,
-                    'messageId': "40d4fac0-64a1-4a20-8be4-893c51aebca1",
-                    "attributes": {
-                        "SentTimestamp": "1534284301036"
-                    }
+            'Records': [{
+                'body': body,
+                'messageId': "40d4fac0-64a1-4a20-8be4-893c51aebca1",
+                "attributes": {
+                    "SentTimestamp": "1534284301036"
                 }
-            ]
+            }]
         }
 
     @patch('logging.Logger.debug')
@@ -204,21 +193,17 @@ class TestAthenaPartitioner:
         """AthenaPartitioner - Run"""
         add_mock.return_value = True
         self._partitioner.run(self._create_test_message(1))
-        log_mock.assert_called_with(
-            'Received notification for object \'%s\' in bucket \'%s\'',
-            'parquet/alerts/dt=2017-08-01-14/02/test.json'.encode(),
-            'unit-test-streamalerts'
-        )
+        log_mock.assert_called_with('Received notification for object \'%s\' in bucket \'%s\'',
+                                    'parquet/alerts/dt=2017-08-01-14/02/test.json'.encode(),
+                                    'unit-test-streamalerts')
 
     @patch('logging.Logger.info')
     def test_run_placeholder_file(self, log_mock):
         """AthenaPartitioner - Run, Placeholder File"""
         self._partitioner.run(self._create_test_message(1, True))
         log_mock.assert_has_calls([
-            call(
-                'Skipping placeholder file notification with key: %s',
-                b'parquet/alerts/dt=2017-08-01-14/02/test.json_$folder$'
-            )
+            call('Skipping placeholder file notification with key: %s',
+                 b'parquet/alerts/dt=2017-08-01-14/02/test.json_$folder$')
         ])
 
     @patch('logging.Logger.warning')
@@ -236,14 +221,14 @@ class TestAthenaPartitioner:
         s3_record['Records'][0]['s3']['bucket']['name'] = bucket
         event['Records'][0]['body'] = json.dumps(s3_record)
         self._partitioner.run(event)
-        log_mock.assert_called_with('\'%s\' not found in \'buckets\' config. Please add this '
-                                    'bucket to enable additions of Hive partitions.',
-                                    bucket)
+        log_mock.assert_called_with(
+            '\'%s\' not found in \'buckets\' config. Please add this '
+            'bucket to enable additions of Hive partitions.', bucket)
+
 
 @patch('time.sleep', Mock())
 class TestAthenaPartitionerJSON:
     """Test class for AthenaPartitioner when output data in JSON format"""
-
     @patch('streamalert.athena_partitioner.main.load_config',
            Mock(return_value=load_config('tests/unit/conf_athena/')))
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})

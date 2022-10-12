@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=protected-access,attribute-defined-outside-init,no-self-use
+# pylint: disable=protected-access,attribute-defined-outside-init
 from collections import Counter, OrderedDict
 from mock import patch, Mock, MagicMock
 from nose.tools import assert_equal, assert_false, assert_true, assert_set_equal
@@ -40,8 +40,7 @@ class TestSlackOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
 
         self._provider = provider
         self._dispatcher = SlackOutput(None)
@@ -56,9 +55,7 @@ class TestSlackOutput:
 
         # tests
         assert_set_equal(set(loaded_message.keys()), {'text', 'mrkdwn', 'attachments'})
-        assert_equal(
-            loaded_message['text'],
-            '*StreamAlert Rule Triggered: test_rule_single*')
+        assert_equal(loaded_message['text'], '*StreamAlert Rule Triggered: test_rule_single*')
         assert_equal(len(loaded_message['attachments']), 1)
 
     def test_format_message_custom_text(self):
@@ -82,9 +79,7 @@ class TestSlackOutput:
         alert = get_random_alert(10, rule_name, True)
         output = MagicMock(spec=SlackOutput)
         alert_publication = compose_alert(alert, output, 'asdf')
-        alert_publication['@slack.attachments'] = [
-            {'text': 'aasdfkjadfj'}
-        ]
+        alert_publication['@slack.attachments'] = [{'text': 'aasdfkjadfj'}]
 
         loaded_message = SlackOutput._format_message(alert, alert_publication)
 
@@ -100,10 +95,8 @@ class TestSlackOutput:
         output = MagicMock(spec=SlackOutput)
         alert_publication = compose_alert(alert, output, 'asdf')
 
-        long_message = 'a'*(SlackOutput.MAX_MESSAGE_SIZE + 1)
-        alert_publication['@slack.attachments'] = [
-            {'text': long_message}
-        ]
+        long_message = 'a' * (SlackOutput.MAX_MESSAGE_SIZE + 1)
+        alert_publication['@slack.attachments'] = [{'text': long_message}]
 
         loaded_message = SlackOutput._format_message(alert, alert_publication)
 
@@ -111,9 +104,7 @@ class TestSlackOutput:
         assert_equal(len(loaded_message['attachments'][0]['text']), 3999)  # bug in elide
         log_warning.assert_called_with(
             'Custom attachment was truncated to length %d. Full message: %s',
-            SlackOutput.MAX_MESSAGE_SIZE,
-            long_message
-        )
+            SlackOutput.MAX_MESSAGE_SIZE, long_message)
 
     def test_format_message_custom_attachment_multi(self):
         """SlackOutput - Format Message, Multiple Custom Attachments"""
@@ -122,8 +113,12 @@ class TestSlackOutput:
         output = MagicMock(spec=SlackOutput)
         alert_publication = compose_alert(alert, output, 'asdf')
         alert_publication['@slack.attachments'] = [
-            {'text': 'attachment text1'},
-            {'text': 'attachment text2'},
+            {
+                'text': 'attachment text1'
+            },
+            {
+                'text': 'attachment text2'
+            },
         ]
 
         loaded_message = SlackOutput._format_message(alert, alert_publication)
@@ -140,9 +135,9 @@ class TestSlackOutput:
         alert = get_random_alert(10, rule_name, True)
         output = MagicMock(spec=SlackOutput)
         alert_publication = compose_alert(alert, output, 'asdf')
-        alert_publication['@slack.attachments'] = []
-        for _ in range(SlackOutput.MAX_ATTACHMENTS + 1):
-            alert_publication['@slack.attachments'].append({'text': 'yay'})
+        alert_publication['@slack.attachments'] = [{
+            'text': 'yay'
+        } for _ in range(SlackOutput.MAX_ATTACHMENTS + 1)]
 
         loaded_message = SlackOutput._format_message(alert, alert_publication)
 
@@ -151,9 +146,7 @@ class TestSlackOutput:
         assert_equal(loaded_message['attachments'][19]['text'], 'yay')
         log_warning.assert_called_with(
             'Message with %d custom attachments was truncated to %d attachments',
-            SlackOutput.MAX_ATTACHMENTS + 1,
-            SlackOutput.MAX_ATTACHMENTS
-        )
+            SlackOutput.MAX_ATTACHMENTS + 1, SlackOutput.MAX_ATTACHMENTS)
 
     def test_format_message_multiple(self):
         """SlackOutput - Format Multi-Message"""
@@ -200,17 +193,11 @@ class TestSlackOutput:
 
     def test_json_to_slack_mrkdwn_nested_dict(self):
         """SlackOutput - JSON to Slack mrkdwn, Nested Dict"""
-        nested_dict = OrderedDict([
-            ('root_key_01', 'root_value_01'),
-            ('root_02', 'root_value_02'),
-            ('root_nested_01', OrderedDict([
-                ('nested_key_01', 100),
-                ('nested_key_02', 200),
-                ('nested_nested_01', OrderedDict([
-                    ('nested_nested_key_01', 300)
-                ]))
-            ]))
-        ])
+        nested_dict = OrderedDict([('root_key_01', 'root_value_01'), ('root_02', 'root_value_02'),
+                                   ('root_nested_01',
+                                    OrderedDict([('nested_key_01', 100), ('nested_key_02', 200),
+                                                 ('nested_nested_01',
+                                                  OrderedDict([('nested_nested_key_01', 300)]))]))])
         result = SlackOutput._json_to_slack_mrkdwn(nested_dict, 0)
         assert_equal(len(result), 7)
         assert_equal(result[2], '*root_nested_01:*')
@@ -228,21 +215,12 @@ class TestSlackOutput:
 
     def test_json_to_slack_mrkdwn_multi_nested(self):
         """SlackOutput - JSON to Slack mrkdwn, Multi-type Nested"""
-        nested_dict = OrderedDict([
-            ('root_key_01', 'root_value_01'),
-            ('root_02', 'root_value_02'),
-            ('root_nested_01', OrderedDict([
-                ('nested_key_01', 100),
-                ('nested_key_02', 200),
-                ('nested_nested_01', OrderedDict([
-                    ('nested_nested_key_01', [
-                        6161,
-                        1051,
-                        51919
-                    ])
-                ]))
-            ]))
-        ])
+        nested_dict = OrderedDict([('root_key_01', 'root_value_01'), ('root_02', 'root_value_02'),
+                                   ('root_nested_01',
+                                    OrderedDict([('nested_key_01', 100), ('nested_key_02', 200),
+                                                 ('nested_nested_01',
+                                                  OrderedDict([('nested_nested_key_01',
+                                                                [6161, 1051, 51919])]))]))])
         result = SlackOutput._json_to_slack_mrkdwn(nested_dict, 0)
         assert_equal(len(result), 10)
         assert_equal(result[2], '*root_nested_01:*')
@@ -295,24 +273,20 @@ class TestSlackOutput:
         output = MagicMock(spec=SlackOutput)
         alert_publication = compose_alert(alert, output, 'asdf')
         SlackOutput._format_default_attachments(alert, alert_publication, 'foo')
-        log_mock.assert_called_with(
-            '%s: %d-part message truncated to %d parts',
-            alert_publication,
-            21,
-            20
-        )
+        log_mock.assert_called_with('%s: %d-part message truncated to %d parts', alert_publication,
+                                    21, 20)
 
     @patch('logging.Logger.info')
     @patch('requests.post')
     def test_dispatch_success(self, url_mock, log_mock):
         """SlackOutput - Dispatch Success"""
         url_mock.return_value.status_code = 200
-        url_mock.return_value.json.return_value = dict()
+        url_mock.return_value.json.return_value = {}
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.error')
     @patch('requests.post')

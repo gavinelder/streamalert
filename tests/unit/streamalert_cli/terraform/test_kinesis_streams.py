@@ -24,11 +24,7 @@ CONFIG = CLIConfig(config_path='tests/unit/conf')
 def test_kinesis_streams():
     """CLI - Terraform Generate Kinesis Streams"""
     cluster_dict = common.infinitedict()
-    result = kinesis_streams.generate_kinesis_streams(
-        'advanced',
-        cluster_dict,
-        CONFIG
-    )
+    result = kinesis_streams.generate_kinesis_streams('advanced', cluster_dict, CONFIG)
 
     expected_result = {
         'module': {
@@ -48,13 +44,16 @@ def test_kinesis_streams():
         },
         'output': {
             'kinesis_advanced_access_key_id': {
-                'value': '${module.kinesis_advanced.access_key_id}'
+                'value': '${module.kinesis_advanced.access_key_id}',
+                'sensitive': 'true'
             },
             'kinesis_advanced_secret_key': {
-                'value': '${module.kinesis_advanced.secret_key}'
+                'value': '${module.kinesis_advanced.secret_key}',
+                'sensitive': 'true'
             },
             'kinesis_advanced_user_arn': {
-                'value': '${module.kinesis_advanced.user_arn}'
+                'value': '${module.kinesis_advanced.user_arn}',
+                'sensitive': 'true'
             }
         }
     }
@@ -66,11 +65,7 @@ def test_kinesis_streams():
 def test_kinesis_streams_with_trusted_account():
     """CLI - Terraform Generate Kinesis Streams with trusted account"""
     cluster_dict = common.infinitedict()
-    result = kinesis_streams.generate_kinesis_streams(
-        'trusted',
-        cluster_dict,
-        CONFIG
-    )
+    result = kinesis_streams.generate_kinesis_streams('trusted', cluster_dict, CONFIG)
 
     expected_result = {
         'module': {
@@ -85,20 +80,21 @@ def test_kinesis_streams_with_trusted_account():
                 'shards': 1,
                 'retention': 24,
                 'create_user': True,
-                'trusted_accounts': [
-                    '98765432100'
-                ]
+                'trusted_accounts': ['98765432100']
             }
         },
         'output': {
             'kinesis_trusted_access_key_id': {
-                'value': '${module.kinesis_trusted.access_key_id}'
+                'value': '${module.kinesis_trusted.access_key_id}',
+                'sensitive': 'true'
             },
             'kinesis_trusted_secret_key': {
-                'value': '${module.kinesis_trusted.secret_key}'
+                'value': '${module.kinesis_trusted.secret_key}',
+                'sensitive': 'true'
             },
             'kinesis_trusted_username': {
-                'value': '${module.kinesis_trusted.username}'
+                'value': '${module.kinesis_trusted.username}',
+                'sensitive': 'true'
             }
         }
     }
@@ -113,11 +109,7 @@ def test_kinesis_streams_with_custom_name():
     stream_name = 'test-stream-name'
     cluster = 'advanced'
     CONFIG['clusters'][cluster]['modules']['kinesis']['streams']['stream_name'] = stream_name
-    result = kinesis_streams.generate_kinesis_streams(
-        cluster,
-        cluster_dict,
-        CONFIG
-    )
+    result = kinesis_streams.generate_kinesis_streams(cluster, cluster_dict, CONFIG)
 
     expected_result = {
         'module': {
@@ -137,13 +129,16 @@ def test_kinesis_streams_with_custom_name():
         },
         'output': {
             'kinesis_advanced_access_key_id': {
-                'value': '${module.kinesis_advanced.access_key_id}'
+                'value': '${module.kinesis_advanced.access_key_id}',
+                'sensitive': 'true'
             },
             'kinesis_advanced_secret_key': {
-                'value': '${module.kinesis_advanced.secret_key}'
+                'value': '${module.kinesis_advanced.secret_key}',
+                'sensitive': 'true'
             },
             'kinesis_advanced_user_arn': {
-                'value': '${module.kinesis_advanced.user_arn}'
+                'value': '${module.kinesis_advanced.user_arn}',
+                'sensitive': 'true'
             }
         }
     }

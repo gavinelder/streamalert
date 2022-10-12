@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,protected-access
+# pylint: disable=protected-access
 import unittest
 
 from botocore.exceptions import ClientError
@@ -35,7 +35,6 @@ class MockOptions:
 @mock.patch.object(rollback, 'boto3', mock.MagicMock())
 class RollbackTest(unittest.TestCase):
     """Test the config updates and Terraform targets affected during a Lambda rollback."""
-
     @mock.patch.object(rollback, 'LOGGER')
     def test_rollback_production_latest(self, mock_logger):
         """CLI - Can't rollback a function at $LATEST"""
@@ -68,8 +67,8 @@ class RollbackTest(unittest.TestCase):
         rollback._rollback_production(mock_client, 'test_function')
 
         mock_logger.assert_has_calls([
-            mock.call.info('Rolling back %s:production from version %d => %d',
-                           'test_function', 3, 2),
+            mock.call.info('Rolling back %s:production from version %d => %d', 'test_function', 3,
+                           2),
             mock.call.exception('version not updated')
         ])
 
@@ -79,16 +78,13 @@ class RollbackTest(unittest.TestCase):
         """CLI - Lambda rollback all"""
         mock_helper.return_value = True
         funcs = [
-            'alert', 'alert_merger', 'apps', 'athena', 'classifier',
-            'rule', 'rule_promo', 'scheduled_queries', 'threat_intel_downloader'
+            'alert', 'alert_merger', 'apps', 'athena', 'classifier', 'rule', 'rule_promo',
+            'scheduled_queries', 'threat_intel_downloader'
         ]
         assert_equal(
-            rollback.RollbackCommand.handler(
-                MockOptions(None, funcs),
-                MockCLIConfig(config=basic_streamalert_config())
-            ),
-            True
-        )
+            rollback.RollbackCommand.handler(MockOptions(None, funcs),
+                                             MockCLIConfig(config=basic_streamalert_config())),
+            True)
         mock_helper.assert_has_calls([
             mock.call(mock.ANY, 'unit-test_streamalert_alert_processor'),
             mock.call(mock.ANY, 'unit-test_streamalert_alert_merger'),
@@ -109,12 +105,9 @@ class RollbackTest(unittest.TestCase):
         """CLI - Lambda rollback apps and rule"""
         mock_helper.return_value = True
         assert_equal(
-            rollback.RollbackCommand.handler(
-                MockOptions(None, ['apps', 'rule']),
-                MockCLIConfig(config=basic_streamalert_config())
-            ),
-            True
-        )
+            rollback.RollbackCommand.handler(MockOptions(None, ['apps', 'rule']),
+                                             MockCLIConfig(config=basic_streamalert_config())),
+            True)
         mock_helper.assert_has_calls([
             mock.call(mock.ANY, 'unit-test_corp_box_admin_events_box_collector_app'),
             mock.call(mock.ANY, 'unit-test_corp_duo_admin_duo_admin_collector_app'),

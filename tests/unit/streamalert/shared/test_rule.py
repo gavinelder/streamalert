@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,protected-access
+# pylint: disable=protected-access
 import hashlib
 
 from mock import patch
@@ -35,6 +35,7 @@ def _test_checksum_doc(_):
 
 class TestRule:
     """TestRule class"""
+
     def setup(self):
         rule.Rule._rules.clear()
 
@@ -94,6 +95,7 @@ def {}(_):
         """Rule - String Representation"""
         def test_rule(_):
             pass
+
         test_rule = rule.Rule(test_rule, outputs=['foo'], logs=['bar'])
         assert_equal(str(test_rule), '<Rule: test_rule; outputs: [\'foo\']; disabled: False>')
         assert_equal(repr(test_rule), '<Rule: test_rule; outputs: [\'foo\']; disabled: False>')
@@ -143,9 +145,11 @@ def {}(_):
     @patch('logging.Logger.exception')
     def test_rule_process_exception(self, log_mock):
         """Rule - Process, Exception"""
+
         # Create a rule function that will raise an exception
         def test_rule(_):
             raise ValueError('this is a bad rule')
+
         test_rule = rule.Rule(test_rule, logs=['bar'])
         result = test_rule.process(None)
         log_mock.assert_called_with('Encountered error with rule: %s', 'test_rule')
@@ -155,6 +159,7 @@ def {}(_):
         """Rule - Process, Valid"""
         def test_rule(_):
             return True
+
         test_rule = rule.Rule(test_rule, logs=['bar'])
         result = test_rule.process(None)
         assert_equal(result, True)
@@ -166,6 +171,7 @@ def {}(_):
             # Update the context with the entire record so we can check for validity
             context.update(rec)
             return True
+
         test_rule = rule.Rule(test_rule, logs=['bar'], context={})
 
         # Test with data that should be placed into the context and overwritten
@@ -195,10 +201,11 @@ def {}(_):
     def test_rule_checksum(self):
         """Rule - Rule Checksum"""
         # The known dumped ast of a function that just returns False is below
-        ast_value = 'Return(value=NameConstant(value=False))'
+        # print(ast.dump(ast.parse('def foo(): False')))
+        ast_value = 'Return(value=Constant(value=False))'
 
         # The known checksum of the above is # c119f541816c6364ea3e2e884ba18f9c
-        expected_checksum = hashlib.md5(ast_value.encode('utf-8')).hexdigest() # nosec
+        expected_checksum = hashlib.md5(ast_value.encode('utf-8')).hexdigest()  # nosec
 
         # Test rule without a docstring
         rule.Rule(_test_checksum, logs=['log_type'])
@@ -265,6 +272,7 @@ def {}(_):
         """Rule - Set Description"""
         def test_rule(_):
             pass
+
         test_rule = rule.Rule(test_rule, outputs=['foo'], logs=['bar'])
 
         description = 'foobar description'
@@ -293,9 +301,11 @@ def {}(_):
 
     def test_rule_outputs(self):
         """Rule - outputs is configured"""
-        self._create_rule_helper(
-            'test_rule', options={'logs': ['log_type_01'], 'outputs': ['aws-sns:test']}
-        )
+        self._create_rule_helper('test_rule',
+                                 options={
+                                     'logs': ['log_type_01'],
+                                     'outputs': ['aws-sns:test']
+                                 })
 
         result = rule.Rule._rules["test_rule"]
 
@@ -321,13 +331,15 @@ def {}(_):
 
     def test_rule_dynamic_outputs(self):
         """Rule - dynamic_outputs is configured"""
-
         def dynamic_function():
             return "aws-sns:test"
 
         self._create_rule_helper(
             'test_rule',
-            options={'logs': ['log_type_01'], 'dynamic_outputs': [dynamic_function]},
+            options={
+                'logs': ['log_type_01'],
+                'dynamic_outputs': [dynamic_function]
+            },
         )
         result = rule.Rule._rules["test_rule"]
 
@@ -336,13 +348,15 @@ def {}(_):
 
     def test_rule_dynamic_outputs_set(self):
         """Rule - dynamic_outputs, check dynamic_outputs_set"""
-
         def dynamic_function():
             return "aws-sns:test"
 
         self._create_rule_helper(
             'test_rule',
-            options={'logs': ['log_type_01'], 'dynamic_outputs': [dynamic_function]},
+            options={
+                'logs': ['log_type_01'],
+                'dynamic_outputs': [dynamic_function]
+            },
         )
         result = rule.Rule._rules["test_rule"]
 

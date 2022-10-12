@@ -79,20 +79,22 @@ class TestDuoApp:
     @staticmethod
     def _get_sample_logs(count, base_time):
         """Helper function for returning sample duo (auth) logs"""
-        return [{
-            'access_device': {},
-            'alias': '',
-            'device': '+1 123 456 1234',
-            'factor': 'Duo Push',
-            'integration': 'Test Access',
-            'ip': '0.0.0.0', # nosec
-            'location': {},
-            'new_enrollment': False,
-            'reason': 'No response',
-            'result': 'FAILURE',
-            'timestamp': base_time + i,
-            'username': 'user.name@email.com'
-        } for i in range(count)]
+        return [
+            {
+                'access_device': {},
+                'alias': '',
+                'device': '+1 123 456 1234',
+                'factor': 'Duo Push',
+                'integration': 'Test Access',
+                'ip': '0.0.0.0',  # nosec
+                'location': {},
+                'new_enrollment': False,
+                'reason': 'No response',
+                'result': 'FAILURE',
+                'timestamp': base_time + i,
+                'username': 'user.name@email.com'
+            } for i in range(count)
+        ]
 
     @patch('requests.get')
     def test_get_duo_logs_bad_headers(self, requests_mock):
@@ -104,9 +106,7 @@ class TestDuoApp:
     @patch('requests.get')
     def test_get_duo_logs_bad_response(self, requests_mock):
         """DuoApp - Get Duo Logs, Bad Response"""
-        requests_mock.return_value = Mock(
-            status_code=404,
-            content='something went wrong')
+        requests_mock.return_value = Mock(status_code=404, content='something went wrong')
 
         assert_false(self._app._get_duo_logs('hostname', 'full_url'))
 
@@ -120,10 +120,8 @@ class TestDuoApp:
         base_time = 1505591612
         logs = self._get_sample_logs(log_count, base_time)
 
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'response': logs})
-        )
+        requests_mock.return_value = Mock(status_code=200,
+                                          json=Mock(return_value={'response': logs}))
 
         gathered_logs = self._app._gather_logs()
         assert_equal(len(gathered_logs), log_count)
@@ -132,10 +130,10 @@ class TestDuoApp:
     @patch('requests.get')
     def test_gather_logs_empty(self, requests_mock):
         """DuoApp - Gather Logs Entry Point, Empty Response"""
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(side_effect=[{'response': []}])
-        )
+        requests_mock.return_value = Mock(status_code=200,
+                                          json=Mock(side_effect=[{
+                                              'response': []
+                                          }]))
 
         assert_false(self._app._gather_logs())
 
@@ -152,6 +150,7 @@ class TestDuoApp:
 @raises(NotImplementedError)
 def test_endpoint_not_implemented():
     """DuoApp - Subclass Endpoint Not Implemented"""
+
     # pylint: disable=protected-access,abstract-method
     class DuoFakeApp(DuoApp):
         """Fake Duo app that should raise a NotImplementedError"""

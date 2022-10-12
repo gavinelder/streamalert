@@ -21,7 +21,8 @@ from streamalert.classifier.payload.payload_base import PayloadRecord
 
 class TestPayloadRecord:
     """PayloadRecord tests"""
-    # pylint: disable=no-self-use,protected-access
+
+    # pylint: disable=protected-access
 
     def setup(self):
         """PayloadRecord - Setup"""
@@ -31,12 +32,10 @@ class TestPayloadRecord:
 
     @classmethod
     def _mock_parser(cls, records=None, invalid_records=None):
-        return Mock(
-            parsed_records=records if records else [],
-            invalid_parses=invalid_records if invalid_records else [],
-            log_schema_type='foo:bar',
-            __nonzero__=lambda: records is not None
-        )
+        return Mock(parsed_records=records or [],
+                    invalid_parses=invalid_records or [],
+                    log_schema_type='foo:bar',
+                    __nonzero__=lambda: records is not None)
 
     def test_non_zero_false(self):
         """PayloadRecord - Non Zero/Bool, False"""
@@ -59,9 +58,7 @@ class TestPayloadRecord:
     def test_repr(self):
         """PayloadRecord - Repr"""
         self._payload_record._parser = self._mock_parser(records=[self._record])
-        expected_result = (
-            '<PayloadRecord valid:True; log type:foo:bar; parsed records:1;>'
-        )
+        expected_result = ('<PayloadRecord valid:True; log type:foo:bar; parsed records:1;>')
         assert_equal(repr(self._payload_record), expected_result)
 
     def test_repr_invalid(self):
@@ -71,14 +68,11 @@ class TestPayloadRecord:
 
     def test_repr_invalid_records(self):
         """PayloadRecord - Repr, Invalid Records"""
-        self._payload_record._parser = self._mock_parser(
-            records=[self._record],
-            invalid_records=[self._record]
-        )
+        self._payload_record._parser = self._mock_parser(records=[self._record],
+                                                         invalid_records=[self._record])
         expected_result = (
             '<PayloadRecord valid:True; log type:foo:bar; parsed records:1; invalid records:1 '
-            '([{"key": "value"}]); raw record:{"key": "value"};>'
-        )
+            '([{"key": "value"}]); raw record:{"key": "value"};>')
         assert_equal(repr(self._payload_record), expected_result)
 
     def test_data_property(self):
@@ -110,8 +104,7 @@ class TestPayloadRecord:
         """PayloadRecord - Invalid Records Property"""
         self._payload_record._parser = self._mock_parser(
             records=[self._record],  # the parser must have records to be considered valid at all
-            invalid_records=[self._record]
-        )
+            invalid_records=[self._record])
         assert_equal(self._payload_record.invalid_records, [self._record])
 
     def test_invalid_records_property_empty(self):

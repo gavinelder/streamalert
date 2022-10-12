@@ -22,7 +22,6 @@ from streamalert.shared.alert_table import AlertTable
 from streamalert.shared.logger import get_logger
 from streamalert.shared.metrics import MetricLogger
 
-
 LOGGER = get_logger(__name__)
 
 

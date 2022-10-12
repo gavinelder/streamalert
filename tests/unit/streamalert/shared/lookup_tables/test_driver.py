@@ -26,7 +26,7 @@ from streamalert.shared.lookup_tables.errors import LookupTablesConfigurationErr
 class TestEphemeralDriver:
     """Test shared EphemeralDriver"""
 
-    # pylint: disable=no-self-use,protected-access,too-many-public-methods
+    # pylint: disable=protected-access,too-many-public-methods
     def __init__(self):
         self._driver = None
 
@@ -63,7 +63,7 @@ class TestEphemeralDriver:
 class TestNullDriver:
     """... purely for test coverage"""
 
-    # pylint: disable=no-self-use,protected-access,too-many-public-methods
+    # pylint: disable=protected-access,too-many-public-methods
     def __init__(self):
         self._driver = None
 

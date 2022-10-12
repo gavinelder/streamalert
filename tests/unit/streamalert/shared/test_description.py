@@ -19,7 +19,6 @@ from streamalert.shared.description import RuleDescriptionParser
 
 
 class TestRuleDescriptionParserParse:
-
     @staticmethod
     def test_simple():
         """RuleDescriptionParser - One Field"""
@@ -55,13 +54,14 @@ This rule has no format and thus the entire
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {
-            'description': [
-                'This rule has no format and thus the entire',
-                'string is considered to be lines of the',
-                'description.',
-            ]
-        })
+        assert_equal(
+            data, {
+                'description': [
+                    'This rule has no format and thus the entire',
+                    'string is considered to be lines of the',
+                    'description.',
+                ]
+            })
 
     @staticmethod
     def test_misleading_fields():
@@ -72,12 +72,13 @@ This rule has no format and thus the entire
     '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {
-            'description': [
-                'This rule has some colons in it in strange places. For example: right here',
-                'But should not have fields because... reasons.',
-            ]
-        })
+        assert_equal(
+            data, {
+                'description': [
+                    'This rule has some colons in it in strange places. For example: right here',
+                    'But should not have fields because... reasons.',
+                ]
+            })
 
     @staticmethod
     def test_multiple_fields():
@@ -100,11 +101,12 @@ reference:  There is no cow level
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {
-            'author': ['Derek Wang (CSIRT)'],
-            'description': [],
-            'reference': ['There is no cow level', 'Greed is good'],
-        })
+        assert_equal(
+            data, {
+                'author': ['Derek Wang (CSIRT)'],
+                'description': [],
+                'reference': ['There is no cow level', 'Greed is good'],
+            })
 
     @staticmethod
     def test_indentations():
@@ -117,14 +119,15 @@ reference:  There is no cow level
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {
-            'author': ['Derek Wang (CSIRT)'],
-            'description': [
-                'Lorem ipsum bacon jalapeno cheeseburger',
-                "I'm clearly hungry",
-                'Planet pied piper forest windmill',
-            ]
-        })
+        assert_equal(
+            data, {
+                'author': ['Derek Wang (CSIRT)'],
+                'description': [
+                    'Lorem ipsum bacon jalapeno cheeseburger',
+                    "I'm clearly hungry",
+                    'Planet pied piper forest windmill',
+                ]
+            })
 
     @staticmethod
     def test_description_prefix():
@@ -137,14 +140,13 @@ reference:  https://www.google.com
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {
-            'description': [
-                'This rule triggers when the temperature of the boiler exceeds 9000',
-                ''
-            ],
-            'author': ['Derek Wang (CSIRT)'],
-            'reference': ['https://www.google.com'],
-        })
+        assert_equal(
+            data, {
+                'description':
+                ['This rule triggers when the temperature of the boiler exceeds 9000', ''],
+                'author': ['Derek Wang (CSIRT)'],
+                'reference': ['https://www.google.com'],
+            })
 
     @staticmethod
     def test_special_characters():
@@ -158,17 +160,17 @@ reference:  https://www.google.com
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {
-            'author': ['Derek Wang (CSIRT)', ''],
-            'description': [],
-            'att&ck tactic': ['Defense Evasion'],
-            'att&ck technique': ['Obfuscated Files or Information'],
-            'att&ck url': ['https://attack.mitre.org/wiki/Technique/T1027'],
-        })
+        assert_equal(
+            data, {
+                'author': ['Derek Wang (CSIRT)', ''],
+                'description': [],
+                'att&ck tactic': ['Defense Evasion'],
+                'att&ck technique': ['Obfuscated Files or Information'],
+                'att&ck url': ['https://attack.mitre.org/wiki/Technique/T1027'],
+            })
 
 
 class TestRuleDescriptionParserPresent:
-
     @staticmethod
     def test_simple():
         """RuleDescriptionParser - present - One Field"""
@@ -190,11 +192,12 @@ description:  This description
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(data, {
-            'author': 'Derek Wang',
-            'description': 'This description has multiple lines with inconsistent indentation',
-            'fields': {}
-        })
+        assert_equal(
+            data, {
+                'author': 'Derek Wang',
+                'description': 'This description has multiple lines with inconsistent indentation',
+                'fields': {}
+            })
 
     @staticmethod
     def test_fields_with_multiline_urls():
@@ -208,13 +211,14 @@ reference:    https://www.airbnb.com/
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(data, {
-            'author': 'Derek Wang',
-            'description': 'Lorem ipsum bacon Cheeseburger',
-            'fields': {
-                'reference': 'https://www.airbnb.com/users/notifications'
-            }
-        })
+        assert_equal(
+            data, {
+                'author': 'Derek Wang',
+                'description': 'Lorem ipsum bacon Cheeseburger',
+                'fields': {
+                    'reference': 'https://www.airbnb.com/users/notifications'
+                }
+            })
 
     @staticmethod
     def test_fields_with_multiline_complex_urls():
@@ -226,13 +230,15 @@ reference:    https://www.airbnb.com/
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(data, {
-            'author': '',
-            'description': '',
-            'fields': {
-                'reference': 'https://www.airbnb.com/users/notifications?a=b&$=b20L#hash=value[0]'
-            }
-        })
+        assert_equal(
+            data, {
+                'author': '',
+                'description': '',
+                'fields': {
+                    'reference':
+                    'https://www.airbnb.com/users/notifications?a=b&$=b20L#hash=value[0]'
+                }
+            })
 
     @staticmethod
     def test_fields_with_multiline_invalid_urls():
@@ -243,16 +249,15 @@ reference:    https://www.airbnb.com/users/notifications
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(data, {
-            'author': '',
-            'description': '',
-            'fields': {
-                'reference': (
-                    'https://www.airbnb.com/users/notifications '
-                    'Gets concatenated with this line with a space inbetween.'
-                )
-            }
-        })
+        assert_equal(
+            data, {
+                'author': '',
+                'description': '',
+                'fields': {
+                    'reference': ('https://www.airbnb.com/users/notifications '
+                                  'Gets concatenated with this line with a space inbetween.')
+                }
+            })
 
     @staticmethod
     def test_handle_multiple_urls():
@@ -264,17 +269,17 @@ reference:    https://www.airbnb.com/users/notifications
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(data, {
-            'author': '',
-            'description': '',
-            'fields': {
-                'reference': (
-                    'https://www.airbnb.com/users/notifications'
-                    'https://www.airbnb.com/account/profile'
-                ),
-                'http url': 'https://www.airbnb.com/account/haha'
-            }
-        })
+        assert_equal(
+            data, {
+                'author': '',
+                'description': '',
+                'fields': {
+                    'reference': ('https://www.airbnb.com/users/notifications'
+                                  'https://www.airbnb.com/account/profile'),
+                    'http url':
+                    'https://www.airbnb.com/account/haha'
+                }
+            })
 
     @staticmethod
     def test_two_linebreaks_equals_newline():
@@ -293,19 +298,19 @@ description:
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(data, {
-            'author': '',
-            'description': (
-                'This is a long description where normal linebreaks like '
-                'this one will simply cause the sentence to continue flowing '
-                'as normal.\n'
-                'However a double linebreak will cause a real newline character '
-                'to appear in the final product.'
-                '\n\n'
-                'And double linebreaks cause double newlines.'
-            ),
-            'fields': {}
-        })
+        assert_equal(
+            data, {
+                'author':
+                '',
+                'description': ('This is a long description where normal linebreaks like '
+                                'this one will simply cause the sentence to continue flowing '
+                                'as normal.\n'
+                                'However a double linebreak will cause a real newline character '
+                                'to appear in the final product.'
+                                '\n\n'
+                                'And double linebreaks cause double newlines.'),
+                'fields': {}
+            })
 
     @staticmethod
     def test_url_plus_string():
@@ -318,11 +323,11 @@ description:
     '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(data, {
-            'author': '',
-            'description': (
-                'https://airbnb.com\n'
-                'The above url is line broken from this comment.'
-            ),
-            'fields': {}
-        })
+        assert_equal(
+            data, {
+                'author':
+                '',
+                'description': ('https://airbnb.com\n'
+                                'The above url is line broken from this comment.'),
+                'fields': {}
+            })

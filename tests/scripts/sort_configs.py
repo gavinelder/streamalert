@@ -19,7 +19,7 @@ class JsonFileSorter:
         self._logger = logging.getLogger()
 
     def sort_json_file(self, file_path):
-        self._logger.info('Sorting file: {}...'.format(file_path))
+        self._logger.info(f'Sorting file: {file_path}...')
 
         with open(file_path, 'r') as infile:
             original_text = infile.read().strip()

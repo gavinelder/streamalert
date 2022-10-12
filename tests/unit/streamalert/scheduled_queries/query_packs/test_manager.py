@@ -18,7 +18,8 @@ from mock import MagicMock, patch
 from nose.tools import assert_equals, assert_false, assert_true
 
 from streamalert.scheduled_queries.query_packs.manager import (
-    QueryPack, QueryPacksManager,
+    QueryPack,
+    QueryPacksManager,
     QueryPackExecutionContext,
     QueryPacksManagerFactory,
 )
@@ -33,10 +34,12 @@ class TestQueryPackExecutionContext:
         self._params = MagicMock(name='params')
         self._repo = MagicMock(name='repo')
         self._clock = MagicMock(name='clock')
-        self._context = QueryPackExecutionContext(
-            cache=self._cache, athena=self._athena, logger=self._logger,
-            params=self._params, repository=self._repo, clock=self._clock
-        )
+        self._context = QueryPackExecutionContext(cache=self._cache,
+                                                  athena=self._athena,
+                                                  logger=self._logger,
+                                                  params=self._params,
+                                                  repository=self._repo,
+                                                  clock=self._clock)
 
     def test_methods(self):
         """StreamQuery - QueryPackExecutionContext - Test methods"""
@@ -153,9 +156,7 @@ class TestQueryPacksManager:
 
     def setup(self):
         self._execution_context = MagicMock(name='ExecutionContext')
-        self._manager = QueryPacksManager(
-            self._execution_context
-        )
+        self._manager = QueryPacksManager(self._execution_context)
 
     def test_start_queries(self):
         """StreamQuery - QueryPacksManager - start_queries"""
@@ -173,12 +174,8 @@ class TestQueryPacksManager:
         self._manager.initialize_query_packs()
         self._manager.start_queries()
 
-        logger.info.assert_any_call(
-            'Executing Query Pack "%s"...', 'test_query_pack_name'
-        )
-        logger.info.assert_any_call(
-            'Executing Query Pack "%s"...', 'test_query_pack_name_2'
-        )
+        logger.info.assert_any_call('Executing Query Pack "%s"...', 'test_query_pack_name')
+        logger.info.assert_any_call('Executing Query Pack "%s"...', 'test_query_pack_name_2')
 
         assert_equals(self._manager.num_queries_still_running, 2)
 
@@ -201,11 +198,8 @@ class TestQueryPacksManager:
         self._manager.initialize_query_packs()
         self._manager.start_queries()
 
-        logger.debug.assert_any_call(
-            'Existing Query Execution exists for "%s": [%s]',
-            'test_query_pack_name',
-            'qwertyuiop'
-        )
+        logger.debug.assert_any_call('Existing Query Execution exists for "%s": [%s]',
+                                     'test_query_pack_name', 'qwertyuiop')
 
 
 class TestQueryParameterGenerator:
@@ -216,9 +210,13 @@ class TestQueryParameterGenerator:
     def setup(self):
         self._logger = MagicMock(name='Logger')
         clock = MagicMock(name='Clock')
-        clock.now = datetime(
-            year=2019, month=1, day=1, hour=1, minute=1, second=1, tzinfo=timezone.utc
-        )
+        clock.now = datetime(year=2019,
+                             month=1,
+                             day=1,
+                             hour=1,
+                             minute=1,
+                             second=1,
+                             tzinfo=timezone.utc)
         self._generator = QueryParameterGenerator(self._logger, clock)
 
     def test_generate_utcdatehour_minus7day(self):
@@ -258,13 +256,13 @@ class TestQueryParameterGenerator:
         self._generator.generate('unsupported')
 
         self._logger.error.assert_called_with(
-            'Parameter generator does not know how to handle "unsupported"'
-        )
+            'Parameter generator does not know how to handle "unsupported"')
 
     def test_generate_advanced_function(self):
         """StreamQuery - QueryParameterGenerator - generate_advanced - Function"""
         def thing(date):
             return date.strftime('%Y-%m-%d-%H-%I-%S')
+
         assert_equals(self._generator.generate_advanced('thing', thing), '2019-01-01-01-01-01')
 
     def test_generate_advanced_nothing(self):

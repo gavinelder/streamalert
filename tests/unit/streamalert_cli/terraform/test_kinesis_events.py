@@ -33,9 +33,8 @@ def test_kinesis_events():
                 'batch_size': 100,
                 'lambda_production_enabled': True,
                 'lambda_role_id': '${module.classifier_advanced_lambda.role_id}',
-                'lambda_function_alias_arn': (
-                    '${module.classifier_advanced_lambda.function_alias_arn}'
-                ),
+                'lambda_function_alias_arn':
+                ('${module.classifier_advanced_lambda.function_alias_arn}'),
                 'kinesis_stream_arn': '${module.kinesis_advanced.arn}',
             }
         }

@@ -59,16 +59,17 @@ class ThisPublisher(AlertPublisher):
 # pylint: disable=R0904
 class TestRulesEngine:
     """Tests for RulesEngine"""
-    # pylint: disable=attribute-defined-outside-init,protected-access,no-self-use
+
+    # pylint: disable=attribute-defined-outside-init,protected-access
     def setup(self):
         """RulesEngine - Setup"""
         with patch.object(rules_engine_module, 'Alert'), \
-             patch.object(rules_engine_module, 'AlertForwarder'), \
-             patch.object(rules_engine_module, 'RuleTable'), \
-             patch.object(rules_engine_module, 'ThreatIntel'), \
-             patch.dict('os.environ', {'STREAMALERT_PREFIX': 'test_prefix'}), \
-             patch('streamalert.rules_engine.rules_engine.load_config',
-                   Mock(return_value=mock_conf())):
+            patch.object(rules_engine_module, 'AlertForwarder'), \
+            patch.object(rules_engine_module, 'RuleTable'), \
+            patch.object(rules_engine_module, 'ThreatIntel'), \
+            patch.dict('os.environ', {'STREAMALERT_PREFIX': 'test_prefix'}), \
+            patch('streamalert.rules_engine.rules_engine.load_config',
+                  Mock(return_value=mock_conf())):
             self._rules_engine = RulesEngine()
 
     def teardown(self):
@@ -79,7 +80,6 @@ class TestRulesEngine:
         RulesEngine._threat_intel = None
         RulesEngine._alert_forwarder = None
         RulesEngine._RULE_TABLE_LAST_REFRESH = datetime(year=1970, month=1, day=1)
-
 
     def test_load_rule_table_disabled(self):
         """RulesEngine - Load Rule Table, Disabled"""
@@ -113,7 +113,7 @@ class TestRulesEngine:
         RulesEngine._RULE_TABLE_LAST_REFRESH = fake_date_now - timedelta(minutes=6)
         RulesEngine._rule_table = 'table'
         with patch('streamalert.rules_engine.rules_engine.datetime') as date_mock, \
-             patch.object(rules_engine_module, 'RuleTable') as rule_table_mock:
+                patch.object(rules_engine_module, 'RuleTable') as rule_table_mock:
 
             rule_table_mock.return_value = 'new_table'
             date_mock.utcnow.return_value = fake_date_now
@@ -124,71 +124,42 @@ class TestRulesEngine:
 
     def test_process_subkeys_none(self):
         """RulesEngine - Process Subkeys, None Defined"""
-        rule = Mock(
-            req_subkeys=None
-        )
+        rule = Mock(req_subkeys=None)
 
         assert_equal(RulesEngine._process_subkeys(None, rule), True)
 
     def test_process_subkeys_missing_key(self):
         """RulesEngine - Process Subkeys, Missing Key"""
-        rule = Mock(
-            req_subkeys={'data': ['location']},
-            name='test_rule'
-        )
+        rule = Mock(req_subkeys={'data': ['location']}, name='test_rule')
 
-        record = {
-            'host': 'host1.web.prod.net'
-        }
+        record = {'host': 'host1.web.prod.net'}
 
         result = RulesEngine._process_subkeys(record, rule)
         assert_equal(result, False)
 
     def test_process_subkeys_bad_type(self):
         """RulesEngine - Process Subkeys, Bad Subtype"""
-        rule = Mock(
-            req_subkeys={'data': ['location']},
-            name='test_rule'
-        )
+        rule = Mock(req_subkeys={'data': ['location']}, name='test_rule')
 
-        record = {
-            'host': 'host1.web.prod.net',
-            'data': 'value'
-        }
+        record = {'host': 'host1.web.prod.net', 'data': 'value'}
 
         result = RulesEngine._process_subkeys(record, rule)
         assert_equal(result, False)
 
     def test_process_subkeys_missing_subkey(self):
         """RulesEngine - Process Subkeys, Missing Subkey"""
-        rule = Mock(
-            req_subkeys={'data': ['location']},
-            name='test_rule'
-        )
+        rule = Mock(req_subkeys={'data': ['location']}, name='test_rule')
 
-        record = {
-            'host': 'host1.web.prod.net',
-            'data': {
-                'category': 'web-server'
-            }
-        }
+        record = {'host': 'host1.web.prod.net', 'data': {'category': 'web-server'}}
 
         result = RulesEngine._process_subkeys(record, rule)
         assert_equal(result, False)
 
     def test_process_subkeys(self):
         """RulesEngine - Process Subkeys"""
-        rule = Mock(
-            req_subkeys={'data': ['location']},
-            name='test_rule'
-        )
+        rule = Mock(req_subkeys={'data': ['location']}, name='test_rule')
 
-        record = {
-            'host': 'host1.web.prod.net',
-            'data': {
-                'location': 'us-west-2'
-            }
-        }
+        record = {'host': 'host1.web.prod.net', 'data': {'location': 'us-west-2'}}
 
         result = RulesEngine._process_subkeys(record, rule)
         assert_equal(result, True)
@@ -197,17 +168,15 @@ class TestRulesEngine:
 
     def test_rule_analysis(self):
         """RulesEngine - Rule Analysis"""
-        rule = Mock(
-            process=Mock(return_value=True),
-            is_staged=Mock(return_value=False),
-            outputs_set={'slack:test'},
-            dynamic_outputs=None,
-            description='rule description',
-            publishers=None,
-            context=None,
-            merge_by_keys=None,
-            merge_window_mins=0
-        )
+        rule = Mock(process=Mock(return_value=True),
+                    is_staged=Mock(return_value=False),
+                    outputs_set={'slack:test'},
+                    dynamic_outputs=None,
+                    description='rule description',
+                    publishers=None,
+                    context=None,
+                    merge_by_keys=None,
+                    merge_window_mins=0)
 
         # Override the Mock name attribute
         type(rule).name = PropertyMock(return_value='test_rule')
@@ -223,35 +192,32 @@ class TestRulesEngine:
 
         with patch.object(rules_engine_module, 'Alert') as alert_mock:
             result = self._rules_engine._rule_analysis(payload, rule)
-            alert_mock.assert_called_with(
-                'test_rule', record, {'aws-firehose:alerts', 'slack:test'},
-                cluster='prod',
-                context=None,
-                log_source='log_type',
-                log_type='json',
-                merge_by_keys=None,
-                merge_window=timedelta(minutes=0),
-                publishers=None,
-                rule_description='rule description',
-                source_entity='test_stream',
-                source_service='kinesis',
-                staged=False
-            )
+            alert_mock.assert_called_with('test_rule',
+                                          record, {'aws-firehose:alerts', 'slack:test'},
+                                          cluster='prod',
+                                          context=None,
+                                          log_source='log_type',
+                                          log_type='json',
+                                          merge_by_keys=None,
+                                          merge_window=timedelta(minutes=0),
+                                          publishers=None,
+                                          rule_description='rule description',
+                                          source_entity='test_stream',
+                                          source_service='kinesis',
+                                          staged=False)
 
             assert_equal(result is not None, True)
 
     def test_rule_analysis_staged(self):
         """RulesEngine - Rule Analysis, Staged"""
-        rule = Mock(
-            process=Mock(return_value=True),
-            is_staged=Mock(return_value=True),
-            outputs_set={'slack:test'},
-            description='rule description',
-            publishers=None,
-            context=None,
-            merge_by_keys=None,
-            merge_window_mins=0
-        )
+        rule = Mock(process=Mock(return_value=True),
+                    is_staged=Mock(return_value=True),
+                    outputs_set={'slack:test'},
+                    description='rule description',
+                    publishers=None,
+                    context=None,
+                    merge_by_keys=None,
+                    merge_window_mins=0)
 
         # Override the Mock name attribute
         type(rule).name = PropertyMock(return_value='test_rule')
@@ -267,48 +233,43 @@ class TestRulesEngine:
 
         with patch.object(rules_engine_module, 'Alert') as alert_mock:
             result = self._rules_engine._rule_analysis(payload, rule)
-            alert_mock.assert_called_with(
-                'test_rule', record, {'aws-firehose:alerts'},
-                cluster='prod',
-                context=None,
-                log_source='log_type',
-                log_type='json',
-                merge_by_keys=None,
-                merge_window=timedelta(minutes=0),
-                publishers=None,
-                rule_description='rule description',
-                source_entity='test_stream',
-                source_service='kinesis',
-                staged=True
-            )
+            alert_mock.assert_called_with('test_rule',
+                                          record, {'aws-firehose:alerts'},
+                                          cluster='prod',
+                                          context=None,
+                                          log_source='log_type',
+                                          log_type='json',
+                                          merge_by_keys=None,
+                                          merge_window=timedelta(minutes=0),
+                                          publishers=None,
+                                          rule_description='rule description',
+                                          source_entity='test_stream',
+                                          source_service='kinesis',
+                                          staged=True)
 
             assert_equal(result is not None, True)
 
     def test_rule_analysis_false(self):
         """RulesEngine - Rule Analysis, False"""
-        rule = Mock(
-            process=Mock(return_value=False),
-        )
+        rule = Mock(process=Mock(return_value=False), )
         result = self._rules_engine._rule_analysis({'record': {'foo': 'bar'}}, rule)
         assert_equal(result is None, True)
 
     def test_rule_analysis_with_publishers(self):
         """RulesEngine - Rule Analysis, Publishers"""
-        rule = Mock(
-            process=Mock(return_value=True),
-            is_staged=Mock(return_value=False),
-            outputs_set={'slack:test', 'demisto:test'},
-            dynamic_outputs=None,
-            description='rule description',
-            publishers={
-                'demisto': 'streamalert.shared.publisher.DefaultPublisher',
-                'slack': [that_publisher],
-                'slack:test': [ThisPublisher],
-            },
+        rule = Mock(process=Mock(return_value=True),
+                    is_staged=Mock(return_value=False),
+                    outputs_set={'slack:test', 'demisto:test'},
+                    dynamic_outputs=None,
+                    description='rule description',
+                    publishers={
+                        'demisto': 'streamalert.shared.publisher.DefaultPublisher',
+                        'slack': [that_publisher],
+                        'slack:test': [ThisPublisher],
+        },
             context=None,
             merge_by_keys=None,
-            merge_window_mins=0
-        )
+            merge_window_mins=0)
 
         # Override the Mock name attribute
         type(rule).name = PropertyMock(return_value='test_rule')
@@ -325,7 +286,8 @@ class TestRulesEngine:
         with patch.object(rules_engine_module, 'Alert') as alert_mock:
             result = self._rules_engine._rule_analysis(payload, rule)
             alert_mock.assert_called_with(
-                'test_rule', record, {'aws-firehose:alerts', 'slack:test', 'demisto:test'},
+                'test_rule',
+                record, {'aws-firehose:alerts', 'slack:test', 'demisto:test'},
                 cluster='prod',
                 context=None,
                 log_source='log_type',
@@ -337,15 +299,12 @@ class TestRulesEngine:
                         'tests.unit.streamalert.rules_engine.test_rules_engine.that_publisher',
                         'tests.unit.streamalert.rules_engine.test_rules_engine.ThisPublisher',
                     ],
-                    'demisto:test': [
-                        'streamalert.shared.publisher.DefaultPublisher'
-                    ],
+                    'demisto:test': ['streamalert.shared.publisher.DefaultPublisher'],
                 },
                 rule_description='rule description',
                 source_entity='test_stream',
                 source_service='kinesis',
-                staged=False
-            )
+                staged=False)
 
             assert_equal(result is not None, True)
 
@@ -354,7 +313,7 @@ class TestRulesEngine:
     def test_check_valid_output_list(self):
         """RulesEngine - _check_valid_output, list"""
 
-        output = list()
+        output = []
         result = self._rules_engine._check_valid_output(output)
 
         assert_false(result)
@@ -391,13 +350,11 @@ class TestRulesEngine:
         rule_name = "test"
 
         dynamic_outputs = self._rules_engine._call_dynamic_output_function(
-            dynamic_output_function, rule_name, []
-        )
+            dynamic_output_function, rule_name, [])
 
         assert_equal(dynamic_outputs, [])
-        log_error.assert_called_with(
-            'Exception when calling dynamic_output %s for rule %s', 'test', rule_name
-        )
+        log_error.assert_called_with('Exception when calling dynamic_output %s for rule %s', 'test',
+                                     rule_name)
 
     def test_call_dynamic_output_function_string(self):
         """RulesEngine - _call_dynamic_output_function, output returns string"""
@@ -405,8 +362,7 @@ class TestRulesEngine:
 
         record = {'foo': 'bar'}
         dynamic_outputs = self._rules_engine._call_dynamic_output_function(
-            dynamic_output_function, "test", [record]
-        )
+            dynamic_output_function, "test", [record])
 
         assert_equal(dynamic_outputs, ["test"])
         dynamic_output_function.assert_called()
@@ -418,8 +374,7 @@ class TestRulesEngine:
 
         record = {'foo': 'bar'}
         dynamic_outputs = self._rules_engine._call_dynamic_output_function(
-            dynamic_output_function, "test", [record]
-        )
+            dynamic_output_function, "test", [record])
 
         assert_equal(dynamic_outputs, ["test"])
         dynamic_output_function.assert_called()
@@ -431,8 +386,7 @@ class TestRulesEngine:
 
         record = {'foo': 'bar'}
         dynamic_outputs = self._rules_engine._call_dynamic_output_function(
-            dynamic_output_function, "test", [record]
-        )
+            dynamic_output_function, "test", [record])
 
         assert_equal(dynamic_outputs, [])
         dynamic_output_function.assert_called()
@@ -608,8 +562,7 @@ class TestRulesEngine:
                 configure_dynamic.assert_called_with(record, rule)
                 check_valid.assert_called()
                 expected = self._rules_engine._required_outputs_set.union(
-                    {"aws-sns:static", "aws-sns:dynamic"}
-                )
+                    {"aws-sns:static", "aws-sns:dynamic"})
                 assert_equal(outputs, expected)
 
     def test_configure_outputs_invalid_output(self):
@@ -651,10 +604,7 @@ class TestRulesEngine:
     def test_configure_publishers_single_string(self):
         """RulesEngine - _configure_publishers, Single string"""
         outputs = {'slack:test'}
-        rule = Mock(
-            outputs_set=outputs,
-            publishers='streamalert.shared.publisher.DefaultPublisher'
-        )
+        rule = Mock(outputs_set=outputs, publishers='streamalert.shared.publisher.DefaultPublisher')
 
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = {'slack:test': ['streamalert.shared.publisher.DefaultPublisher']}
@@ -664,10 +614,7 @@ class TestRulesEngine:
     def test_configure_publishers_single_reference(self):
         """RulesEngine - _configure_publishers, Single reference"""
         outputs = {'slack:test'}
-        rule = Mock(
-            outputs_set=outputs,
-            publishers=DefaultPublisher
-        )
+        rule = Mock(outputs_set=outputs, publishers=DefaultPublisher)
 
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = {'slack:test': ['streamalert.shared.publisher.DefaultPublisher']}
@@ -678,10 +625,7 @@ class TestRulesEngine:
     def test_configure_publishers_single_invalid_string(self, log_warn):
         """RulesEngine - _configure_publishers, Invalid string"""
         outputs = {'slack:test'}
-        rule = Mock(
-            outputs_set=outputs,
-            publishers='blah'
-        )
+        rule = Mock(outputs_set=outputs, publishers='blah')
 
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = {'slack:test': []}
@@ -707,10 +651,7 @@ class TestRulesEngine:
     def test_configure_publishers_single_applies_to_multiple_outputs(self):
         """RulesEngine - _configure_publishers, Multiple outputs"""
         outputs = {'slack:test', 'demisto:test', 'pagerduty:test'}
-        rule = Mock(
-            outputs_set=outputs,
-            publishers=DefaultPublisher
-        )
+        rule = Mock(outputs_set=outputs, publishers=DefaultPublisher)
 
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = {
@@ -724,16 +665,15 @@ class TestRulesEngine:
     def test_configure_publishers_list(self):
         """RulesEngine - _configure_publishers, List"""
         outputs = {'slack:test'}
-        rule = Mock(
-            outputs_set=outputs,
-            publishers=[DefaultPublisher, remove_internal_fields]
-        )
+        rule = Mock(outputs_set=outputs, publishers=[DefaultPublisher, remove_internal_fields])
 
         publishers = self._rules_engine._configure_publishers(rule, outputs)
-        expectation = {'slack:test': [
-            'streamalert.shared.publisher.DefaultPublisher',
-            'publishers.community.generic.remove_internal_fields',
-        ]}
+        expectation = {
+            'slack:test': [
+                'streamalert.shared.publisher.DefaultPublisher',
+                'publishers.community.generic.remove_internal_fields',
+            ]
+        }
 
         assert_equal(publishers, expectation)
 
@@ -787,19 +727,12 @@ class TestRulesEngine:
         """RulesEngine - Run, Fail Subkey Check"""
         self._rules_engine._threat_intel = None
         with patch.object(self._rules_engine, '_process_subkeys') as subkey_mock, \
-             patch.object(self._rules_engine, '_alert_forwarder'), \
-             patch.object(self._rules_engine, '_rule_analysis') as analysis_mock:
+                patch.object(self._rules_engine, '_alert_forwarder'), \
+                patch.object(self._rules_engine, '_rule_analysis') as analysis_mock:
 
             subkey_mock.return_value = False
 
-            records = [
-                {
-                    'record': {
-                        'key_01': 'value_01'
-                    },
-                    'log_schema_type': 'log_type'
-                }
-            ]
+            records = [{'record': {'key_01': 'value_01'}, 'log_schema_type': 'log_type'}]
 
             self._rules_engine.run(records)
             analysis_mock.assert_not_called()
@@ -808,17 +741,10 @@ class TestRulesEngine:
         """RulesEngine - Run, Matcher Failure"""
         self._rules_engine._threat_intel = None
         with patch.object(self._rules_engine, '_process_subkeys'), \
-             patch.object(self._rules_engine, '_alert_forwarder'), \
-             patch.object(self._rules_engine, '_rule_analysis') as analysis_mock:
+                patch.object(self._rules_engine, '_alert_forwarder'), \
+                patch.object(self._rules_engine, '_rule_analysis') as analysis_mock:
 
-            records = [
-                {
-                    'record': {
-                        'key_01': 'value_01'
-                    },
-                    'log_schema_type': 'log_type'
-                }
-            ]
+            records = [{'record': {'key_01': 'value_01'}, 'log_schema_type': 'log_type'}]
 
             self._rules_engine.run(records)
             analysis_mock.assert_not_called()
@@ -828,18 +754,11 @@ class TestRulesEngine:
         """RulesEngine - Run, No Rules"""
         self._rules_engine._threat_intel = None
         with patch.object(self._rules_engine, '_alert_forwarder'), \
-             patch.object(rules_engine_module, 'Rule') as rule_mock:
+                patch.object(rules_engine_module, 'Rule') as rule_mock:
 
             rule_mock.rules_for_log_type.return_value = None
 
-            records = [
-                {
-                    'record': {
-                        'key_01': 'value_01'
-                    },
-                    'log_schema_type': 'log_type'
-                }
-            ]
+            records = [{'record': {'key_01': 'value_01'}, 'log_schema_type': 'log_type'}]
 
             self._rules_engine.run(records)
             log_mock.assert_called_with('No rules to process for %s', records[0])
@@ -848,32 +767,27 @@ class TestRulesEngine:
         """RulesEngine - Run"""
         self._rules_engine._threat_intel = None
         with patch.object(self._rules_engine, '_process_subkeys'), \
-             patch.object(self._rules_engine, '_alert_forwarder') as alert_mock, \
-             patch.object(self._rules_engine, '_rule_analysis') as analysis_mock, \
-             patch.object(rules_engine_module, 'Rule') as rule_mock:
+                patch.object(self._rules_engine, '_alert_forwarder') as alert_mock, \
+                patch.object(self._rules_engine, '_rule_analysis') as analysis_mock, \
+                patch.object(rules_engine_module, 'Rule') as rule_mock:
 
             rule_mock.rules_for_log_type.return_value = [
-                Mock(
-                    check_matchers=Mock(return_value=True)
-                )
+                Mock(check_matchers=Mock(return_value=True))
             ]
 
             analysis_mock.side_effect = [True, False]
 
-            records = [
-                {
-                    'record': {
-                        'key_01': 'value_01'
-                    },
-                    'log_schema_type': 'log_type'
+            records = [{
+                'record': {
+                    'key_01': 'value_01'
                 },
-                {
-                    'record': {
-                        'key_02': 'value_02'
-                    },
-                    'log_schema_type': 'log_type'
-                }
-            ]
+                'log_schema_type': 'log_type'
+            }, {
+                'record': {
+                    'key_02': 'value_02'
+                },
+                'log_schema_type': 'log_type'
+            }]
 
             self._rules_engine.run(records)
             alert_mock.send_alerts.assert_called_with([True])

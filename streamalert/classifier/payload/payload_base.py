@@ -20,7 +20,6 @@ import os
 
 from streamalert.shared.logger import get_logger
 
-
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)
 
@@ -38,6 +37,7 @@ class PayloadRecord:
         invalid_records (list): If some records from this payload record parsed successfully,
             but others failed, this contains the list of failed records
     """
+
     def __init__(self, record_data):
         self._record_data = record_data
         self._parser = None
@@ -52,11 +52,8 @@ class PayloadRecord:
         return self._parser is not None
 
     def __len__(self):
-        return (
-            len(json.dumps(self._record_data, separators=(',', ':')))
-            if isinstance(self._record_data, dict)
-            else len(self._record_data)
-        )
+        return (len(json.dumps(self._record_data, separators=(',', ':'))) if isinstance(
+            self._record_data, dict) else len(self._record_data))
 
     def __repr__(self):
         try:
@@ -68,31 +65,16 @@ class PayloadRecord:
             LOGGER.debug('A PayloadRecord has data that is not serializable as JSON')
 
         if not self:
-            return '<{} valid:{}; raw record:{};>'.format(
-                self.__class__.__name__,
-                bool(self),
-                record_data
-            )
+            return f'<{self.__class__.__name__} valid:{bool(self)}; raw record:{record_data};>'
 
         if self.invalid_records:
             return (
-                '<{} valid:{}; log type:{}; parsed records:{}; invalid records:{} ({}); '
-                'raw record:{};>'
-            ).format(
-                self.__class__.__name__,
-                bool(self),
-                self.log_schema_type,
-                len(self.parsed_records),
-                len(self.invalid_records),
-                invalid_records,
-                record_data
+                f'<{self.__class__.__name__} valid:{bool(self)}; log type:{self.log_schema_type}; '
+                f'parsed records:{len(self.parsed_records)}; '
+                f'invalid records:{len(self.invalid_records)} ({invalid_records}); raw record:{record_data};>'
             )
-
-        return '<{} valid:{}; log type:{}; parsed records:{};>'.format(
-            self.__class__.__name__,
-            bool(self),
-            self.log_schema_type,
-            len(self.parsed_records)
+        return (
+            f'<{self.__class__.__name__} valid:{bool(self)}; log type:{self.log_schema_type}; parsed records:{len(self.parsed_records)};>'
         )
 
     @property
@@ -167,10 +149,7 @@ class RegisterInput:
             StreamPayload: Loaded subclass of StreamPayload for the proper payload type
         """
         payload = cls._get_payload_class(service)
-        if not payload:
-            return False
-
-        return payload(resource=resource, raw_record=raw_record)
+        return payload(resource=resource, raw_record=raw_record) if payload else False
 
     @classmethod
     def _get_payload_class(cls, service):
@@ -209,23 +188,15 @@ class StreamPayload(metaclass=ABCMeta):
 
     def __repr__(self):
         if self:
-            return '<{} valid:{}; resource:{};>'.format(
-                self.__class__.__name__,
-                bool(self),
-                self.resource
-            )
+            return f'<{self.__class__.__name__} valid:{bool(self)}; resource:{self.resource};>'
+
         try:
             raw_record = json.dumps(self.raw_record)
         except (TypeError, ValueError):
             raw_record = self.raw_record
             LOGGER.debug('A StreamPayload has data that is not serializable as JSON')
 
-        return '<{} valid:{}; resource:{}; raw record:{};>'.format(
-            self.__class__.__name__,
-            bool(self),
-            self.resource,
-            raw_record
-        )
+        return f'<{self.__class__.__name__} valid:{bool(self)}; resource:{self.resource}; raw record:{raw_record};>'
 
     @classmethod
     def load_from_raw_record(cls, raw_record):
@@ -262,9 +233,8 @@ class StreamPayload(metaclass=ABCMeta):
                 break
 
         # If this is an s3 event notification via SNS, extract the bucket from the record
-        if ('Sns' in raw_record and
-                raw_record['Sns'].get('Type') == 'Notification' and
-                raw_record['Sns'].get('Subject') == 'Amazon S3 Notification'):
+        if ('Sns' in raw_record and raw_record['Sns'].get('Type') == 'Notification'
+                and raw_record['Sns'].get('Subject') == 'Amazon S3 Notification'):
 
             service = 's3'
 
@@ -273,8 +243,9 @@ class StreamPayload(metaclass=ABCMeta):
             resource = resource_mapper[service](raw_record)
 
         if not (service and resource):
-            LOGGER.error('No valid service (%s) or resource (%s) found in payload\'s raw '
-                         'record, skipping: %s', service, resource, raw_record)
+            LOGGER.error(
+                'No valid service (%s) or resource (%s) found in payload\'s raw '
+                'record, skipping: %s', service, resource, raw_record)
             return False
 
         return RegisterInput.load_for_service(service.lower(), resource, raw_record)

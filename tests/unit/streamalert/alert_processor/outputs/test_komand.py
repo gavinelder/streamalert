@@ -27,8 +27,7 @@ class TestKomandutput:
     DESCRIPTOR = 'unit_test_komand'
     SERVICE = 'komand'
     OUTPUT = ':'.join([SERVICE, DESCRIPTOR])
-    CREDS = {'url': 'http://komand.foo.bar',
-             'komand_auth_token': 'mocked_auth_token'}
+    CREDS = {'url': 'http://komand.foo.bar', 'komand_auth_token': 'mocked_auth_token'}
 
     @patch('streamalert.alert_processor.outputs.output_base.OutputCredentialsProvider')
     def setup(self, provider_constructor):
@@ -36,8 +35,7 @@ class TestKomandutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
         self._provider = provider
         self._dispatcher = KomandOutput(None)
 
@@ -49,8 +47,8 @@ class TestKomandutput:
 
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.error')
     @patch('requests.post')
@@ -70,5 +68,5 @@ class TestKomandutput:
         assert_false(
             self._dispatcher.dispatch(get_alert(), ':'.join([self.SERVICE, 'bad_descriptor'])))
 
-        log_error_mock.assert_called_with('Failed to send alert to %s:%s',
-                                          self.SERVICE, 'bad_descriptor')
+        log_error_mock.assert_called_with('Failed to send alert to %s:%s', self.SERVICE,
+                                          'bad_descriptor')

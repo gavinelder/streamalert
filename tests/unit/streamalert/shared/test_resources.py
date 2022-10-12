@@ -35,18 +35,14 @@ def test_merge_required_outputs_dne():
         'aws-sns': {
             'topic': 'my-sns-topic'
         },
-        'slack': [
-            'slack_output'
-        ]
+        'slack': ['slack_output']
     }
 
     outputs = resources.merge_required_outputs(users_config, "test")
 
     assert_equal(len(outputs), 4)
 
-    expected_fh = {
-        'alerts': 'test_streamalert_alert_delivery'
-    }
+    expected_fh = {'alerts': 'test_streamalert_alert_delivery'}
 
     assert_count_equal(outputs['aws-firehose'], expected_fh)
 
@@ -62,18 +58,13 @@ def test_merge_required_outputs_exists():
         'aws-sns': {
             'topic': 'my-sns-topic'
         },
-        'slack': [
-            'slack_output'
-        ]
+        'slack': ['slack_output']
     }
 
     outputs = resources.merge_required_outputs(users_config, "test")
 
     assert_equal(len(outputs), 3)
 
-    expected_fh = {
-        'notalerts': 'resource_name',
-        'alerts': 'test_streamalert_alert_delivery'
-    }
+    expected_fh = {'notalerts': 'resource_name', 'alerts': 'test_streamalert_alert_delivery'}
 
     assert_count_equal(outputs['aws-firehose'], expected_fh)

@@ -20,17 +20,12 @@ import boto3
 from botocore.exceptions import ClientError
 from mock import Mock, patch
 from moto import mock_ssm
-from nose.tools import (
-    assert_equal,
-    raises
-)
+from nose.tools import (assert_equal, raises)
 
 from streamalert.shared.config import load_config
-from streamalert.threat_intel_downloader.exceptions import (
-    ThreatStreamCredsError,
-    ThreatStreamLambdaInvokeError,
-    ThreatStreamRequestsError
-)
+from streamalert.threat_intel_downloader.exceptions import (ThreatStreamCredsError,
+                                                            ThreatStreamLambdaInvokeError,
+                                                            ThreatStreamRequestsError)
 from streamalert.threat_intel_downloader.main import ThreatStream
 from tests.unit.streamalert.apps.test_helpers import MockLambdaClient
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
@@ -48,10 +43,8 @@ class TestThreatStream:
         """Setup TestThreatStream"""
         # pylint: disable=attribute-defined-outside-init
         context = get_mock_lambda_context('prefix_threat_intel_downloader', 100000)
-        self.threatstream = ThreatStream(
-            context.invoked_function_arn,
-            context.get_remaining_time_in_millis
-        )
+        self.threatstream = ThreatStream(context.invoked_function_arn,
+                                         context.get_remaining_time_in_millis)
 
     @staticmethod
     def _get_fake_intel(value, source):
@@ -68,7 +61,8 @@ class TestThreatStream:
     @staticmethod
     def _get_http_response(next_url=None):
         return {
-            'key1': 'value1',
+            'key1':
+            'value1',
             'objects': [
                 TestThreatStream._get_fake_intel('malicious_domain.com', 'ioc_source'),
                 TestThreatStream._get_fake_intel('malicious_domain2.com', 'test_source')
@@ -90,29 +84,10 @@ class TestThreatStream:
             'qualifier': 'development',
             'region': 'region',
             'enabled': True,
-            'excluded_sub_types': [
-                'bot_ip',
-                'brute_ip',
-                'scan_ip',
-                'spam_ip',
-                'tor_ip'
-            ],
-            'ioc_filters': [
-                'crowdstrike',
-                '@airbnb.com'
-            ],
-            'ioc_keys': [
-                'expiration_ts',
-                'itype',
-                'source',
-                'type',
-                'value'
-            ],
-            'ioc_types': [
-                'domain',
-                'ip',
-                'md5'
-            ],
+            'excluded_sub_types': ['bot_ip', 'brute_ip', 'scan_ip', 'spam_ip', 'tor_ip'],
+            'ioc_filters': ['crowdstrike', '@airbnb.com'],
+            'ioc_keys': ['expiration_ts', 'itype', 'source', 'type', 'value'],
+            'ioc_types': ['domain', 'ip', 'md5'],
             'memory': '128',
             'timeout': '60'
         }
@@ -128,22 +103,19 @@ class TestThreatStream:
         ]
         self.threatstream._config['ioc_filters'] = {'ioc_source'}
         processed_data = self.threatstream._process_data(raw_data)
-        expected_result = [
-            {
-                'value': 'malicious_domain.com',
-                'itype': 'c2_domain',
-                'source': 'ioc_source',
-                'type': 'domain',
-                'expiration_ts': 1512000062
-            },
-            {
-                'value': 'malicious_domain2.com',
-                'itype': 'c2_domain',
-                'source': 'ioc_source2',
-                'type': 'domain',
-                'expiration_ts': 1512000062
-            }
-        ]
+        expected_result = [{
+            'value': 'malicious_domain.com',
+            'itype': 'c2_domain',
+            'source': 'ioc_source',
+            'type': 'domain',
+            'expiration_ts': 1512000062
+        }, {
+            'value': 'malicious_domain2.com',
+            'itype': 'c2_domain',
+            'source': 'ioc_source2',
+            'type': 'domain',
+            'expiration_ts': 1512000062
+        }]
         assert_equal(processed_data, expected_result)
 
     @mock_ssm
@@ -185,12 +157,10 @@ class TestThreatStream:
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
     def test_load_api_creds_invalid_json(self):
         """ThreatStream - Load API creds from SSM with invalid JSON"""
-        boto3.client('ssm').put_parameter(
-            Name=ThreatStream.CRED_PARAMETER_NAME,
-            Value='invalid_value',
-            Type='SecureString',
-            Overwrite=True
-        )
+        boto3.client('ssm').put_parameter(Name=ThreatStream.CRED_PARAMETER_NAME,
+                                          Value='invalid_value',
+                                          Type='SecureString',
+                                          Overwrite=True)
         self.threatstream._load_api_creds()
 
     @mock_ssm
@@ -255,15 +225,13 @@ class TestThreatStream:
         get_mock.return_value.status_code = 200
         self.threatstream._config['ioc_filters'] = {'test_source'}
         self.threatstream._connect('previous_url')
-        expected_intel = [
-            {
-                'value': 'malicious_domain2.com',
-                'itype': 'c2_domain',
-                'source': 'test_source',
-                'type': 'domain',
-                'expiration_ts': 1512000062
-            }
-        ]
+        expected_intel = [{
+            'value': 'malicious_domain2.com',
+            'itype': 'c2_domain',
+            'source': 'test_source',
+            'type': 'domain',
+            'expiration_ts': 1512000062
+        }]
         finalize_mock.assert_called_with(expected_intel, None)
 
     @patch('streamalert.threat_intel_downloader.main.ThreatStream._finalize')
@@ -275,15 +243,13 @@ class TestThreatStream:
         get_mock.return_value.status_code = 200
         self.threatstream._config['ioc_filters'] = {'test_source'}
         self.threatstream._connect('previous_url')
-        expected_intel = [
-            {
-                'value': 'malicious_domain2.com',
-                'itype': 'c2_domain',
-                'source': 'test_source',
-                'type': 'domain',
-                'expiration_ts': 1512000062
-            }
-        ]
+        expected_intel = [{
+            'value': 'malicious_domain2.com',
+            'itype': 'c2_domain',
+            'source': 'test_source',
+            'type': 'domain',
+            'expiration_ts': 1512000062
+        }]
         finalize_mock.assert_called_with(expected_intel, next_url)
 
     @raises(ThreatStreamRequestsError)

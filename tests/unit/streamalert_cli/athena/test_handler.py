@@ -27,7 +27,6 @@ from tests.unit.helpers.config import athena_cli_basic_config, MockCLIConfig
 
 class TestAthenaCli:
     """Class to test Athena CLI"""
-
     @staticmethod
     def teardown():
         """Clean up after each test"""
@@ -60,13 +59,27 @@ class TestAthenaCli:
         """CLI - Athena rebuild partitions helper"""
 
         with patch('streamalert.shared.athena.boto3') as mock_athena:
-            mock_show_partitions_result = [
-                {'Data': [{'VarCharValue': 'dt=2019-12-04-05'}]},
-                {'Data': [{'VarCharValue': 'dt=2019-12-03-22'}]},
-                {'Data': [{'VarCharValue': 'dt=2019-12-03-23'}]},
-                {'Data': [{'VarCharValue': 'dt=2019-12-03-20'}]},
-                {'Data': [{'VarCharValue': 'dt=2019-12-04-01'}]}
-            ]
+            mock_show_partitions_result = [{
+                'Data': [{
+                    'VarCharValue': 'dt=2019-12-04-05'
+                }]
+            }, {
+                'Data': [{
+                    'VarCharValue': 'dt=2019-12-03-22'
+                }]
+            }, {
+                'Data': [{
+                    'VarCharValue': 'dt=2019-12-03-23'
+                }]
+            }, {
+                'Data': [{
+                    'VarCharValue': 'dt=2019-12-03-20'
+                }]
+            }, {
+                'Data': [{
+                    'VarCharValue': 'dt=2019-12-04-01'
+                }]
+            }]
 
             mock_show_table_result = []
             mock_athena.client.side_effect = [
@@ -90,13 +103,7 @@ class TestAthenaCli:
             'test:log.name.with.dots': {}
         }
 
-        assert_true(
-            handler.create_table(
-                'test:log.name.with.dots',
-                'bucket',
-                config
-            )
-        )
+        assert_true(handler.create_table('test:log.name.with.dots', 'bucket', config))
 
     @staticmethod
     @patch('streamalert.shared.athena.AthenaClient.check_table_exists', Mock(return_value=False))
@@ -108,10 +115,4 @@ class TestAthenaCli:
             'cloudwatch:test_match_types': {}
         }
 
-        assert_true(
-            handler.create_table(
-                'cloudwatch:test_match_types',
-                'bucket',
-                config
-            )
-        )
+        assert_true(handler.create_table('cloudwatch:test_match_types', 'bucket', config))

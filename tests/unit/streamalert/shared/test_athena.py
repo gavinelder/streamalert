@@ -18,14 +18,8 @@ from datetime import datetime
 import os
 
 from mock import Mock, patch
-from nose.tools import (
-    assert_equal,
-    assert_false,
-    assert_count_equal,
-    assert_raises,
-    assert_true,
-    raises
-)
+from nose.tools import (assert_equal, assert_false, assert_count_equal, assert_raises, assert_true,
+                        raises)
 
 from streamalert.shared.athena import AthenaClient, AthenaQueryExecutionError
 from streamalert.shared.config import load_config
@@ -35,7 +29,6 @@ from tests.unit.helpers.aws_mocks import MockAthenaClient
 
 class TestAthenaClient:
     """Test class for AthenaClient"""
-
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-west-1'})
     @patch('boto3.client', Mock(side_effect=lambda c, config=None: MockAthenaClient()))
     def setup(self):
@@ -45,11 +38,8 @@ class TestAthenaClient:
         config = load_config('tests/unit/conf/')
         prefix = config['global']['account']['prefix']
 
-        self.client = AthenaClient(
-            self._db_name,
-            's3://{}-streamalert-athena-results'.format(prefix),
-            'unit-test'
-        )
+        self.client = AthenaClient(self._db_name, f's3://{prefix}-streamalert-athena-results',
+                                   'unit-test')
 
     @patch('streamalert.shared.athena.datetime')
     def test_init_fix_bucket_path(self, date_mock):
@@ -57,13 +47,9 @@ class TestAthenaClient:
         date_now = datetime.utcnow()
         date_mock.utcnow.return_value = date_now
         date_format = date_now.strftime('%Y/%m/%d/%H')
-        expected_path = 's3://test-streamalert-athena-results/unit-test/{}'.format(date_format)
+        expected_path = f's3://test-streamalert-athena-results/unit-test/{date_format}'
         with patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-west-1'}):
-            client = AthenaClient(
-                self._db_name,
-                'test-streamalert-athena-results',
-                'unit-test'
-            )
+            client = AthenaClient(self._db_name, 'test-streamalert-athena-results', 'unit-test')
             assert_equal(client.results_path, expected_path)
 
     def test_unique_values_from_query(self):
@@ -71,10 +57,26 @@ class TestAthenaClient:
         query = {
             'ResultSet': {
                 'Rows': [
-                    {'Data': [{'VarCharValue': 'foobar'}]},
-                    {'Data': [{'VarCharValue': 'barfoo'}]},
-                    {'Data': [{'VarCharValue': 'barfoo'}]},
-                    {'Data': [{'VarCharValue': 'foobarbaz'}]},
+                    {
+                        'Data': [{
+                            'VarCharValue': 'foobar'
+                        }]
+                    },
+                    {
+                        'Data': [{
+                            'VarCharValue': 'barfoo'
+                        }]
+                    },
+                    {
+                        'Data': [{
+                            'VarCharValue': 'barfoo'
+                        }]
+                    },
+                    {
+                        'Data': [{
+                            'VarCharValue': 'foobarbaz'
+                        }]
+                    },
                 ]
             }
         }
@@ -110,10 +112,26 @@ class TestAthenaClient:
     def test_get_table_partitions(self):
         """Athena - Get Table Partitions"""
         self.client._client.results = [
-            {'Data': [{'VarCharValue': 'dt=2018-12-10-10'}]},
-            {'Data': [{'VarCharValue': 'dt=2018-12-09-10'}]},
-            {'Data': [{'VarCharValue': 'dt=2018-12-09-10'}]},
-            {'Data': [{'VarCharValue': 'dt=2018-12-11-10'}]},
+            {
+                'Data': [{
+                    'VarCharValue': 'dt=2018-12-10-10'
+                }]
+            },
+            {
+                'Data': [{
+                    'VarCharValue': 'dt=2018-12-09-10'
+                }]
+            },
+            {
+                'Data': [{
+                    'VarCharValue': 'dt=2018-12-09-10'
+                }]
+            },
+            {
+                'Data': [{
+                    'VarCharValue': 'dt=2018-12-11-10'
+                }]
+            },
         ]
 
         expected_result = {'dt=2018-12-10-10', 'dt=2018-12-09-10', 'dt=2018-12-11-10'}
@@ -139,9 +157,21 @@ class TestAthenaClient:
     def test_drop_all_tables(self, drop_table_mock):
         """Athena - Drop All Tables, Success"""
         self.client._client.results = [
-            {'Data': [{'VarCharValue': 'table_01'}]},
-            {'Data': [{'VarCharValue': 'table_02'}]},
-            {'Data': [{'VarCharValue': 'table_02'}]},
+            {
+                'Data': [{
+                    'VarCharValue': 'table_01'
+                }]
+            },
+            {
+                'Data': [{
+                    'VarCharValue': 'table_02'
+                }]
+            },
+            {
+                'Data': [{
+                    'VarCharValue': 'table_02'
+                }]
+            },
         ]
         assert_true(self.client.drop_all_tables())
         assert_equal(drop_table_mock.call_count, 2)
@@ -150,9 +180,21 @@ class TestAthenaClient:
     def test_drop_all_tables_failure(self, drop_table_mock):
         """Athena - Drop All Tables, Failure"""
         self.client._client.results = [
-            {'Data': [{'VarCharValue': 'table_01'}]},
-            {'Data': [{'VarCharValue': 'table_02'}]},
-            {'Data': [{'VarCharValue': 'table_03'}]},
+            {
+                'Data': [{
+                    'VarCharValue': 'table_01'
+                }]
+            },
+            {
+                'Data': [{
+                    'VarCharValue': 'table_02'
+                }]
+            },
+            {
+                'Data': [{
+                    'VarCharValue': 'table_03'
+                }]
+            },
         ]
         drop_table_mock.side_effect = [True, True, False]
         assert_false(self.client.drop_all_tables())
@@ -170,7 +212,11 @@ class TestAthenaClient:
     def test_execute_and_wait(self):
         """Athena - Execute and Wait"""
         self.client._client.results = [
-            {'Data': [{'VarCharValue': 'result'}]},
+            {
+                'Data': [{
+                    'VarCharValue': 'result'
+                }]
+            },
         ]
         result = self.client._execute_and_wait('SQL query')
         assert_true(result in self.client._client.query_executions)

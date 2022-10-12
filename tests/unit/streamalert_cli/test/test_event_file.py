@@ -39,10 +39,7 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         self.setUpPyfakefs()
 
         # Create a single test event file
-        self.fs.create_file(
-            self._DEFAULT_EVENT_PATH,
-            contents=basic_test_file_json()
-        )
+        self.fs.create_file(self._DEFAULT_EVENT_PATH, contents=basic_test_file_json())
 
     @staticmethod
     def _mock_classified_result():
@@ -61,10 +58,8 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         event = TestEventFile(self._DEFAULT_EVENT_PATH)
         event._results.append(self._fake_result(True))
 
-        expected_stringer = (
-            '\033[4m\nFile: rules/community/unit_test/file.json\n\033[0m'
-            '\nTest #01: \033[0;32;1mPass\033[0m'
-        )
+        expected_stringer = ('\033[4m\nFile: rules/community/unit_test/file.json\n\033[0m'
+                             '\nTest #01: \033[0;32;1mPass\033[0m')
 
         assert_equal(str(event), expected_stringer)
 
@@ -73,10 +68,8 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         event = TestEventFile(self._DEFAULT_EVENT_PATH)
         event.error = 'Bad thing happened'
 
-        expected_stringer = (
-            '\033[4m\nFile: rules/community/unit_test/file.json\n\033[0m'
-            '\n\033[0;31;1mBad thing happened\033[0m'
-        )
+        expected_stringer = ('\033[4m\nFile: rules/community/unit_test/file.json\n\033[0m'
+                             '\n\033[0;31;1mBad thing happened\033[0m')
 
         assert_equal(str(event), expected_stringer)
 
@@ -133,7 +126,5 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         event = TestEventFile(file_path)
         list(event.load_file())
 
-        assert_equal(
-            event.error,
-            'Test event file is improperly formatted; events should be in a list'
-        )
+        assert_equal(event.error,
+                     'Test event file is improperly formatted; events should be in a list')

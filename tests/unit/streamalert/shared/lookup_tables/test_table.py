@@ -22,7 +22,7 @@ from streamalert.shared.lookup_tables.table import LookupTable
 class TestLookupTable:
     """Test shared LookupTable class."""
 
-    # pylint: disable=no-self-use,protected-access,too-many-public-methods
+    # pylint: disable=protected-access,too-many-public-methods
     def __init__(self):
         self._driver = None
         self._table = None

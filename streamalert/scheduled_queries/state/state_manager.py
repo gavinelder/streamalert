@@ -144,17 +144,13 @@ class StepFunctionStateManager:
             self._logger.info('Loading configuration from first-run...')
             self._state_manager.set('streamquery_configuration', event['streamquery_configuration'])
 
-        # Now, wind the clock to the correct time, based upon the configuration
-        isotime = self._state_manager.get('streamquery_configuration', {}).get('clock', False)
-        if isotime:
+        if isotime := self._state_manager.get('streamquery_configuration', {}).get('clock', False):
             clock_datetime = datetime.strptime(isotime, "%Y-%m-%dT%H:%M:%SZ")
             self._clock.time_machine(clock_datetime)
             self._logger.info('Winding clock to %s...', self._clock.now)
         else:
-            self._logger.warning(
-                'No clock configuration provided. Defaulting to %s',
-                self._clock.now
-            )
+            self._logger.warning('No clock configuration provided. Defaulting to %s',
+                                 self._clock.now)
 
     def write_to_step_function_response(self, response):
         response.update({

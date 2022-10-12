@@ -20,22 +20,12 @@ from streamalert.classifier.payload.apps import AppPayload
 
 class TestAppPayload:
     """AppPayload tests"""
-    # pylint: disable=no-self-use
 
     def test_pre_parse(self):
         """AppPayload - Pre Parse"""
         # pylint: disable=protected-access
-        expected_result = [
-            {
-                'record_01': 'value'
-            },
-            {
-                'record_02': 'value'
-            }
-        ]
-        record = {
-            'logs': expected_result
-        }
+        expected_result = [{'record_01': 'value'}, {'record_02': 'value'}]
+        record = {'logs': expected_result}
 
         payload = AppPayload(None, record)
         result = [rec._record_data for rec in list(payload.pre_parse())]

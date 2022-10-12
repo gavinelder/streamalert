@@ -52,13 +52,8 @@ class StatusCommand(CLICommand):
             _print_row(key, value)
 
         lambda_keys = sorted([
-            'concurrency_limit',
-            'enable_custom_metrics',
-            'log_level',
-            'log_retention_days',
-            'memory',
-            'timeout',
-            'schedule_expression'
+            'concurrency_limit', 'enable_custom_metrics', 'log_level', 'log_retention_days',
+            'memory', 'timeout', 'schedule_expression'
         ])
         for name in set((config['lambda'])):
             config_value = config['lambda'][name]

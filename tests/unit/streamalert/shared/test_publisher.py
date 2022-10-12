@@ -31,7 +31,6 @@ from tests.unit.streamalert.alert_processor.helpers import get_alert
 
 @Register
 class SamplePublisher1(AlertPublisher):
-
     def publish(self, alert, publication):
         new_publication = publication.copy()
         new_publication['test1'] = True
@@ -40,7 +39,6 @@ class SamplePublisher1(AlertPublisher):
 
 @Register
 class SamplePublisher2(AlertPublisher):
-
     def publish(self, alert, publication):
         new_publication = publication.copy()
         new_publication['test2'] = True
@@ -75,17 +73,15 @@ def sample_publisher_blank(*_):
 
 
 class TestRegister:
-
     @staticmethod
     def test_register_works_properly():
         """AlertPublisher - @Register - Works properly"""
-        assert_true(AlertPublisherRepository.has_publisher(
-            AlertPublisherRepository.get_publisher_name(SamplePublisher1)
-        ))
+        assert_true(
+            AlertPublisherRepository.has_publisher(
+                AlertPublisherRepository.get_publisher_name(SamplePublisher1)))
 
 
 class TestCompositePublisher:
-
     @staticmethod
     def test_composite_publisher_ordering():
         """CompositePublisher - Ensure publishers executed in correct order"""
@@ -103,7 +99,6 @@ class TestCompositePublisher:
 
 
 class TestWrappedFunctionPublisher:
-
     @staticmethod
     def test_wrapped_function_publisher():
         """WrappedFunctionPublisher - Ensure function is executed properly"""
@@ -117,7 +112,6 @@ class TestWrappedFunctionPublisher:
 
 
 class TestAlertPublisherRepository:
-
     @staticmethod
     def test_is_valid_publisher_class():
         """AlertPublisherRepository - is_valid_publisher() - Class"""
@@ -138,20 +132,14 @@ class TestAlertPublisherRepository:
         """AlertPublisherRepository - get_publisher_name() - Class"""
 
         name = AlertPublisherRepository.get_publisher_name(SamplePublisher1)
-        assert_equal(
-            name,
-            'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'
-        )
+        assert_equal(name, 'tests.unit.streamalert.shared.test_publisher.SamplePublisher1')
 
     @staticmethod
     def test_get_publisher_name_function():
         """AlertPublisherRepository - get_publisher_name() - Function"""
 
         name = AlertPublisherRepository.get_publisher_name(sample_publisher_5)
-        assert_equal(
-            name,
-            'tests.unit.streamalert.shared.test_publisher.sample_publisher_5'
-        )
+        assert_equal(name, 'tests.unit.streamalert.shared.test_publisher.sample_publisher_5')
 
     @staticmethod
     def test_registers_default_publishers():
@@ -163,16 +151,15 @@ class TestAlertPublisherRepository:
     @staticmethod
     def test_has_publisher():
         """AlertPublisher - AlertPublisherRepository - get_publisher() - SamplePublisher1"""
-        assert_true(AlertPublisherRepository.has_publisher(
-            'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'
-        ))
+        assert_true(
+            AlertPublisherRepository.has_publisher(
+                'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'))
 
     @staticmethod
     def test_get_publisher():
         """AlertPublisher - AlertPublisherRepository - get_publisher() - SamplePublisher1"""
         publisher = AlertPublisherRepository.get_publisher(
-            'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'
-        )
+            'tests.unit.streamalert.shared.test_publisher.SamplePublisher1')
 
         assert_true(isinstance(publisher, SamplePublisher1))
 
@@ -216,11 +203,8 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         """AlertPublisher - AlertPublisherRepository - assemble() - String"""
         self._alert.publishers = None
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, DefaultPublisher))
 
@@ -228,11 +212,8 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         """AlertPublisher - AlertPublisherRepository - assemble() - String"""
         self._alert.publishers = 'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, CompositePublisher))
         assert_equal(len(publisher._publishers), 1)
@@ -245,11 +226,8 @@ class TestAlertPublisherRepositoryAssemblePublisher:
             'tests.unit.streamalert.shared.test_publisher.SamplePublisher2',
         ]
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, CompositePublisher))
         assert_equal(len(publisher._publishers), 2)
@@ -260,27 +238,19 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         """AlertPublisher - AlertPublisherRepository - assemble() - Empty Dict"""
         self._alert.publishers = {}
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, DefaultPublisher))
 
     def test_assemble_alert_publisher_for_output_dict_irrelevant_key(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict with Irrelevant Key"""
         self._alert.publishers = {
-            'pagerduty': [
-                'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'
-            ]
+            'pagerduty': ['tests.unit.streamalert.shared.test_publisher.SamplePublisher1']
         }
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, DefaultPublisher))
 
@@ -288,16 +258,11 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict with Key -> String"""
         self._alert.publishers = {
             'demisto': 'tests.unit.streamalert.shared.test_publisher.SamplePublisher1',
-            'pagerduty': [
-                'tests.unit.streamalert.shared.test_publisher.SamplePublisher2'
-            ]
+            'pagerduty': ['tests.unit.streamalert.shared.test_publisher.SamplePublisher2']
         }
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, CompositePublisher))
         assert_equal(len(publisher._publishers), 1)
@@ -310,16 +275,11 @@ class TestAlertPublisherRepositoryAssemblePublisher:
                 'tests.unit.streamalert.shared.test_publisher.SamplePublisher1',
                 'tests.unit.streamalert.shared.test_publisher.SamplePublisher2',
             ],
-            'pagerduty': [
-                'tests.unit.streamalert.shared.test_publisher.SamplePublisher3'
-            ],
+            'pagerduty': ['tests.unit.streamalert.shared.test_publisher.SamplePublisher3'],
         }
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, CompositePublisher))
         assert_equal(len(publisher._publishers), 2)
@@ -327,19 +287,13 @@ class TestAlertPublisherRepositoryAssemblePublisher:
     def test_assemble_alert_publisher_for_output_dict_key_descriptor_string(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict matches Desc String"""
         self._alert.publishers = {
-            'demisto:some_descriptor': (
-                'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'
-            ),
-            'pagerduty': [
-                'tests.unit.streamalert.shared.test_publisher.SamplePublisher2'
-            ],
+            'demisto:some_descriptor':
+            ('tests.unit.streamalert.shared.test_publisher.SamplePublisher1'),
+            'pagerduty': ['tests.unit.streamalert.shared.test_publisher.SamplePublisher2'],
         }
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, CompositePublisher))
         assert_equal(len(publisher._publishers), 1)
@@ -356,11 +310,8 @@ class TestAlertPublisherRepositoryAssemblePublisher:
             ]
         }
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, CompositePublisher))
         assert_equal(len(publisher._publishers), 2)
@@ -381,11 +332,8 @@ class TestAlertPublisherRepositoryAssemblePublisher:
             ]
         }
 
-        publisher = _assemble_alert_publisher_for_output(
-            self._alert,
-            self._output,
-            self._descriptor
-        )
+        publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
+                                                         self._descriptor)
 
         assert_true(isinstance(publisher, CompositePublisher))
         assert_equal(len(publisher._publishers), 4)

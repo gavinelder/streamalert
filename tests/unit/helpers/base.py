@@ -21,9 +21,10 @@ import mock
 
 class NotMocked(Exception):
     """Borrowed from http://bit.ly/2uyWD9X"""
+
     def __init__(self, filename):
-        super(NotMocked, self).__init__(
-            "The file %s was opened, but not mocked." % filename)
+        super(NotMocked, self).__init__(f"The file {filename} was opened, but not mocked.")
+
         self.filename = filename
 
 

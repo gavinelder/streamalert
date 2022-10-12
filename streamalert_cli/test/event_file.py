@@ -39,9 +39,7 @@ class TestEventFile:
         if self.error:
             output.append(format_red(self.error))
         else:
-            for result in self._results:
-                output.append(result)
-
+            output.extend(iter(self._results))
         return '\n'.join(str(item) for item in output)
 
     @property
@@ -62,7 +60,7 @@ class TestEventFile:
 
     @property
     def failed(self):
-        return sum(1 for result in self._results if not (result.suppressed or result.passed))
+        return sum(not ((result.suppressed or result.passed)) for result in self._results)
 
     def load_file(self):
         """Helper to json load the contents of a file with some error handling
@@ -91,8 +89,7 @@ class TestEventFile:
                 self.error = 'Test event file is improperly formatted; events should be in a list'
                 return
 
-            for event in data:
-                yield event
+            yield from data
 
     def process_file(self, config, verbose, with_rules):
         for idx, event in enumerate(self.load_file()):

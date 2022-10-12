@@ -13,18 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=abstract-class-instantiated,protected-access,attribute-defined-outside-init,no-self-use
+# pylint: disable=abstract-class-instantiated,protected-access,attribute-defined-outside-init
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 import boto3
 from mock import MagicMock, Mock, patch
 from moto import mock_kinesis, mock_s3, mock_sns, mock_sqs, mock_ses
-from nose.tools import (
-    assert_equal,
-    assert_false,
-    assert_is_not_none,
-    assert_true
-)
+from nose.tools import (assert_equal, assert_false, assert_is_not_none, assert_true)
 
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.output_base import OutputProperty
@@ -40,27 +35,19 @@ from streamalert.alert_processor.outputs.aws import (
     CloudwatchLogOutput,
     LambdaOutputV2,
 )
-from tests.unit.streamalert.alert_processor import (
-    CONFIG,
-    MOCK_ENV,
-    REGION
-)
+from tests.unit.streamalert.alert_processor import (CONFIG, MOCK_ENV, REGION)
 from tests.unit.streamalert.alert_processor.helpers import get_alert, get_random_alert
 
 
 class TestAWSOutput:
     """Test class for AWSOutput Base"""
-
     @patch.object(AWSOutput, '__service__', 'aws-s3')
     def test_aws_format_output_config(self):
         """AWSOutput - Format Output Config"""
         props = {
-            'descriptor': OutputProperty(
-                'short_descriptor',
-                'descriptor_value'),
-            'aws_value': OutputProperty(
-                'unique arn value, bucket, etc',
-                'bucket.value')}
+            'descriptor': OutputProperty('short_descriptor', 'descriptor_value'),
+            'aws_value': OutputProperty('unique arn value, bucket, etc', 'bucket.value')
+        }
 
         formatted_config = AWSOutput.format_output_config(CONFIG, props)
 
@@ -92,8 +79,7 @@ class TestFirehoseOutput:
                     'IntervalInSeconds': 128
                 },
                 'CompressionFormat': 'GZIP',
-            }
-        )
+            })
 
     def test_locals(self):
         """Kinesis Firehose - Output local variables"""
@@ -105,8 +91,8 @@ class TestFirehoseOutput:
         """Kinesis Firehose - Output Dispatch Success"""
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     def test_dispatch_ignore_large_payload(self):
         """Output Dispatch - Kinesis Firehose with Large Payload"""
@@ -137,19 +123,19 @@ class TestLambdaOutput:
         """LambdaOutput dispatch"""
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     @patch('logging.Logger.info')
     def test_dispatch_with_qualifier(self, log_mock):
         """LambdaOutput - Dispatch Success, With Qualifier"""
-        alt_descriptor = '{}_qual'.format(self.DESCRIPTOR)
+        alt_descriptor = f'{self.DESCRIPTOR}_qual'
 
-        assert_true(
-            self._dispatcher.dispatch(get_alert(), ':'.join([self.SERVICE, alt_descriptor])))
+        assert_true(self._dispatcher.dispatch(get_alert(), ':'.join([self.SERVICE,
+                                                                     alt_descriptor])))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, alt_descriptor)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    alt_descriptor)
 
 
 @patch.object(aws_outputs, 'boto3', MagicMock())
@@ -170,8 +156,7 @@ class TestLambdaV2Output:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
 
         self._provider = provider
         self._dispatcher = LambdaOutputV2(None)
@@ -186,8 +171,8 @@ class TestLambdaV2Output:
         """LambdaOutput dispatch"""
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
 
 @mock_s3
@@ -214,8 +199,8 @@ class TestS3Output:
         """S3Output - Dispatch Success"""
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
 
 @mock_sns
@@ -237,8 +222,8 @@ class TestSNSOutput:
         """SNSOutput - Dispatch Success"""
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
 
 @mock_sqs
@@ -260,8 +245,8 @@ class TestSQSOutput:
         """SQSOutput - Dispatch Success"""
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
 
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
 
 class TestCloudwatchLogOutput:
@@ -282,8 +267,8 @@ class TestCloudwatchLogOutput:
 
         assert_true(self._dispatcher.dispatch(alert, self.OUTPUT))
         assert_equal(log_mock.call_count, 3)
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
 
 @mock_ses
@@ -301,8 +286,7 @@ class TestSESOutput:
         provider = MagicMock()
         provider_constructor.return_value = provider
         provider.load_credentials = Mock(
-            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None
-        )
+            side_effect=lambda x: self.CREDS if x == self.DESCRIPTOR else None)
 
         # Setup SES client and verify email addresses for tests
         ses = boto3.client('ses', region_name=REGION)
@@ -317,8 +301,8 @@ class TestSESOutput:
     def test_dispatch_success(self, log_mock):
         """SESOutput - Dispatch Success"""
         assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    self.SERVICE, self.DESCRIPTOR)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', self.SERVICE,
+                                    self.DESCRIPTOR)
 
     def test_subject_override(self):
         """SESOutput - Change default Subject"""
@@ -435,7 +419,7 @@ class TestSESOutput:
         payloads = msg.get_payload()
         for payload in payloads:
             if isinstance(payload, MIMEApplication):
-                assert_true(payload.get_filename() in attachments.keys())
+                assert_true(payload.get_filename() in attachments)
 
     def test_override_default_body_string(self):
         """SESOutput - Override body string"""

@@ -22,7 +22,8 @@ from streamalert.classifier.parsers import KVParser
 
 class TestKVParser:
     """Test class for KVParser"""
-    # pylint: disable=no-self-use,protected-access
+
+    # pylint: disable=protected-access
 
     def test_parse(self):
         """KV Parser - Parse"""
@@ -43,23 +44,13 @@ class TestKVParser:
         result = parser.parse(data)
         assert_equal(result, True)
 
-        expected_result = [
-            {
-                'name': 'joe bob',
-                'result': 'success'
-            }
-        ]
+        expected_result = [{'name': 'joe bob', 'result': 'success'}]
 
         assert_equal(parser.parsed_records, expected_result)
 
     def test_extract_record_invalid_field_count(self):
         """KV Parser - Extract Record, Invalid Field Count"""
-        options = {
-            'schema': {
-                'name': 'string',
-                'result': 'string'
-            }
-        }
+        options = {'schema': {'name': 'string', 'result': 'string'}}
         data = 'name=foo'
 
         # get parsed data
@@ -77,10 +68,6 @@ class TestKVParser:
         parser = KVParser(options)
         result = parser._extract_record(data)
 
-        expected_result = {
-            'name': 'foo',
-            'result': 'bar',
-            'test': 'baz'
-        }
+        expected_result = {'name': 'foo', 'result': 'bar', 'test': 'baz'}
 
         assert_equal(result, expected_result)

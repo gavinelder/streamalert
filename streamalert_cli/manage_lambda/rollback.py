@@ -38,8 +38,8 @@ def _rollback_production(lambda_client, function_name):
     Returns:
         bool: False if errors occurred, True otherwise
     """
-    version = lambda_client.get_alias(
-        FunctionName=function_name, Name='production')['FunctionVersion']
+    version = lambda_client.get_alias(FunctionName=function_name,
+                                      Name='production')['FunctionVersion']
 
     if version == '$LATEST':
         # This won't happen with Terraform, but the alias could have been manually changed.
@@ -52,11 +52,12 @@ def _rollback_production(lambda_client, function_name):
         LOGGER.warning('%s:production is already at version 1', function_name)
         return False
 
-    LOGGER.info('Rolling back %s:production from version %d => %d',
-                function_name, current_version, current_version - 1)
+    LOGGER.info('Rolling back %s:production from version %d => %d', function_name, current_version,
+                current_version - 1)
     try:
-        lambda_client.update_alias(
-            FunctionName=function_name, Name='production', FunctionVersion=str(current_version - 1))
+        lambda_client.update_alias(FunctionName=function_name,
+                                   Name='production',
+                                   FunctionVersion=str(current_version - 1))
     except ClientError:
         LOGGER.exception('version not updated')
         return False
@@ -70,16 +71,12 @@ class RollbackCommand(CLICommand):
     @classmethod
     def setup_subparser(cls, subparser):
         """Add the rollback subparser: manage.py rollback [options]"""
-        set_parser_epilog(
-            subparser,
-            epilog=(
-                '''\
+        set_parser_epilog(subparser,
+                          epilog=('''\
                 Example:
 
                     manage.py rollback --function rule
-                '''
-            )
-        )
+                '''))
 
         add_default_lambda_args(subparser)
 
@@ -100,9 +97,7 @@ class RollbackCommand(CLICommand):
 
         functions = function_map()
         targeted_funcs = set(options.functions)
-        functions = {
-            key: value for key, value in functions.items() if key in targeted_funcs
-        }
+        functions = {key: value for key, value in functions.items() if key in targeted_funcs}
 
         LOGGER.info('Rolling back: %s', ', '.join(sorted(functions)))
 
@@ -114,10 +109,8 @@ class RollbackCommand(CLICommand):
         success = True
         for func, suffix in functions.items():
             if suffix:  # A suffix implies this is a standard function naming convention
-                success = success and _rollback_production(
-                    client,
-                    '{}_streamalert_{}'.format(prefix, suffix)
-                )
+                success = success and _rollback_production(client, f'{prefix}_streamalert_{suffix}')
+
             elif func == 'apps':  # Apps need special handling due to unique naming
                 for cluster in clusters:
                     cluster_modules = config['clusters'][cluster]['modules']
@@ -127,8 +120,6 @@ class RollbackCommand(CLICommand):
             elif func == 'classifier':  # Classifers need special handling due to clustering
                 for cluster in clusters:
                     success = success and _rollback_production(
-                        client,
-                        '{}_{}_streamalert_{}'.format(prefix, cluster, func)
-                    )
+                        client, f'{prefix}_{cluster}_streamalert_{func}')
 
         return success

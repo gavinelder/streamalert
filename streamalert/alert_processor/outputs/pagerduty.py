@@ -18,19 +18,11 @@ from collections import OrderedDict
 import backoff
 
 from streamalert.alert_processor.helpers import compose_alert
-from streamalert.alert_processor.outputs.output_base import (
-    OutputDispatcher,
-    OutputProperty,
-    OutputRequestFailure,
-    StreamAlertOutput
-)
-from streamalert.shared.backoff_handlers import (
-    backoff_handler,
-    success_handler,
-    giveup_handler
-)
+from streamalert.alert_processor.outputs.output_base import (OutputDispatcher, OutputProperty,
+                                                             OutputRequestFailure,
+                                                             StreamAlertOutput)
+from streamalert.shared.backoff_handlers import (backoff_handler, success_handler, giveup_handler)
 from streamalert.shared.logger import get_logger
-
 
 LOGGER = get_logger(__name__)
 
@@ -91,7 +83,7 @@ class EventsV2DataProvider:
         publication = compose_alert(alert, self, descriptor)
 
         # Presentation defaults
-        default_summary = 'StreamAlert Rule Triggered - {}'.format(alert.rule_name)
+        default_summary = f'StreamAlert Rule Triggered - {alert.rule_name}'
         default_custom_details = OrderedDict()
         default_custom_details['description'] = alert.rule_description
         if with_record:
@@ -112,7 +104,7 @@ class EventsV2DataProvider:
         # We namespace the dedup_key by the descriptor, preventing situations where a single
         # alert sending to multiple PagerDuty services from having colliding dedup_keys, which
         # would PROBABLY be ok (because of segregated environments) but why take the risk?
-        dedup_key = '{}:{}'.format(descriptor, alert.alert_id)
+        dedup_key = f'{descriptor}:{alert.alert_id}'
 
         # Structure: https://v2.developer.pagerduty.com/docs/send-an-event-events-api-v2
         return {
@@ -162,9 +154,7 @@ class EventsV2DataProvider:
                 'src': image['src'],
                 'href': image['href'] if 'href' in image else '',
                 'alt': image['alt'] if 'alt' in image else '',
-            }
-            for image in images
-            if isinstance(image, dict) and 'src' in image
+            } for image in images if isinstance(image, dict) and 'src' in image
         ]
 
     @staticmethod
@@ -175,17 +165,11 @@ class EventsV2DataProvider:
            - href: A URL of the link
            - text: Text of the link (Optional: Defaults to the href if no text given)
         """
-        if not isinstance(links, list):
-            return []
-
-        return [
-            {
-                'href': link['href'],
-                'text': link['text'] if 'text' in link else link['href'],
-            }
-            for link in links
-            if isinstance(link, dict) and 'href' in link
-        ]
+        return [{
+            'href': link['href'],
+            'text': link['text'] if 'text' in link else link['href'],
+        } for link in links
+            if isinstance(link, dict) and 'href' in link] if isinstance(links, list) else []
 
 
 @StreamAlertOutput
@@ -219,7 +203,7 @@ class PagerDutyOutput(OutputDispatcher):
         return OrderedDict([
             ('descriptor',
              OutputProperty(description='a short and unique descriptor for this '
-                                        'PagerDuty integration')),
+                            'PagerDuty integration')),
             # A version 4 UUID expressed as a 32 digit hexadecimal number. This is the
             # integration key for an integration on a given service and can be found on
             # the pagerduty integrations UI.
@@ -287,7 +271,7 @@ class PagerDutyOutput(OutputDispatcher):
             return False
 
         # Presentation defaults
-        default_description = 'StreamAlert Rule Triggered - {}'.format(alert.rule_name)
+        default_description = f'StreamAlert Rule Triggered - {alert.rule_name}'
         default_details = {
             'description': alert.rule_description,
             'record': alert.record,
@@ -316,7 +300,7 @@ class PagerDutyOutput(OutputDispatcher):
             return []
 
         def is_valid_context(context):
-            if not 'type' in context:
+            if 'type' not in context:
                 return False
 
             if context['type'] == 'link':
@@ -378,7 +362,7 @@ class PagerDutyOutputV2(OutputDispatcher, EventsV2DataProvider):
         return OrderedDict([
             ('descriptor',
              OutputProperty(description='a short and unique descriptor for this '
-                                        'PagerDuty integration')),
+                            'PagerDuty integration')),
             ('routing_key',
              OutputProperty(description='the routing key for this PagerDuty integration',
                             mask_input=True,
@@ -409,10 +393,7 @@ class PagerDutyOutputV2(OutputDispatcher, EventsV2DataProvider):
 
         result = client.enqueue_event(data)
 
-        if result is False:
-            return False
-
-        return True
+        return result is not False
 
 
 @StreamAlertOutput
@@ -520,7 +501,7 @@ class PagerDutyIncidentOutput(OutputDispatcher, EventsV2DataProvider):
         return OrderedDict([
             ('descriptor',
              OutputProperty(description='a short and unique descriptor for this '
-                                        'PagerDuty integration')),
+                            'PagerDuty integration')),
             # The REST API Access Token. This needs to be generated through the PagerDuty console.
             # Unlike the routing key this token is EXTREMELY IMPORTANT NOT TO LOSE as it grants
             # access to all resources on PagerDuty, whereas the routing key only allows
@@ -555,7 +536,7 @@ class PagerDutyIncidentOutput(OutputDispatcher, EventsV2DataProvider):
             # This must exactly match the email address of a user on the PagerDuty account.
             ('email_from',
              OutputProperty(description='valid user email from the PagerDuty '
-                                        'account linked to the token',
+                            'account linked to the token',
                             cred_requirement=True)),
             # A version 4 UUID expressed as a 32 digit hexadecimal number. This is the same
             # as the routing key that is used in the v2 Events API.
@@ -600,12 +581,10 @@ class WorkContext:
         self._incident_service = self._credentials['service_id']
 
         http = JsonHttpProvider(output_dispatcher)
-        self._api_client = PagerDutyRestApiClient(
-            self._credentials['token'],
-            self._credentials['email_from'],
-            http,
-            url=self._credentials['api']
-        )
+        self._api_client = PagerDutyRestApiClient(self._credentials['token'],
+                                                  self._credentials['email_from'],
+                                                  http,
+                                                  url=self._credentials['api'])
         self._events_client = PagerDutyEventsV2ApiClient(http)
 
         # We cache the API User because we may use it multiple times
@@ -632,18 +611,13 @@ class WorkContext:
         # Create an incident to house the alert
         incident = self._update_base_incident(event, alert, publication, rule_context)
         if not incident:
-            LOGGER.error(
-                '[%s] Failed to update container incident for event',
-                self._output.__service__
-            )
+            LOGGER.error('[%s] Failed to update container incident for event',
+                         self._output.__service__)
             return False
 
         incident_id = incident.get('id', False)
         if not incident_id:
-            LOGGER.error(
-                '[%s] Incident is missing "id"??',
-                self._output.__service__
-            )
+            LOGGER.error('[%s] Incident is missing "id"??', self._output.__service__)
             return False
 
         # At this point, both the incident and the relevant alert event have been successfully
@@ -670,27 +644,19 @@ class WorkContext:
             responder_message = rule_context.get('responder_message', default_message)
 
             for responder_email in responders:
-                result = self._add_incident_response_request(
-                    incident_id,
-                    responder_email,
-                    responder_message
-                )
+                result = self._add_incident_response_request(incident_id, responder_email,
+                                                             responder_message)
                 if not result:
-                    error = '[{}] Failed to request a responder ({}) on incident ({})'.format(
-                        self._output.__service__,
-                        responder_email,
-                        incident_id
-                    )
+                    error = f'[{self._output.__service__}] Failed to request a responder ({responder_email}) on incident ({incident_id})'
+
                     LOGGER.error(error)
                     errors.append(error)
 
         # Add a note to the incident
         note = self._add_incident_note(incident_id, publication, rule_context)
         if not note:
-            error = '[{}] Failed to add note to incident ({})'.format(
-                self._output.__service__,
-                incident_id
-            )
+            error = f'[{self._output.__service__}] Failed to add note to incident ({incident_id})'
+
             LOGGER.error(error)
             errors.append(error)
 
@@ -701,7 +667,7 @@ class WorkContext:
         return True
 
     def _add_instability_note(self, incident_id, errors):
-        error_section = '\n'.join(['- {}'.format(err) for err in errors])
+        error_section = '\n'.join([f'- {err}' for err in errors])
         instability_note = '''
 StreamAlert failed to correctly setup this incident. Please contact your StreamAlert administrator.
 
@@ -724,20 +690,14 @@ Errors:
         """
         incident_key = event.get('dedup_key')
         if not incident_key:
-            LOGGER.error(
-                '[%s] Event created is missing its "dedup_key"? %s',
-                self._output.__service__,
-                event
-            )
+            LOGGER.error('[%s] Event created is missing its "dedup_key"? %s',
+                         self._output.__service__, event)
             return False
 
         event_incident_id = self._get_incident_id_from_event_incident_key(incident_key)
         if not event_incident_id:
-            LOGGER.error(
-                '[%s] Failed to retrieve Event Incident Id from dedup_key (%s)',
-                self._output.__service__,
-                incident_key
-            )
+            LOGGER.error('[%s] Failed to retrieve Event Incident Id from dedup_key (%s)',
+                         self._output.__service__, incident_key)
             return False
 
         incident_data = self._construct_incident_put_request_data(alert, publication, rule_context)
@@ -751,15 +711,14 @@ Errors:
         """
 
         # Presentation defaults
-        default_incident_title = 'StreamAlert Incident - Rule triggered: {}'.format(alert.rule_name)
+        default_incident_title = f'StreamAlert Incident - Rule triggered: {alert.rule_name}'
+
         default_incident_body = alert.rule_description
         default_urgency = None  # Assumes the default urgency on the service referenced
 
         # Override presentation defaults with publisher fields
-        incident_title = publication.get(
-            '@pagerduty-incident.incident_title',
-            default_incident_title
-        )
+        incident_title = publication.get('@pagerduty-incident.incident_title',
+                                         default_incident_title)
         incident_body = publication.get('@pagerduty-incident.incident_body', default_incident_body)
         incident_urgency = publication.get('@pagerduty-incident.urgency', default_urgency)
 
@@ -802,12 +761,10 @@ Errors:
             }
         }
 
-        incident_priority = self._get_standardized_priority(rule_context)
-        if incident_priority:
+        if incident_priority := self._get_standardized_priority(rule_context):
             incident_data['incident']['priority'] = incident_priority
 
-        assignments = self._get_incident_assignments(rule_context)
-        if assignments:
+        if assignments := self._get_incident_assignments(rule_context):
             incident_data['incident']['assignments'] = assignments
         else:
             # Important detail;
@@ -821,45 +778,33 @@ Errors:
             if incident_urgency in ['low', 'high']:
                 incident_data['incident']['urgency'] = incident_urgency
             else:
-                LOGGER.warning(
-                    '[%s] Invalid pagerduty incident urgency: "%s"',
-                    self._output.__service__,
-                    incident_urgency
-                )
+                LOGGER.warning('[%s] Invalid pagerduty incident urgency: "%s"',
+                               self._output.__service__, incident_urgency)
 
         return incident_data
 
     def _get_incident_assignments(self, rule_context):
         assignments = False
-        user_to_assign = rule_context.get('assigned_user', False)
-
-        # If provided, verify the user and get the id from API
-        if user_to_assign:
+        if user_to_assign := rule_context.get('assigned_user', False):
             user = self._api_client.get_user_by_email(user_to_assign)
             if user and user.get('id'):
-                assignments = [{'assignee': {
-                    'id': user.get('id'),
-                    'type': 'user_reference',
-                }}]
+                assignments = [{
+                    'assignee': {
+                        'id': user.get('id'),
+                        'type': 'user_reference',
+                    }
+                }]
             else:
-                LOGGER.warning(
-                    '[%s] Assignee (%s) could not be found in PagerDuty',
-                    self._output.__service__,
-                    user_to_assign
-                )
+                LOGGER.warning('[%s] Assignee (%s) could not be found in PagerDuty',
+                               self._output.__service__, user_to_assign)
         return assignments
 
     def _get_incident_escalation_policy(self, rule_context):
         # If escalation policy ID was not provided, use default one
-        policy_id_to_assign = rule_context.get(
-            'assigned_policy_id',
-            self._default_escalation_policy_id
-        )
+        policy_id_to_assign = rule_context.get('assigned_policy_id',
+                                               self._default_escalation_policy_id)
         # Assigned to escalation policy ID, return tuple
-        return {
-            'id': policy_id_to_assign,
-            'type': 'escalation_policy_reference'
-        }
+        return {'id': policy_id_to_assign, 'type': 'escalation_policy_reference'}
 
     def _create_base_alert_event(self, alert, descriptor, rule_context):
         """Creates an alert on REST API v2
@@ -874,30 +819,23 @@ Errors:
         Returns False if event was not created.
         """
         with_record = rule_context.get('with_record', True)
-        event_data = self._output.events_v2_data(
-            alert,
-            descriptor,
-            self._credentials['integration_key'],
-            with_record=with_record
-        )
+        event_data = self._output.events_v2_data(alert,
+                                                 descriptor,
+                                                 self._credentials['integration_key'],
+                                                 with_record=with_record)
 
         return self._events_client.enqueue_event(event_data)
 
     def _add_incident_response_request(self, incident_id, responder_email, message):
         responder = self._api_client.get_user_by_email(responder_email)
         if not responder:
-            LOGGER.error(
-                'Could not verify if requested incident responder "%s" exists',
-                responder_email
-            )
+            LOGGER.error('Could not verify if requested incident responder "%s" exists',
+                         responder_email)
             return False
 
-        return bool(self._api_client.request_responder(
-            incident_id,
-            self._api_user.get('id'),
-            message,
-            responder.get('id')
-        ))
+        return bool(
+            self._api_client.request_responder(incident_id, self._api_user.get('id'), message,
+                                               responder.get('id')))
 
     def _add_incident_note(self, incident_id, publication, rule_context):
         """Adds a note to the incident, when applicable.
@@ -908,19 +846,11 @@ Errors:
 
         # Add a note to the combined incident to help with triage
         default_incident_note = 'Creating SOX Incident'  # For reverse compatibility reasons
-        incident_note = publication.get(
-            '@pagerduty-incident.note',
-            rule_context.get(
-                'note',
-                default_incident_note
-            )
-        )
+        incident_note = publication.get('@pagerduty-incident.note',
+                                        rule_context.get('note', default_incident_note))
 
-        if not incident_note:
-            # Simply return early without adding a note; no need to add a blank one
-            return True
-
-        return bool(self._api_client.add_note(incident_id, incident_note))
+        return bool(self._api_client.add_note(incident_id,
+                                              incident_note)) if incident_note else True
 
     @backoff.on_exception(backoff.constant,
                           PagerdutySearchDelay,
@@ -946,22 +876,18 @@ Errors:
         if not incident_key:
             return False
 
-        event_incident = self._api_client.get_incident_by_key(incident_key)
-        if not event_incident:
+        if event_incident := self._api_client.get_incident_by_key(incident_key):
+            return event_incident.get('id')
+        else:
             raise PagerdutySearchDelay('Received no PagerDuty response')
-
-        return event_incident.get('id')
 
     def _verify_user_exists(self):
         """Verifies that the 'email_from' provided in the creds is valid and exists."""
         user = self._api_client.get_user_by_email(self._email_from)
 
         if not user:
-            LOGGER.error(
-                'Could not verify header From: %s, %s',
-                self._email_from,
-                self._output.__service__
-            )
+            LOGGER.error('Could not verify header From: %s, %s', self._email_from,
+                         self._output.__service__)
             return False
 
         self._api_user = user
@@ -989,21 +915,16 @@ Errors:
         if not priority_name:
             return False
 
-        priorities = self._api_client.get_priorities()
+        if priorities := self._api_client.get_priorities():
+            return {
+                'id': priority_id,
+                'type': 'priority_reference'
+            } if (priority_id := next(
+                (item for item in priorities
+                 if item["name"] == priority_name), {}).get('id', False)) else False
 
-        if not priorities:
+        else:
             return False
-
-        # If the requested priority is in the list, get the id
-        priority_id = next(
-            (item for item in priorities if item["name"] == priority_name), {}
-        ).get('id', False)
-
-        # If the priority id is found, compose the JSON
-        if priority_id:
-            return {'id': priority_id, 'type': 'priority_reference'}
-
-        return False
 
 
 # pylint: disable=protected-access
@@ -1027,10 +948,7 @@ class JsonHttpProvider:
             return False
 
         response = result.json()
-        if not response:
-            return False
-
-        return response
+        return response or False
 
     def post(self, url, data, headers=None, verify=False):
         """Returns the JSON response of the given request, or FALSE on failure"""
@@ -1041,10 +959,7 @@ class JsonHttpProvider:
             return False
 
         response = result.json()
-        if not response:
-            return False
-
-        return response
+        return response or False
 
     def put(self, url, params, headers=None, verify=False):
         """Returns the JSON response of the given request, or FALSE on failure"""
@@ -1055,10 +970,7 @@ class JsonHttpProvider:
             return False
 
         response = result.json()
-        if not response:
-            return False
-
-        return response
+        return response or False
 
 
 class SslVerifiable:
@@ -1070,6 +982,7 @@ class SslVerifiable:
     host is hit, since the handshake process is slow. Subsequent requests to the same host
     within the current request can void certificate verification to speed things up.
     """
+
     def __init__(self):
         self._host_ssl_verified = False
 
@@ -1105,21 +1018,18 @@ class PagerDutyRestApiClient(SslVerifiable):
         self._authorization_token = authorization_token
         self._user_email = user_email
         self._http_provider = http_provider  # type: JsonHttpProvider
-        self._base_url = url if url else self.REST_API_BASE_URL
+        self._base_url = url or self.REST_API_BASE_URL
 
     def get_user_by_email(self, user_email):
         """Fetches a pagerduty user by an email address.
 
         Returns false on failure or if no matching user is found.
         """
-        response = self._http_provider.get(
-            self._get_users_url(),
-            {
-                'query': user_email,
-            },
+        response = self._http_provider.get(self._get_users_url(), {
+            'query': user_email,
+        },
             self._construct_headers(omit_email=True),
-            verify=self._should_do_ssl_verify()
-        )
+            verify=self._should_do_ssl_verify())
         self._update_ssl_verified(response)
 
         if not response:
@@ -1140,8 +1050,7 @@ class PagerDutyRestApiClient(SslVerifiable):
                 'incident_key': incident_key  # Beware: this key is intentionally not "query"
             },
             headers=self._construct_headers(),
-            verify=self._should_do_ssl_verify()
-        )
+            verify=self._should_do_ssl_verify())
         self._update_ssl_verified(incidents)
 
         if not incidents:
@@ -1153,32 +1062,24 @@ class PagerDutyRestApiClient(SslVerifiable):
 
     def get_priorities(self):
         """Returns a list of all valid priorities"""
-        priorities = self._http_provider.get(
-            self._get_priorities_url(),
-            None,
-            headers=self._construct_headers(),
-            verify=self._should_do_ssl_verify()
-        )
+        priorities = self._http_provider.get(self._get_priorities_url(),
+                                             None,
+                                             headers=self._construct_headers(),
+                                             verify=self._should_do_ssl_verify())
         self._update_ssl_verified(priorities)
 
-        if not priorities:
-            return False
-
-        return priorities.get('priorities', [])
+        return priorities.get('priorities', []) if priorities else False
 
     def get_escalation_policy_by_id(self, escalation_policy_id):
         """Given an escalation policy id, returns the resource
 
         Returns False on failure or if no escalation policy exists with that id
         """
-        escalation_policies = self._http_provider.get(
-            self._get_escalation_policies_url(),
-            {
-                'query': escalation_policy_id,
-            },
+        escalation_policies = self._http_provider.get(self._get_escalation_policies_url(), {
+            'query': escalation_policy_id,
+        },
             headers=self._construct_headers(),
-            verify=self._should_do_ssl_verify()
-        )
+            verify=self._should_do_ssl_verify())
         self._update_ssl_verified(escalation_policies)
 
         if not escalation_policies:
@@ -1201,18 +1102,13 @@ class PagerDutyRestApiClient(SslVerifiable):
         Returns:
             dict
         """
-        incident = self._http_provider.put(
-            self._get_incident_url(incident_id),
-            incident_data,
-            headers=self._construct_headers(),
-            verify=self._should_do_ssl_verify()
-        )
+        incident = self._http_provider.put(self._get_incident_url(incident_id),
+                                           incident_data,
+                                           headers=self._construct_headers(),
+                                           verify=self._should_do_ssl_verify())
         self._update_ssl_verified(incident)
 
-        if not incident:
-            return False
-
-        return incident.get('incident', False)
+        return incident.get('incident', False) if incident else False
 
     def add_note(self, incident_id, note):
         """Method to add a text note to the provided incident id
@@ -1227,22 +1123,15 @@ class PagerDutyRestApiClient(SslVerifiable):
         Returns:
             str: ID of the note after being added to the incident or False if it fails
         """
-        note = self._http_provider.post(
-            self._get_incident_notes_url(incident_id),
-            {
-                'note': {
-                    'content': note,
-                }
-            },
-            self._construct_headers(),
-            verify=self._should_do_ssl_verify()
-        )
+        note = self._http_provider.post(self._get_incident_notes_url(incident_id),
+                                        {'note': {
+                                            'content': note,
+                                        }},
+                                        self._construct_headers(),
+                                        verify=self._should_do_ssl_verify())
         self._update_ssl_verified(note)
 
-        if not note:
-            return False
-
-        return note.get('note', False)
+        return note.get('note', False) if note else False
 
     def request_responder(self, incident_id, requester_user_id, message, responder_user_id):
         # Be very careful with this API endpoint, there are several things you will need to know:
@@ -1253,28 +1142,23 @@ class PagerDutyRestApiClient(SslVerifiable):
         #    returning an HTTP 400 with a useful error message, it will return an HTTP 404.
         # 3) You cannot add a requester to an incident that is resolved, it will also 404.
         responder_request = self._http_provider.post(
-            self._get_incident_responder_requests_url(incident_id),
-            {
-                'requester_id': requester_user_id,
-                'message': message,
-                'responder_request_targets': [
-                    {
-                        'responder_request_target': {
-                            'id': responder_user_id,
-                            'type': 'user_reference',
-                        }
+            self._get_incident_responder_requests_url(incident_id), {
+                'requester_id':
+                requester_user_id,
+                'message':
+                message,
+                'responder_request_targets': [{
+                    'responder_request_target': {
+                        'id': responder_user_id,
+                        'type': 'user_reference',
                     }
-                ]
+                }]
             },
             self._construct_headers(),
-            verify=self._should_do_ssl_verify()
-        )
+            verify=self._should_do_ssl_verify())
         self._update_ssl_verified(responder_request)
 
-        if not responder_request:
-            return False
-
-        return responder_request.get('responder_request', False)
+        return responder_request.get('responder_request', False) if responder_request else False
 
     def _construct_headers(self, omit_email=False):
         """Returns a dict containing all headers to send for PagerDuty requests
@@ -1285,9 +1169,10 @@ class PagerDutyRestApiClient(SslVerifiable):
         """
         headers = {
             'Accept': 'application/vnd.pagerduty+json;version=2',
-            'Authorization': 'Token token={}'.format(self._authorization_token),
-            'Content-Type': 'application/json',
+            'Authorization': f'Token token={self._authorization_token}',
+            'Content-Type': 'application/json'
         }
+
         if not omit_email:
             headers['From'] = self._user_email
 
@@ -1303,18 +1188,15 @@ class PagerDutyRestApiClient(SslVerifiable):
         return '{base_url}/incidents'.format(base_url=self._base_url)
 
     def _get_incident_url(self, incident_id):
-        return '{incidents_url}/{incident_id}'.format(
-            incidents_url=self._get_incidents_url(),
-            incident_id=incident_id
-        )
+        return '{incidents_url}/{incident_id}'.format(incidents_url=self._get_incidents_url(),
+                                                      incident_id=incident_id)
 
     def _get_incident_notes_url(self, incident_id):
         return '{incident_url}/notes'.format(incident_url=self._get_incident_url(incident_id))
 
     def _get_incident_responder_requests_url(self, incident_id):
         return '{incident_url}/responder_requests'.format(
-            incident_url=self._get_incident_url(incident_id)
-        )
+            incident_url=self._get_incident_url(incident_id))
 
     def _get_users_url(self):
         return '{base_url}/users'.format(base_url=self._base_url)
@@ -1332,9 +1214,7 @@ class PagerDutyEventsV2ApiClient(SslVerifiable):
         super(PagerDutyEventsV2ApiClient, self).__init__()
 
         self._http_provider = http_provider  # type: JsonHttpProvider
-        self._enqueue_endpoint = (
-            enqueue_endpoint if enqueue_endpoint else self.EVENTS_V2_API_ENQUEUE_ENDPOINT
-        )
+        self._enqueue_endpoint = enqueue_endpoint or self.EVENTS_V2_API_ENQUEUE_ENDPOINT
 
     def enqueue_event(self, event_data):
         """Enqueues a new event.
@@ -1344,21 +1224,16 @@ class PagerDutyEventsV2ApiClient(SslVerifiable):
         Note: For API v2, all authentication information is baked directly into the event_data,
         rather than being provided in the headers.
         """
-        event = self._http_provider.post(
-            self._get_event_enqueue_v2_url(),
-            event_data,
-            headers=None,
-            verify=self._should_do_ssl_verify()
-        )
+        event = self._http_provider.post(self._get_event_enqueue_v2_url(),
+                                         event_data,
+                                         headers=None,
+                                         verify=self._should_do_ssl_verify())
         self._update_ssl_verified(event)
 
         return event
 
     def _get_event_enqueue_v2_url(self):
-        if self._enqueue_endpoint:
-            return self._enqueue_endpoint
-
-        return '{}'.format(self.EVENTS_V2_API_ENQUEUE_ENDPOINT)
+        return self._enqueue_endpoint or f'{self.EVENTS_V2_API_ENQUEUE_ENDPOINT}'
 
 
 class PagerDutyEventsV1ApiClient(SslVerifiable):
@@ -1379,8 +1254,8 @@ class PagerDutyEventsV1ApiClient(SslVerifiable):
         super(PagerDutyEventsV1ApiClient, self).__init__()
 
         self._service_key = service_key
-        self._http_provider = http_provider #  type: JsonHttpProvider
-        self._api_endpoint = api_endpoint if api_endpoint else self.EVENTS_V1_API_ENDPOINT
+        self._http_provider = http_provider  # type: JsonHttpProvider
+        self._api_endpoint = api_endpoint or self.EVENTS_V1_API_ENDPOINT
 
     def send_event(self, incident_description, incident_details, contexts, client_url=''):
         """
@@ -1397,19 +1272,16 @@ class PagerDutyEventsV1ApiClient(SslVerifiable):
         data = {
             'service_key': self._service_key,
             'event_type': self.EVENT_TYPE_TRIGGER,
-
             'description': incident_description,
             'details': incident_details,
             'client': self.CLIENT_STREAMALERT,
             'client_url': client_url,
             'contexts': contexts,
         }
-        result = self._http_provider.post(
-            self._api_endpoint,
-            data,
-            headers=None,
-            verify=self._should_do_ssl_verify()
-        )
+        result = self._http_provider.post(self._api_endpoint,
+                                          data,
+                                          headers=None,
+                                          verify=self._should_do_ssl_verify())
         self._update_ssl_verified(result)
 
         return result

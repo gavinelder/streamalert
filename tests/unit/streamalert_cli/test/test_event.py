@@ -25,7 +25,8 @@ TestEvent = nottest(TestEvent)
 
 class TestTestEvent:
     """Test the TestEvent class"""
-    # pylint: disable=no-self-use,protected-access
+
+    # pylint: disable=protected-access
     def setup(self):
         # pylint: disable=attribute-defined-outside-init
         self._default_event = TestEvent(basic_test_event_data())
@@ -97,10 +98,8 @@ class TestTestEvent:
         self._default_event._event = []  # invalid data type
 
         assert_equal(self._default_event.is_valid(self.basic_config()), False)
-        assert_equal(
-            self._default_event.error,
-            'Invalid type for event: <class \'list\'>; should be dict'
-        )
+        assert_equal(self._default_event.error,
+                     'Invalid type for event: <class \'list\'>; should be dict')
 
     def test_is_valid_missing_key(self):
         """StreamAlert CLI - TestEvent Is Valid Property, Missing Required Key"""
@@ -114,10 +113,8 @@ class TestTestEvent:
         del self._default_event._event['data']  # remove both of the data keys
 
         assert_equal(self._default_event.is_valid(self.basic_config()), False)
-        assert_equal(
-            self._default_event.error,
-            'Test event must contain either \'data\' or \'override_record\''
-        )
+        assert_equal(self._default_event.error,
+                     'Test event must contain either \'data\' or \'override_record\'')
 
     def test_is_valid_no_trigger_rules(self):
         """StreamAlert CLI - TestEvent Is Valid Property, Missing Rules"""
@@ -127,8 +124,7 @@ class TestTestEvent:
         assert_equal(self._default_event.is_valid(self.basic_config()), False)
         assert_equal(
             self._default_event.error,
-            'Test events that are not \'classify_only\' should have \'trigger_rules\' defined'
-        )
+            'Test events that are not \'classify_only\' should have \'trigger_rules\' defined')
 
     def test_is_valid_no_log(self):
         """StreamAlert CLI - TestEvent Is Valid Property, No Log Schema in Config"""
@@ -136,10 +132,8 @@ class TestTestEvent:
         self._default_event._event['log'] = 'not_a_log'
 
         assert_equal(self._default_event.is_valid(self.basic_config()), False)
-        assert_equal(
-            self._default_event.error,
-            'No defined schema in config for log type: not_a_log'
-        )
+        assert_equal(self._default_event.error,
+                     'No defined schema in config for log type: not_a_log')
 
     @patch('streamalert_cli.test.event.LOGGER.warning')
     def test_is_valid_extra_keys(self, log_mock):
@@ -148,10 +142,8 @@ class TestTestEvent:
         self._default_event._event['extra_thing'] = True
 
         assert_equal(self._default_event.is_valid(self.basic_config()), True)
-        log_mock.assert_called_with(
-            'Additional unnecessary keys in test event: %s',
-            '\'extra_thing\''
-        )
+        log_mock.assert_called_with('Additional unnecessary keys in test event: %s',
+                                    '\'extra_thing\'')
 
     def test_format_test_record_invalid_data(self):
         """StreamAlert CLI - TestEvent Format Test Record, Invalid Data"""
@@ -214,9 +206,7 @@ class TestTestEvent:
 
     def test_apply_defaults(self):
         """StreamAlert CLI - TestEvent Apply Defaults"""
-        override_event = TestEvent(basic_test_event_data(
-            override_data={'override': 'test'}
-        ))
+        override_event = TestEvent(basic_test_event_data(override_data={'override': 'test'}))
 
         override_event._apply_defaults(self.basic_config())
 

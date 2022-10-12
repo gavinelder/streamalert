@@ -38,10 +38,7 @@ def test_generate_cloudwatch_monitoring():
     }
 
     assert_true(result)
-    assert_equal(
-        cluster_dict['module']['cloudwatch_monitoring_test'],
-        expected_cloudwatch_tf
-    )
+    assert_equal(cluster_dict['module']['cloudwatch_monitoring_test'], expected_cloudwatch_tf)
 
 
 def test_generate_cloudwatch_monitoring_with_settings():
@@ -61,10 +58,7 @@ def test_generate_cloudwatch_monitoring_with_settings():
     }
 
     assert_true(result)
-    assert_equal(
-        cluster_dict['module']['cloudwatch_monitoring_advanced'],
-        expected_cloudwatch_tf
-    )
+    assert_equal(cluster_dict['module']['cloudwatch_monitoring_advanced'], expected_cloudwatch_tf)
 
 
 def test_generate_cloudwatch_monitoring_disabled():
@@ -74,7 +68,7 @@ def test_generate_cloudwatch_monitoring_disabled():
     result = monitoring.generate_monitoring(cluster, cluster_dict, CONFIG)
 
     assert_true(result)
-    assert_true('cloudwatch_monitoring_{}'.format(cluster) not in cluster_dict['module'])
+    assert_true(f'cloudwatch_monitoring_{cluster}' not in cluster_dict['module'])
 
 
 def test_generate_cloudwatch_monitoring_no_kinesis():
@@ -94,10 +88,7 @@ def test_generate_cloudwatch_monitoring_no_kinesis():
     }
 
     assert_true(result)
-    assert_equal(
-        cluster_dict['module']['cloudwatch_monitoring_test'],
-        expected_cloudwatch_tf
-    )
+    assert_equal(cluster_dict['module']['cloudwatch_monitoring_test'], expected_cloudwatch_tf)
 
 
 def test_generate_cloudwatch_monitoring_no_lambda():
@@ -117,10 +108,7 @@ def test_generate_cloudwatch_monitoring_no_lambda():
     }
 
     assert_true(result)
-    assert_equal(
-        cluster_dict['module']['cloudwatch_monitoring_test'],
-        expected_cloudwatch_tf
-    )
+    assert_equal(cluster_dict['module']['cloudwatch_monitoring_test'], expected_cloudwatch_tf)
 
 
 def test_generate_cloudwatch_monitoring_custom_sns():
@@ -143,10 +131,8 @@ def test_generate_cloudwatch_monitoring_custom_sns():
     }
 
     assert_true(result)
-    assert_equal(
-        cluster_dict['module']['cloudwatch_monitoring_test'],
-        expected_cloudwatch_tf_custom
-    )
+    assert_equal(cluster_dict['module']['cloudwatch_monitoring_test'],
+                 expected_cloudwatch_tf_custom)
 
 
 @patch('streamalert_cli.terraform.monitoring.LOGGER')

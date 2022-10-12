@@ -31,14 +31,12 @@ _RULES_TABLE = 'unit-test_streamalert_rules'
 
 def _mock_boto(name, **kwargs):
     """Hack to allow mocking boto3.client with moto and our own class"""
-    if name == 'athena':
-        return MockAthenaClient()
-
-    return client(name, **kwargs)
+    return MockAthenaClient() if name == 'athena' else client(name, **kwargs)
 
 
 class TestRulePromoter:
     """Tests for rule_promotion/promoter.py:RulePromoter"""
+
     # pylint: disable=protected-access
 
     def setup(self):
@@ -47,9 +45,9 @@ class TestRulePromoter:
         self.dynamo_mock = mock_dynamodb2()
         self.dynamo_mock.start()
         with patch('streamalert.rule_promotion.promoter.load_config') as config_mock, \
-             patch('streamalert.rule_promotion.promoter.StatsPublisher', Mock()), \
-             patch('boto3.client', _mock_boto), \
-             patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'}):
+                patch('streamalert.rule_promotion.promoter.StatsPublisher', Mock()), \
+                patch('boto3.client', _mock_boto), \
+                patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'}):
             setup_mock_rules_table(_RULES_TABLE)
             config_mock.return_value = config.load_config('tests/unit/conf/')
             self.promoter = RulePromoter()
@@ -64,8 +62,10 @@ class TestRulePromoter:
         """Helper function to add a few fake alert statistic objects"""
         time = datetime(year=2000, month=1, day=1, hour=1, second=1)
         self.promoter._staging_stats.update({
-            'test_rule': StagingStatistic(time, time + timedelta(days=2), time, 'test_rule'),
-            'test_rule_2': StagingStatistic(time, time + timedelta(days=2), time, 'test_rule_2')
+            'test_rule':
+            StagingStatistic(time, time + timedelta(days=2), time, 'test_rule'),
+            'test_rule_2':
+            StagingStatistic(time, time + timedelta(days=2), time, 'test_rule_2')
         })
 
     @staticmethod
@@ -77,11 +77,25 @@ class TestRulePromoter:
     def _mock_athena_data():
         return {
             'ResultSet': {
-                'Rows': [
-                    {'Data': [{'VarCharValue': 'count'}, {'VarCharValue': 'rule_name'}]},
-                    {'Data': [{'VarCharValue': 'test_rule'}, {'VarCharValue': '7'}]},
-                    {'Data': [{'VarCharValue': 'test_rule_2'}, {'VarCharValue': '5'}]}
-                ]
+                'Rows': [{
+                    'Data': [{
+                        'VarCharValue': 'count'
+                    }, {
+                        'VarCharValue': 'rule_name'
+                    }]
+                }, {
+                    'Data': [{
+                        'VarCharValue': 'test_rule'
+                    }, {
+                        'VarCharValue': '7'
+                    }]
+                }, {
+                    'Data': [{
+                        'VarCharValue': 'test_rule_2'
+                    }, {
+                        'VarCharValue': '5'
+                    }]
+                }]
             }
         }
 
@@ -137,7 +151,7 @@ class TestRulePromoter:
         }
 
         with patch.object(self.promoter, '_update_alert_count', Mock()), \
-             patch.object(self.promoter, '_promote_rules', Mock()):
+                patch.object(self.promoter, '_promote_rules', Mock()):
             self.promoter.run(True)
             publish_mock.assert_called_with(list(self.promoter._staging_stats.values()))
 
@@ -160,13 +174,12 @@ class TestRulePromoter:
     def test_promote_rules(self, log_mock):
         """RulePromoter - Promote Rules"""
         self.promoter._staging_stats['test_rule'].alert_count = 0
-        self.promoter._current_time = (
-            self.promoter._staging_stats['test_rule'].staged_until + timedelta(hours=1)
-        )
+        self.promoter._current_time = (self.promoter._staging_stats['test_rule'].staged_until +
+                                       timedelta(hours=1))
 
         self.promoter._promote_rules()
-        log_mock.assert_called_with(
-            'Promoting rule \'%s\' at %s', 'test_rule', datetime(2000, 1, 3, 2, 0, 1))
+        log_mock.assert_called_with('Promoting rule \'%s\' at %s', 'test_rule',
+                                    datetime(2000, 1, 3, 2, 0, 1))
 
     def test_rules_failing_promotion(self):
         """RulePromoter - Rules Failing Promotion"""

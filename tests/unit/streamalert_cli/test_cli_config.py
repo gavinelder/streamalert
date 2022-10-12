@@ -39,16 +39,16 @@ class TestCLIConfig:
         self.fs_patcher = fake_filesystem_unittest.Patcher()
         self.fs_patcher.setUp()
 
-        self.fs_patcher.fs.create_file(
-            './conf/global.json', contents=json.dumps(config_data['global']))
-        self.fs_patcher.fs.create_file(
-            './conf/threat_intel.json', contents=json.dumps(config_data['threat_intel']))
-        self.fs_patcher.fs.create_file(
-            './conf/normalized_types.json', contents=json.dumps(config_data['normalized_types']))
-        self.fs_patcher.fs.create_file(
-            './conf/lambda.json', contents=json.dumps(config_data['lambda']))
-        self.fs_patcher.fs.create_file(
-            './conf/clusters/prod.json', contents=json.dumps(config_data['clusters']['prod']))
+        self.fs_patcher.fs.create_file('./conf/global.json',
+                                       contents=json.dumps(config_data['global']))
+        self.fs_patcher.fs.create_file('./conf/threat_intel.json',
+                                       contents=json.dumps(config_data['threat_intel']))
+        self.fs_patcher.fs.create_file('./conf/normalized_types.json',
+                                       contents=json.dumps(config_data['normalized_types']))
+        self.fs_patcher.fs.create_file('./conf/lambda.json',
+                                       contents=json.dumps(config_data['lambda']))
+        self.fs_patcher.fs.create_file('./conf/clusters/prod.json',
+                                       contents=json.dumps(config_data['clusters']['prod']))
 
         # Create the config instance after creating the fake filesystem so that
         # CLIConfig uses our mocked config files instead of the real ones.
@@ -69,16 +69,12 @@ class TestCLIConfig:
     def test_toggle_metric(self):
         """CLI - Metric toggling"""
         self.config.toggle_metrics('athena_partitioner', enabled=True)
-        assert_equal(
-            self.config['lambda']['athena_partitioner_config']['enable_custom_metrics'],
-            True
-        )
+        assert_equal(self.config['lambda']['athena_partitioner_config']['enable_custom_metrics'],
+                     True)
 
         self.config.toggle_metrics('alert_processor', enabled=False)
-        assert_equal(
-            self.config['lambda']['alert_processor_config']['enable_custom_metrics'],
-            False
-        )
+        assert_equal(self.config['lambda']['alert_processor_config']['enable_custom_metrics'],
+                     False)
 
     def test_aggregate_alarm_exists(self):
         """CLI - Aggregate alarm check"""
@@ -178,10 +174,7 @@ class TestCLIConfig:
             'dynamodb_table_name': 'my_ioc_table',
             'excluded_iocs': {},
             'normalized_ioc_types': {
-                'ip': [
-                    'sourceAddress',
-                    'destinationAddress'
-                ]
+                'ip': ['sourceAddress', 'destinationAddress']
             }
         }
 
@@ -205,10 +198,7 @@ class TestCLIConfig:
             'dynamodb_table_name': 'unit-test_streamalert_threat_intel_downloader',
             'excluded_iocs': {},
             'normalized_ioc_types': {
-                'ip': [
-                    'sourceAddress',
-                    'destinationAddress'
-                ]
+                'ip': ['sourceAddress', 'destinationAddress']
             }
         }
 

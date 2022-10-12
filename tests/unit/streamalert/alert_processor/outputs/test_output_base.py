@@ -16,32 +16,16 @@ limitations under the License.
 # pylint: disable=abstract-class-instantiated,protected-access,attribute-defined-outside-init
 from mock import Mock, patch, MagicMock
 from moto import mock_kms, mock_ssm
-from nose.tools import (
-    assert_equal,
-    assert_is_instance,
-    assert_is_not_none,
-    assert_is_none,
-    assert_count_equal
-)
+from nose.tools import (assert_equal, assert_is_instance, assert_is_not_none, assert_is_none,
+                        assert_count_equal)
 from requests.exceptions import Timeout as ReqTimeout
 
-from streamalert.alert_processor.outputs.output_base import (
-    OutputDispatcher,
-    OutputProperty,
-    OutputRequestFailure,
-    StreamAlertOutput
-)
+from streamalert.alert_processor.outputs.output_base import (OutputDispatcher, OutputProperty,
+                                                             OutputRequestFailure,
+                                                             StreamAlertOutput)
 from streamalert.alert_processor.outputs.aws import S3Output
-from tests.unit.streamalert.alert_processor import (
-    CONFIG,
-    KMS_ALIAS,
-    MOCK_ENV,
-    REGION,
-    PREFIX
-)
-from tests.unit.streamalert.alert_processor.helpers import (
-    put_mock_ssm_parameters
-)
+from tests.unit.streamalert.alert_processor import (CONFIG, KMS_ALIAS, MOCK_ENV, REGION, PREFIX)
+from tests.unit.streamalert.alert_processor.helpers import (put_mock_ssm_parameters)
 
 
 def test_output_property_default():
@@ -89,27 +73,9 @@ def test_output_loading():
     loaded_outputs = set(StreamAlertOutput.get_all_outputs())
     # Add new outputs to this list to make sure they're loaded properly
     expected_outputs = {
-        'aws-firehose',
-        'aws-lambda',
-        'aws-lambda-v2',
-        'aws-s3',
-        'aws-ses',
-        'aws-sns',
-        'aws-sqs',
-        'aws-cloudwatch-log',
-        'carbonblack',
-        'demisto',
-        'github',
-        'jira',
-        'jira-v2',
-        'komand',
-        'pagerduty',
-        'pagerduty-v2',
-        'pagerduty-incident',
-        'phantom',
-        'slack',
-        'teams',
-        'victorops'
+        'aws-firehose', 'aws-lambda', 'aws-lambda-v2', 'aws-s3', 'aws-ses', 'aws-sns', 'aws-sqs',
+        'aws-cloudwatch-log', 'carbonblack', 'demisto', 'github', 'jira', 'jira-v2', 'komand',
+        'pagerduty', 'pagerduty-v2', 'pagerduty-incident', 'phantom', 'slack', 'teams'
     }
     assert_count_equal(loaded_outputs, expected_outputs)
 
@@ -117,7 +83,6 @@ def test_output_loading():
 @patch.object(OutputDispatcher, '__service__', 'test_service')
 class TestOutputDispatcher:
     """Test class for OutputDispatcher"""
-
     @patch.object(OutputDispatcher, '__service__', 'test_service')
     @patch.object(OutputDispatcher, '__abstractmethods__', frozenset())
     @patch.dict('os.environ', MOCK_ENV)
@@ -137,22 +102,24 @@ class TestOutputDispatcher:
         _ = OutputDispatcher(CONFIG)
 
         provider_constructor.assert_called_with('test_service',
-                                                config=CONFIG, defaults=None, region=REGION)
+                                                config=CONFIG,
+                                                defaults=None,
+                                                region=REGION)
         assert_equal(self._dispatcher._credentials_provider._service_name, 'test_service')
 
     @patch('logging.Logger.info')
     def test_log_status_success(self, log_mock):
         """OutputDispatcher - Log status success"""
         self._dispatcher._log_status(True, self._descriptor)
-        log_mock.assert_called_with('Successfully sent alert to %s:%s',
-                                    'test_service', self._descriptor)
+        log_mock.assert_called_with('Successfully sent alert to %s:%s', 'test_service',
+                                    self._descriptor)
 
     @patch('logging.Logger.error')
     def test_log_status_failed(self, log_mock):
         """OutputDispatcher - Log status failed"""
         self._dispatcher._log_status(False, self._descriptor)
-        log_mock.assert_called_with('Failed to send alert to %s:%s',
-                                    'test_service', self._descriptor)
+        log_mock.assert_called_with('Failed to send alert to %s:%s', 'test_service',
+                                    self._descriptor)
 
     @patch('requests.Response')
     def test_check_http_response(self, mock_response):
@@ -171,11 +138,8 @@ class TestOutputDispatcher:
     @mock_kms
     def test_load_creds(self):
         """OutputDispatcher - Load Credentials"""
-        param_name = '/{}/streamalert/outputs/test_service/desc_test'.format(PREFIX)
-        creds = {
-            'url': 'http://www.foo.bar/test',
-            'token': 'token_to_encrypt'
-        }
+        param_name = f'/{PREFIX}/streamalert/outputs/test_service/desc_test'
+        creds = {'url': 'http://www.foo.bar/test', 'token': 'token_to_encrypt'}
 
         put_mock_ssm_parameters(param_name, creds, KMS_ALIAS, region=REGION)
 
@@ -204,8 +168,8 @@ class TestOutputDispatcher:
 
         assert_equal(exceptions, (OutputRequestFailure, ReqTimeout, ValueError))
 
-    @patch.object(OutputDispatcher,
-                  '_get_exceptions_to_catch', Mock(return_value=(ValueError, TypeError)))
+    @patch.object(OutputDispatcher, '_get_exceptions_to_catch',
+                  Mock(return_value=(ValueError, TypeError)))
     def test_catch_exceptions_non_default_tuple(self):
         """OutputDispatcher - Catch Non Default Exceptions Tuple"""
         exceptions = self._dispatcher._catch_exceptions()

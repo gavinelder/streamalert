@@ -20,7 +20,6 @@ from streamalert_cli.athena import helpers
 from streamalert_cli.config import CLIConfig
 from streamalert.shared.firehose import FirehoseClient
 
-
 CONFIG = CLIConfig(config_path='tests/unit/conf')
 
 
@@ -30,10 +29,7 @@ def test_generate_athena_schema_simple():
     log_schema = CONFIG['logs']['unit_test_simple_log']['schema']
     athena_schema = helpers.logs_schema_to_athena_schema(log_schema)
 
-    expected_athena_schema = {
-        '`unit_key_01`': 'bigint',
-        '`unit_key_02`': 'string'
-    }
+    expected_athena_schema = {'`unit_key_01`': 'bigint', '`unit_key_02`': 'string'}
 
     assert_equal(athena_schema, expected_athena_schema)
 
@@ -76,6 +72,7 @@ def test_generate_athena_schema_nested():
     }
 
     assert_equal(athena_schema, expected_athena_schema)
+
 
 def test_add_partition_statements():
     """CLI - Athena Add Partition Statement"""
@@ -129,16 +126,16 @@ def test_add_partition_statements_exceed_length():
     assert_equal(results_copy[0], expected_result_0)
     assert_equal(results_copy[1], expected_result_1)
 
+
 # pylint: disable=protected-access
 def test_generate_data_table_schema():
     """CLI - Athena generate_data_table_schema helper"""
     config = CLIConfig(config_path='tests/unit/conf')
-    config['global']['infrastructure']['firehose']['enabled_logs'] = {
-        'test:log.name.with.dots': {}
-    }
+    config['global']['infrastructure']['firehose']['enabled_logs'] = {'test:log.name.with.dots': {}}
 
     assert_true(helpers.generate_data_table_schema(config, 'test:log.name.with.dots'))
     FirehoseClient._ENABLED_LOGS.clear()
+
 
 # pylint: disable=protected-access
 def test_generate_data_table_schema_2():
@@ -151,16 +148,12 @@ def test_generate_data_table_schema_2():
     assert_true(helpers.generate_data_table_schema(config, 'cloudwatch:test_match_types'))
     FirehoseClient._ENABLED_LOGS.clear()
 
+
 def test_generate_artifact_table_schema():
     """CLI - Athena test generate_artifact_table_schema helper"""
     result = helpers.generate_artifacts_table_schema()
 
-    expected_result = [
-        ('function', 'string'),
-        ('source_type', 'string'),
-        ('streamalert_record_id', 'string'),
-        ('type', 'string'),
-        ('value', 'string')
-    ]
+    expected_result = [('function', 'string'), ('source_type', 'string'),
+                       ('streamalert_record_id', 'string'), ('type', 'string'), ('value', 'string')]
 
     assert_equal(result, expected_result)

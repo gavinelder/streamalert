@@ -17,23 +17,21 @@ from streamalert.shared.importer import import_folders
 
 
 class QueryPackConfiguration:
-
-    def __init__(self, query=None, params=None, name=None,
-                 description=None, tags=None):
+    def __init__(self, query=None, params=None, name=None, description=None, tags=None):
         if not name:
             raise RuntimeError('Query Pack missing name')
 
         if not query:
-            raise RuntimeError('Query Pack "{}" missing query template'.format(name))
+            raise RuntimeError(f'Query Pack "{name}" missing query template')
 
         if not tags:
-            raise RuntimeError('Query Pack "{}" has no tags?'.format(name))
+            raise RuntimeError(f'Query Pack "{name}" has no tags?')
 
         self._query_template = query
         self._query_parameters = params
         self._name = name
         self._description = description
-        self._tags = tags if tags else []
+        self._tags = tags or []
 
         QueryPackRepository.register(self)
 
@@ -104,7 +102,7 @@ class QueryPackRepository:
         """
         name = config.name
         if name in cls.QUERY_PACKS:
-            raise RuntimeError('ERROR: Duplicate query pack name: "{}"'.format(name))
+            raise RuntimeError(f'ERROR: Duplicate query pack name: "{name}"')
 
         cls.QUERY_PACKS[name] = config
 

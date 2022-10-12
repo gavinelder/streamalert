@@ -52,9 +52,7 @@ def basic_streamalert_config():
                 'region': 'us-west-2'
             },
             'general': {
-                'terraform_files': [
-                    '/test/terraform/file.tf'
-                ]
+                'terraform_files': ['/test/terraform/file.tf']
             },
             'infrastructure': {
                 'monitoring': {},
@@ -69,22 +67,15 @@ def basic_streamalert_config():
             'enabled': False,
             'excluded_iocs': {},
             'normalized_ioc_types': {
-                'ip': [
-                    'sourceAddress',
-                    'destinationAddress'
-                ]
+                'ip': ['sourceAddress', 'destinationAddress']
             }
         },
         'normalized_types': {
             'test_cloudtrail': {
-                'sourceAddress': [
-                    'sourceIPAddress'
-                ]
+                'sourceAddress': ['sourceIPAddress']
             },
             'test_cloudwatch': {
-                'destinationAddress': [
-                    'destination'
-                ]
+                'destinationAddress': ['destination']
             }
         },
         'logs': {
@@ -174,10 +165,7 @@ def basic_streamalert_config():
                 },
                 'data_sources': {
                     'kinesis': {
-                        'stream_1': [
-                            'json_log',
-                            'csv_log'
-                        ]
+                        'stream_1': ['json_log', 'csv_log']
                     }
                 },
                 'modules': {
@@ -195,11 +183,7 @@ def basic_streamalert_config():
                     }
                 },
                 'outputs': {
-                    'kinesis': [
-                        'username',
-                        'access_key_id',
-                        'secret_key'
-                    ]
+                    'kinesis': ['username', 'access_key_id', 'secret_key']
                 },
                 'region': 'us-east-1'
             },
@@ -264,6 +248,7 @@ def basic_streamalert_config():
             }
         }
     }
+
 
 def athena_cli_basic_config():
     return {

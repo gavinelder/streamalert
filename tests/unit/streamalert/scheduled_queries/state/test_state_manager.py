@@ -56,10 +56,10 @@ class TestStateManager:
         self._state_manager.set('aaa', 'bbbbb')
         self._state_manager.set('ccc', 'ddddd')
 
-        assert_equals(
-            self._state_manager._dangerously_get_all_data(),
-            {'aaa': 'bbbbb', 'ccc': 'ddddd'}
-        )
+        assert_equals(self._state_manager._dangerously_get_all_data(), {
+            'aaa': 'bbbbb',
+            'ccc': 'ddddd'
+        })
 
 
 class TestStepFunctionStateManager:
@@ -73,11 +73,9 @@ class TestStepFunctionStateManager:
         self._logger = MagicMock(name='MockLogger')
         self._clock = MagicMock(name='Clock')
         self._state_manager = StateManager(logger=self._logger)
-        self._sfsm = StepFunctionStateManager(
-            state_manager=self._state_manager,
-            logger=self._logger,
-            clock=self._clock
-        )
+        self._sfsm = StepFunctionStateManager(state_manager=self._state_manager,
+                                              logger=self._logger,
+                                              clock=self._clock)
 
     def test_has_load_write_empty(self):
         """StreamQuery - StepFunctionStateManager - load and write"""
@@ -85,27 +83,17 @@ class TestStepFunctionStateManager:
 
         self._state_manager.set('asdf', 'qwerty')
 
-        response = {
-            'blah': '?'
-        }
+        response = {'blah': '?'}
         self._sfsm.write_to_step_function_response(response)
 
-        assert_equals(response, {
-            'blah': '?',
-            'step_function_state': {
-                'asdf': 'qwerty'
-            }
-        })
+        assert_equals(response, {'blah': '?', 'step_function_state': {'asdf': 'qwerty'}})
 
     def test_first_load_will_properly_set_clock(self):
         """StreamQuery - StepFunctionStateManager - First load sets clock"""
         self._sfsm.load_from_step_function_event({
             "streamquery_configuration": {
                 "clock": "2020-02-18T23:55:16Z",
-                "tags": [
-                    "hourly",
-                    "production"
-                ]
+                "tags": ["hourly", "production"]
             }
         })
 
@@ -117,10 +105,7 @@ class TestStepFunctionStateManager:
             "step_function_state": {
                 "streamquery_configuration": {
                     "clock": "2020-02-18T23:55:16Z",
-                    "tags": [
-                        "hourly",
-                        "production"
-                    ]
+                    "tags": ["hourly", "production"]
                 }
             }
         })
@@ -133,15 +118,11 @@ class TestStepFunctionStateManager:
             "step_function_state": {
                 "streamquery_configuration": {
                     "clock": "2020-02-18T23:55:16Z",
-                    "tags": [
-                        "hourly",
-                        "production"
-                    ]
+                    "tags": ["hourly", "production"]
                 }
             }
         })
 
         assert_equals(
             self._state_manager.get('streamquery_configuration').get('tags'),
-            ['hourly', 'production']
-        )
+            ['hourly', 'production'])

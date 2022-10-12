@@ -32,7 +32,7 @@ from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 @patch.object(BoxApp, 'type', Mock(return_value='type'))
 class TestBoxApp:
     """Test class for the BoxApp"""
-    # pylint: disable=protected-access,no-self-use
+    # pylint: disable=protected-access
 
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
     def setup(self):
@@ -134,8 +134,7 @@ class TestBoxApp:
         with patch.object(self._app, '_client') as client_mock:
             self._app._next_stream_position = 10241040195019
             client_mock.make_request.side_effect = requests.exceptions.ConnectionError(
-                response='bad error'
-            )
+                response='bad error')
             assert_false(self._app._gather_logs())
             log_mock.assert_called_with('Bad response received from host, will retry once')
 
@@ -145,8 +144,7 @@ class TestBoxApp:
         """BoxApp - Gather Logs, Timeout Retry and Fail"""
         with patch.object(self._app, '_client') as client_mock:
             client_mock.make_request.side_effect = requests.exceptions.Timeout(
-                response='request timed out'
-            )
+                response='request timed out')
             assert_false(self._app._gather_logs())
             log_mock.assert_called_with('[%s] Request timed out', '_make_request')
 

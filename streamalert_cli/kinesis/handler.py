@@ -27,34 +27,27 @@ class KinesisCommand(CLICommand):
     @classmethod
     def setup_subparser(cls, subparser):
         """Add kinesis subparser: manage.py kinesis [options]"""
-        set_parser_epilog(
-            subparser,
-            epilog=(
-                '''\
+        set_parser_epilog(subparser,
+                          epilog=('''\
                 Example:
 
                     manage.py kinesis disable-events --clusters corp prod
-                '''
-            )
-        )
+                '''))
 
         actions = ['disable-events', 'enable-events']
         subparser.add_argument(
             'action',
             metavar='ACTION',
             choices=actions,
-            help='One of the following actions to be performed: {}'.format(', '.join(actions))
-        )
+            help=f"One of the following actions to be performed: {', '.join(actions)}")
 
         # Add the option to specify cluster(s)
         add_clusters_arg(subparser)
 
-        subparser.add_argument(
-            '-s',
-            '--skip-terraform',
-            action='store_true',
-            help='Only update the config options and do not run Terraform'
-        )
+        subparser.add_argument('-s',
+                               '--skip-terraform',
+                               action='store_true',
+                               help='Only update the config options and do not run Terraform')
 
     @classmethod
     def handler(cls, options, config):
@@ -79,12 +72,6 @@ class KinesisCommand(CLICommand):
         if options.skip_terraform:
             return True  # not an error
 
-        if not terraform_generate_handler(config):
-            return False
-
         return terraform_runner(
-            config,
-            targets=[
-                'module.{}_{}'.format('kinesis_events', cluster) for cluster in config.clusters()
-            ]
-        )
+            config, targets=[f'module.kinesis_events_{cluster}' for cluster in config.clusters()
+                             ]) if terraform_generate_handler(config) else False

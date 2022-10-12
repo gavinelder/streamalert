@@ -84,9 +84,15 @@ class TestRuleTable:
     def test_remote_rule_info(self):
         """Rule Table - Remote Rule Info"""
         expected_result = {
-            'test_rule_01': {'Staged': False},
-            'test_rule_02': {'Staged': False},
-            'test_rule_03': {'Staged': False}
+            'test_rule_01': {
+                'Staged': False
+            },
+            'test_rule_02': {
+                'Staged': False
+            },
+            'test_rule_03': {
+                'Staged': False
+            }
         }
         for rule_name in expected_result:
             self._create_db_rule_with_name(rule_name)
@@ -133,7 +139,7 @@ class TestRuleTable:
 
         # Ensure the remote state is updated for the deletion of a rule
         self.rule_table._del_old_rules()
-        assert_equal(len(self.rule_table._load_remote_state()), original_count-1)
+        assert_equal(len(self.rule_table._load_remote_state()), original_count - 1)
 
     def test_load_remote_state_init(self):
         """Rule Table - Load Remote State of Rules, New Database"""
@@ -141,10 +147,7 @@ class TestRuleTable:
         self._create_local_rules(2)
         self.rule_table._add_new_rules()
 
-        expected_state = {
-            'fake_rule_00': {'Staged': False},
-            'fake_rule_01': {'Staged': False}
-        }
+        expected_state = {'fake_rule_00': {'Staged': False}, 'fake_rule_01': {'Staged': False}}
 
         state = self.rule_table._load_remote_state()
         assert_equal(state, expected_state)
@@ -163,8 +166,12 @@ class TestRuleTable:
         self.rule_table._add_new_rules()
 
         expected_state = {
-            'fake_rule_00': {'Staged': False},
-            'fake_rule_01': {'Staged': False},
+            'fake_rule_00': {
+                'Staged': False
+            },
+            'fake_rule_01': {
+                'Staged': False
+            },
             'now_staged_rule': {
                 'Staged': True,
                 'StagedAt': datetime(year=2018, month=4, day=21, hour=2, minute=23, second=13),
@@ -177,10 +184,7 @@ class TestRuleTable:
 
     def test_dynamo_record_init(self):
         """Rule Table - DynamoDB Record, New Database"""
-        expected_record = {
-            'RuleName': 'foo_rule',
-            'Staged': False
-        }
+        expected_record = {'RuleName': 'foo_rule', 'Staged': False}
 
         record = self.rule_table._dynamo_record('foo_rule', True)
         assert_equal(record, expected_record)
@@ -210,8 +214,13 @@ class TestRuleTable:
     @patch('streamalert.shared.rule_table.datetime')
     def test_staged_window(self, date_mock):
         """Rule Table - Staged Window"""
-        date_mock.utcnow.return_value = datetime(
-            year=2001, month=1, day=1, hour=12, minute=0, second=10, microsecond=123456)
+        date_mock.utcnow.return_value = datetime(year=2001,
+                                                 month=1,
+                                                 day=1,
+                                                 hour=12,
+                                                 minute=0,
+                                                 second=10,
+                                                 microsecond=123456)
 
         staged_at, staged_until = self.rule_table._staged_window()
         assert_equal(staged_at, '2001-01-01T12:00:10.123456Z')
@@ -273,10 +282,8 @@ class TestRuleTable:
         # Try to toggle the state of the non-existent rule to staged
         self.rule_table.toggle_staged_state(rule_name, True)
         log_mock.assert_called_with(
-            'Staging status for rule \'%s\' cannot be set to %s; rule does not exist',
-            rule_name,
-            True
-        )
+            'Staging status for rule \'%s\' cannot be set to %s; rule does not exist', rule_name,
+            True)
 
     @patch('logging.Logger.info')
     def test_toggle_staged_state_update(self, log_mock):
@@ -297,9 +304,7 @@ class TestRuleTable:
         # This should implicitly update the staging window
         self.rule_table.toggle_staged_state(rule_name, staged)
         log_mock.assert_called_with(
-            'Rule \'%s\' is already staged and will have its staging window updated',
-            rule_name
-        )
+            'Rule \'%s\' is already staged and will have its staging window updated', rule_name)
 
         # Make sure the item is still staged
         new_item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
@@ -310,19 +315,23 @@ class TestRuleTable:
         """Rule Table - Toggle Staging, ClientError Occurred"""
         rule_name = 'test_rule'
         self._create_db_rule_with_name(rule_name, True)
-        with patch.object(self.rule_table._table, 'update_item',
-                          side_effect=ClientError({'Error': {'Code': 'TEST'}}, 'UpdateItem')):
+        with patch.object(self.rule_table._table,
+                          'update_item',
+                          side_effect=ClientError({'Error': {
+                              'Code': 'TEST'
+                          }}, 'UpdateItem')):
             assert_raises(ClientError, self.rule_table.toggle_staged_state, rule_name, True)
 
     def test_print_table(self):
         """Rule Table - Print Table"""
         self._create_db_rule_with_name('test_01')
-        self.rule_table._table.put_item(Item={
-            'RuleName': 'test_02',
-            'Staged': True,
-            'StagedAt': '2018-04-21T02:23:13.0Z',
-            'StagedUntil':  '2018-04-23T02:23:13.0Z'
-        })
+        self.rule_table._table.put_item(
+            Item={
+                'RuleName': 'test_02',
+                'Staged': True,
+                'StagedAt': '2018-04-21T02:23:13.0Z',
+                'StagedUntil': '2018-04-23T02:23:13.0Z'
+            })
         with patch('sys.stdout', new=StringIO()) as stdout:
             print(self.rule_table)
             expected_output = """
@@ -345,12 +354,13 @@ Rule            Staged?
     def test_print_table_verbose(self):
         """Rule Table - Print Table, Verbose"""
         self._create_db_rule_with_name('test_01')
-        self.rule_table._table.put_item(Item={
-            'RuleName': 'test_02',
-            'Staged': True,
-            'StagedAt': '2018-04-21T02:23:13.0Z',
-            'StagedUntil':  '2018-04-23T02:23:13.0Z'
-        })
+        self.rule_table._table.put_item(
+            Item={
+                'RuleName': 'test_02',
+                'Staged': True,
+                'StagedAt': '2018-04-21T02:23:13.0Z',
+                'StagedUntil': '2018-04-23T02:23:13.0Z'
+            })
         with patch('sys.stdout', new=StringIO()) as stdout:
             print(self.rule_table.__str__(True))
             expected_output = """

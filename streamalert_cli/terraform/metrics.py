@@ -29,18 +29,19 @@ def generate_aggregate_cloudwatch_metric_filters(config):
     """
     functions = {
         cluster: [
-            func.replace('_config', '')
-            for func in CLUSTERED_FUNCTIONS
-            if cluster_config['{}_config'.format(func)].get('enable_custom_metrics')
-        ] for cluster, cluster_config in config['clusters'].items()
+            func.replace('_config', '') for func in CLUSTERED_FUNCTIONS
+            if cluster_config[f'{func}_config'].get('enable_custom_metrics')
+        ]
+        for cluster, cluster_config in config['clusters'].items()
     }
 
     functions['global'] = {
-        func.replace('_config', '') for func, func_config in config['lambda'].items()
+        func.replace('_config', '')
+        for func, func_config in config['lambda'].items()
         if func_config.get('enable_custom_metrics')
     }
 
-    if not any(funcs for funcs in list(functions.values())):
+    if not any(list(functions.values())):
         return  # Nothing to add if no funcs have metrics enabled
 
     result = infinitedict()
@@ -59,24 +60,23 @@ def generate_aggregate_cloudwatch_metric_filters(config):
             if not metric_prefix:
                 continue
 
-            log_group_name = (
-                '${{module.{}_{}_lambda.log_group_name}}'.format(function, cluster)
-                if not is_global else '${{module.{}_lambda.log_group_name}}'.format(function)
-            )
+            log_group_name = '${{module.{}_lambda.log_group_name}}'.format(
+                function) if is_global else '${{module.{}_{}_lambda.log_group_name}}'.format(
+                    function, cluster)
 
             cluster = cluster.upper()
             if not is_global:
-                cluster = '{}_AGGREGATE'.format(cluster)
+                cluster = f'{cluster}_AGGREGATE'
 
             # Add filters for the cluster and aggregate
             for metric, filter_settings in current_metrics[function].items():
-                module_name = 'metric_filters_{}_{}_{}'.format(metric_prefix, metric, cluster)
+                module_name = f'metric_filters_{metric_prefix}_{metric}_{cluster}'
                 result['module'][module_name] = {
                     'source': './modules/tf_metric_filters',
                     'log_group_name': log_group_name,
-                    'metric_name': '{}-{}'.format(metric_prefix, metric),
+                    'metric_name': f'{metric_prefix}-{metric}',
                     'metric_pattern': filter_settings[0],
-                    'metric_value': filter_settings[1],
+                    'metric_value': filter_settings[1]
                 }
 
     return result
@@ -104,7 +104,7 @@ def generate_aggregate_cloudwatch_metric_alarms(config):
             alarm_settings['source'] = './modules/tf_metric_alarms'
             alarm_settings['sns_topic_arn'] = sns_topic_arn
             alarm_settings['alarm_name'] = name
-            result['module']['metric_alarm_{}_{}'.format(func, idx)] = alarm_settings
+            result['module'][f'metric_alarm_{func}_{idx}'] = alarm_settings
 
     return result
 
@@ -126,7 +126,7 @@ def generate_cluster_cloudwatch_metric_filters(cluster_name, cluster_dict, confi
         if func not in current_metrics:
             continue
 
-        func_config_name = '{}_config'.format(func)
+        func_config_name = f'{func}_config'
         if func_config_name not in streamalert_config:
             continue
 
@@ -141,16 +141,12 @@ def generate_cluster_cloudwatch_metric_filters(cluster_name, cluster_dict, confi
 
         # Add filters for the cluster and aggregate
         for metric, filter_settings in current_metrics[func].items():
-            cluster_dict['module']['metric_filters_{}_{}_{}'.format(
-                metric_prefix,
-                metric,
-                cluster_name
-            )] = {
+            cluster_dict['module'][f'metric_filters_{metric_prefix}_{metric}_{cluster_name}'] = {
                 'source': './modules/tf_metric_filters',
                 'log_group_name': log_group_name,
-                'metric_name': '{}-{}-{}'.format(metric_prefix, metric, cluster_name),
+                'metric_name': f'{metric_prefix}-{metric}-{cluster_name}',
                 'metric_pattern': filter_settings[0],
-                'metric_value': filter_settings[1],
+                'metric_value': filter_settings[1]
             }
 
 
@@ -165,8 +161,7 @@ def generate_cluster_cloudwatch_metric_alarms(cluster_name, cluster_dict, config
     infrastructure_config = config['global'].get('infrastructure')
 
     if not (infrastructure_config and 'monitoring' in infrastructure_config):
-        LOGGER.error(
-            'Invalid config: Make sure you declare global infrastructure options!')
+        LOGGER.error('Invalid config: Make sure you declare global infrastructure options!')
         return
 
     sns_topic_arn = monitoring_topic_arn(config)
@@ -175,14 +170,11 @@ def generate_cluster_cloudwatch_metric_alarms(cluster_name, cluster_dict, config
 
     # Add cluster metric alarms for the clustered function(s). ie: classifier
     metric_alarms = [
-        metric_alarm
-        for func in CLUSTERED_FUNCTIONS
-        for metric_alarm in streamalert_config['{}_config'.format(func)].get(
-            'custom_metric_alarms', []
-        )
+        metric_alarm for func in CLUSTERED_FUNCTIONS
+        for metric_alarm in streamalert_config[f'{func}_config'].get('custom_metric_alarms', [])
     ]
 
     for idx, metric_alarm in enumerate(sorted(metric_alarms)):
         metric_alarm['source'] = './modules/tf_metric_alarms'
         metric_alarm['sns_topic_arn'] = sns_topic_arn
-        cluster_dict['module']['metric_alarm_{}_{}'.format(cluster_name, idx)] = metric_alarm
+        cluster_dict['module'][f'metric_alarm_{cluster_name}_{idx}'] = metric_alarm

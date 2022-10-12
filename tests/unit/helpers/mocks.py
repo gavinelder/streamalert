@@ -20,7 +20,6 @@ from cbapi.response import BannedHash, Binary
 
 class MockCBAPI:
     """Mock for CbResponseAPI"""
-
     class MockBannedHash:
         """Mock for cbapi.response.BannedHash"""
 

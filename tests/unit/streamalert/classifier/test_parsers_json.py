@@ -24,7 +24,7 @@ from streamalert.classifier.parsers import JSONParser
 
 class TestJSONParser:
     """Test class for JSONParser"""
-    # pylint: disable=attribute-defined-outside-init,no-self-use,protected-access
+    # pylint: disable=attribute-defined-outside-init,protected-access
 
     @classmethod
     def _json_regex_key_options(cls):
@@ -39,21 +39,14 @@ class TestJSONParser:
                     'date': 'string',
                     'host': 'string'
                 },
-                'optional_envelope_keys': [
-                    'host'
-                ],
+                'optional_envelope_keys': ['host'],
                 'json_regex_key': 'message'
             }
         }
 
     def test_schema_fail(self):
         """JSONParser - Schema Match Failure"""
-        options = {
-            'schema': {
-                'unit_key_01': 'integer',
-                'unit_key_02': 'string'
-            }
-        }
+        options = {'schema': {'unit_key_01': 'integer', 'unit_key_02': 'string'}}
 
         data = {'hey': 1}
         record_data = json.dumps(data)
@@ -62,19 +55,12 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), False)
 
-        expected_result = [
-            data
-        ]
+        expected_result = [data]
         assert_equal(parser.invalid_parses, expected_result)
 
     def test_non_string_input(self):
         """JSONParser - Non String Input"""
-        options = {
-            'schema': {
-                'name': 'string',
-                'result': 'string'
-            }
-        }
+        options = {'schema': {'name': 'string', 'result': 'string'}}
 
         record_data = {'name': 'test', 'result': 'test'}
 
@@ -82,9 +68,7 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            record_data
-        ]
+        expected_result = [record_data]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_invalid_json_path(self):
@@ -105,19 +89,12 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), False)
 
-        expected_result = [
-            record_data
-        ]
+        expected_result = [record_data]
         assert_equal(parser.invalid_parses, expected_result)
 
     def test_invalid_json(self):
         """JSONParser - Invalid Input"""
-        options = {
-            'schema': {
-                'name': 'string',
-                'result': 'string'
-            }
-        }
+        options = {'schema': {'name': 'string', 'result': 'string'}}
 
         record_data = 'not json data'
 
@@ -125,9 +102,7 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), False)
 
-        expected_result = [
-            record_data
-        ]
+        expected_result = [record_data]
         assert_equal(parser.invalid_parses, expected_result)
 
     def test_envelope_keys_optional_values(self):
@@ -136,29 +111,30 @@ class TestJSONParser:
 
         # missing 'host' envelope key
         record_data = json.dumps({
-            'message': json.dumps({
+            'message':
+            json.dumps({
                 'nested_key_01': 'foo',
                 'nested_key_02': 'bar'
             }),
-            'date': '2017/10/01',
-            'time': '14:00:00'
+            'date':
+            '2017/10/01',
+            'time':
+            '14:00:00'
         })
 
         # get parsed data
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            {
-                'nested_key_01': 'foo',
-                'nested_key_02': 'bar',
-                'streamalert:envelope_keys': {
-                    'host': '',
-                    'date': '2017/10/01',
-                    'time': '14:00:00'
-                }
+        expected_result = [{
+            'nested_key_01': 'foo',
+            'nested_key_02': 'bar',
+            'streamalert:envelope_keys': {
+                'host': '',
+                'date': '2017/10/01',
+                'time': '14:00:00'
             }
-        ]
+        }]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_regex_key_invalid_json(self):
@@ -178,9 +154,7 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), False)
 
-        expected_result = [
-            data
-        ]
+        expected_result = [data]
         assert_equal(parser.invalid_parses, expected_result)
 
     def test_regex_key_json_list(self):
@@ -201,9 +175,7 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), False)
 
-        expected_result = [
-            data
-        ]
+        expected_result = [data]
         assert_equal(parser.invalid_parses, expected_result)
 
     def test_regex_key_non_json(self):
@@ -224,9 +196,7 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), False)
 
-        expected_result = [
-            data
-        ]
+        expected_result = [data]
         assert_equal(parser.invalid_parses, expected_result)
 
     @patch('logging.Logger.error')
@@ -242,20 +212,12 @@ class TestJSONParser:
                 'key11': 'float'
             },
             'configuration': {
-                'optional_top_level_keys': [
-                    'key9',
-                    'key10',
-                    'key11',
-                    'key12'
-                ]
+                'optional_top_level_keys': ['key9', 'key10', 'key11', 'key12']
             }
         }
 
         record_data = json.dumps({
-            'key1': [
-                'test data',
-                'moar test data'
-            ],
+            'key1': ['test data', 'moar test data'],
             'key2': 'string data',
             'key3': 100,
             'key9': True
@@ -265,11 +227,8 @@ class TestJSONParser:
         log_type = 'invaid_log'
         parser = JSONParser(options, log_type)
         assert_equal(parser.parse(record_data), False)
-        log_mock.assert_called_with(
-            'Schema definition is not valid (%s):\n%s',
-            log_type,
-            options['schema']
-        )
+        log_mock.assert_called_with('Schema definition is not valid (%s):\n%s', log_type,
+                                    options['schema'])
 
     def test_single_nested_json(self):
         """JSONParser - Single nested JSON"""
@@ -283,10 +242,7 @@ class TestJSONParser:
             }
         }
 
-        expected_record = {
-            'middlekey1': '1',
-            'middlekey2': []
-        }
+        expected_record = {'middlekey1': '1', 'middlekey2': []}
 
         data = {
             'topkey': {
@@ -301,9 +257,7 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            expected_record
-        ]
+        expected_result = [expected_record]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_multi_nested_json(self):
@@ -318,18 +272,9 @@ class TestJSONParser:
             }
         }
 
-        expected_record = {
-            'name': 'test-infra-1',
-            'result': 'fail'
-        }
+        expected_record = {'name': 'test-infra-1', 'result': 'fail'}
 
-        data = {
-            'profiles': {
-                'controls': [
-                    expected_record
-                ]
-            }
-        }
+        data = {'profiles': {'controls': [expected_record]}}
 
         record_data = json.dumps(data)
 
@@ -337,9 +282,7 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            expected_record
-        ]
+        expected_result = [expected_record]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_json_regex_key_with_envelope(self):
@@ -348,29 +291,31 @@ class TestJSONParser:
 
         # Valid record data
         record_data = json.dumps({
-            'time': '14:01',
-            'date': 'Jan 01, 2017',
-            'host': 'host1.test.domain.tld',
-            'message': '<10> auditd[1300] info: '
-                       '{"nested_key_01": "foo",'
-                       '"nested_key_02": "bar"}'
+            'time':
+            '14:01',
+            'date':
+            'Jan 01, 2017',
+            'host':
+            'host1.test.domain.tld',
+            'message':
+            '<10> auditd[1300] info: '
+            '{"nested_key_01": "foo",'
+            '"nested_key_02": "bar"}'
         })
 
         # get parsed data
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            {
-                'nested_key_01': 'foo',
-                'nested_key_02': 'bar',
-                'streamalert:envelope_keys': {
-                    'host': 'host1.test.domain.tld',
-                    'date': 'Jan 01, 2017',
-                    'time': '14:01'
-                }
+        expected_result = [{
+            'nested_key_01': 'foo',
+            'nested_key_02': 'bar',
+            'streamalert:envelope_keys': {
+                'host': 'host1.test.domain.tld',
+                'date': 'Jan 01, 2017',
+                'time': '14:01'
             }
-        ]
+        }]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_json_regex_key(self):
@@ -386,24 +331,23 @@ class TestJSONParser:
         }
 
         record_data = json.dumps({
-            'time': '14:01',
-            'date': 'Jan 01, 2017',
-            'host': 'host1.test.domain.tld',
-            'message': '<10> auditd[1300] info: '
-                       '{"nested_key_01": "nested_info",'
-                       '"nested_key_02": "more_nested_info"}'
+            'time':
+            '14:01',
+            'date':
+            'Jan 01, 2017',
+            'host':
+            'host1.test.domain.tld',
+            'message':
+            '<10> auditd[1300] info: '
+            '{"nested_key_01": "nested_info",'
+            '"nested_key_02": "more_nested_info"}'
         })
 
         # get parsed data
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            {
-                'nested_key_01': 'nested_info',
-                'nested_key_02': 'more_nested_info'
-            }
-        ]
+        expected_result = [{'nested_key_01': 'nested_info', 'nested_key_02': 'more_nested_info'}]
 
         assert_equal(parser.parsed_records, expected_result)
 
@@ -425,33 +369,31 @@ class TestJSONParser:
         }
 
         record_data = json.dumps({
-            'env_key_01': 'data',
-            'env_key_02': 'time',
-            'test_list': [
-                {
-                    'id': 'foo',
-                    'message': json.dumps({
-                        'nested_key_01': 'bar',
-                        'nested_key_02': 'baz'
-                    })
-                }
-            ]
+            'env_key_01':
+            'data',
+            'env_key_02':
+            'time',
+            'test_list': [{
+                'id': 'foo',
+                'message': json.dumps({
+                    'nested_key_01': 'bar',
+                    'nested_key_02': 'baz'
+                })
+            }]
         })
 
         # get parsed data
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            {
-                'nested_key_01': 'bar',
-                'nested_key_02': 'baz',
-                'streamalert:envelope_keys': {
-                    'env_key_01': 'data',
-                    'env_key_02': 'time'
-                }
+        expected_result = [{
+            'nested_key_01': 'bar',
+            'nested_key_02': 'baz',
+            'streamalert:envelope_keys': {
+                'env_key_01': 'data',
+                'env_key_02': 'time'
             }
-        ]
+        }]
 
         assert_equal(parser.parsed_records, expected_result)
 
@@ -477,37 +419,25 @@ class TestJSONParser:
         record_data = json.dumps({
             'env_key_01': 'data',
             'env_key_02': 'time',
-            'test_list': [
-                {
-                    'id': 'foo',
-                    'message': invalid_data
-                }
-            ]
+            'test_list': [{
+                'id': 'foo',
+                'message': invalid_data
+            }]
         })
 
         # get parsed data
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), False)
 
-        expected_result = [
-            invalid_data
-        ]
+        expected_result = [invalid_data]
 
         assert_equal(parser.invalid_parses, expected_result)
 
     def test_basic_json(self):
         """JSONParser - Non-nested JSON objects"""
-        options = {
-            'schema': {
-                'name': 'string',
-                'age': 'integer'
-            }
-        }
+        options = {'schema': {'name': 'string', 'age': 'integer'}}
 
-        data = {
-            'name': 'john',
-            'age': 30
-        }
+        data = {'name': 'john', 'age': 30}
 
         record_data = json.dumps(data)
 
@@ -515,9 +445,7 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            data
-        ]
+        expected_result = [data]
 
         assert_equal(parser.parsed_records, expected_result)
 
@@ -534,12 +462,7 @@ class TestJSONParser:
                 'valid': 'boolean'
             },
             'configuration': {
-                'optional_top_level_keys': [
-                    'host-id',
-                    'ids',
-                    'results',
-                    'valid'
-                ]
+                'optional_top_level_keys': ['host-id', 'ids', 'results', 'valid']
             }
         }
 
@@ -556,19 +479,17 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            {
-                'columns': {
-                    'test-column': 1
-                },
-                'host': 'unit-test-host-1',
-                'host-id': 0,
-                'ids': [],
-                'name': 'unit-test',
-                'results': {},
-                'valid': True
-            }
-        ]
+        expected_result = [{
+            'columns': {
+                'test-column': 1
+            },
+            'host': 'unit-test-host-1',
+            'host-id': 0,
+            'ids': [],
+            'name': 'unit-test',
+            'results': {},
+            'valid': True
+        }]
 
         assert_equal(parser.parsed_records, expected_result)
 
@@ -605,22 +526,15 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_valid_result = [
-            {
-                'computer_name': 'foo',
-                'group': 3
-            },
-            {
-                'computer_name': 'foo-bar',
-                'group': 3
-            }
-        ]
+        expected_valid_result = [{
+            'computer_name': 'foo',
+            'group': 3
+        }, {
+            'computer_name': 'foo-bar',
+            'group': 3
+        }]
 
-        expected_invalid_result = [
-            {
-                'computer_name': 'foo-bar-baz'
-            }
-        ]
+        expected_invalid_result = [{'computer_name': 'foo-bar-baz'}]
 
         assert_equal(parser.parsed_records, expected_valid_result)
         assert_equal(parser.invalid_parses, expected_invalid_result)
@@ -635,53 +549,44 @@ class TestJSONParser:
             },
             'configuration': {
                 'json_path': 'docs[*]',
-                'optional_top_level_keys': [
-                    'opt_key',
-                    'another_opt_key'
-                ]
+                'optional_top_level_keys': ['opt_key', 'another_opt_key']
             }
         }
 
         record_data = json.dumps({
-            'server': 'test_server',
-            'username': 'test_user',
-            'docs': [
-                {
-                    'md5': '58B8702C20DE211D1FCB248D2FDD71D1',
-                    'opt_key': 'exists'
-                },
-                {
-                    'md5': '1D1FCB248D2FDD71D158B8702C20DE21',
-                    'opt_key': 'this_value_is_optional',
-                    'another_opt_key': 'this_value_is_also_optional'
-                },
-                {
-                    'md5': '1D1FCB248D2FDD71D158B8702C20DE21'
-                }
-            ]
+            'server':
+            'test_server',
+            'username':
+            'test_user',
+            'docs': [{
+                'md5': '58B8702C20DE211D1FCB248D2FDD71D1',
+                'opt_key': 'exists'
+            }, {
+                'md5': '1D1FCB248D2FDD71D158B8702C20DE21',
+                'opt_key': 'this_value_is_optional',
+                'another_opt_key': 'this_value_is_also_optional'
+            }, {
+                'md5': '1D1FCB248D2FDD71D158B8702C20DE21'
+            }]
         })
 
         # get parsed data
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            {
-                'md5': '58B8702C20DE211D1FCB248D2FDD71D1',
-                'opt_key': 'exists',
-                'another_opt_key': ''
-            },
-            {
-                'md5': '1D1FCB248D2FDD71D158B8702C20DE21',
-                'opt_key': 'this_value_is_optional',
-                'another_opt_key': 'this_value_is_also_optional'
-            },
-            {
-                'md5': '1D1FCB248D2FDD71D158B8702C20DE21',
-                'opt_key': '',
-                'another_opt_key': ''
-            }
-        ]
+        expected_result = [{
+            'md5': '58B8702C20DE211D1FCB248D2FDD71D1',
+            'opt_key': 'exists',
+            'another_opt_key': ''
+        }, {
+            'md5': '1D1FCB248D2FDD71D158B8702C20DE21',
+            'opt_key': 'this_value_is_optional',
+            'another_opt_key': 'this_value_is_also_optional'
+        }, {
+            'md5': '1D1FCB248D2FDD71D158B8702C20DE21',
+            'opt_key': '',
+            'another_opt_key': ''
+        }]
 
         assert_equal(parser.parsed_records, expected_result)
 
@@ -710,58 +615,55 @@ class TestJSONParser:
         }
 
         data = {
-            'Records': [
-                {
-                    'eventVersion': '1.0.0',
-                    'eventID': '0000000',
-                    'eventTime': '2016-12-31T12:00:00Z',
-                    'requestParameters': {
-                        'streamName': 'streamalert'
-                    },
-                    'eventType': 'AwsApiCall',
-                    'responseElements': None,
-                    'awsRegion': 'us-west-1',
-                    'eventName': 'DescribeStream',
-                    'userIdentity': {
-                        'userName': 'streamalert_user',
-                        'principalId': 'AAAAAAAAAAAAAAAA',
-                        'accessKeyId': 'FFFFFFFFFFFFFFFFFF',
-                        'type': 'IAMUser',
-                        'arn': 'arn:aws:iam::111111111111:user/streamalert_user',
-                        'accountId': '111111111111'
-                    },
-                    'eventSource': 'kinesis.amazonaws.com',
-                    'requestID': 'dddddddddd',
-                    'userAgent': 'aws-sdk',
-                    'sourceIPAddress': '127.0.0.1',
-                    'recipientAccountId': '1111111111111'
+            'Records': [{
+                'eventVersion': '1.0.0',
+                'eventID': '0000000',
+                'eventTime': '2016-12-31T12:00:00Z',
+                'requestParameters': {
+                    'streamName': 'streamalert'
                 },
-                {
-                    'eventVersion': '2.0.0',
-                    'eventID': '1111111',
-                    'eventTime': '2017-01-31T12:00:00Z',
-                    'requestParameters': {
-                        'streamName': 'streamalert_prod'
-                    },
-                    'eventType': 'AwsApiCall',
-                    'responseElements': None,
-                    'awsRegion': 'us-east-1',
-                    'eventName': 'DescribeStream',
-                    'userIdentity': {
-                        'userName': 'streamalert_prod_user',
-                        'principalId': 'BBBBBBBBBBBBBBBB',
-                        'accessKeyId': 'GGGGGGGGGGGGGGGG',
-                        'type': 'IAMUser',
-                        'arn': 'arn:aws:iam::222222222222:user/streamalert_prod_user',
-                        'accountId': '222222222222'
-                    },
-                    'eventSource': 'kinesis.amazonaws.com',
-                    'requestID': 'dddddddddd',
-                    'userAgent': 'aws-sdk',
-                    'sourceIPAddress': '127.0.0.2',
-                    'recipientAccountId': '222222222222'
-                }
-            ]
+                'eventType': 'AwsApiCall',
+                'responseElements': None,
+                'awsRegion': 'us-west-1',
+                'eventName': 'DescribeStream',
+                'userIdentity': {
+                    'userName': 'streamalert_user',
+                    'principalId': 'AAAAAAAAAAAAAAAA',
+                    'accessKeyId': 'FFFFFFFFFFFFFFFFFF',
+                    'type': 'IAMUser',
+                    'arn': 'arn:aws:iam::111111111111:user/streamalert_user',
+                    'accountId': '111111111111'
+                },
+                'eventSource': 'kinesis.amazonaws.com',
+                'requestID': 'dddddddddd',
+                'userAgent': 'aws-sdk',
+                'sourceIPAddress': '127.0.0.1',
+                'recipientAccountId': '1111111111111'
+            }, {
+                'eventVersion': '2.0.0',
+                'eventID': '1111111',
+                'eventTime': '2017-01-31T12:00:00Z',
+                'requestParameters': {
+                    'streamName': 'streamalert_prod'
+                },
+                'eventType': 'AwsApiCall',
+                'responseElements': None,
+                'awsRegion': 'us-east-1',
+                'eventName': 'DescribeStream',
+                'userIdentity': {
+                    'userName': 'streamalert_prod_user',
+                    'principalId': 'BBBBBBBBBBBBBBBB',
+                    'accessKeyId': 'GGGGGGGGGGGGGGGG',
+                    'type': 'IAMUser',
+                    'arn': 'arn:aws:iam::222222222222:user/streamalert_prod_user',
+                    'accountId': '222222222222'
+                },
+                'eventSource': 'kinesis.amazonaws.com',
+                'requestID': 'dddddddddd',
+                'userAgent': 'aws-sdk',
+                'sourceIPAddress': '127.0.0.2',
+                'recipientAccountId': '222222222222'
+            }]
         }
 
         record_data = json.dumps(data)
@@ -804,109 +706,109 @@ class TestJSONParser:
         }
 
         record_data = json.dumps({
-            'logEvents': [
-                {
-                    'extractedFields': {
-                        'account': '123456789012',
-                        'action': 'REJECT',
-                        'bytes': '240',
-                        'destination': '172.31.12.209',
-                        'destport': '80',
-                        'eni': 'eni-77ccbe24',
-                        'flowlogstatus': 'OK',
-                        'packets': '4',
-                        'protocol': '6',
-                        'source': '172.31.1.54',
-                        'srcport': '27974',
-                        'version': '2',
-                        'windowend': '1488216389',
-                        'windowstart': '1488216331'
-                    },
-                    'id': '33188333197923110564639124232124531540364522455662723073',
-                    'message': ('2 123456789012 eni-77ccbe24 172.31.1.54 172.31.12.209 '
-                                '27974 80 6 4 240 1488216331 1488216389 REJECT OK'),
-                    'timestamp': 1488216331000
+            'logEvents': [{
+                'extractedFields': {
+                    'account': '123456789012',
+                    'action': 'REJECT',
+                    'bytes': '240',
+                    'destination': '172.31.12.209',
+                    'destport': '80',
+                    'eni': 'eni-77ccbe24',
+                    'flowlogstatus': 'OK',
+                    'packets': '4',
+                    'protocol': '6',
+                    'source': '172.31.1.54',
+                    'srcport': '27974',
+                    'version': '2',
+                    'windowend': '1488216389',
+                    'windowstart': '1488216331'
                 },
-                {
-                    'extractedFields': {
-                        'account': '123456789012',
-                        'action': 'REJECT',
-                        'bytes': '240',
-                        'destination': '172.31.12.209',
-                        'destport': '80',
-                        'eni': 'eni-77ccbe24',
-                        'flowlogstatus': 'OK',
-                        'packets': '4',
-                        'protocol': '6',
-                        'source': '172.31.39.106',
-                        'srcport': '22598',
-                        'version': '2',
-                        'windowend': '1488216389',
-                        'windowstart': '1488216331'
-                    },
-                    'id': '33188333197923110564639124232124531540364522455662723074',
-                    'message': ('2 123456789012 eni-77ccbe24 172.31.39.106 172.31.12.209 '
-                                '22598 80 6 4 240 1488216331 1488216389 REJECT OK'),
-                    'timestamp': 1488216331000
-                }
-            ],
-            'logGroup': 'airdev_prod_streamalert_flow_logs',
-            'logStream': 'eni-77ccbe24-all',
-            'messageType': 'DATA_MESSAGE',
-            'owner': '123456789012',
-            'subscriptionFilters': [
-                'airdev_prod_streamalert_flow_logs_to_lambda'
-            ]
+                'id':
+                '33188333197923110564639124232124531540364522455662723073',
+                'message': ('2 123456789012 eni-77ccbe24 172.31.1.54 172.31.12.209 '
+                            '27974 80 6 4 240 1488216331 1488216389 REJECT OK'),
+                'timestamp':
+                1488216331000
+            }, {
+                'extractedFields': {
+                    'account': '123456789012',
+                    'action': 'REJECT',
+                    'bytes': '240',
+                    'destination': '172.31.12.209',
+                    'destport': '80',
+                    'eni': 'eni-77ccbe24',
+                    'flowlogstatus': 'OK',
+                    'packets': '4',
+                    'protocol': '6',
+                    'source': '172.31.39.106',
+                    'srcport': '22598',
+                    'version': '2',
+                    'windowend': '1488216389',
+                    'windowstart': '1488216331'
+                },
+                'id':
+                '33188333197923110564639124232124531540364522455662723074',
+                'message': ('2 123456789012 eni-77ccbe24 172.31.39.106 172.31.12.209 '
+                            '22598 80 6 4 240 1488216331 1488216389 REJECT OK'),
+                'timestamp':
+                1488216331000
+            }],
+            'logGroup':
+            'airdev_prod_streamalert_flow_logs',
+            'logStream':
+            'eni-77ccbe24-all',
+            'messageType':
+            'DATA_MESSAGE',
+            'owner':
+            '123456789012',
+            'subscriptionFilters': ['airdev_prod_streamalert_flow_logs_to_lambda']
         })
 
         # get parsed data
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            {
-                'account': 123456789012,
-                'action': 'REJECT',
-                'bytes': 240,
-                'destination': '172.31.12.209',
-                'destport': 80,
-                'eni': 'eni-77ccbe24',
-                'flowlogstatus': 'OK',
-                'packets': 4,
-                'protocol': 6,
-                'source': '172.31.1.54',
-                'srcport': 27974,
-                'version': 2,
-                'windowend': 1488216389,
-                'windowstart': 1488216331,
-                'streamalert:envelope_keys': {
-                    'logGroup': 'airdev_prod_streamalert_flow_logs',
-                    'logStream': 'eni-77ccbe24-all',
-                    'owner': 123456789012
-                }
-            },
-            {
-                'account': 123456789012,
-                'action': 'REJECT',
-                'bytes': 240,
-                'destination': '172.31.12.209',
-                'destport': 80,
-                'eni': 'eni-77ccbe24',
-                'flowlogstatus': 'OK',
-                'packets': 4,
-                'protocol': 6,
-                'source': '172.31.39.106',
-                'srcport': 22598,
-                'version': 2,
-                'windowend': 1488216389,
-                'windowstart': 1488216331,
-                'streamalert:envelope_keys': {
-                    'logGroup': 'airdev_prod_streamalert_flow_logs',
-                    'logStream': 'eni-77ccbe24-all',
-                    'owner': 123456789012
-                }
+        expected_result = [{
+            'account': 123456789012,
+            'action': 'REJECT',
+            'bytes': 240,
+            'destination': '172.31.12.209',
+            'destport': 80,
+            'eni': 'eni-77ccbe24',
+            'flowlogstatus': 'OK',
+            'packets': 4,
+            'protocol': 6,
+            'source': '172.31.1.54',
+            'srcport': 27974,
+            'version': 2,
+            'windowend': 1488216389,
+            'windowstart': 1488216331,
+            'streamalert:envelope_keys': {
+                'logGroup': 'airdev_prod_streamalert_flow_logs',
+                'logStream': 'eni-77ccbe24-all',
+                'owner': 123456789012
             }
-        ]
+        }, {
+            'account': 123456789012,
+            'action': 'REJECT',
+            'bytes': 240,
+            'destination': '172.31.12.209',
+            'destport': 80,
+            'eni': 'eni-77ccbe24',
+            'flowlogstatus': 'OK',
+            'packets': 4,
+            'protocol': 6,
+            'source': '172.31.39.106',
+            'srcport': 22598,
+            'version': 2,
+            'windowend': 1488216389,
+            'windowstart': 1488216331,
+            'streamalert:envelope_keys': {
+                'logGroup': 'airdev_prod_streamalert_flow_logs',
+                'logStream': 'eni-77ccbe24-all',
+                'owner': 123456789012
+            }
+        }]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_inspec(self):
@@ -930,70 +832,70 @@ class TestJSONParser:
 
         data = {
             'other_checks': [],
-            'profiles': [
-                {
-                    'attributes': [],
-                    'controls': [
-                        {
-                            'code': 'code snippet 01',
-                            'desc': None,
-                            'id': '(generated from osquery.rb:1 b6ef5242a32098111f11cb7d21a05bb8)',
-                            'impact': 0.5,
-                            'refs': [],
-                            'results': [
-                                {
-                                    'code_desc': 'Processes states should eq [\'SNs\']',
-                                    'run_time': 0.000992,
-                                    'start_time': '2017-02-28 09:24:47 -0800',
-                                    'status': 'passed'
-                                }
-                            ],
-                            'source_location': {
-                                'line': 87,
-                                'ref': '/opt/inspec/.../control_eval_context.rb'
-                            },
-                            'tags': {},
-                            'title': None
-                        },
-                        {
-                            'code': 'code snippet 02',
-                            'desc': None,
-                            'id': '(generated from osquery.rb:6 124c5f23cd897a018673b1ea512a9473)',
-                            'impact': 0.5,
-                            'refs': [],
-                            'results': [
-                                {
-                                    'code_desc': 'File osquery.conf mode should cmp == \'0400\'',
-                                    'message': 'foo message',
-                                    'run_time': 0.011729,
-                                    'start_time': '2017-02-28 09:24:47 -0800',
-                                    'status': 'failed'
-                                }
-                            ],
-                            'source_location': {
-                                'line': 87,
-                                'ref': '/opt/inspec/.../control_eval_context.rb'
-                            },
-                            'tags': {},
-                            'title': None
-                        }
-                    ],
-                    'groups': [
-                        {
-                            'controls': [
-                                '(generated from osquery.rb:1 b6ef5242a32098111f11cb7d21a05bb8)'
-                            ],
-                            'id': 'osquery.rb',
-                            'title': None
-                        }
-                    ],
-                    'supports': []
-                }
-            ],
+            'profiles': [{
+                'attributes': [],
+                'controls': [{
+                    'code':
+                    'code snippet 01',
+                    'desc':
+                    None,
+                    'id':
+                    '(generated from osquery.rb:1 b6ef5242a32098111f11cb7d21a05bb8)',
+                    'impact':
+                    0.5,
+                    'refs': [],
+                    'results': [{
+                        'code_desc': 'Processes states should eq [\'SNs\']',
+                        'run_time': 0.000992,
+                        'start_time': '2017-02-28 09:24:47 -0800',
+                        'status': 'passed'
+                    }],
+                    'source_location': {
+                        'line': 87,
+                        'ref': '/opt/inspec/.../control_eval_context.rb'
+                    },
+                    'tags': {},
+                    'title':
+                    None
+                }, {
+                    'code':
+                    'code snippet 02',
+                    'desc':
+                    None,
+                    'id':
+                    '(generated from osquery.rb:6 124c5f23cd897a018673b1ea512a9473)',
+                    'impact':
+                    0.5,
+                    'refs': [],
+                    'results': [{
+                        'code_desc': 'File osquery.conf mode should cmp == \'0400\'',
+                        'message': 'foo message',
+                        'run_time': 0.011729,
+                        'start_time': '2017-02-28 09:24:47 -0800',
+                        'status': 'failed'
+                    }],
+                    'source_location': {
+                        'line': 87,
+                        'ref': '/opt/inspec/.../control_eval_context.rb'
+                    },
+                    'tags': {},
+                    'title':
+                    None
+                }],
+                'groups': [{
+                    'controls': ['(generated from osquery.rb:1 b6ef5242a32098111f11cb7d21a05bb8)'],
+                    'id':
+                    'osquery.rb',
+                    'title':
+                    None
+                }],
+                'supports': []
+            }],
             'statistics': {
                 'duration': 0.040234
             },
-            'version': '1.4.1'
+            'version':
+            '1.4.1'
         }
 
         record_data = json.dumps(data)
@@ -1002,22 +904,14 @@ class TestJSONParser:
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
 
-        expected_result = [
-            control for prof in data['profiles'] for control in prof['controls']
-        ]
+        expected_result = [control for prof in data['profiles'] for control in prof['controls']]
 
         assert_equal(parser.parsed_records, expected_result)
 
     def test_parse_record_copy(self):
         """JSONParser - Parse, Ensure Copy"""
-        options = {
-            'schema': {
-                'key': 'string'
-            }
-        }
-        record_data = {
-            'key': 'value'
-        }
+        options = {'schema': {'key': 'string'}}
+        record_data = {'key': 'value'}
 
         parser = JSONParser(options)
         assert_equal(parser.parse(record_data), True)
@@ -1035,13 +929,7 @@ class TestJSONParser:
                 'json_path': 'key[].value'
             }
         }
-        record_data = {
-            'key': [
-                {
-                    'value': 'not json'
-                }
-            ]
-        }
+        record_data = {'key': [{'value': 'not json'}]}
 
         parser = JSONParser(options)
         result = parser._extract_via_json_path(record_data)
@@ -1061,13 +949,7 @@ class TestJSONParser:
                 'json_path': 'key[].value'
             }
         }
-        record_data = {
-            'key': [
-                {
-                    'value': '["list of data"]'
-                }
-            ]
-        }
+        record_data = {'key': [{'value': '["list of data"]'}]}
 
         parser = JSONParser(options)
         result = parser._extract_via_json_path(record_data)
@@ -1076,17 +958,8 @@ class TestJSONParser:
 
     def test_extract_via_json_regex_key_no_key(self):
         """JSONParser - Extract via JSON Regex Key, Key Does Not Exist"""
-        options = {
-            'schema': {
-                'key': 'string'
-            },
-            'configuration': {
-                'json_regex_key': 'key_01'
-            }
-        }
-        record_data = {
-            'key': 'value'
-        }
+        options = {'schema': {'key': 'string'}, 'configuration': {'json_regex_key': 'key_01'}}
+        record_data = {'key': 'value'}
 
         parser = JSONParser(options)
         result = parser._extract_via_json_regex_key(record_data)
@@ -1094,12 +967,7 @@ class TestJSONParser:
 
     def test_parse_record_not_dict_mismatch(self):
         """JSONParser - Parse record not in dict type and doesn't match schema"""
-        options = {
-            'schema': {
-                'key': 'string'
-            },
-            'parser': 'json'
-        }
+        options = {'schema': {'key': 'string'}, 'parser': 'json'}
         record_data = "[{\"key\": \"value\"}]"
 
         parser = JSONParser(options)

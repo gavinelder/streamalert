@@ -31,7 +31,8 @@ from streamalert.classifier.payload.s3 import S3Payload, S3PayloadError
 
 class TestS3Payload:
     """S3Payload tests"""
-    # pylint: disable=no-self-use,protected-access,attribute-defined-outside-init
+
+    # pylint: disable=protected-access,attribute-defined-outside-init
 
     def setup(self):
         """S3Payload - Setup"""
@@ -47,7 +48,7 @@ class TestS3Payload:
             'awsRegion': 'us-east-1',
             's3': {
                 'bucket': {
-                    'name':  self._bucket
+                    'name': self._bucket
                 },
                 'object': {
                     'key': self._key,
@@ -90,12 +91,9 @@ class TestS3Payload:
         """S3Payload - GZ Reader"""
         record = {'key': 'value'}
         json_line = (json.dumps(record, separators=(',', ':')) + '\n').encode()
-        with tempfile.SpooledTemporaryFile(max_size=10*1024) as reader:
+        with tempfile.SpooledTemporaryFile(max_size=10 * 1024) as reader:
             writer = gzip.GzipFile(filename='test', fileobj=reader)
-            writer.writelines([
-                json_line,
-                json_line
-            ])
+            writer.writelines([json_line, json_line])
             writer.close()
             reader.seek(0)
             gz_reader = S3Payload._gz_reader(reader)
@@ -106,11 +104,8 @@ class TestS3Payload:
         """S3Payload - GZ Reader, Non-gzip"""
         record = {'key': 'value'}
         json_line = (json.dumps(record, separators=(',', ':')) + '\n').encode()
-        with tempfile.SpooledTemporaryFile(max_size=10*1024) as reader:
-            reader.writelines([
-                json_line,
-                json_line
-            ])
+        with tempfile.SpooledTemporaryFile(max_size=10 * 1024) as reader:
+            reader.writelines([json_line, json_line])
             reader.seek(0)
             non_gz_reader = S3Payload._gz_reader(reader)
             assert_equal(reader == non_gz_reader, True)
@@ -119,18 +114,15 @@ class TestS3Payload:
         """S3Payload - JSON Lines Reader"""
         record = {'key': 'value'}
         json_line = (json.dumps(record, separators=(',', ':')) + '\n').encode()
-        with tempfile.SpooledTemporaryFile(max_size=10*1024) as reader:
-            reader.writelines([
-                json_line,
-                json_line
-            ])
+        with tempfile.SpooledTemporaryFile(max_size=10 * 1024) as reader:
+            reader.writelines([json_line, json_line])
             reader.seek(0)
             line_reader = S3Payload._jsonlines_reader(reader)
             assert_equal(reader != line_reader, True)
 
     def test_jsonlines_reader_fallback(self):
         """S3Payload - JSON Lines Reader, Fallback"""
-        with tempfile.SpooledTemporaryFile(max_size=10*1024) as reader:
+        with tempfile.SpooledTemporaryFile(max_size=10 * 1024) as reader:
             reader.write('non-json-value\n'.encode())
             reader.seek(0)
             line_reader = S3Payload._jsonlines_reader(reader)
@@ -139,7 +131,7 @@ class TestS3Payload:
     def test_read_downloaded_object(self):
         """S3Payload - Read Downloaded Object"""
         record = {'key': 'value'}
-        with tempfile.SpooledTemporaryFile(max_size=10*1024) as reader:
+        with tempfile.SpooledTemporaryFile(max_size=10 * 1024) as reader:
             reader.write(json.dumps(record, indent=2).encode())
             reader.seek(0)
             read_lines = list(S3Payload._read_downloaded_object(reader))
@@ -148,7 +140,7 @@ class TestS3Payload:
     def test_read_downloaded_object_fallback(self):
         """S3Payload - Read Downloaded Object, Fallback"""
         value = 'non-json-value\n'.encode()
-        with tempfile.SpooledTemporaryFile(max_size=10*1024) as reader:
+        with tempfile.SpooledTemporaryFile(max_size=10 * 1024) as reader:
             reader.write(value)
             reader.seek(0)
             read_lines = list(S3Payload._read_downloaded_object(reader))
@@ -159,10 +151,7 @@ class TestS3Payload:
         """S3Payload - Read File"""
         value = 'test_data'.encode()
         boto3.resource('s3').Bucket(self._bucket).create()
-        boto3.resource('s3').Bucket(self._bucket).put_object(
-            Key=self._key,
-            Body=value
-        )
+        boto3.resource('s3').Bucket(self._bucket).put_object(Key=self._key, Body=value)
 
         payload = S3Payload(None, self._record)
         read_lines = list(payload._read_file())
@@ -179,17 +168,9 @@ class TestS3Payload:
     def test_pre_parse(self):
         """S3Payload - Pre Parse"""
         with patch.object(S3Payload, '_read_file') as reader:
-            reader.side_effect = [
-                [
-                    (1, {'key_01': 'value_01'}),
-                    (2, {'key_02': 'value_02'})
-                ]
-            ]
+            reader.side_effect = [[(1, {'key_01': 'value_01'}), (2, {'key_02': 'value_02'})]]
 
-            expected_result = [
-                {'key_01': 'value_01'},
-                {'key_02': 'value_02'}
-            ]
+            expected_result = [{'key_01': 'value_01'}, {'key_02': 'value_02'}]
 
             payload = S3Payload(None, self._record)
             result = [rec._record_data for rec in list(payload.pre_parse())]
@@ -198,6 +179,7 @@ class TestS3Payload:
 
 class TestCleanup(fake_filesystem_unittest.TestCase):
     """Test cleanup, including shredding of the tmp directory"""
+
     # pylint: disable=protected-access
 
     def setUp(self):
@@ -217,7 +199,6 @@ class TestCleanup(fake_filesystem_unittest.TestCase):
         with patch.dict(os.environ, {'LAMBDA_RUNTIME_DIR': '/var/runtime'}):
             S3Payload._cleanup()
             subproc_mock.assert_called_with(
-                ['shred', '--force', '--iterations=1', '--remove', self.temp_file]
-            )
+                ['shred', '--force', '--iterations=1', '--remove', self.temp_file])
 
         os_mock.assert_called_with(self.temp_dir)

@@ -23,7 +23,7 @@ from streamalert.classifier.parsers import CSVParser
 
 class TestCSVParser:
     """Test class for CSVParser"""
-    # pylint: disable=no-self-use,protected-access
+    # pylint: disable=protected-access
 
     @classmethod
     def _default_schema(cls):
@@ -31,12 +31,7 @@ class TestCSVParser:
 
     def test_basic_parsing(self):
         """CSVParser - Basic CSV data, str"""
-        options = {
-            'schema': self._default_schema(),
-            'configuration': {
-                'delimiter': ','
-            }
-        }
+        options = {'schema': self._default_schema(), 'configuration': {'delimiter': ','}}
         data = 'test-01.stg.foo.net,01-01-2018,test message!!!!'
 
         # get parsed data
@@ -44,23 +39,16 @@ class TestCSVParser:
         result = parser.parse(data)
         assert_equal(result, True)
 
-        expected_result = [
-            {
-                'date': '01-01-2018',
-                'host': 'test-01.stg.foo.net',
-                'message': 'test message!!!!'
-            }
-        ]
+        expected_result = [{
+            'date': '01-01-2018',
+            'host': 'test-01.stg.foo.net',
+            'message': 'test message!!!!'
+        }]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_basic_parsing_bytes(self):
         """CSVParser - Basic CSV data, bytes"""
-        options = {
-            'schema': self._default_schema(),
-            'configuration': {
-                'delimiter': ','
-            }
-        }
+        options = {'schema': self._default_schema(), 'configuration': {'delimiter': ','}}
         data = b'test-01.stg.foo.net,01-01-2018,test message!!!!'
 
         # get parsed data
@@ -68,23 +56,16 @@ class TestCSVParser:
         result = parser.parse(data)
         assert_equal(result, True)
 
-        expected_result = [
-            {
-                'date': '01-01-2018',
-                'host': 'test-01.stg.foo.net',
-                'message': 'test message!!!!'
-            }
-        ]
+        expected_result = [{
+            'date': '01-01-2018',
+            'host': 'test-01.stg.foo.net',
+            'message': 'test message!!!!'
+        }]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_csv_parsing_space_delimited(self):
         """CSVParser - Space separated data"""
-        options = {
-            'schema': self._default_schema(),
-            'configuration': {
-                'delimiter': ' '
-            }
-        }
+        options = {'schema': self._default_schema(), 'configuration': {'delimiter': ' '}}
         data = 'test-01.stg.foo.net 02-02-2018 "test message!!!!"'
 
         # get parsed data
@@ -92,23 +73,16 @@ class TestCSVParser:
         result = parser.parse(data)
         assert_equal(result, True)
 
-        expected_result = [
-            {
-                'date': '02-02-2018',
-                'host': 'test-01.stg.foo.net',
-                'message': 'test message!!!!'
-            }
-        ]
+        expected_result = [{
+            'date': '02-02-2018',
+            'host': 'test-01.stg.foo.net',
+            'message': 'test message!!!!'
+        }]
         assert_equal(parser.parsed_records, expected_result)
 
     def test_csv_parsing_alt_quoted(self):
         """CSVParser - Single Quoted Field"""
-        options = {
-            'schema': self._default_schema(),
-            'configuration': {
-                'quotechar': '\''
-            }
-        }
+        options = {'schema': self._default_schema(), 'configuration': {'quotechar': '\''}}
         data = ('test-host,datetime-value,\'CREATE TABLE test ( id '
                 'INTEGER, type VARCHAR(64) NOT NULL)\'')
 
@@ -117,13 +91,11 @@ class TestCSVParser:
         result = parser.parse(data)
         assert_equal(result, True)
 
-        expected_result = [
-            {
-                'host': 'test-host',
-                'date': 'datetime-value',
-                'message': 'CREATE TABLE test ( id INTEGER, type VARCHAR(64) NOT NULL)'
-            }
-        ]
+        expected_result = [{
+            'host': 'test-host',
+            'date': 'datetime-value',
+            'message': 'CREATE TABLE test ( id INTEGER, type VARCHAR(64) NOT NULL)'
+        }]
 
         assert_equal(parser.parsed_records, expected_result)
 
@@ -141,18 +113,17 @@ class TestCSVParser:
         }
 
         data = json.dumps({
-            'env_key_01': 'DATA_MESSAGE',
-            'env_key_02': '123456789012',
-            'logEvents': [
-                {
-                    'uuid': '0F08CD2B-F21D-4F3A-9231-B527AD42AB91',
-                    'message': 'host-name,01-01-2018,contents'
-                },
-                {
-                    'uuid': '0F08CD2B-F21D-4F3A-9231-B527AD42AB91',
-                    'message': 'host-name-02,02-02-2018,contents-02'
-                }
-            ]
+            'env_key_01':
+            'DATA_MESSAGE',
+            'env_key_02':
+            '123456789012',
+            'logEvents': [{
+                'uuid': '0F08CD2B-F21D-4F3A-9231-B527AD42AB91',
+                'message': 'host-name,01-01-2018,contents'
+            }, {
+                'uuid': '0F08CD2B-F21D-4F3A-9231-B527AD42AB91',
+                'message': 'host-name-02,02-02-2018,contents-02'
+            }]
         })
 
         # get parsed data
@@ -160,45 +131,36 @@ class TestCSVParser:
         result = parser.parse(data)
         assert_equal(result, True)
 
-        expected_result = [
-            {
-                'host': 'host-name',
-                'date': '01-01-2018',
-                'message': 'contents',
-                'streamalert:envelope_keys': {
-                    'env_key_01': 'DATA_MESSAGE',
-                    'env_key_02': '123456789012'
-                }
-            },
-            {
-                'host': 'host-name-02',
-                'date': '02-02-2018',
-                'message': 'contents-02',
-                'streamalert:envelope_keys': {
-                    'env_key_01': 'DATA_MESSAGE',
-                    'env_key_02': '123456789012'
-                }
+        expected_result = [{
+            'host': 'host-name',
+            'date': '01-01-2018',
+            'message': 'contents',
+            'streamalert:envelope_keys': {
+                'env_key_01': 'DATA_MESSAGE',
+                'env_key_02': '123456789012'
             }
-        ]
+        }, {
+            'host': 'host-name-02',
+            'date': '02-02-2018',
+            'message': 'contents-02',
+            'streamalert:envelope_keys': {
+                'env_key_01': 'DATA_MESSAGE',
+                'env_key_02': '123456789012'
+            }
+        }]
 
         assert_equal(parser.parsed_records, expected_result)
 
     def test_nested_csv(self):
         """CSVParser - Nested CSV"""
         options = {
-            'schema': OrderedDict([
-                ('date', 'string'),
-                ('time', 'integer'),
-                ('host', 'string'),
-                ('env', 'string'),
-                ('message', OrderedDict([
-                    ('application', 'string'),
-                    ('role', 'string'),
-                    ('cluster_host', 'string'),
-                    ('cluster_size', 'string'),
-                    ('result', 'string')
-                ]))
-            ])
+            'schema':
+            OrderedDict([('date', 'string'), ('time', 'integer'), ('host', 'string'),
+                         ('env', 'string'),
+                         ('message',
+                          OrderedDict([('application', 'string'), ('role', 'string'),
+                                       ('cluster_host', 'string'), ('cluster_size', 'string'),
+                                       ('result', 'string')]))])
         }
         data = ('"Jan 10, 2017","1485739910","host1.prod.test","Corp",'
                 '"chef,web-server,1,100,fail"')
@@ -208,34 +170,28 @@ class TestCSVParser:
         result = parser.parse(data)
         assert_equal(result, True)
 
-        expected_result = [
-            {
-                'date': 'Jan 10, 2017',
-                'time': 1485739910,
-                'host': 'host1.prod.test',
-                'env': 'Corp',
-                'message': {
-                    'application': 'chef',
-                    'role': 'web-server',
-                    'cluster_host': '1',
-                    'cluster_size': '100',
-                    'result': 'fail'
-                }
+        expected_result = [{
+            'date': 'Jan 10, 2017',
+            'time': 1485739910,
+            'host': 'host1.prod.test',
+            'env': 'Corp',
+            'message': {
+                'application': 'chef',
+                'role': 'web-server',
+                'cluster_host': '1',
+                'cluster_size': '100',
+                'result': 'fail'
             }
-        ]
+        }]
 
         assert_equal(parser.parsed_records, expected_result)
 
     def test_nested_csv_invalid(self):
         """CSVParser - Nested CSV, Invalid"""
         options = {
-            'schema': OrderedDict([
-                ('date', 'string'),
-                ('message', OrderedDict([
-                    ('application', 'string'),
-                    ('role', 'string')
-                ]))
-            ])
+            'schema':
+            OrderedDict([('date', 'string'),
+                         ('message', OrderedDict([('application', 'string'), ('role', 'string')]))])
         }
         data = '"Jan 10, 2017","chef,web-server,1"'
 
@@ -244,11 +200,6 @@ class TestCSVParser:
         result = parser.parse(data)
         assert_equal(result, False)
 
-        expected_result = [
-            [
-                'Jan 10, 2017',
-                'chef,web-server,1'
-            ]
-        ]
+        expected_result = [['Jan 10, 2017', 'chef,web-server,1']]
 
         assert_equal(parser.invalid_parses, expected_result)

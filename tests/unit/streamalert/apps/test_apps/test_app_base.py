@@ -18,14 +18,8 @@ import os
 from botocore.exceptions import ClientError
 from mock import call, Mock, patch
 from moto import mock_ssm
-from nose.tools import (
-    assert_equal,
-    assert_false,
-    assert_is_instance,
-    assert_is_none,
-    assert_true,
-    raises
-)
+from nose.tools import (assert_equal, assert_false, assert_is_instance, assert_is_none, assert_true,
+                        raises)
 
 import requests
 from requests.exceptions import ConnectTimeout
@@ -40,14 +34,20 @@ from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 
 class TestStreamAlertApp:
     """Test class for the StreamAlertApp"""
-    # pylint: disable=no-self-use
 
     def test_get_all_apps(self):
         """StreamAlertApp - Get All Apps"""
         expected_apps = {
+            'aliyun_actiontrail',
             'box_admin_events',
+            'buildkite_audit',
+            'cortex_xdr_agent_audit',
+            'cortex_xdr_management_audit',
+            'config_cat_log_audit',
+            'cloudflare_audit_logs',
             'duo_admin',
             'duo_auth',
+            'gcloud_audit',
             'gsuite_access_transparency',
             'gsuite_admin',
             'gsuite_calendar',
@@ -72,7 +72,6 @@ class TestStreamAlertApp:
             'salesforce_reportexport',
             'slack_access',
             'slack_integration',
-            'aliyun_actiontrail'
         }
 
         assert_equal(expected_apps, set(StreamAlertApp.get_all_apps()))
@@ -130,8 +129,8 @@ class TestAppIntegration:
     @patch('streamalert.apps.app_base.time')
     def test_report_time(self, time_mock, log_mock):
         """App Integration - Report Time"""
-        # pylint: disable=no-self-use
         time_mock.time.side_effect = [100.0, 300.0]
+
         @_report_time
         def _test():
             pass
@@ -141,10 +140,10 @@ class TestAppIntegration:
 
     def test_safe_timeout(self):
         """App Integration - Safe Timeout"""
-        # pylint: disable=no-self-use
         @safe_timeout
         def _test():
             raise ConnectTimeout(response='too slow')
+
         assert_equal(_test(), (False, None))
 
     @patch('streamalert.apps.app_base.AppIntegration._required_auth_info')
@@ -155,7 +154,7 @@ class TestAppIntegration:
         assert_equal(self._app.required_auth_info(), expected_result)
 
         auth_mock.return_value = None
-        assert_equal(self._app.required_auth_info(), dict())
+        assert_equal(self._app.required_auth_info(), {})
 
     @patch('logging.Logger.error')
     def test_check_http_response_bad(self, log_mock):
@@ -232,10 +231,7 @@ class TestAppIntegration:
         self._app._invoke_successive_app()
         log_mock.assert_called_with(
             'An error occurred while invoking a subsequent app function (\'%s:%s\'). Error is: %s',
-            self._test_app_name,
-            'production',
-            'bad'
-        )
+            self._test_app_name, 'production', 'bad')
 
     @patch('boto3.client')
     @patch('logging.Logger.info')
@@ -246,19 +242,15 @@ class TestAppIntegration:
         boto_mock.return_value.invoke.assert_called()
         log_mock.assert_called_with(
             'Invoking successive apps function \'%s\' with Lambda request ID \'%s\'',
-            self._test_app_name,
-            'foobar'
-        )
+            self._test_app_name, 'foobar')
 
     @patch('requests.get')
     def test_make_get_request_bad_response(self, requests_mock):
         """App Integration - Make Get Request, Bad Response"""
         failed_message = 'something went wrong'
-        requests_mock.return_value = Mock(
-            status_code=404,
-            content=failed_message,
-            json=Mock(return_value={'message': failed_message})
-        )
+        requests_mock.return_value = Mock(status_code=404,
+                                          content=failed_message,
+                                          json=Mock(return_value={'message': failed_message}))
 
         result, response = self._app._make_get_request('hostname', None, None)
         assert_false(result)
@@ -271,10 +263,7 @@ class TestAppIntegration:
     def test_make_post_request_json(self, requests_mock):
         """App Integration - Make Post Request, With JSON"""
         message = {'data': 'test_data'}
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=message)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=message))
         args = 'hostname'
         result, response = self._app._make_post_request(args, None, None)
         assert_true(result)
@@ -289,10 +278,7 @@ class TestAppIntegration:
     def test_make_post_request_non_json(self, requests_mock):
         """App Integration - Make Post Request, Not JSON"""
         message = {'data': 'test_data'}
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=message)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=message))
         args = 'hostname'
         result, response = self._app._make_post_request(args, None, None, False)
         assert_true(result)
@@ -311,8 +297,7 @@ class TestAppIntegration:
             result = self._app._gather()
             assert_is_instance(result, float)
             log_mock.assert_called_with(
-                '[%s] Gather process was not able to poll any logs on poll #%d', self._app, 1
-            )
+                '[%s] Gather process was not able to poll any logs on poll #%d', self._app, 1)
 
     @patch('logging.Logger.info')
     @patch('streamalert.apps.app_base.time')
@@ -323,9 +308,7 @@ class TestAppIntegration:
             subclass_gather_mock.return_value = ['log01', 'log02', 'log03']
             self._app._gather()
             assert_equal(self._app._gathered_log_count, 3)
-            log_mock.assert_called_with(
-                '[%s] Function executed in %.4f seconds.', '_gather', 200.0
-            )
+            log_mock.assert_called_with('[%s] Function executed in %.4f seconds.', '_gather', 200.0)
 
     @patch('streamalert.apps.app_base.AppIntegration._finalize')
     @patch('streamalert.apps.app_base.AppIntegration._sleep_seconds', Mock(return_value=1))

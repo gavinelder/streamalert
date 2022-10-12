@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,protected-access
+# pylint: disable=protected-access
 import os
 
 from mock import patch, Mock
@@ -44,5 +44,5 @@ class PackageTest(fake_filesystem_unittest.TestCase):
         self.packager._copy_directory(self.TEST_CONFIG_PATH, destination='conf_test')
 
         # Ensure the specified destination exists and not the default
-        self.assertTrue(os.path.exists(self.MOCK_TEMP_PATH + '/streamalert/conf_test'))
-        self.assertFalse(os.path.exists(self.MOCK_TEMP_PATH + '/streamalert/conf'))
+        self.assertTrue(os.path.exists(f'{self.MOCK_TEMP_PATH}/streamalert/conf_test'))
+        self.assertFalse(os.path.exists(f'{self.MOCK_TEMP_PATH}/streamalert/conf'))

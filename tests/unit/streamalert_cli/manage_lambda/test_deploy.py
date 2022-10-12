@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,protected-access
+# pylint: disable=protected-access
 import unittest
 
 from mock import patch
@@ -51,7 +51,5 @@ class DeployTest(unittest.TestCase):
         result = deploy._lambda_terraform_targets(config, functions, clusters)
 
         assert_equal(result, set())
-        log_mock.assert_called_with(
-            'Function is not enabled and will be ignored: %s',
-            'scheduled_queries'
-        )
+        log_mock.assert_called_with('Function is not enabled and will be ignored: %s',
+                                    'scheduled_queries')

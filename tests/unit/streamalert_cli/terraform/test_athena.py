@@ -34,22 +34,34 @@ def test_generate_athena():
     expected_athena_config = {
         'module': {
             'athena_partitioner_iam': {
-                'source': './modules/tf_athena',
-                's3_logging_bucket': '{}-streamalert-s3-logging'.format(prefix),
-                'prefix': 'unit-test',
-                'account_id': '12345678910',
-                'database_name': '{}_streamalert'.format(prefix),
-                'queue_name': '{}_streamalert_athena_s3_notifications'.format(prefix),
-                'results_bucket': '{}-streamalert-athena-results'.format(prefix),
+                'source':
+                './modules/tf_athena',
+                's3_logging_bucket':
+                f'{prefix}-streamalert-s3-logging',
+                'prefix':
+                'unit-test',
+                'account_id':
+                '12345678910',
+                'database_name':
+                f'{prefix}_streamalert',
+                'queue_name':
+                f'{prefix}_streamalert_athena_s3_notifications',
+                'results_bucket':
+                f'{prefix}-streamalert-athena-results',
                 'athena_data_buckets': [
                     '${aws_s3_bucket.streamalerts.bucket}',
                     '${module.kinesis_firehose_setup.data_bucket_name}',
                 ],
-                'lambda_timeout': 60,
-                'kms_key_id': '${aws_kms_key.server_side_encryption.key_id}',
-                'function_role_id': '${module.athena_partitioner_lambda.role_id}',
-                'function_name': '${module.athena_partitioner_lambda.function_name}',
-                'function_alias_arn': '${module.athena_partitioner_lambda.function_alias_arn}',
+                'lambda_timeout':
+                60,
+                'kms_key_id':
+                '${aws_kms_key.server_side_encryption.key_id}',
+                'function_role_id':
+                '${module.athena_partitioner_lambda.role_id}',
+                'function_name':
+                '${module.athena_partitioner_lambda.function_name}',
+                'function_alias_arn':
+                '${module.athena_partitioner_lambda.function_alias_arn}'
             },
             'athena_partitioner_lambda': {
                 'description': 'Unit-Test Streamalert Athena Partitioner',

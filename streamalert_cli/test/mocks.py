@@ -46,15 +46,12 @@ class ThreatIntelMocks:
 
     @classmethod
     def get_mock_values(cls, values):
-
         """Return the function to mock out ThreatIntel._query
 
         This simply returns values from the log that are in the mock_ioc_values
         based on fixtures that match the provided rule_path
         """
-        return [
-            cls._MOCKS[item] for item in cls._MOCKS if item in values
-        ]
+        return [cls._MOCKS[item] for item in cls._MOCKS if item in values]
 
 
 class LookupTableMocks:

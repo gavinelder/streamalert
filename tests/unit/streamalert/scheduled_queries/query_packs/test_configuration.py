@@ -15,23 +15,19 @@ limitations under the License.
 """
 from nose.tools import assert_equals, assert_true
 
-from streamalert.scheduled_queries.query_packs.configuration import (
-    QueryPackConfiguration, QueryPackRepository
-)
+from streamalert.scheduled_queries.query_packs.configuration import (QueryPackConfiguration,
+                                                                     QueryPackRepository)
 
 
 class TestConfiguration:
-
     @staticmethod
     def test_basic_stuff():
         """StreamQuery - QueryPackConfiguration - basic stuff"""
-        config = QueryPackConfiguration(
-            name='bubblebumblebaddabbabblerabblebarrelmumble',
-            query='SELECT * FROM knowhere',
-            params=[],
-            description='yoo hoo and a bottle of rum',
-            tags=['tag1', 'tag2']
-        )
+        config = QueryPackConfiguration(name='bubblebumblebaddabbabblerabblebarrelmumble',
+                                        query='SELECT * FROM knowhere',
+                                        params=[],
+                                        description='yoo hoo and a bottle of rum',
+                                        tags=['tag1', 'tag2'])
 
         assert_equals(config.name, 'bubblebumblebaddabbabblerabblebarrelmumble')
         assert_equals(config.query_template, 'SELECT * FROM knowhere')
@@ -42,20 +38,17 @@ class TestConfiguration:
     @staticmethod
     def test_query_construction():
         """StreamQuery - QueryPackConfiguration - generate_query"""
-        config = QueryPackConfiguration(
-            name='helloworld',
-            query="SELECT * FROM helloworld WHERE dt = '{date}'",
-            params=['date'],
-            description='yoo hoo and a bottle of rum',
-            tags=['tag1', 'tag2']
-        )
+        config = QueryPackConfiguration(name='helloworld',
+                                        query="SELECT * FROM helloworld WHERE dt = '{date}'",
+                                        params=['date'],
+                                        description='yoo hoo and a bottle of rum',
+                                        tags=['tag1', 'tag2'])
 
         assert_equals(config.generate_query(date='2000-01-01'),
                       "SELECT * FROM helloworld WHERE dt = '2000-01-01'")
 
 
 class TestQueryPackRepository:
-
     @staticmethod
     def test_load_and_get_packs():
         """StreamQuery - QueryPackRepository - get_packs"""

@@ -22,15 +22,13 @@ from streamalert.shared.firehose import FirehoseClient
 
 class TestFirehoseClient:
     """Test class for FirehoseClient"""
-    # pylint: disable=protected-access,no-self-use,attribute-defined-outside-init
+
+    # pylint: disable=protected-access,attribute-defined-outside-init
 
     def setup(self):
         """Setup before each method"""
         with patch('boto3.client'):  # patch to speed up unit tests slightly
-            self._client = FirehoseClient(
-                prefix='unit-test',
-                firehose_config={'use_prefix': True}
-            )
+            self._client = FirehoseClient(prefix='unit-test', firehose_config={'use_prefix': True})
 
     def teardown(self):
         """Teardown after each method"""
@@ -39,49 +37,34 @@ class TestFirehoseClient:
     @property
     def _sample_payloads(self):
         return [
-            Mock(
-                log_schema_type='log_type_01_sub_type_01',
-                parsed_records=[
-                    {
-                        'unit_key_01': 1,
-                        'unit_key_02': 'test'
-                    },
-                    {
-                        'unit_key_01': 2,
-                        'unit_key_02': 'test'
-                    }
-                ]
-            ),
-            Mock(
-                log_schema_type='log_type_02_sub_type_01',
-                parsed_records=[
-                    {
-                        'date': 'January 01, 3005',
-                        'unixtime': '32661446400',
-                        'host': 'my-host.name.website.com',
-                        'data': {
-                            'super': 'secret'
-                        }
-                    }
-                ]
-            )
+            Mock(log_schema_type='log_type_01_sub_type_01',
+                 parsed_records=[{
+                     'unit_key_01': 1,
+                     'unit_key_02': 'test'
+                 }, {
+                     'unit_key_01': 2,
+                     'unit_key_02': 'test'
+                 }]),
+            Mock(log_schema_type='log_type_02_sub_type_01',
+                 parsed_records=[{
+                     'date': 'January 01, 3005',
+                     'unixtime': '32661446400',
+                     'host': 'my-host.name.website.com',
+                     'data': {
+                         'super': 'secret'
+                     }
+                 }])
         ]
 
     @classmethod
     def _sample_raw_records(cls, count=2):
-        return [
-            {'key_{}'.format(i): 'value_{}'.format(i)}
-            for i in range(count)
-        ]
+        return [{f'key_{i}': f'value_{i}'} for i in range(count)]
 
     def test_records_to_json_list(self):
         """FirehoseClient - Records JSON Lines"""
         records = self._sample_raw_records()
 
-        expected_result = [
-            '{"key_0":"value_0"}\n',
-            '{"key_1":"value_1"}\n'
-        ]
+        expected_result = ['{"key_0":"value_0"}\n', '{"key_1":"value_1"}\n']
 
         result = FirehoseClient._records_to_json_list(records)
         assert_equal(result, expected_result)
@@ -90,12 +73,7 @@ class TestFirehoseClient:
         """FirehoseClient - Record Batches"""
         records = self._sample_raw_records()
 
-        expected_result = [
-            [
-                '{"key_0":"value_0"}\n',
-                '{"key_1":"value_1"}\n'
-            ]
-        ]
+        expected_result = [['{"key_0":"value_0"}\n', '{"key_1":"value_1"}\n']]
 
         result = list(FirehoseClient._record_batches(records, 'test_function_name'))
         assert_equal(result, expected_result)
@@ -103,9 +81,7 @@ class TestFirehoseClient:
     @patch.object(FirehoseClient, '_log_failed')
     def test_record_batches_rec_too_large(self, failure_mock):
         """FirehoseClient - Record Batches, Record Too Large"""
-        records = [
-            {'key': 'test' * 1000 * 1000}
-        ]
+        records = [{'key': 'test' * 1000 * 1000}]
 
         result = list(FirehoseClient._record_batches(records, 'test_function_name'))
         assert_equal(result, [])
@@ -122,10 +98,7 @@ class TestFirehoseClient:
 
     def test_record_batches_max_batch_size(self):
         """FirehoseClient - Record Batches, Max Batch Size"""
-        records = [
-            {'key_{}'.format(i): 'test' * 100000}
-            for i in range(10)
-        ]
+        records = [{f'key_{i}': 'test' * 100000} for i in range(10)]
         result = list(FirehoseClient._record_batches(records, 'test_function_name'))
         assert_equal(len(result), 2)
         assert_equal(len(result[0]), 9)
@@ -167,12 +140,16 @@ class TestFirehoseClient:
         """FirehoseClient - Strip Successful Records"""
         batch = [{'test': 'success'}, {'other': 'failure'}, {'other': 'info'}]
         response = {
-            'FailedPutCount': 1,
-            'RequestResponses': [
-                {'RecordId': 'rec_id_01'},
-                {'ErrorCode': 10, 'ErrorMessage': 'foo'},
-                {'RecordId': 'rec_id_03'}
-            ]
+            'FailedPutCount':
+            1,
+            'RequestResponses': [{
+                'RecordId': 'rec_id_01'
+            }, {
+                'ErrorCode': 10,
+                'ErrorMessage': 'foo'
+            }, {
+                'RecordId': 'rec_id_03'
+            }]
         }
 
         expected_batch = [{'other': 'failure'}]
@@ -201,32 +178,32 @@ class TestFirehoseClient:
         payloads = self._sample_payloads
         result = self._client._categorize_records(payloads)
 
-        assert_equal(dict(result), dict())
+        assert_equal(dict(result), {})
 
     def test_categorize_records_subset_enabled(self):
         """FirehoseClient - Categorize Records, Subset Enabled"""
-        FirehoseClient._ENABLED_LOGS = {
-            'log_type_01_sub_type_01': 'log_type_01:sub_type_01'
-        }
+        FirehoseClient._ENABLED_LOGS = {'log_type_01_sub_type_01': 'log_type_01:sub_type_01'}
 
         payloads = self._sample_payloads
 
         result = self._client._categorize_records(payloads)
-        expected_result = {
-            'log_type_01_sub_type_01': payloads[0].parsed_records
-        }
+        expected_result = {'log_type_01_sub_type_01': payloads[0].parsed_records}
         assert_equal(dict(result), expected_result)
 
     @patch.object(FirehoseClient, '_log_failed')
     def test_finalize_failures(self, failure_mock):
         """FirehoseClient - Finalize, With Failures"""
         response = {
-            'FailedPutCount': 1,
-            'RequestResponses': [
-                {'RecordId': 'rec_id_01'},
-                {'ErrorCode': 10, 'ErrorMessage': 'foo'},
-                {'RecordId': 'rec_id_03'}
-            ]
+            'FailedPutCount':
+            1,
+            'RequestResponses': [{
+                'RecordId': 'rec_id_01'
+            }, {
+                'ErrorCode': 10,
+                'ErrorMessage': 'foo'
+            }, {
+                'RecordId': 'rec_id_03'
+            }]
         }
 
         FirehoseClient._finalize(response, 'stream_name', 3, 'test_function_name')
@@ -238,54 +215,45 @@ class TestFirehoseClient:
         request_id = 'success_id'
         stream_name = 'stream_name'
         count = 3
-        response = {
-            'ResponseMetadata': {
-                'RequestId': request_id
-            }
-        }
+        response = {'ResponseMetadata': {'RequestId': request_id}}
 
         FirehoseClient._finalize(response, stream_name, count, 'test_function_name')
         log_mock.assert_called_with(
-            'Successfully sent %d message(s) to firehose %s with RequestId \'%s\'',
-            count,
-            stream_name,
-            request_id
-        )
+            'Successfully sent %d message(s) to firehose %s with RequestId \'%s\'', count,
+            stream_name, request_id)
 
     def test_send_batch(self):
         """FirehoseClient - Send Batch"""
         records = [
-            '{"unit_key_02":"test","unit_key_01":1}\n',
-            '{"unit_key_02":"test","unit_key_01":2}\n'
+            '{"unit_key_02":"test","unit_key_01":1}\n', '{"unit_key_02":"test","unit_key_01":2}\n'
         ]
 
         stream_name = 'test_stream_name'
-        expected_second_call = [
-            {'Data': records[1]}
-        ]
+        expected_second_call = [{'Data': records[1]}]
         with patch.object(self._client, '_client') as boto_mock:
-            boto_mock.put_record_batch.side_effect = [
-                {
-                    'FailedPutCount': 1,
-                    'RequestResponses': [
-                        {'RecordId': 'rec_id_01'},
-                        {'ErrorCode': 10, 'ErrorMessage': 'foo'}
-                    ]
-                },
-                {
-                    'FailedPutCount': 0,
-                    'RequestResponses': [
-                        {'RecordId': 'rec_id_02'},
-                    ]
-                }
-            ]
+            boto_mock.put_record_batch.side_effect = [{
+                'FailedPutCount':
+                1,
+                'RequestResponses': [{
+                    'RecordId': 'rec_id_01'
+                }, {
+                    'ErrorCode': 10,
+                    'ErrorMessage': 'foo'
+                }]
+            }, {
+                'FailedPutCount':
+                0,
+                'RequestResponses': [
+                    {
+                        'RecordId': 'rec_id_02'
+                    },
+                ]
+            }]
 
             self._client._send_batch(stream_name, records, 'test_function_name')
 
-            boto_mock.put_record_batch.assert_called_with(
-                DeliveryStreamName=stream_name,
-                Records=expected_second_call
-            )
+            boto_mock.put_record_batch.assert_called_with(DeliveryStreamName=stream_name,
+                                                          Records=expected_second_call)
 
     @patch('logging.Logger.exception')
     @patch.object(FirehoseClient, 'MAX_BACKOFF_ATTEMPTS', 1)
@@ -309,9 +277,7 @@ class TestFirehoseClient:
     def test_enabled_log_source(self):
         """FirehoseClient - Enabled Log Source"""
         log = 'enabled_log'
-        FirehoseClient._ENABLED_LOGS = {
-            log: 'enabled:log'
-        }
+        FirehoseClient._ENABLED_LOGS = {log: 'enabled:log'}
         assert_equal(FirehoseClient.enabled_log_source(log), True)
 
     def test_enabled_log_source_false(self):
@@ -345,116 +311,82 @@ class TestFirehoseClient:
     @patch('logging.Logger.error')
     def test_load_enabled_sources_invalid_log(self, log_mock):
         """FirehoseClient - Load Enabled Log Sources, Invalid Log Type"""
-        logs_config = {
-            'log_type_01:sub_type_01': {},
-            'log_type_01:sub_type_02': {}
-        }
+        logs_config = {'log_type_01:sub_type_01': {}, 'log_type_01:sub_type_02': {}}
         log_type = 'log_type_03'
-        firehose_config = {
-            'enabled_logs': [
-                log_type
-            ]
-        }
+        firehose_config = {'enabled_logs': [log_type]}
 
         enabled_logs = FirehoseClient.load_enabled_log_sources(firehose_config, logs_config)
-        assert_equal(enabled_logs, dict())
-        log_mock.assert_called_with(
-            'Enabled Firehose log %s not declared in logs.json', log_type
-        )
+        assert_equal(enabled_logs, {})
+        log_mock.assert_called_with('Enabled Firehose log %s not declared in logs.json', log_type)
 
     @patch('logging.Logger.error')
     def test_load_enabled_sources_invalid_log_subtype(self, log_mock):
         """FirehoseClient - Load Enabled Log Sources, Invalid Log Sub-type"""
-        logs_config = {
-            'log_type_01:sub_type_01': {}
-        }
+        logs_config = {'log_type_01:sub_type_01': {}}
         log_type = 'log_type_01:sub_type_02'
-        firehose_config = {
-            'enabled_logs': [
-                log_type
-            ]
-        }
+        firehose_config = {'enabled_logs': [log_type]}
 
         enabled_logs = FirehoseClient.load_enabled_log_sources(firehose_config, logs_config)
-        assert_equal(enabled_logs, dict())
-        log_mock.assert_called_with(
-            'Enabled Firehose log %s not declared in logs.json', log_type
-        )
+        assert_equal(enabled_logs, {})
+        log_mock.assert_called_with('Enabled Firehose log %s not declared in logs.json', log_type)
 
     def test_load_from_config(self):
         """FirehoseClient - Load From Config"""
         with patch('boto3.client'):  # patch to speed up unit tests slightly
-            client = FirehoseClient.load_from_config(
-                prefix='unit-test',
-                firehose_config={'enabled': True},
-                log_sources=None
-            )
+            client = FirehoseClient.load_from_config(prefix='unit-test',
+                                                     firehose_config={'enabled': True},
+                                                     log_sources=None)
             assert_equal(isinstance(client, FirehoseClient), True)
 
     def test_load_from_config_disabled(self):
         """FirehoseClient - Load From Config, Disabled"""
-        client = FirehoseClient.load_from_config(
-            prefix='unit-test',
-            firehose_config={},
-            log_sources=None
-        )
+        client = FirehoseClient.load_from_config(prefix='unit-test',
+                                                 firehose_config={},
+                                                 log_sources=None)
         assert_equal(client, None)
 
     @patch.object(FirehoseClient, '_send_batch')
     def test_send(self, send_batch_mock):
         """FirehoseClient - Send"""
-        FirehoseClient._ENABLED_LOGS = {
-            'log_type_01_sub_type_01': 'log_type_01:sub_type_01'
-        }
+        FirehoseClient._ENABLED_LOGS = {'log_type_01_sub_type_01': 'log_type_01:sub_type_01'}
         expected_batch = [
-            '{"unit_key_01":1,"unit_key_02":"test"}\n',
-            '{"unit_key_01":2,"unit_key_02":"test"}\n'
+            '{"unit_key_01":1,"unit_key_02":"test"}\n', '{"unit_key_01":2,"unit_key_02":"test"}\n'
         ]
         self._client.send(self._sample_payloads)
-        send_batch_mock.assert_called_with(
-            'unit_test_streamalert_log_type_01_sub_type_01', expected_batch, 'classifier'
-        )
+        send_batch_mock.assert_called_with('unit_test_streamalert_log_type_01_sub_type_01',
+                                           expected_batch, 'classifier')
 
     @patch.object(FirehoseClient, '_send_batch')
     def test_send_no_prefixing(self, send_batch_mock):
         """FirehoseClient - Send, No Prefixing"""
-        FirehoseClient._ENABLED_LOGS = {
-            'log_type_01_sub_type_01': 'log_type_01:sub_type_01'
-        }
+        FirehoseClient._ENABLED_LOGS = {'log_type_01_sub_type_01': 'log_type_01:sub_type_01'}
         expected_batch = [
-            '{"unit_key_01":1,"unit_key_02":"test"}\n',
-            '{"unit_key_01":2,"unit_key_02":"test"}\n'
+            '{"unit_key_01":1,"unit_key_02":"test"}\n', '{"unit_key_01":2,"unit_key_02":"test"}\n'
         ]
 
-        client = FirehoseClient.load_from_config(
-            prefix='unit-test',
-            firehose_config={'enabled': True, 'use_prefix': False},
-            log_sources=None
-        )
+        client = FirehoseClient.load_from_config(prefix='unit-test',
+                                                 firehose_config={
+                                                     'enabled': True,
+                                                     'use_prefix': False
+                                                 },
+                                                 log_sources=None)
 
         client.send(self._sample_payloads)
-        send_batch_mock.assert_called_with(
-            'streamalert_log_type_01_sub_type_01', expected_batch, 'classifier'
-        )
+        send_batch_mock.assert_called_with('streamalert_log_type_01_sub_type_01', expected_batch,
+                                           'classifier')
 
     @property
     def _sample_payloads_long_log_name(self):
         return [
-            Mock(
-                log_schema_type=(
-                    'very_very_very_long_log_stream_name_abcdefg_hijklmn_70_characters_long'
-                ),
-                parsed_records=[
-                    {
-                        'unit_key_01': 1,
-                        'unit_key_02': 'test'
-                    },
-                    {
-                        'unit_key_01': 2,
-                        'unit_key_02': 'test'
-                    }
-                ]
-            )
+            Mock(log_schema_type=(
+                'very_very_very_long_log_stream_name_abcdefg_hijklmn_70_characters_long'),
+                parsed_records=[{
+                    'unit_key_01': 1,
+                    'unit_key_02': 'test'
+                }, {
+                    'unit_key_01': 2,
+                    'unit_key_02': 'test'
+                }])
         ]
 
     @patch.object(FirehoseClient, '_send_batch')
@@ -464,63 +396,53 @@ class TestFirehoseClient:
             'very_very_very_long_log_stream_name_abcdefg_hijklmn_70_characters_long': {}
         }
         expected_batch = [
-            '{"unit_key_01":1,"unit_key_02":"test"}\n',
-            '{"unit_key_01":2,"unit_key_02":"test"}\n'
+            '{"unit_key_01":1,"unit_key_02":"test"}\n', '{"unit_key_01":2,"unit_key_02":"test"}\n'
         ]
 
-        client = FirehoseClient.load_from_config(
-            prefix='unit-test',
-            firehose_config={'enabled': True, 'use_prefix': False},
-            log_sources=None
-        )
+        client = FirehoseClient.load_from_config(prefix='unit-test',
+                                                 firehose_config={
+                                                     'enabled': True,
+                                                     'use_prefix': False
+                                                 },
+                                                 log_sources=None)
 
         client.send(self._sample_payloads_long_log_name)
         send_batch_mock.assert_called_with(
-            'streamalert_very_very_very_long_log_stream_name_abcdefg_7c88167b',
-            expected_batch,
-            'classifier'
-        )
+            'streamalert_very_very_very_long_log_stream_name_abcdefg_7c88167b', expected_batch,
+            'classifier')
 
     def test_generate_firehose_name(self):
         """FirehoseClient - Test helper to generate firehose stream name when prefix disabled"""
         log_names = [
-            'logstreamname',
-            'log_stream_name',
+            'logstreamname', 'log_stream_name',
             'very_very_long_log_stream_name_ab_52_characters_long',
             'very_very_very_long_log_stream_name_abcdefg_abcdefg_70_characters_long'
         ]
 
         expected_results = [
-            'streamalert_logstreamname',
-            'streamalert_log_stream_name',
+            'streamalert_logstreamname', 'streamalert_log_stream_name',
             'streamalert_very_very_long_log_stream_name_ab_52_characters_long',
             'streamalert_very_very_very_long_log_stream_name_abcdefg_272fa762'
         ]
-        results = [
-            self._client.generate_firehose_name('', log_name)
-            for log_name in log_names
-        ]
+        results = [self._client.generate_firehose_name('', log_name) for log_name in log_names]
 
         assert_equal(expected_results, results)
 
     def test_generate_firehose_name_prefix(self):
         """FirehoseClient - Test helper to generate firehose stream name with prefix"""
         log_names = [
-            'logstreamname',
-            'log_stream_name',
+            'logstreamname', 'log_stream_name',
             'very_very_long_log_stream_name_ab_52_characters_long',
             'very_very_very_long_log_stream_name_abcdefg_abcdefg_70_characters_long'
         ]
 
         expected_results = [
-            'prefix_streamalert_logstreamname',
-            'prefix_streamalert_log_stream_name',
+            'prefix_streamalert_logstreamname', 'prefix_streamalert_log_stream_name',
             'prefix_streamalert_very_very_long_log_stream_name_ab_52_63bd84dc',
             'prefix_streamalert_very_very_very_long_log_stream_name_a0c91e099'
         ]
         results = [
-            self._client.generate_firehose_name('prefix', log_name)
-            for log_name in log_names
+            self._client.generate_firehose_name('prefix', log_name) for log_name in log_names
         ]
 
         assert_equal(expected_results, results)
@@ -538,16 +460,11 @@ class TestFirehoseClient:
             }
         }
 
-        assert_equal(
-            self._client.artifacts_firehose_stream_name(config_data),
-            'unittest_streamalert_artifacts'
-        )
+        assert_equal(self._client.artifacts_firehose_stream_name(config_data),
+                     'unittest_streamalert_artifacts')
 
         config_data['lambda']['artifact_extractor_config']['firehose_stream_name'] = (
-            'test_artifacts_fh_name'
-        )
+            'test_artifacts_fh_name')
 
-        assert_equal(
-            self._client.artifacts_firehose_stream_name(config_data),
-            'test_artifacts_fh_name'
-        )
+        assert_equal(self._client.artifacts_firehose_stream_name(config_data),
+                     'test_artifacts_fh_name')

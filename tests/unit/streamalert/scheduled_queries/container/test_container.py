@@ -35,10 +35,7 @@ class TestServiceContainer:
     @staticmethod
     def test_get_logger():
         """StreamQuery - ServiceContainer - get - logger"""
-        container = ServiceContainer({
-            'command_name': "the_test",
-            'log_level': 'INFO'
-        })
+        container = ServiceContainer({'command_name': "the_test", 'log_level': 'INFO'})
         configure_container(container)
 
         assert_true(container.get('logger'))
@@ -58,10 +55,8 @@ class TestServiceContainer:
             'command_name': "the_test",
             'log_level': 'INFO',
             'aws_region': 'us-nowhere-1',
-
             'kinesis_auth_mode': 'iam_role',
             'kinesis_stream': 'aaaa',
-
             'athena_auth_mode': 'iam_role',
             'athena_database': 'test',
             'athena_results_bucket': 'test',

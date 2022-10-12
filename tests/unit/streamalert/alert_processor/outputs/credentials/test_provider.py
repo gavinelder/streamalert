@@ -33,23 +33,10 @@ from nose.tools import (
 
 from streamalert.alert_processor.outputs.output_base import OutputProperty
 from streamalert.alert_processor.outputs.credentials.provider import (
-    SSMDriver,
-    LocalFileDriver,
-    Credentials,
-    OutputCredentialsProvider,
-    EphemeralUnencryptedDriver, SpooledTempfileDriver, get_formatted_output_credentials_name)
-from tests.unit.streamalert.alert_processor import (
-    PREFIX,
-    CONFIG,
-    KMS_ALIAS,
-    REGION,
-    MOCK_ENV
-)
-from tests.unit.streamalert.alert_processor.helpers import (
-    encrypt_with_kms,
-    setup_mock_kms
-)
-
+    SSMDriver, LocalFileDriver, Credentials, OutputCredentialsProvider, EphemeralUnencryptedDriver,
+    SpooledTempfileDriver, get_formatted_output_credentials_name)
+from tests.unit.streamalert.alert_processor import (PREFIX, CONFIG, KMS_ALIAS, REGION, MOCK_ENV)
+from tests.unit.streamalert.alert_processor.helpers import (encrypt_with_kms, setup_mock_kms)
 
 #
 # class Credentials Tests
@@ -57,7 +44,6 @@ from tests.unit.streamalert.alert_processor.helpers import (
 
 
 class TestCredentialsEncrypted:
-
     def setup(self):
         self.kms_mocker = mock_kms()
         self.kms_mocker.start()
@@ -107,7 +93,6 @@ class TestCredentialsEncrypted:
 
 
 class TestCredentialsUnencrypted:
-
     def setup(self):
         self.kms_mocker = mock_kms()
         self.kms_mocker.start()
@@ -180,20 +165,16 @@ def test_constructor_loads_from_os_when_not_provided():
 class TestOutputCredentialsProvider:
     def setup(self):
         service_name = 'service'
-        defaults = {
-            'property2': 'abcdef'
-        }
+        defaults = {'property2': 'abcdef'}
         prefix = 'test_asdf'
         aws_account_id = '1234567890'
 
-        self._provider = OutputCredentialsProvider(
-            service_name,
-            config=CONFIG,
-            defaults=defaults,
-            region=REGION,
-            prefix=prefix,
-            aws_account_id=aws_account_id
-        )
+        self._provider = OutputCredentialsProvider(service_name,
+                                                   config=CONFIG,
+                                                   defaults=defaults,
+                                                   region=REGION,
+                                                   prefix=prefix,
+                                                   aws_account_id=aws_account_id)
 
     @mock_kms
     def test_save_and_load_credentials(self):
@@ -207,8 +188,7 @@ class TestOutputCredentialsProvider:
         props = OrderedDict([
             ('property1',
              OutputProperty(description='This is a property and not a cred so it will not save')),
-            ('property2',
-             OutputProperty(description='Neither will this')),
+            ('property2', OutputProperty(description='Neither will this')),
             ('credential1',
              OutputProperty(description='Hello world',
                             value='this is a super secret secret, shhhh!',
@@ -289,8 +269,8 @@ class TestOutputCredentialsProvider:
         creds_dict = self._provider.load_credentials(descriptor)
         assert_is_none(creds_dict)
         logging_error.assert_called_with('All drivers failed to retrieve credentials for [%s.%s]',
-                                         'service',
-                                         descriptor)
+                                         'service', descriptor)
+
 
 #
 # class SSMDriver Tests
@@ -299,7 +279,6 @@ class TestOutputCredentialsProvider:
 
 @mock_kms
 class TestSSMDriver:
-
     def setup(self):
         self._ssm_driver = SSMDriver(PREFIX, 'service', REGION)
 
@@ -334,10 +313,7 @@ class TestSSMDriver:
 
 def test_get_formatted_output_credentials_name():
     """LocalFileDriver - Get Formatted Output Credentials Name"""
-    name = get_formatted_output_credentials_name(
-        'test_service_name',
-        'test_descriptor'
-    )
+    name = get_formatted_output_credentials_name('test_service_name', 'test_descriptor')
     assert_equal(name, 'test_service_name/test_descriptor')
 
 
@@ -347,17 +323,13 @@ def test_get_load_credentials_temp_dir():
     assert_equal(temp_dir.split('/')[-1], 'streamalert_secrets')
 
 
-def test_get_formatted_output_credentials_name_no_descriptor(): #pylint: disable=invalid-name
+def test_get_formatted_output_credentials_name_no_descriptor():  # pylint: disable=invalid-name
     """LocalFileDriver - Get Formatted Output Credentials Name - No Descriptor"""
-    name = get_formatted_output_credentials_name(
-        'test_service_name',
-        ''
-    )
+    name = get_formatted_output_credentials_name('test_service_name', '')
     assert_equal(name, 'test_service_name')
 
 
 class TestLocalFileDriver:
-
     def setup(self):
         self.kms_mocker = mock_kms()
         self.kms_mocker.start()
@@ -443,7 +415,6 @@ class TestLocalFileDriver:
 
 
 class TestSpooledTempfileDriver:
-
     def setup(self):
         self.kms_mocker = mock_kms()
         self.kms_mocker.start()
@@ -517,8 +488,7 @@ class TestSpooledTempfileDriver:
         assert_is_none(self._sp_driver.load_credentials('qwertyuiop'))
         logging_error.assert_called_with(
             'SpooledTempfileDriver failed to load_credentials: Spool "%s" does not exist?',
-            'service/qwertyuiop'
-        )
+            'service/qwertyuiop')
 
     def test_clear(self):
         """SpooledTempfileDriver - Clear Credentials"""
@@ -536,8 +506,8 @@ class TestSpooledTempfileDriver:
 # class EphemeralUnencryptedDriver tests
 #
 
-class TestEphemeralUnencryptedDriver:
 
+class TestEphemeralUnencryptedDriver:
     def setup(self):
         self.kms_mocker = mock_kms()
         self.kms_mocker.start()

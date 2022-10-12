@@ -78,10 +78,7 @@ class DriverCache:
         Returns:
             bool
         """
-        if key not in self._ttls:
-            return False
-
-        return self._clock.utcnow() <= self._ttls[key]
+        return self._clock.utcnow() <= self._ttls[key] if key in self._ttls else False
 
     def get(self, key, default=None):
         """
@@ -175,10 +172,7 @@ class DriverCacheClock:
         Returns:
             datetime
         """
-        if self._time_machine:
-            return self._time_machine
-
-        return datetime.utcnow()
+        return self._time_machine or datetime.utcnow()
 
     def time_machine(self, new_datetime):
         """

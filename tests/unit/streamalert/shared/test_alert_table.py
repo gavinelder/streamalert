@@ -45,10 +45,12 @@ class TestAlertTable:
         self.alerts = [
             alert_module.Alert(
                 'even' if i % 2 == 0 else 'odd',
-                {'key1': 'value1', 'key2': 'value2'},
+                {
+                    'key1': 'value1',
+                    'key2': 'value2'
+                },
                 {'aws-firehose:alerts', 'aws-s3:test-bucket', 'slack:test-channel'},
-            )
-            for i in range(3)
+            ) for i in range(3)
         ]
         self.alert_table.add_alerts(self.alerts)
 
@@ -67,6 +69,7 @@ class TestAlertTable:
             if 'ExclusiveStartKey' in kwargs:
                 return {'Items': [2]}
             return {'Items': [1], 'LastEvaluatedKey': 'somewhere'}
+
         results = list(self.alert_table._paginate(mock_table_op, {}))
         assert_equal([1, 2], results)
 
@@ -83,8 +86,8 @@ class TestAlertTable:
 
     def test_get_alert_record(self):
         """Alert Table - Get a Single Alert"""
-        result = self.alert_table.get_alert_record(
-            self.alerts[0].rule_name, self.alerts[0].alert_id)
+        result = self.alert_table.get_alert_record(self.alerts[0].rule_name,
+                                                   self.alerts[0].alert_id)
         assert_equal(self.alerts[0].dynamo_record(), result)
 
     def test_add_alerts(self):
@@ -109,6 +112,7 @@ class TestAlertTable:
 
         def mock_update(**kwargs):  # pylint: disable=unused-argument
             raise ClientError({'Error': {'Code': 'ConditionalCheckFailedException'}}, 'UpdateItem')
+
         self.alert_table._table.update_item.side_effect = mock_update
 
         # No error should be raised if the conditional delete failed
@@ -117,11 +121,16 @@ class TestAlertTable:
         alert.dispatched = datetime.utcnow()
         self.alert_table.mark_as_dispatched(alert)
         self.alert_table._table.update_item.assert_called_once_with(
-            Key={'RuleName': alert.rule_name, 'AlertID': alert.alert_id},
+            Key={
+                'RuleName': alert.rule_name,
+                'AlertID': alert.alert_id
+            },
             UpdateExpression='SET Attempts = :attempts, Dispatched = :dispatched',
-            ExpressionAttributeValues={':attempts': 1, ':dispatched': ANY},
-            ConditionExpression='attribute_exists(AlertID)'
-        )
+            ExpressionAttributeValues={
+                ':attempts': 1,
+                ':dispatched': ANY
+            },
+            ConditionExpression='attribute_exists(AlertID)')
 
     def test_mark_as_dispatched_exception(self):
         """Alert Table - Mark As Dispatched - An Unhandled Exception is Re-Raised"""
@@ -129,6 +138,7 @@ class TestAlertTable:
 
         def mock_update(**kwargs):  # pylint: disable=unused-argument
             raise ClientError({'Error': {'Code': 'TEST'}}, 'UpdateItem')
+
         self.alert_table._table.update_item.side_effect = mock_update
 
         assert_raises(ClientError, self.alert_table.mark_as_dispatched, self.alerts[0])
@@ -146,6 +156,7 @@ class TestAlertTable:
 
         def mock_update(**kwargs):  # pylint: disable=unused-argument
             raise ClientError({'Error': {'Code': 'TEST'}}, 'UpdateItem')
+
         self.alert_table._table.update_item.side_effect = mock_update
 
         assert_raises(ClientError, self.alert_table.update_sent_outputs, self.alerts[0])

@@ -57,15 +57,11 @@ class TestSlackApp:
     @patch('logging.Logger.error')
     def test_error_response_from_slack(self, log_mock, requests_mock):
         """SlackApp - Gather Logs - Error Response"""
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(
-                return_value={
-                    'ok': False,
-                    'error': 'paid_only'
-                }
-            )
-        )
+        requests_mock.return_value = Mock(status_code=200,
+                                          json=Mock(return_value={
+                                              'ok': False,
+                                              'error': 'paid_only'
+                                          }))
         assert_false(self._app._gather_logs())
         log_mock.assert_called_with('Received error or warning from slack: %s', 'paid_only')
 
@@ -93,35 +89,56 @@ class TestSlackAccessApp:
     def _get_sample_access_logs():
         """Sample logs collected from the slack api documentation"""
         return {
-            'ok': True,
+            'ok':
+            True,
             'logins': [
                 {
-                    'user_id': 'U12345',
-                    'username': 'bob',
-                    'date_first': 1422922864,
-                    'date_last':  1422922864,
-                    'count': 1,
-                    'ip': '127.0.0.',
-                    'user_agent': 'SlackWeb Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) '
-                                  'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.35 '
-                                  'Safari/537.36',
-                    'isp': 'BigCo ISP',
-                    'country': 'US',
-                    'region': 'CA'
+                    'user_id':
+                    'U12345',
+                    'username':
+                    'bob',
+                    'date_first':
+                    1422922864,
+                    'date_last':
+                    1422922864,
+                    'count':
+                    1,
+                    'ip':
+                    '127.0.0.',
+                    'user_agent':
+                    'SlackWeb Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) '
+                    'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.35 '
+                    'Safari/537.36',
+                    'isp':
+                    'BigCo ISP',
+                    'country':
+                    'US',
+                    'region':
+                    'CA'
                 },
                 {
-                    'user_id': 'U45678',
-                    'username': 'alice',
-                    'date_first': 1422922493,
-                    'date_last': 1422922493,
-                    'count': 1,
-                    'ip': '127.0.0.1',
-                    'user_agent': 'SlackWeb Mozilla/5.0 (iPhone; CPU iPhone OS 8_1_3 like Mac '
-                                  'OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 '
-                                  'Mobile/12B466 Safari/600.1.4',
-                    'isp': 'BigCo ISP',
-                    'country': 'US',
-                    'region': 'CA'
+                    'user_id':
+                    'U45678',
+                    'username':
+                    'alice',
+                    'date_first':
+                    1422922493,
+                    'date_last':
+                    1422922493,
+                    'count':
+                    1,
+                    'ip':
+                    '127.0.0.1',
+                    'user_agent':
+                    'SlackWeb Mozilla/5.0 (iPhone; CPU iPhone OS 8_1_3 like Mac '
+                    'OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 '
+                    'Mobile/12B466 Safari/600.1.4',
+                    'isp':
+                    'BigCo ISP',
+                    'country':
+                    'US',
+                    'region':
+                    'CA'
                 },
             ],
             'paging': {
@@ -136,10 +153,7 @@ class TestSlackAccessApp:
     def test_gather_access_logs(self, requests_mock):
         """SlackAccessApp - Gather Logs Entry Point"""
         logs = self._get_sample_access_logs()
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=logs)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         gathered_logs = self._app._gather_logs()
         assert_equal(len(gathered_logs), 2)
@@ -148,10 +162,7 @@ class TestSlackAccessApp:
     def test_gather_access_logs_some_filtered(self, requests_mock):
         """SlackAccessApp - Gather Logs - Some Filtered"""
         logs = self._get_sample_access_logs()
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=logs)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         self._app._last_timestamp = 1422922593
         gathered_logs = self._app._gather_logs()
@@ -161,10 +172,7 @@ class TestSlackAccessApp:
     def test_gather_access_logs_all_filtered(self, requests_mock):
         """SlackAccessApp - Gather Logs - All Filtered"""
         logs = self._get_sample_access_logs()
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=logs)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         self._app._last_timestamp = 1522922593
         gathered_logs = self._app._gather_logs()
@@ -175,14 +183,16 @@ class TestSlackAccessApp:
         """SlackAccessApp - Gather Logs - No Entries Returned"""
         requests_mock.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={
-                    'ok': True,
-                    'logins': [],
-                    'paging': {'count': 100, 'total': 0, 'page': 1, 'pages': 1}
+            json=Mock(return_value={
+                'ok': True,
+                'logins': [],
+                'paging': {
+                    'count': 100,
+                    'total': 0,
+                    'page': 1,
+                    'pages': 1
                 }
-            )
-        )
+            }))
         assert_equal(0, len(self._app._gather_logs()))
 
     @patch('requests.post')
@@ -190,13 +200,15 @@ class TestSlackAccessApp:
         """SlackAccessApp - Gather Logs - Malformed Response"""
         requests_mock.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={
-                    'ok': True,
-                    'paging': {'count': 100, 'total': 0, 'page': 1, 'pages': 1}
+            json=Mock(return_value={
+                'ok': True,
+                'paging': {
+                    'count': 100,
+                    'total': 0,
+                    'page': 1,
+                    'pages': 1
                 }
-            )
-        )
+            }))
         assert_false(self._app._gather_logs())
 
     @patch('requests.post')
@@ -204,10 +216,7 @@ class TestSlackAccessApp:
         """SlackAccessApp - Gather Logs - Basic Pagination Handling"""
         logs = self._get_sample_access_logs()
         logs['paging']['pages'] = logs['paging']['pages'] + 1
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=logs)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         self._app._last_timestamp = 1522922593
         gathered_logs = self._app._gather_logs()
@@ -221,21 +230,18 @@ class TestSlackAccessApp:
         logs = self._get_sample_access_logs()
         self._app._SLACK_API_MAX_PAGE_COUNT = 1
         self._app._SLACK_API_MAX_ENTRY_COUNT = 100
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=logs)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         self._app._last_timestamp = 1522922593
         gathered_logs = self._app._gather_logs()
-        assert 'before' not in list(requests_mock.call_args[1]['data'].keys()) # nosec
+        assert 'before' not in list(requests_mock.call_args[1]['data'].keys())  # nosec
         assert_equal(len(gathered_logs), 0)
         assert_equal(self._app._next_page, 1)
         assert_equal(True, self._app._more_to_poll)
         assert_equal(self._app._before_time, logs['logins'][-1]['date_first'])
 
         self._app._gather_logs()
-        assert 'before' in list(requests_mock.call_args[1]['data'].keys()) # nosec
+        assert 'before' in list(requests_mock.call_args[1]['data'].keys())  # nosec
 
 
 @mock_ssm
@@ -262,52 +268,51 @@ class TestSlackIntegrationsApp:
         """SlackIntegrationsApp - Gather Logs - Malformed Response"""
         requests_mock.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={
-                    'ok': True,
-                    'paging': {'count': 100, 'total': 0, 'page': 1, 'pages': 1}
+            json=Mock(return_value={
+                'ok': True,
+                'paging': {
+                    'count': 100,
+                    'total': 0,
+                    'page': 1,
+                    'pages': 1
                 }
-            )
-        )
+            }))
         assert_false(self._app._gather_logs())
 
     @staticmethod
     def _get_sample_integrations_logs():
         """Sample logs collected from the slack api documentation"""
         return {
-            'ok': True,
-            'logs': [
-                {
-                    'service_id': '1234567890',
-                    'service_type': 'Google Calendar',
-                    'user_id': 'U1234ABCD',
-                    'user_name': 'Johnny',
-                    'channel': 'C1234567890',
-                    'date': '1392163200',
-                    'change_type': 'enabled',
-                    'scope': 'incoming-webhook'
-                },
-                {
-                    'app_id': '2345678901',
-                    'app_type': 'Johnny App',
-                    'user_id': 'U2345BCDE',
-                    'user_name': 'Billy',
-                    'date': '1392163201',
-                    'change_type': 'added',
-                    'scope': 'chat:write:user,channels:read'
-                },
-                {
-                    'service_id': '3456789012',
-                    'service_type': 'Airbrake',
-                    'user_id': 'U3456CDEF',
-                    'user_name': 'Joey',
-                    'channel': 'C1234567890',
-                    'date': '1392163202',
-                    'change_type': 'disabled',
-                    'reason': 'user',
-                    'scope': 'incoming-webhook'
-                }
-            ],
+            'ok':
+            True,
+            'logs': [{
+                'service_id': '1234567890',
+                'service_type': 'Google Calendar',
+                'user_id': 'U1234ABCD',
+                'user_name': 'Johnny',
+                'channel': 'C1234567890',
+                'date': '1392163200',
+                'change_type': 'enabled',
+                'scope': 'incoming-webhook'
+            }, {
+                'app_id': '2345678901',
+                'app_type': 'Johnny App',
+                'user_id': 'U2345BCDE',
+                'user_name': 'Billy',
+                'date': '1392163201',
+                'change_type': 'added',
+                'scope': 'chat:write:user,channels:read'
+            }, {
+                'service_id': '3456789012',
+                'service_type': 'Airbrake',
+                'user_id': 'U3456CDEF',
+                'user_name': 'Joey',
+                'channel': 'C1234567890',
+                'date': '1392163202',
+                'change_type': 'disabled',
+                'reason': 'user',
+                'scope': 'incoming-webhook'
+            }],
             'paging': {
                 'count': 3,
                 'total': 3,
@@ -320,10 +325,7 @@ class TestSlackIntegrationsApp:
     def test_gather_integrations_logs(self, requests_mock):
         """SlackIntegrationsApp - Gather Logs Entry Point"""
         logs = self._get_sample_integrations_logs()
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=logs)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         gathered_logs = self._app._gather_logs()
         assert_equal(len(gathered_logs), 3)
@@ -332,10 +334,7 @@ class TestSlackIntegrationsApp:
     def test_gather_integration_logs_filtered(self, requests_mock):
         """SlackIntegrationsApp - Gather Logs - Some Filtered"""
         logs = self._get_sample_integrations_logs()
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=logs)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         self._app._last_timestamp = 1392163201
         gathered_logs = self._app._gather_logs()
@@ -346,10 +345,7 @@ class TestSlackIntegrationsApp:
         """SlackIntegrationsApp - Gather Logs - Basic Pagination Handling"""
         logs = self._get_sample_integrations_logs()
         logs['paging']['pages'] = logs['paging']['pages'] + 1
-        requests_mock.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value=logs)
-        )
+        requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         self._app._last_timestamp = 1392163204
         gathered_logs = self._app._gather_logs()
@@ -357,9 +353,11 @@ class TestSlackIntegrationsApp:
         assert_equal(self._app._next_page, 2)
         assert_equal(True, self._app._more_to_poll)
 
+
 @raises(NotImplementedError)
 def test_type_not_implemented():
     """SlackApp - Subclass Type Not Implemented"""
+
     # pylint: disable=protected-access,abstract-method
     class SlackFakeApp(SlackApp):
         """Fake Slack app that should raise a NotImplementedError"""
@@ -373,9 +371,11 @@ def test_type_not_implemented():
 
     SlackFakeApp._type()
 
+
 @raises(NotImplementedError)
 def test_sleep_not_implemented():
     """SlackApp - Subclass Sleep Seconds Not Implemented"""
+
     # pylint: disable=protected-access,abstract-method
     class SlackFakeApp(SlackApp):
         """Fake Slack app that should raise a NotImplementedError"""
@@ -389,9 +389,11 @@ def test_sleep_not_implemented():
 
     SlackFakeApp._sleep_seconds()
 
+
 @raises(NotImplementedError)
 def test_endpoint_not_implemented():
     """SlackApp - Subclass Endpoint Not Implemented"""
+
     # pylint: disable=protected-access,abstract-method
     class SlackFakeApp(SlackApp):
         """Fake Slack app that should raise a NotImplementedError"""
@@ -405,10 +407,12 @@ def test_endpoint_not_implemented():
 
     SlackFakeApp._endpoint()
 
+
 @mock_ssm
 @raises(NotImplementedError)
 def test_filter_entries_not_implemented():
     """SlackApp - Subclass Filter Entries Not Implemented"""
+
     # pylint: disable=protected-access,abstract-method
     class SlackFakeApp(SlackApp):
         """Fake Slack app that should raise a NotImplementedError"""

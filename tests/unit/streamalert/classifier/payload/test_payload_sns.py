@@ -20,7 +20,8 @@ from streamalert.classifier.payload.sns import SnsPayload
 
 class TestSnsPayload:
     """SnsPayload tests"""
-    # pylint: disable=no-self-use,protected-access
+
+    # pylint: disable=protected-access
 
     def test_pre_parse(self):
         """SnsPayload - Pre Parse"""
@@ -31,9 +32,8 @@ class TestSnsPayload:
                 'MessageId': 'db42ca0e-215c-5f63-9e92-9e2e953c4e6c',
                 'Message': expected_result[0]
             },
-            'EventSubscriptionArn': (
-                'arn:aws:sns:us-east-1:123456789012:foobar:44dbbe73-3aca-4bb1-863b-b82f058c0b19'
-            )
+            'EventSubscriptionArn':
+            ('arn:aws:sns:us-east-1:123456789012:foobar:44dbbe73-3aca-4bb1-863b-b82f058c0b19')
         }
 
         payload = SnsPayload(None, record)

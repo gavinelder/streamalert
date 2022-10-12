@@ -38,15 +38,11 @@ def get_random_alert(key_count, rule_name, omit_rule_desc=False):
     # This default value is set in the rules engine
     rule_description = 'No rule description provided' if omit_rule_desc else 'rule test description'
 
-    return Alert(
-        rule_name,
-        {
-            '{:06}'.format(key): '{:0148X}'.format(random.randrange(16**128))
-            for key in range(key_count)
-        },
-        {'slack:unit_test_channel'},
-        rule_description=rule_description
-    )
+    return Alert(rule_name, {
+        '{:06}'.format(key): '{:0148X}'.format(random.randrange(16**128))
+        for key in range(key_count)
+    }, {'slack:unit_test_channel'},
+        rule_description=rule_description)
 
 
 def get_alert(context=None):
@@ -55,27 +51,23 @@ def get_alert(context=None):
     Args:
         context (dict): Optional alert context
     """
-    return Alert(
-        'cb_binarystore_file_added',
-        {
-            'compressed_size': '9982',
-            'timestamp': '1496947381.18',
-            'node_id': '1',
-            'cb_server': 'cbserver',
-            'size': '21504',
-            'type': 'binarystore.file.added',
-            'file_path': '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip',
-            'md5': '0F9AA55DA3BDE84B35656AD8911A22E1'
-        },
-        {'slack:unit_test_channel'},
+    return Alert('cb_binarystore_file_added', {
+        'compressed_size': '9982',
+        'timestamp': '1496947381.18',
+        'node_id': '1',
+        'cb_server': 'cbserver',
+        'size': '21504',
+        'type': 'binarystore.file.added',
+        'file_path': '/tmp/5DA/AD8/0F9AA55DA3BDE84B35656AD8911A22E1.zip',
+        'md5': '0F9AA55DA3BDE84B35656AD8911A22E1'
+    }, {'slack:unit_test_channel'},
         alert_id='79192344-4a6d-4850-8d06-9c3fef1060a4',
         context=context,
         log_source='carbonblack:binarystore.file.added',
         log_type='json',
         rule_description='Info about this rule and what actions to take',
         source_entity='corp-prefix.prod.cb.region',
-        source_service='s3'
-    )
+        source_service='s3')
 
 
 def remove_temp_secrets():
@@ -86,10 +78,7 @@ def remove_temp_secrets():
 def setup_mock_kms(region, alias):
     client = boto3.client('kms', region_name=region)
     response = client.create_key()
-    client.create_alias(
-        AliasName=alias,
-        TargetKeyId=response['KeyMetadata']['KeyId']
-    )
+    client.create_alias(AliasName=alias, TargetKeyId=response['KeyMetadata']['KeyId'])
 
 
 def encrypt_with_kms(data, region, alias):

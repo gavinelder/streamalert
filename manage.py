@@ -56,60 +56,41 @@ For additional help with any command above, try:
 
         {} [command] --help
 """
-    parser = ArgumentParser(
-        formatter_class=RawDescriptionHelpFormatter,
-        prog=__file__
-    )
+    parser = ArgumentParser(formatter_class=RawDescriptionHelpFormatter, prog=__file__)
 
-    parser.add_argument(
-        '-v',
-        '--version',
-        action='version',
-        version=version
-    )
+    parser.add_argument('-v', '--version', action='version', version=version)
 
-    parser.add_argument(
-        '-d',
-        '--debug',
-        help='enable debugging logger output for all of the StreamAlert loggers',
-        action='store_true'
-    )
+    parser.add_argument('-d',
+                        '--debug',
+                        help='enable debugging logger output for all of the StreamAlert loggers',
+                        action='store_true')
 
-    parser.add_argument(
-        '-c',
-        '--config-dir',
-        default=DEFAULT_CONFIG_PATH,
-        help='Path to directory containing configuration files',
-        type=DirectoryType()
-    )
+    parser.add_argument('-c',
+                        '--config-dir',
+                        default=DEFAULT_CONFIG_PATH,
+                        help='Path to directory containing configuration files',
+                        type=DirectoryType())
 
-    parser.add_argument(
-        '-t',
-        '--terraform-file',
-        dest='terraform_files',
-        help=(
-            'Path to one or more additional Terraform configuration '
-            'files to include in this deployment'
-        ),
-        action=UniqueSortedFileListAppendAction,
-        type=FileType('r'),
-        default=[]
-    )
+    parser.add_argument('-t',
+                        '--terraform-file',
+                        dest='terraform_files',
+                        help=('Path to one or more additional Terraform configuration '
+                              'files to include in this deployment'),
+                        action=UniqueSortedFileListAppendAction,
+                        type=FileType('r'),
+                        default=[])
 
     parser.add_argument(
         '-b',
         '--build-directory',
-        help=(
-            'Path to directory to use for building StreamAlert and its infrastructure. '
-            'If no path is provided, a temporary directory will be used.'
-        ),
-        type=str
-    )
+        help=('Path to directory to use for building StreamAlert and its infrastructure. '
+              'If no path is provided, a temporary directory will be used.'),
+        type=str)
 
     # Dynamically generate subparsers, and create a 'commands' block for the prog description
     command_block = []
     subparsers = parser.add_subparsers(dest='command', required=True)
-    command_col_size = max([len(command) for command in commands]) + 10
+    command_col_size = max(len(command) for command in commands) + 10
     for command in sorted(commands):
         setup_subparser_func, description = commands[command]
         subparser = generate_subparser(subparsers, command, description=description)
@@ -118,20 +99,12 @@ For additional help with any command above, try:
         if setup_subparser_func:
             setup_subparser_func(subparser)
 
-        command_block.append(
-            '\t{command: <{pad}}{description}'.format(
-                command=command,
-                pad=command_col_size,
-                description=description
-            )
-        )
+        command_block.append('\t{command: <{pad}}{description}'.format(command=command,
+                                                                       pad=command_col_size,
+                                                                       description=description))
 
     # Update the description on the top level parser
-    parser.description = description_template.format(
-        version,
-        '\n'.join(command_block),
-        __file__
-    )
+    parser.description = description_template.format(version, '\n'.join(command_block), __file__)
 
     parser.epilog = 'Issues? Please report here: https://github.com/airbnb/streamalert/issues'
 

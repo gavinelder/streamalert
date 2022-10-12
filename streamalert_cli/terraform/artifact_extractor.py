@@ -1,4 +1,3 @@
-
 """
 Copyright 2017-present Airbnb, Inc.
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +19,7 @@ from streamalert_cli.terraform.common import infinitedict
 
 # FIXME: Should we provide custom artifacs table name?
 DEFAULT_ARTIFACTS_TABLE_NAME = 'artifacts'
+
 
 def generate_artifact_extractor(config):
     """Generate Terraform for the Artifact Extractor Lambda function

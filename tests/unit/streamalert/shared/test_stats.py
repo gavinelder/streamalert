@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-# pylint: disable=no-self-use,attribute-defined-outside-init
+# pylint: disable=attribute-defined-outside-init
 from collections import namedtuple
 
 from mock import Mock, patch
@@ -24,6 +24,7 @@ from streamalert.shared import stats
 
 class TestRuleStats:
     """TestRuleStats class"""
+
     def setup(self):
         stats.RuleStatisticTracker.STATS.clear()
         self._fake_rule = namedtuple('Rule', ['name', 'process'])('test_rule', lambda r: False)
@@ -77,17 +78,16 @@ class TestRuleStats:
         result = stats.RuleStatisticTracker.statistics_info()
         assert_equal(
             result,
-            'Rule statistics:\n\ntest_rule       10.00000000 ms       1 calls     10.00000000 avg'
-        )
+            'Rule statistics:\n\ntest_rule       10.00000000 ms       1 calls     10.00000000 avg')
 
-    def test_get_rule_stats_retain(self,):
+    def test_get_rule_stats_retain(self, ):
         """RuleStatisticTracker - Statistics Info, Retain Results"""
         self._tracker.run_rule(self._fake_rule, {})
         assert_equal(len(self._tracker.STATS), 1)
         new_tracker = stats.RuleStatisticTracker(True, False)
         assert_equal(len(new_tracker.STATS), 1)
 
-    def test_get_rule_stats_reset(self,):
+    def test_get_rule_stats_reset(self, ):
         """RuleStatisticTracker - Statistics Info, Reset"""
         self._tracker.run_rule(self._fake_rule, {})
         assert_equal(len(self._tracker.STATS), 1)

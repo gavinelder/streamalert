@@ -31,11 +31,9 @@ class TestKinesisClient:
         self._client = MagicMock(name='KinesisClient')
 
         self._logger = MagicMock()
-        self._kinesis = KinesisClient(
-            client=self._client,
-            kinesis_stream='zabsbsbf',
-            logger=self._logger
-        )
+        self._kinesis = KinesisClient(client=self._client,
+                                      kinesis_stream='zabsbsbf',
+                                      logger=self._logger)
 
     def test_success(self):
         """StreamQuery - KinesisClient - send_query_results - positive case"""
@@ -54,11 +52,7 @@ class TestKinesisClient:
         query_pack.query_execution.engine_execution_time_in_millis = 345
         query_pack.query_pack_configuration.tags = ['daily']
 
-        self._client.put_records.return_value = {
-            'ResponseMetadata': {
-                'HTTPStatusCode': 200
-            }
-        }
+        self._client.put_records.return_value = {'ResponseMetadata': {'HTTPStatusCode': 200}}
 
         self._kinesis.send_query_results(query_pack)
 
@@ -82,11 +76,7 @@ class TestKinesisClient:
         query_pack.query_execution.engine_execution_time_in_millis = 345
         query_pack.query_pack_configuration.tags = ['daily']
 
-        self._client.put_records.return_value = {
-            'ResponseMetadata': {
-                'HTTPStatusCode': 400
-            }
-        }
+        self._client.put_records.return_value = {'ResponseMetadata': {'HTTPStatusCode': 400}}
 
         self._kinesis.send_query_results(query_pack)
 
@@ -112,11 +102,7 @@ class TestKinesisClient:
 
         query_pack.query_execution.status_description = 'ERROR'
 
-        self._client.put_records.return_value = {
-            'ResponseMetadata': {
-                'HTTPStatusCode': 200
-            }
-        }
+        self._client.put_records.return_value = {'ResponseMetadata': {'HTTPStatusCode': 200}}
 
         self._kinesis.send_error_results(query_pack)
 

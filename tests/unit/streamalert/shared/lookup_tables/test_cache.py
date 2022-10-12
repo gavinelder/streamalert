@@ -26,7 +26,8 @@ class TestDriverCache:
 
     This was largely ported over from test_lookup_tables.py from the old implementation.
     """
-    # pylint: disable=protected-access,attribute-defined-outside-init,no-self-use
+
+    # pylint: disable=protected-access,attribute-defined-outside-init
     def setup(self):
         self._cache = DriverCache()
 

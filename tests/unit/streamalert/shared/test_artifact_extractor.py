@@ -16,10 +16,7 @@ limitations under the License.
 from mock import call, patch
 from nose.tools import assert_equal
 
-from streamalert.shared.artifact_extractor import (
-    Artifact,
-    ArtifactExtractor
-)
+from streamalert.shared.artifact_extractor import (Artifact, ArtifactExtractor)
 from streamalert.shared.firehose import FirehoseClient
 from tests.unit.streamalert.shared.test_utils import (
     generate_artifacts,
@@ -31,15 +28,13 @@ from tests.unit.streamalert.shared.test_utils import (
 class TestArtifact:
     """Test Artifact class"""
 
-    def test_record(self): # pylint: disable=no-self-use
+    def test_record(self):
         """Artifact - Test record property in the Artifact class"""
-        artifact = Artifact(
-            normalized_type='test_normalized_type',
-            value='test_value',
-            source_type='test_source_type',
-            record_id='test_record_id',
-            function=None
-        )
+        artifact = Artifact(normalized_type='test_normalized_type',
+                            value='test_value',
+                            source_type='test_source_type',
+                            record_id='test_record_id',
+                            function=None)
         expected_result = {
             'function': 'None',
             'streamalert_record_id': 'test_record_id',
@@ -53,7 +48,8 @@ class TestArtifact:
 
 class TestArtifactExtractor:
     """Test ArtifactExtractor class """
-    # pylint: disable=attribute-defined-outside-init,protected-access,no-self-use
+
+    # pylint: disable=attribute-defined-outside-init,protected-access
 
     def setup(self):
         """Setup before each method"""
@@ -75,7 +71,7 @@ class TestArtifactExtractor:
             call.debug('Extracted %d artifact(s)', 0)
         ])
 
-        assert_equal(self._artifact_extractor._artifacts, list())
+        assert_equal(self._artifact_extractor._artifacts, [])
 
     @patch('uuid.uuid4')
     @patch.object(FirehoseClient, '_send_batch')
@@ -90,10 +86,7 @@ class TestArtifactExtractor:
             call.debug('Extracted %d artifact(s)', 6)
         ])
 
-        send_batch_mock.assert_called_with(
-            'unit_test_dst_fh_arn',
-            generate_artifacts(firehose_records=True),
-            'classifier'
-        )
+        send_batch_mock.assert_called_with('unit_test_dst_fh_arn',
+                                           generate_artifacts(firehose_records=True), 'classifier')
 
         assert_equal(self._artifact_extractor._artifacts, generate_artifacts())
