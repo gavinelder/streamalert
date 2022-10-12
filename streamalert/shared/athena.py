@@ -37,7 +37,6 @@ class AthenaClient:
     Attributes:
         database: Athena database name where tables will be queried
     """
-
     def __init__(self, database_name, results_bucket, results_prefix, region=None):
         """Initialize the Boto3 Athena Client, and S3 results bucket/key
 
@@ -125,7 +124,7 @@ class AthenaClient:
                 QueryExecutionContext={'Database': self.database},
                 ResultConfiguration={'OutputLocation': self.results_path})
         except ClientError as err:
-            raise AthenaQueryExecutionError(f'Athena query failed:\n{err}')
+            raise AthenaQueryExecutionError(f'Athena query failed:\n{err}') from err
 
     def drop_all_tables(self):
         """Drop all table in the database
@@ -193,13 +192,13 @@ class AthenaClient:
 
         states_to_backoff = {'QUEUED', 'RUNNING'}
 
-        @backoff.on_predicate(backoff.fibo,
-                              lambda resp:
-                              resp['QueryExecution']['Status']['State'] in states_to_backoff,
-                              max_value=10,
-                              jitter=backoff.full_jitter,
-                              on_backoff=backoff_handler(),
-                              on_success=success_handler(True))
+        @backoff.on_predicate(
+            backoff.fibo,
+            lambda resp: resp['QueryExecution']['Status']['State'] in states_to_backoff,
+            max_value=10,
+            jitter=backoff.full_jitter,
+            on_backoff=backoff_handler(),
+            on_success=success_handler(True))
         def _check_status(query_execution_id):
             return self._client.get_query_execution(QueryExecutionId=query_execution_id)
 

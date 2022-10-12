@@ -19,7 +19,7 @@ import os
 from collections import OrderedDict
 
 from botocore.exceptions import ClientError
-from mock import patch, MagicMock
+from unittest.mock import patch, MagicMock
 from moto import mock_kms, mock_ssm
 from nose.tools import (
     assert_equal,

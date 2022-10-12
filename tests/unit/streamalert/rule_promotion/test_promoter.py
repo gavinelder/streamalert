@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 import os
 
 from boto3 import client
-from mock import Mock, patch, PropertyMock
+from unittest.mock import Mock, patch, PropertyMock
 from moto import mock_dynamodb2
 from nose.tools import assert_equal
 

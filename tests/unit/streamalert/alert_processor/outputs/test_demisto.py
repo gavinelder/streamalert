@@ -17,7 +17,7 @@ limitations under the License.
 from collections import OrderedDict
 from datetime import datetime
 
-from mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock
 from nose.tools import assert_is_instance, assert_true, assert_false, assert_equal
 
 from streamalert.alert_processor.helpers import compose_alert

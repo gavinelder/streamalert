@@ -23,7 +23,6 @@ class ServiceContainer:
 
     @see https://symfony.com/doc/current/service_container.html
     """
-
     def __init__(self, parameters):
         self._services = {}
         self._parameters = parameters

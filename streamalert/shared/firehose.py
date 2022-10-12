@@ -106,7 +106,7 @@ class FirehoseClient:
             # Check if the max size of the batch has been reached or if the current
             # record will exceed the max batch size and start a new batch
             if ((len(current_batch) == cls.MAX_BATCH_COUNT) or
-                    (current_batch_size + line_len > cls.MAX_BATCH_SIZE)) and current_batch:
+                (current_batch_size + line_len > cls.MAX_BATCH_SIZE)) and current_batch:
                 yield current_batch[:]
                 current_batch_size = 0
                 del current_batch[:]
@@ -316,8 +316,10 @@ class FirehoseClient:
 
         # combine the base_name and first 8 chars of hash result together as new
         # stream name.
-        return f'{base_name}{hashlib.md5(stream_name.encode(),usedforsecurity=False).hexdigest()}'[
-            : cls . AWS_FIREHOSE_NAME_MAX_LEN]
+        return f'{base_name}{hashlib.md5(stream_name.encode(),usedforsecurity=False).hexdigest()}'[:
+                                                                                                   cls
+                                                                                                   .
+                                                                                                   AWS_FIREHOSE_NAME_MAX_LEN]
 
     @classmethod
     def artifacts_firehose_stream_name(cls, config):

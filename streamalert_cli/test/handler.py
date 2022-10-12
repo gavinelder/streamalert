@@ -17,7 +17,7 @@ import argparse
 import os
 
 import jmespath
-from mock import patch, MagicMock
+from unittest.mock import patch, MagicMock
 
 from streamalert.alert_processor import main as alert_processor
 from streamalert.alert_processor.helpers import compose_alert
@@ -335,7 +335,8 @@ class TestRunner:
             if 'CLUSTER' not in os.environ:
                 error = (
                     f"""Test event's "service" ({event.service}) and "source" ({event.source}) are not defined within the"""
-                    f""" "data_sources"of any configured clusters: {event_file.path}:{event.index}""")
+                    f""" "data_sources"of any configured clusters: {event_file.path}:{event.index}"""
+                )
                 raise ConfigError(error)
 
             classifier_result = self._run_classification(event.record)
@@ -402,7 +403,7 @@ class TestRunner:
             if files := [
                     file for file in sorted(test_event_files)
                     if os.path.splitext(file)[1] == '.json'
-                ]:
+            ]:
                 yield root, files
 
 

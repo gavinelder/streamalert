@@ -17,7 +17,7 @@ limitations under the License.
 import os
 import importlib
 
-from mock import patch, ANY
+from unittest.mock import patch, ANY
 from nose.tools import assert_equal
 
 from streamalert import shared
@@ -25,7 +25,6 @@ from streamalert import shared
 
 class TestMetrics:
     """Test class for Metrics class"""
-
     def setup(self):
         """Setup before each method"""
         os.environ['ENABLE_METRICS'] = '1'

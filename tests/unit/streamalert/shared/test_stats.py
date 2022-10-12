@@ -16,7 +16,7 @@ limitations under the License.
 # pylint: disable=attribute-defined-outside-init
 from collections import namedtuple
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from nose.tools import assert_equal
 
 from streamalert.shared import stats
@@ -24,7 +24,6 @@ from streamalert.shared import stats
 
 class TestRuleStats:
     """TestRuleStats class"""
-
     def setup(self):
         stats.RuleStatisticTracker.STATS.clear()
         self._fake_rule = namedtuple('Rule', ['name', 'process'])('test_rule', lambda r: False)

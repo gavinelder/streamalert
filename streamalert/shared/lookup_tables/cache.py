@@ -38,7 +38,6 @@ class DriverCache:
 
         return cache.get(key, default)
     """
-
     def __init__(self, maximum_key_count=0):
         """
         Constructor
@@ -161,7 +160,6 @@ class DriverCacheClock:
     """
     The DriverCacheClock is a convenient utility that is useful for manipulating time during tests.
     """
-
     def __init__(self):
         self._time_machine = None
 

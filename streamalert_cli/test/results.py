@@ -72,7 +72,7 @@ class TestResult(TestEvent):
 
     def __str__(self):
         fmt = {
-            'header': 'Test #{idx:02d}'.format(idx=self._index + 1),
+            'header': f'Test #{self._index + 1:02d}',
         }
 
         if self.error:
@@ -207,7 +207,7 @@ class TestResult(TestEvent):
             result_block.append(
                 fmt.format(pad_char=' ',
                            pad=self._DEFAULT_INDENT * 4,
-                           line='Rule: {rule_name}'.format(rule_name=format_underline(rule_name))))
+                           line=f'Rule: {format_underline(rule_name)}'))
 
             result_block.extend(
                 fmt.format(pad_char=' ',
@@ -272,12 +272,10 @@ class TestResult(TestEvent):
 
             [output:descriptor]: (Error Type) Error message
         """
-        return [
-            (
-                f"""{item['output_descriptor']}: {f"({type(item['error']).__name__})" if item['error'] else ""} {item['error']}"""
-            )
-            for item in self._publication_results if not item['success']
-        ] if self.publisher_tests_were_run else []
+        return [(
+            f"""{item['output_descriptor']}: {f"({type(item['error']).__name__})" if item['error'] else ""} {item['error']}"""
+        ) for item in self._publication_results
+                if not item['success']] if self.publisher_tests_were_run else []
 
     @property
     def count_publisher_tests_passed(self):

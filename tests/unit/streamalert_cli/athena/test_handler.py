@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 # pylint: disable=protected-access
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from nose.tools import assert_equal, assert_true
 
 from streamalert.shared.firehose import FirehoseClient

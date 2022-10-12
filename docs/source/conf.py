@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # streamalert documentation build configuration file, created by
 # sphinx-quickstart on Mon Jan 23 21:19:26 2017.
@@ -54,9 +53,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'StreamAlert'
-copyright = u'Airbnb, Inc.'
-author = u''
+project = 'StreamAlert'
+copyright = 'Airbnb, Inc.'
+author = ''
 
 # Use a custom favicon
 html_favicon = '../images/sa-square-logo-standalone.png'
@@ -66,7 +65,7 @@ html_favicon = '../images/sa-square-logo-standalone.png'
 # built documents.
 
 # We want both the |version| and the |release| to be the full X.Y.Z version string.
-with open('../../streamalert/__init__.py', 'r') as version_file:
+with open('../../streamalert/__init__.py') as version_file:
     release = re.search(r"^__version__ = ['\"]([^'\"]+)['\"]", version_file.read(), re.MULTILINE)[1]
 
 version = release
@@ -136,14 +135,14 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'streamalert.tex', u'streamalert Documentation', u'airbnb', 'manual'),
+    (master_doc, 'streamalert.tex', 'streamalert Documentation', 'airbnb', 'manual'),
 ]
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, 'streamalert', u'streamalert Documentation', [author], 1)]
+man_pages = [(master_doc, 'streamalert', 'streamalert Documentation', [author], 1)]
 
 # -- Options for Texinfo output -------------------------------------------
 
@@ -151,6 +150,6 @@ man_pages = [(master_doc, 'streamalert', u'streamalert Documentation', [author],
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'streamalert', u'streamalert Documentation', author, 'streamalert',
+    (master_doc, 'streamalert', 'streamalert Documentation', author, 'streamalert',
      'One line description of project.', 'Miscellaneous'),
 ]

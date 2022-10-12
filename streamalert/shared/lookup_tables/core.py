@@ -72,7 +72,6 @@ class LookupTablesCore:
 
     This is designed to be a drop-in replacement for the original LookupTables class.
     """
-
     def __init__(self, config):
         self._configuration = LookupTablesConfiguration(config=config)
         self._tables = {}  # type: Dict[str, LookupTable]

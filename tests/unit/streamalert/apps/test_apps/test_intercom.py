@@ -1,6 +1,6 @@
 import os
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from moto import mock_ssm
 from nose.tools import (assert_equal, assert_false, assert_count_equal, assert_is_none)
 # import requests

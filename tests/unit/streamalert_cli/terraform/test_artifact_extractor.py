@@ -23,7 +23,6 @@ from streamalert_cli.terraform import artifact_extractor
 
 class TestTerraformArtifactExtractor:
     """Test class for test generating Artifact Extractor terrform modules"""
-
     def __init__(self):
         """Init config for the test cases"""
         self.config = CLIConfig(config_path='tests/unit/conf')

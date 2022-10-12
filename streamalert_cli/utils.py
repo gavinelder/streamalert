@@ -77,7 +77,6 @@ class CLICommand:
 
 class UniqueSortedListAction(Action):
     """Subclass of argparse.Action to avoid multiple of the same choice from a list"""
-
     def __call__(self, parser, namespace, values, option_string=None):
         unique_items = set(values)
         setattr(namespace, self.dest, sorted(unique_items))  # We want this to be consistent
@@ -85,7 +84,6 @@ class UniqueSortedListAction(Action):
 
 class UniqueSortedFileListAction(Action):
     """Subclass of argparse.Action to avoid multiple of the same choice from a list of files"""
-
     def __call__(self, parser, namespace, values, option_string=None):
         unique_items = {value.name for value in values}
         setattr(namespace, self.dest, sorted(unique_items))  # We want this to be consistent
@@ -96,7 +94,6 @@ class UniqueSortedFileListAppendAction(_AppendAction):
 
     This is meant to augment the 'append' argparse action
     """
-
     def __call__(self, parser, namespace, value, option_string=None):
         unique_items = set(getattr(namespace, self.dest, set()))
         unique_items.add(value.name)
@@ -105,7 +102,6 @@ class UniqueSortedFileListAppendAction(_AppendAction):
 
 class MutuallyExclusiveStagingAction(Action):
     """Subclass of argparse.Action to avoid staging and unstaging the same rules"""
-
     def __call__(self, parser, namespace, values, option_string=None):
         unique_items = set(values)
         error = ('The following rules cannot be within both the \'--stage-rules\' argument '
@@ -121,7 +117,6 @@ class MutuallyExclusiveStagingAction(Action):
 
 class DirectoryType:
     """Factory for ensuring a directory exists"""
-
     def __call__(self, value):
         if os.path.isdir(value):
             return value
@@ -190,7 +185,7 @@ def add_schedule_expression_arg(parser):
 
         if val.startswith('rate('):
             err = ('Invalid rate expression \'{}\'. For help see {}'.format(
-                val, '{}#RateExpressions'.format(AWS_RATE_HELPER)))
+                val, f'{AWS_RATE_HELPER}#RateExpressions'))
             raise parser.error(err)
 
         raise parser.error('Invalid expression \'{}\'. For help '
@@ -255,9 +250,9 @@ def add_default_lambda_args(lambda_parser):
         choices=functions,
         default=functions,
         metavar='FUNCTIONS',
-        help=(
-            f"One or more of the following functions to perform this action against: {', '.join(functions)}. "
-            f"If omitted, this action will be performed against all functions."),
+        help=
+        (f"One or more of the following functions to perform this action against: {', '.join(functions)}. "
+         f"If omitted, this action will be performed against all functions."),
         nargs='+',
         action=UniqueSortedListAction)
 

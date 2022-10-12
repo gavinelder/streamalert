@@ -16,7 +16,7 @@ limitations under the License.
 # pylint: disable=protected-access
 import unittest
 
-from mock import patch
+from unittest.mock import patch
 from nose.tools import assert_equal
 
 from streamalert_cli.manage_lambda import deploy
@@ -25,7 +25,6 @@ from tests.unit.helpers.config import basic_streamalert_config
 
 class DeployTest(unittest.TestCase):
     """DeployTest class for testing deployment functions"""
-
     def test_lambda_terraform_targets(self):
         """CLI - Deploy, Lambda Terraform Targets"""
         config = basic_streamalert_config()

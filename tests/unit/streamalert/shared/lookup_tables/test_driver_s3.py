@@ -19,7 +19,7 @@ import zlib
 
 import botocore
 from botocore.exceptions import ReadTimeoutError
-from mock import patch, ANY, MagicMock
+from unittest.mock import patch, ANY, MagicMock
 from moto import mock_s3
 from nose.tools import assert_equal, assert_raises
 

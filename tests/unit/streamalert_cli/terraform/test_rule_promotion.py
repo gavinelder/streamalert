@@ -21,7 +21,6 @@ from streamalert_cli.terraform import rule_promotion
 
 class TestRulePromotion:
     """Test the Terraform generation for the rule promotion function"""
-
     def setup(self):
         """Create the CLIConfig and the expected template for these tests."""
         # pylint: disable=attribute-defined-outside-init

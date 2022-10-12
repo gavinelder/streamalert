@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from datetime import datetime, timezone
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 from nose.tools import assert_equals, assert_false, assert_true
 
 from streamalert.scheduled_queries.query_packs.manager import (

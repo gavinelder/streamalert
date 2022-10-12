@@ -77,7 +77,6 @@ class CompositePublisher(AlertPublisher):
           It is only meant to be composed by AlertPublisherRepository to give a common interface to
           multiple publishers chained in sequence.
     """
-
     def __init__(self, publishers):
         self._publishers = publishers  # Type list(AlertPublisher)
 
@@ -100,7 +99,6 @@ class CompositePublisher(AlertPublisher):
 
 class WrappedFunctionPublisher(AlertPublisher):
     """A class only used to wrap a function publisher."""
-
     def __init__(self, function):
         self._function = function
 
@@ -255,6 +253,5 @@ class AlertPublisherRepository:
 @Register
 class DefaultPublisher(AlertPublisher):
     """The default publisher that is used when no other publishers are provided"""
-
     def publish(self, alert, publication):
         return alert.output_dict()

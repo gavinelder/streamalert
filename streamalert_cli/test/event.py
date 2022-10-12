@@ -19,7 +19,7 @@ import re
 import time
 import zlib
 
-from mock import patch
+from unittest.mock import patch
 
 from streamalert.classifier.parsers import ParserBase
 from streamalert.shared import rule
@@ -150,7 +150,7 @@ class TestEvent:
             return False
 
         if key_diff := test_event_keys.difference(self.REQUIRED_KEYS | self.OPTIONAL_KEYS
-                                         | self.ACCEPTABLE_DATA_KEYS):
+                                                  | self.ACCEPTABLE_DATA_KEYS):
             extra_keys = ', '.join(f"\'{key}\'" for key in key_diff)
             LOGGER.warning('Additional unnecessary keys in test event: %s', extra_keys)
 

@@ -17,7 +17,7 @@ limitations under the License.
 from datetime import datetime, timedelta
 import os
 
-from mock import ANY, call, patch, MagicMock
+from unittest.mock import ANY, call, patch, MagicMock
 from moto import mock_dynamodb2, mock_lambda
 from nose.tools import assert_equal, assert_false, assert_true
 
@@ -32,7 +32,6 @@ _ALERT_PROCESSOR_TIMEOUT_SEC = 60
 
 class TestAlertMergeGroup:
     """Tests for merger/main.py:AlertMergeGroup class"""
-
     def test_add_mergeable(self):
         """Alert Merger - Merge Group - Add Alert to Group"""
         alert = Alert('', {'key': True},
@@ -118,10 +117,10 @@ class TestAlertMerger:
                 'key': True,
                 'other': True
             },
-                set(),
-                created=datetime(year=2000, month=1, day=1),
-                merge_by_keys=['key'],
-                merge_window=timedelta(minutes=5))
+                  set(),
+                  created=datetime(year=2000, month=1, day=1),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5))
         ]
 
         groups = main.AlertMerger._merge_groups(alerts)
@@ -165,18 +164,18 @@ class TestAlertMerger:
                 'key': 'A',
                 'other': 'B'
             },
-                set(),
-                created=datetime(year=2000, month=1, day=1, minute=4),
-                merge_by_keys=['key', 'other'],
-                merge_window=timedelta(minutes=5)),
+                  set(),
+                  created=datetime(year=2000, month=1, day=1, minute=4),
+                  merge_by_keys=['key', 'other'],
+                  merge_window=timedelta(minutes=5)),
             Alert('same_rule_name', {
                 'key': 'A',
                 'other': 'B'
             },
-                set(),
-                created=datetime(year=2000, month=1, day=1, minute=5),
-                merge_by_keys=['key', 'other'],
-                merge_window=timedelta(minutes=5)),
+                  set(),
+                  created=datetime(year=2000, month=1, day=1, minute=5),
+                  merge_by_keys=['key', 'other'],
+                  merge_window=timedelta(minutes=5)),
 
             # Merge group 4 - key A minutes 50-55
             Alert('same_rule_name', {'key': 'A'},
@@ -236,9 +235,9 @@ class TestAlertMerger:
                 'key': True,
                 'other': 'abc' * 50
             }, {'output'},
-                created=datetime(year=2000, month=1, day=1, minute=1),
-                merge_by_keys=['key'],
-                merge_window=timedelta(minutes=5)),
+                  created=datetime(year=2000, month=1, day=1, minute=1),
+                  merge_by_keys=['key'],
+                  merge_window=timedelta(minutes=5)),
 
             # Alert which has already sent successfully (will be deleted)
             Alert('already_sent', {}, {'output'}, outputs_sent={'output'})
@@ -252,7 +251,7 @@ class TestAlertMerger:
             call.info('Dispatching %s to %s (attempt %d)', ANY, _ALERT_PROCESSOR, 1),
             call.info('Dispatching %s to %s (attempt %d)', ANY, _ALERT_PROCESSOR, 1)
         ],
-            any_order=True)
+                                     any_order=True)
 
     @patch.object(main, 'LOGGER')
     def test_dispatch_no_alerts(self, mock_logger):

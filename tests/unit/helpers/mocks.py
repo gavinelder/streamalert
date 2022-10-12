@@ -22,7 +22,6 @@ class MockCBAPI:
     """Mock for CbResponseAPI"""
     class MockBannedHash:
         """Mock for cbapi.response.BannedHash"""
-
         def __init__(self):
             self.enabled = True
             self.md5hash = None
@@ -34,7 +33,6 @@ class MockCBAPI:
 
     class MockBinary:
         """Mock for cbapi.response.Binary"""
-
         def __init__(self, banned, enabled, md5):
             self._banned = banned
             self._enabled = enabled

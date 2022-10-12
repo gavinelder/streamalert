@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from datetime import datetime
-from mock import patch
+from unittest.mock import patch
 
 from botocore.exceptions import ReadTimeoutError
 from moto import mock_dynamodb2
@@ -204,7 +204,6 @@ class TestDynamoDBDriver_MultiTable:
     Tests the DynamoDB Driver, but it tests with a variety of drivers built over the same table,
     different columns.
     """
-
     def setup(self):
         """LookupTables - Setup S3 bucket mocking"""
         self.config = load_config('tests/unit/conf')

@@ -17,7 +17,7 @@ limitations under the License.
 import unittest
 
 from botocore.exceptions import ClientError
-import mock
+from unittest import mock
 from nose.tools import assert_equal
 
 from streamalert_cli.manage_lambda import rollback
@@ -26,7 +26,6 @@ from tests.unit.helpers.config import basic_streamalert_config, MockCLIConfig
 
 class MockOptions:
     """Simple mock for the options parsed from the command line arguments."""
-
     def __init__(self, clusters, function):
         self.clusters = clusters
         self.functions = function

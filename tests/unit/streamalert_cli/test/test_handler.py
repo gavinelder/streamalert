@@ -16,8 +16,8 @@ limitations under the License.
 from io import StringIO
 import os
 
-import mock
-from mock import patch, MagicMock, Mock
+from unittest import mock
+from unittest.mock import patch, MagicMock, Mock
 from nose.tools import assert_equal, assert_raises, nottest
 from pyfakefs import fake_filesystem_unittest
 
@@ -66,7 +66,7 @@ class TestTestRunner(fake_filesystem_unittest.TestCase):
             mock.call('Cluster "%s" does not have service "%s" configured as a data source',
                       'trusted', 's3')
         ],
-            any_order=True)
+                                  any_order=True)
 
     @patch('logging.Logger.debug')
     def test_process_test_file_bad_source(self, log_mock):
@@ -88,7 +88,7 @@ class TestTestRunner(fake_filesystem_unittest.TestCase):
                 'Cluster "%s" does not have the source "%s" configured as a data source '
                 'for service "%s"', 'test', 'nonexistent_source', 'kinesis'),
         ],
-            any_order=True)
+                                  any_order=True)
 
     @patch('sys.stdout', new=StringIO())  # patch stdout to suppress integration test result
     def test_process_test_file(self):

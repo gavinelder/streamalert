@@ -58,7 +58,7 @@ class AliyunApp(AppIntegration):
     _READ_TIMEOUT = 15
 
     def __init__(self, event, context):
-        super(AliyunApp, self).__init__(event, context)
+        super().__init__(event, context)
         auth = self._config.auth
         self.client = AcsClient(auth['access_key_id'], auth['access_key_secret'], auth['region_id'])
 

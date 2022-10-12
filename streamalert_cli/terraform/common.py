@@ -109,6 +109,6 @@ def generate_tf_outputs(cluster_dict, module_name, outputs):
     """
     for output_var in sorted(outputs):
         cluster_dict['output'][f'{module_name}_{output_var}'] = {
-            'value': '${{module.{}.{}}}'.format(module_name, output_var),
+            'value': f'${{module.{module_name}.{output_var}}}',
             'sensitive': 'true'
         }

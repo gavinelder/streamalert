@@ -21,7 +21,6 @@ class StateManager:
 
     The "state" of a StreamQuery execution is encapsulated by
     """
-
     def __init__(self, logger=None):
         self._logger = logger
 
@@ -63,7 +62,6 @@ class StepFunctionStateManager:
     state to the next. In states that execute Lambda functions, the state is passed in via the
     JSON event trigger.
     """
-
     def __init__(self, state_manager, logger, clock):
         self._state_manager = state_manager
         self._logger = logger

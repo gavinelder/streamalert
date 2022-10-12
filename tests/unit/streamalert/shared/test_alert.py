@@ -211,10 +211,10 @@ class TestAlert:
             'key': True,
             'other': True
         },
-            set(),
-            created=datetime(year=2000, month=1, day=1, minute=10),
-            merge_by_keys=['key'],
-            merge_window=timedelta(minutes=10))
+                       set(),
+                       created=datetime(year=2000, month=1, day=1, minute=10),
+                       merge_by_keys=['key'],
+                       merge_window=timedelta(minutes=10))
         assert_true(alert1.can_merge(alert2))
         assert_true(alert2.can_merge(alert1))
 

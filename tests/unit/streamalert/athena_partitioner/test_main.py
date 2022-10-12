@@ -17,7 +17,7 @@ limitations under the License.
 import json
 import os
 
-from mock import Mock, patch, call
+from unittest.mock import Mock, patch, call
 from nose.tools import assert_equal, assert_true
 
 from streamalert.athena_partitioner.main import AthenaPartitioner
@@ -194,7 +194,7 @@ class TestAthenaPartitioner:
         add_mock.return_value = True
         self._partitioner.run(self._create_test_message(1))
         log_mock.assert_called_with('Received notification for object \'%s\' in bucket \'%s\'',
-                                    'parquet/alerts/dt=2017-08-01-14/02/test.json'.encode(),
+                                    b'parquet/alerts/dt=2017-08-01-14/02/test.json',
                                     'unit-test-streamalerts')
 
     @patch('logging.Logger.info')

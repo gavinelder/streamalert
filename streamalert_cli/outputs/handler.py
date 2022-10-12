@@ -139,7 +139,8 @@ class OutputSetSubCommand(CLICommand, OutputSharedMethods):
             'service',
             choices=outputs,
             metavar='SERVICE',
-            help=f"Create a new StreamAlert output for one of the available services: {', '.join(outputs)}"
+            help=
+            f"Create a new StreamAlert output for one of the available services: {', '.join(outputs)}"
         )
 
         # Add the optional update flag, which allows existing outputs to be updated
@@ -232,7 +233,7 @@ class OutputSetFromFileSubCommand(CLICommand, OutputSharedMethods):
             bool: False if errors occurred, True otherwise
         """
         try:
-            with open(options.file, 'r') as json_file_fp:
+            with open(options.file) as json_file_fp:
                 file_contents = json.load(json_file_fp)
         except Exception:  # pylint: disable=broad-except
             LOGGER.error("Error opening file %s", options.file)
@@ -317,7 +318,8 @@ class OutputGenerateSkeletonSubCommand(CLICommand):
             nargs='+',
             metavar='SERVICE',
             default=outputs,
-            help=f"Pass the services to generate the skeleton for from services: {', '.join(outputs)}")
+            help=
+            f"Pass the services to generate the skeleton for from services: {', '.join(outputs)}")
 
         # Add the optional file flag
         generate_skeleton_parser.add_argument(
@@ -382,7 +384,8 @@ class OutputGetSubCommand(CLICommand):
             'service',
             choices=outputs,
             metavar='SERVICE',
-            help=f"Service to pull configured outputs and their secrets, select from: {', '.join(outputs)}"
+            help=
+            f"Service to pull configured outputs and their secrets, select from: {', '.join(outputs)}"
         )
 
         # Add the optional ability to pass multiple descriptors
@@ -456,7 +459,8 @@ class OutputListSubCommand(CLICommand):
             default=outputs,
             nargs='*',
             metavar='SERVICE',
-            help=f"Pass Services to list configured output descriptors, select from: {', '.join(outputs)}"
+            help=
+            f"Pass Services to list configured output descriptors, select from: {', '.join(outputs)}"
         )
 
     @classmethod

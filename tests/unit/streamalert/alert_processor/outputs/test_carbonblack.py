@@ -16,7 +16,7 @@ limitations under the License.
 # pylint: disable=unused-argument,attribute-defined-outside-init,protected-access
 from collections import OrderedDict
 
-from mock import call, patch, Mock, MagicMock
+from unittest.mock import call, patch, Mock, MagicMock
 from nose.tools import assert_false, assert_is_instance, assert_true
 
 from streamalert.alert_processor.outputs import carbonblack

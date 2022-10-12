@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 
 import googleapiclient
 from google.auth import exceptions
-from mock import Mock, mock_open, patch
+from unittest.mock import Mock, mock_open, patch
 from moto import mock_ssm
 from nose.tools import assert_equal, assert_false, assert_count_equal, assert_true, raises
 
@@ -166,7 +166,7 @@ class TestGSuiteReportsApp:
     def test_gather_logs_http_error(self, log_mock):
         """GSuiteReportsApp - Gather Logs, Google API HTTP Error"""
         with patch.object(self._app, '_activities_service') as service_mock:
-            error = googleapiclient.errors.HttpError('response', 'bad'.encode())
+            error = googleapiclient.errors.HttpError('response', b'bad')
             service_mock.list.return_value.execute.side_effect = error
             assert_false(self._app._gather_logs())
             log_mock.assert_called_with('[%s] Failed to execute activities listing', self._app)

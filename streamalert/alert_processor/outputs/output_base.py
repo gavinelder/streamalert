@@ -36,9 +36,8 @@ OutputProperty.__new__.__defaults__ = ('', '', {' ', ':'}, False, False)
 
 class OutputRequestFailure(Exception):
     """OutputRequestFailure handles any HTTP failures"""
-
     def __init__(self, response):
-        super(OutputRequestFailure, self).__init__()
+        super().__init__()
         self.response = response
 
 

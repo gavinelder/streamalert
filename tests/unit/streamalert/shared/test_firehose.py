@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from botocore.exceptions import ClientError
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from nose.tools import assert_equal
 
 from streamalert.shared.firehose import FirehoseClient
@@ -380,13 +380,13 @@ class TestFirehoseClient:
         return [
             Mock(log_schema_type=(
                 'very_very_very_long_log_stream_name_abcdefg_hijklmn_70_characters_long'),
-                parsed_records=[{
-                    'unit_key_01': 1,
-                    'unit_key_02': 'test'
-                }, {
-                    'unit_key_01': 2,
-                    'unit_key_02': 'test'
-                }])
+                 parsed_records=[{
+                     'unit_key_01': 1,
+                     'unit_key_02': 'test'
+                 }, {
+                     'unit_key_01': 2,
+                     'unit_key_02': 'test'
+                 }])
         ]
 
     @patch.object(FirehoseClient, '_send_batch')

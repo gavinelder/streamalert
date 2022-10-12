@@ -43,7 +43,6 @@ class OutputCredentialsProvider:
         get_local_credentials_temp_dir(): Returns full path to a temporary directory where all
             encrypted credentials are cached.
     """
-
     def __init__(self,
                  service_name,
                  config=None,
@@ -180,7 +179,6 @@ class Credentials:
         else:
             return credentials.data()
     """
-
     def __init__(self, data, is_encrypted=False, region=None):
         """
         Args:
@@ -416,7 +414,6 @@ class SSMDriver(CredentialsProvidingDriver):
 
 class LocalFileDriver(CredentialsProvidingDriver, FileDescriptorProvider, CredentialsCachingDriver):
     """Driver for fetching credentials that are saved locally on the filesystem."""
-
     def __init__(self, region, service_name):
         self._region = region
         self._service_name = service_name

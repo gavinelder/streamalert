@@ -33,7 +33,6 @@ LOGGER = get_logger(__name__)
 
 class CLIConfig:
     """A class to load, modify, and display the StreamAlertCLI Config"""
-
     def __init__(self, config_path, extra_terraform_files=None, build_directory=None):
         self.config_path = config_path
         self.config = config.load_config(config_path)
@@ -298,16 +297,15 @@ class CLIConfig:
             if not self._clusters_with_metrics_enabled(function_name):
                 prompt = (
                     f"Metrics are not currently enabled for the \'{function_name}\' function within any cluster. Creating an alarm will "
-                    f"have no effect until metrics are enabled for this function in at least one cluster. Would you still like to continue?")
+                    f"have no effect until metrics are enabled for this function in at least one cluster. Would you still like to continue?"
+                )
 
                 if not continue_prompt(message=prompt):
                     return False
 
         elif not function_config.get('enable_custom_metrics'):
-            prompt = (
-                f"Metrics are not currently enabled for the \'{function_name}\' "
-                f"function. Would you like to enable metrics for this function?"
-            )
+            prompt = (f"Metrics are not currently enabled for the \'{function_name}\' "
+                      f"function. Would you like to enable metrics for this function?")
 
             if continue_prompt(message=prompt):
                 self.toggle_metrics(function_name, enabled=True)
@@ -524,7 +522,7 @@ class CLIConfig:
 
         # Write loaded configuration files
         def format_path(parts):
-            return '{}.json'.format(os.path.join(*parts))
+            return f'{os.path.join(*parts)}.json'
 
         for config_key in self.config:
             path_parts = [self.config_path, config_key]

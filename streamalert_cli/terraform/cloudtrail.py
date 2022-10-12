@@ -89,7 +89,7 @@ def generate_cloudtrail(cluster_name, cluster_dict, config):
             '${{module.cloudtrail_cloudwatch_{}.cloudtrail_to_cloudwatch_logs_role}}'.format(
                 cluster_name))
         module_info['cloudwatch_logs_group_arn'] = (
-            '${{module.cloudtrail_cloudwatch_{}.cloudwatch_logs_group_arn}}'.format(cluster_name))
+            f'${{module.cloudtrail_cloudwatch_{cluster_name}.cloudwatch_logs_group_arn}}')
 
     cluster_dict['module'][f'cloudtrail_{cluster_name}'] = module_info
 

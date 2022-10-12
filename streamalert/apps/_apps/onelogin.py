@@ -31,7 +31,7 @@ class OneLoginApp(AppIntegration):
 
     # Define our authorization headers variable
     def __init__(self, event, config):
-        super(OneLoginApp, self).__init__(event, config)
+        super().__init__(event, config)
         self._auth_headers = None
         self._next_page_url = None
         self._rate_limit_sleep = 0

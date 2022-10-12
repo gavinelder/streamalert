@@ -23,7 +23,6 @@ from streamalert.scheduled_queries.support.clock import Clock
 #  packs. Users can define their own custom parameters.
 class QueryParameterGenerator:
     """This service helps queries generate dynamic parameters."""
-
     def __init__(self, logger, clock):
         self._logger = logger
         self._clock = clock  # type: Clock

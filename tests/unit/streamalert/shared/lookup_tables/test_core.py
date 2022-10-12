@@ -16,7 +16,7 @@ limitations under the License.
 import json
 import zlib
 
-from mock import ANY, patch
+from unittest.mock import ANY, patch
 from moto import mock_s3, mock_dynamodb2
 from nose.tools import assert_equal
 

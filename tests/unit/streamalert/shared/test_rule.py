@@ -16,7 +16,7 @@ limitations under the License.
 # pylint: disable=protected-access
 import hashlib
 
-from mock import patch
+from unittest.mock import patch
 from nose.tools import assert_equal, assert_true, raises
 
 from streamalert.shared import rule, rule_table
@@ -35,7 +35,6 @@ def _test_checksum_doc(_):
 
 class TestRule:
     """TestRule class"""
-
     def setup(self):
         rule.Rule._rules.clear()
 

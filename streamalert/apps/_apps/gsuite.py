@@ -49,7 +49,7 @@ class GSuiteReportsApp(AppIntegration):
     _MAX_EVENT_IDS = 100
 
     def __init__(self, event, context):
-        super(GSuiteReportsApp, self).__init__(event, context)
+        super().__init__(event, context)
         self._activities_service = None
         self._last_event_timestamp = None
         self._next_page_token = None
@@ -195,9 +195,9 @@ class GSuiteReportsApp(AppIntegration):
         def keyfile_validator(keyfile):
             """A JSON formatted (not p12) Google service account private key file key"""
             try:
-                with open(keyfile.strip(), 'r') as json_keyfile:
+                with open(keyfile.strip()) as json_keyfile:
                     keydata = json.load(json_keyfile)
-            except (IOError, ValueError):
+            except (OSError, ValueError):
                 return False
 
             return keydata if cls._load_credentials(keydata) else False

@@ -16,7 +16,7 @@ limitations under the License.
 from collections import OrderedDict
 import os
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from nose.tools import assert_equal, assert_raises
 
 import streamalert.classifier.classifier as classifier_module

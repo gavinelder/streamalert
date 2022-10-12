@@ -16,7 +16,7 @@ limitations under the License.
 # pylint: disable=protected-access,attribute-defined-outside-init,no-member
 import pymsteams
 from pymsteams import TeamsWebhookException
-from mock import MagicMock, Mock, patch, call
+from unittest.mock import MagicMock, Mock, patch, call
 from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert.alert_processor.helpers import compose_alert
@@ -489,4 +489,4 @@ class TestTeamsOutput:
             call('No credentials found for descriptor: %s', descriptor),
             call('Failed to send alert to %s:%s', self.SERVICE, descriptor)
         ],
-            any_order=False)
+                                  any_order=False)

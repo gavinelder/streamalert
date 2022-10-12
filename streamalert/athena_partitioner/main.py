@@ -161,7 +161,7 @@ class AthenaPartitioner:
                 # Example:
                 # PARTITION (dt = '2017-01-01-01') LOCATION 's3://bucket/path/'
                 partition = '(dt = \'{year}-{month}-{day}-{hour}\')'.format(**match.groupdict())
-                location = '\'s3://{bucket}/{path}\''.format(bucket=bucket, path=path)
+                location = f'\'s3://{bucket}/{path}\''
                 # By using the partition as the dict key, this ensures that
                 # Athena will not try to add the same partition twice.
                 # TODO(jacknagz): Write this dictionary to SSM/DynamoDB
@@ -183,7 +183,7 @@ class AthenaPartitioner:
 
         for athena_table in partitions:
             partition_statement = ' '.join([
-                'PARTITION {0} LOCATION {1}'.format(partition, location)
+                f'PARTITION {partition} LOCATION {location}'
                 for partition, location in partitions[athena_table].items()
             ])
             query = ('ALTER TABLE {athena_table} '

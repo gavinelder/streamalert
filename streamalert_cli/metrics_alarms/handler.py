@@ -132,7 +132,8 @@ class CustomMetricsCommand(CLICommand):
             '--functions',
             choices=available_functions,
             metavar='FUNCTION',
-            help=f"One or more of the following functions for which to enable metrics: {', '.join(available_functions)}",
+            help=
+            f"One or more of the following functions for which to enable metrics: {', '.join(available_functions)}",
             nargs='+',
             required=True)
 

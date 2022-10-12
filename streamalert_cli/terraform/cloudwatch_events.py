@@ -67,7 +67,7 @@ def generate_cloudwatch_events(cluster_name, cluster_dict, config):
         'source': './modules/tf_cloudwatch_events',
         'cluster': cluster_name,
         'prefix': config['global']['account']['prefix'],
-        'kinesis_arn': '${{module.kinesis_{}.arn}}'.format(cluster_name),
+        'kinesis_arn': f'${{module.kinesis_{cluster_name}.arn}}',
         # None == null in json objects and terraform 12 supports null variables
         'event_pattern': json.dumps(event_pattern) if event_pattern is not None else event_pattern
     }

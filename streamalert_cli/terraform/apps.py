@@ -49,7 +49,7 @@ def generate_apps(cluster_name, cluster_dict, config):
             'destination_function_name': destination_func,
             'function_name': function_name,
             'region': config['global']['account']['region'],
-            'function_role_id': '${{module.{}_lambda.role_id}}'.format(tf_module_prefix),
+            'function_role_id': f'${{module.{tf_module_prefix}_lambda.role_id}}',
             'source': './modules/tf_app_iam'
         }
 

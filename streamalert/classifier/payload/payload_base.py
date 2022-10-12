@@ -37,7 +37,6 @@ class PayloadRecord:
         invalid_records (list): If some records from this payload record parsed successfully,
             but others failed, this contains the list of failed records
     """
-
     def __init__(self, record_data):
         self._record_data = record_data
         self._parser = None
@@ -71,7 +70,8 @@ class PayloadRecord:
             return (
                 f'<{self.__class__.__name__} valid:{bool(self)}; log type:{self.log_schema_type}; '
                 f'parsed records:{len(self.parsed_records)}; '
-                f'invalid records:{len(self.invalid_records)} ({invalid_records}); raw record:{record_data};>')
+                f'invalid records:{len(self.invalid_records)} ({invalid_records}); raw record:{record_data};>'
+            )
         return (
             f'<{self.__class__.__name__} valid:{bool(self)}; log type:{self.log_schema_type}; parsed records:{len(self.parsed_records)};>'
         )
@@ -176,7 +176,6 @@ class StreamPayload(metaclass=ABCMeta):
         fully_classified (bool): Whether the payload has been successfully
             and completely classified.
     """
-
     def __init__(self, resource, raw_record):
         self.raw_record = raw_record
         self.resource = resource

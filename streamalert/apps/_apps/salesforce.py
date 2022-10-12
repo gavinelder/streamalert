@@ -72,7 +72,7 @@ class SalesforceApp(AppIntegration):
     BACKOFF_MAX_RETRIES = 3
 
     def __init__(self, event, context):
-        super(SalesforceApp, self).__init__(event, context)
+        super().__init__(event, context)
         self._auth_headers = None
         self._instance_url = None
         self._latest_api_version = 0

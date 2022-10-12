@@ -14,14 +14,13 @@ class JsonFileSorter:
     Tests that the conf.json file is formatted properly and is sorted alphabetically
     on the top-level key
     """
-
     def __init__(self):
         self._logger = logging.getLogger()
 
     def sort_json_file(self, file_path):
         self._logger.info(f'Sorting file: {file_path}...')
 
-        with open(file_path, 'r') as infile:
+        with open(file_path) as infile:
             original_text = infile.read().strip()
 
         # Load the JSON document using OrderedDict, as it allows us to preserve the ordering

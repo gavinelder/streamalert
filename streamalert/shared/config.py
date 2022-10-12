@@ -54,7 +54,6 @@ class SchemaSorter:
     If no priority or equal priority is specified for multiple schema, they will
     be sorted in the order they were encountered. The intent of the statefulness
     of this function is that there is no arbitrarily enforced upper bound for priority."""
-
     def __init__(self):
         # Set a default index to -1
         self.max_index = -1
@@ -319,8 +318,8 @@ def _load_json_file(path, ordered=False):
     with open(path) as data:
         try:
             return json.load(data, **kwargs)
-        except ValueError:
-            raise ConfigError(f'Invalid JSON format for {path}')
+        except ValueError as e:
+            raise ConfigError(f'Invalid JSON format for {path}') from e
 
 
 def _validate_config(config):
@@ -391,8 +390,7 @@ def _validate_config(config):
                        for log_keys in list(config[TopLevelConfigKeys.NORMALIZED_TYPES].values())):
                     raise ConfigError(
                         f"IOC key '{normalized_key}' within IOC type '{ioc_type}' :"
-                        f"must be defined for at least one log type in normalized types"
-                    )
+                        f"must be defined for at least one log type in normalized types")
 
 
 def _validate_sources(cluster_name, data_sources, existing_sources):
@@ -407,10 +405,10 @@ def _validate_sources(cluster_name, data_sources, existing_sources):
     # Iterate over each defined source and make sure the required subkeys exist
     if not set(data_sources).issubset(SUPPORTED_SOURCES):
         invalid_sources = set(data_sources) - SUPPORTED_SOURCES
-        raise ConfigError(('The data sources for cluster {} contain invalid source entries: {}. '
-                           'The following sources are supported: {}'.format(
-                               cluster_name, ', '.join(f"'{source}'" for source in invalid_sources),
-                               ', '.join(f"'{source}'" for source in SUPPORTED_SOURCES))))
+        raise ConfigError('The data sources for cluster {} contain invalid source entries: {}. '
+                          'The following sources are supported: {}'.format(
+                              cluster_name, ', '.join(f"'{source}'" for source in invalid_sources),
+                              ', '.join(f"'{source}'" for source in SUPPORTED_SOURCES)))
 
     for attrs in data_sources.values():
         for source, logs in attrs.items():

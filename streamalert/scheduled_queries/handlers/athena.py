@@ -28,7 +28,6 @@ class AthenaQueryExecutionError(Exception):
 #   streamalert/shared/athena.py
 class AthenaClient:
     """A StreamAlert Athena Client for creating tables, databases, and executing queries"""
-
     def __init__(self, logger=None, client=None, database=None, results_bucket=None):
         """Initialize the Boto3 Athena Client, and S3 results bucket/key"""
         self._logger = logger
@@ -68,7 +67,7 @@ class AthenaClient:
 
             return query_execution_id
         except ClientError as err:
-            raise AthenaQueryExecutionError(f'Athena query failed:\n{err}')
+            raise AthenaQueryExecutionError(f'Athena query failed:\n{err}') from err
 
     def get_query_execution(self, query_execution_id):
         """Gets an AthenaQueryExecution object encapsulating the result of a query
@@ -126,7 +125,6 @@ class AthenaQueryExecution:
     See:
         https://docs.aws.amazon.com/cli/latest/reference/athena/get-query-execution.html
     """
-
     def __init__(self, response):
         self._response = response
 
@@ -175,7 +173,6 @@ class AthenaQueryExecution:
 
 class AthenaQueryResult:
     """Encapsulation of a query execution's result"""
-
     def __init__(self, query_execution, result):
         self._query_execution = query_execution
         self._result = result

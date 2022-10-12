@@ -15,7 +15,7 @@ limitations under the License.
 """
 # pylint: disable=protected-access
 
-from mock import call, patch
+from unittest.mock import call, patch
 from nose.tools import assert_equal, assert_raises
 from pyfakefs import fake_filesystem_unittest
 
@@ -75,4 +75,4 @@ class RuleImportTest(fake_filesystem_unittest.TestCase):
             call('rules.example'),
             call('rules.community.cloudtrail.critical_api')
         ],
-            any_order=True)
+                                     any_order=True)

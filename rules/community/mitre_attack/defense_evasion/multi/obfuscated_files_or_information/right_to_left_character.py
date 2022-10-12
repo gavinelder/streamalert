@@ -33,8 +33,4 @@ def right_to_left_character(rec):
             return True
 
     file_names = Normalizer.get_values_for_normalized_type(rec, 'file_name')
-    for file_name in file_names:
-        if isinstance(file_name, str) and rlo in file_name:
-            return True
-
-    return False
+    return any(isinstance(file_name, str) and rlo in file_name for file_name in file_names)

@@ -46,5 +46,4 @@ WHERE
   AND upper(substr(requestparameters['querystring'], 1, 5)) NOT IN ('ALTER', 'SHOW ')
 """,
     params=['utcdatehour_minus1hour'],
-    tags=['sample']
-)
+    tags=['sample'])

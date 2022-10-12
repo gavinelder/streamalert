@@ -15,7 +15,7 @@ limitations under the License.
 """
 from datetime import datetime
 from dateutil.tz import tzlocal
-from mock import MagicMock
+from unittest.mock import MagicMock
 from nose.tools import assert_equals, assert_true, assert_false
 
 from streamalert.scheduled_queries.handlers.athena import (AthenaClient, AthenaQueryExecution,

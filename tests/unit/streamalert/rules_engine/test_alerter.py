@@ -16,7 +16,7 @@ limitations under the License.
 import os
 
 from botocore.exceptions import ClientError
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from streamalert.rules_engine.alert_forwarder import AlertForwarder
 

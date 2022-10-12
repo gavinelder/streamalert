@@ -16,7 +16,7 @@ limitations under the License.
 import json
 import os
 
-from mock import patch
+from unittest.mock import patch
 from moto import mock_ssm
 from nose.tools import assert_count_equal, assert_equal, assert_false, assert_true, raises
 

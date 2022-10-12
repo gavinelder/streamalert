@@ -74,7 +74,7 @@ def generate_monitoring(cluster_name, cluster_dict, config):
     if monitoring_config.get('kinesis_alarms_enabled', True):
         cluster_dict['module'][f'cloudwatch_monitoring_{cluster_name}'].update({
             'kinesis_stream':
-            '${{module.kinesis_{}.stream_name}}'.format(cluster_name),
+            f'${{module.kinesis_{cluster_name}.stream_name}}',
             'kinesis_alarms_enabled':
             True
         })

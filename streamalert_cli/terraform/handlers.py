@@ -307,9 +307,9 @@ def get_tf_modules(config, generate=False):
         for file_name in files:
             path = os.path.join(root, file_name)
             if path.endswith('.tf.json'):
-                with open(path, 'r') as tf_file:
+                with open(path) as tf_file:
                     tf_data = json.load(tf_file)
-                    modules.update(set((tf_data['module'])))
+                    modules.update(set(tf_data['module']))
                     resources.update(f'{resource}.{value}'
                                      for resource, values in tf_data.get('resource', {}).items()
                                      for value in values)

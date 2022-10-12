@@ -26,7 +26,6 @@ from streamalert.scheduled_queries.support.clock import Clock
 
 class QueryPackExecutionContext:
     """A convenience service bundle for multiple services related to querying"""
-
     def __init__(self,
                  cache=None,
                  athena=None,
@@ -71,7 +70,6 @@ class QueryPack:
 
     This "pack" includes any additional state, parameters, and other stuff.
     """
-
     def __init__(self, query_pack_configuration, execution_context):
         self._configuration = query_pack_configuration  # type: QueryPackConfiguration
         self._execution_context = execution_context
@@ -202,7 +200,6 @@ class QueryPack:
 
 class QueryPacksManagerFactory:
     """A factory service for generating QueryPacksManager instances"""
-
     def __init__(self, execution_context):
         self._execution_context = execution_context  # type: QueryPackExecutionContext
 
@@ -223,7 +220,6 @@ class QueryPacksManager:
     This class is not a service--it is a stateful container for QueryPacks, which themselves
     can be stateful.
     """
-
     def __init__(self, execution_context):
         self._execution_context = execution_context
 

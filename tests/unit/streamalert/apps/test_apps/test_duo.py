@@ -15,7 +15,7 @@ limitations under the License.
 """
 import os
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from moto import mock_ssm
 from nose.tools import assert_equal, assert_false, assert_count_equal, raises
 import requests

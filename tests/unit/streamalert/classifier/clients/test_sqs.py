@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from botocore.exceptions import ClientError
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from nose.tools import assert_equal, assert_raises
 
 import streamalert.classifier.clients.sqs as sqs
@@ -71,7 +71,7 @@ class TestSQSClient:
     def test_segment_records_too_large(self, log_mock):
         """SQSClient - Segment Records, Single Record Too Large"""
         large_value = 'value' * 52428
-        records = ['{{"key":"{}"}}'.format(large_value)]  # a single record that exceeds max size
+        records = [f'{{"key":"{large_value}"}}']  # a single record that exceeds max size
         recs = records[:]
         result = list(SQSClient._segment_records(records))
         assert_equal(result, [])
@@ -82,7 +82,7 @@ class TestSQSClient:
         """SQSClient - Segment Records, Record Too Large"""
         # A record that exceeds max size and one that does not
         large_value = 'value' * 52428
-        records = ['{{"key":"{}"}}'.format(large_value), '{"key":"value"}']
+        records = [f'{{"key":"{large_value}"}}', '{"key":"value"}']
         result = list(SQSClient._segment_records(records))
         expected_result = [(['{"key":"value"}'], 1)]
         assert_equal(result, expected_result)

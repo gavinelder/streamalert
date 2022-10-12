@@ -40,7 +40,7 @@ class SlackApp(AppIntegration):
     _SLACK_API_MAX_PAGE_COUNT = 100
 
     def __init__(self, event, context):
-        super(SlackApp, self).__init__(event, context)
+        super().__init__(event, context)
         self._next_page = 1
 
     @classmethod
@@ -161,7 +161,7 @@ class SlackAccessApp(SlackApp):
     _SLACK_ACCESS_LOGS_ENDPOINT = 'team.accessLogs'
 
     def __init__(self, event, context):
-        super(SlackAccessApp, self).__init__(event, context)
+        super().__init__(event, context)
         self._before_time = None
         self._next_page = 1
 

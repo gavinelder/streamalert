@@ -16,7 +16,7 @@ limitations under the License.
 # pylint: disable=protected-access
 import json
 
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 from nose.tools import assert_equal, assert_true, assert_false
 from pyfakefs import fake_filesystem_unittest
 
@@ -26,7 +26,6 @@ from tests.unit.helpers.config import basic_streamalert_config
 
 class TestCLIConfig:
     """Test class for CLIConfig"""
-
     def __init__(self):
         self.config = None
         self.fs_patcher = None

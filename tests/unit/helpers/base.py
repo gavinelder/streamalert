@@ -16,14 +16,13 @@ limitations under the License.
 from contextlib import contextmanager
 import io
 
-import mock
+from unittest import mock
 
 
 class NotMocked(Exception):
     """Borrowed from http://bit.ly/2uyWD9X"""
-
     def __init__(self, filename):
-        super(NotMocked, self).__init__(f"The file {filename} was opened, but not mocked.")
+        super().__init__(f"The file {filename} was opened, but not mocked.")
 
         self.filename = filename
 

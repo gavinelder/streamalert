@@ -16,7 +16,7 @@ limitations under the License.
 import json
 import os
 
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 from nose.tools import assert_equal, assert_false
 from pyfakefs import fake_filesystem_unittest
 

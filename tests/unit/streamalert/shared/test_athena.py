@@ -17,7 +17,7 @@ limitations under the License.
 from datetime import datetime
 import os
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from nose.tools import (assert_equal, assert_false, assert_count_equal, assert_raises, assert_true,
                         raises)
 

@@ -124,7 +124,6 @@ class AttachRuleInfo(AlertPublisher):
     It can include such fields as "reference" or "playbook" but will NOT include the description
     or the author.
     """
-
     def publish(self, alert, publication):
         publication['@slack.attachments'] = publication.get('@slack.attachments', [])
 
@@ -154,7 +153,6 @@ class AttachPublication(AlertPublisher):
     By default, this publisher needs to be run after the Summary publisher, as it depends on
     the magic-magic _previous_publication field.
     """
-
     def publish(self, alert, publication):
         if '@slack._previous_publication' not in publication or '@slack.attachments' not in publication:
             # This publisher cannot be run except immediately after the Summary publisher
@@ -199,7 +197,6 @@ class AttachStringTemplate(AlertPublisher):
     If this publisher is run after the Summary publisher, it will correctly pull the original
     publication from the @slack._previous_publication, otherwise it uses the default publication.
     """
-
     def publish(self, alert, publication):
         rendered_text = self._render_text(alert, publication)
 
@@ -266,15 +263,15 @@ class AttachFullRecord(AlertPublisher):
             if is_last:
                 footer_url = self._source_service_url(alert.source_service)
                 if footer_url:
-                    footer = 'via <{}|{}>'.format(footer_url, alert.source_service)
+                    footer = f'via <{footer_url}|{alert.source_service}>'
                 else:
-                    'via {}'.format(alert.source_service)
+                    f'via {alert.source_service}'
 
             return {
                 'color': self._color(),
                 'author': alert.source_entity if is_first else '',
                 'title': 'Record' if is_first else '',
-                'text': '```\n{}\n```'.format(document),
+                'text': f'```\n{document}\n```',
                 'fields': [{
                     "title": "Alert Id",
                     "value": alert.alert_id,

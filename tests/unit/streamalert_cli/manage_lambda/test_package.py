@@ -16,7 +16,7 @@ limitations under the License.
 # pylint: disable=protected-access
 import os
 
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert_cli.config import CLIConfig

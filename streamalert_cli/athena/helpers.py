@@ -163,7 +163,7 @@ def format_schema_tf(schema):
         if isinstance(key_type, str):
             formatted_schema.append((key_name.lower(), key_type))
         elif isinstance(key_type, dict):
-            struct_schema = ','.join('{0}:{1}'.format(sub_key.lower(), key_type[sub_key])
+            struct_schema = ','.join(f'{sub_key.lower()}:{key_type[sub_key]}'
                                      for sub_key in sorted(key_type.keys()))
             formatted_schema.append((key_name.lower(), f'struct<{struct_schema}>'))
 

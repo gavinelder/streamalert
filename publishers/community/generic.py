@@ -145,7 +145,7 @@ def enumerate_fields(_, publication):
     def _recursive_enumerate_fields(structure, output_reference, path=''):
         if isinstance(structure, list):
             for index, item in enumerate(structure):
-                _recursive_enumerate_fields(item, output_reference, '{}[{}]'.format(path, index))
+                _recursive_enumerate_fields(item, output_reference, f'{path}[{index}]')
 
         elif isinstance(structure, dict):
             for key in structure:
@@ -153,7 +153,7 @@ def enumerate_fields(_, publication):
                     structure[key],
                     output_reference,
                     '{prefix}{key}'.format(
-                        prefix='{}.'.format(path) if path else '',  # Omit first period
+                        prefix=f'{path}.' if path else '',  # Omit first period
                         key=key))
 
         else:

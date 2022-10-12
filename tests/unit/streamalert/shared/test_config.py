@@ -15,7 +15,7 @@ limitations under the License.
 """
 import json
 
-from mock import Mock
+from unittest.mock import Mock
 from nose.tools import (
     assert_equal,
     assert_count_equal,
@@ -162,7 +162,6 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
 
 class TestConfigValidation:
     """Test config validation"""
-
     def test_config_no_schema(self):
         """Shared - Config Validator - No Schema in Log"""
         # Load a valid config
@@ -265,7 +264,6 @@ class TestConfigValidation:
 
 class TestConfigArtifactExtractor():
     """Shared - Test Artifact Extractor configuration with mocked config files"""
-
     def __init__(self):
         self.default_conf_data = {}
 

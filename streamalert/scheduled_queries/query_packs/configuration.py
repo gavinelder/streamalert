@@ -48,7 +48,7 @@ The provided query parameters were:
 Error:
 {error}
 '''.strip().format(name=self.name, error=e, kwargs=kwargs)
-            raise KeyError(msg)
+            raise KeyError(msg) from e
 
     @property
     def query_template(self):

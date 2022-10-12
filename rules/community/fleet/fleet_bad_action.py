@@ -6,9 +6,7 @@ from streamalert.shared.rule import disable
 
 
 @disable
-@rule(
-    logs=['fleet:results']
-)
+@rule(logs=['fleet:results'])
 def fleet_bad_action(rec):
     """
     author:       gavinelder
@@ -17,6 +15,4 @@ def fleet_bad_action(rec):
     playbook:     (a) Reach out to the user who made the modification and confirm intent.
                   (b) Link appropriate Jira ticket.
     """
-    return (
-        rec['columns'].get('bad_action', '1') == '1'
-    )
+    return (rec['columns'].get('bad_action', '1') == '1')

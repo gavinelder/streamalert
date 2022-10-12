@@ -68,7 +68,7 @@ class KinesisClient:
                 'PartitionKey': 'partitionKeyFoo'
             },
         ],
-            StreamName=self._kinesis_stream)
+                                            StreamName=self._kinesis_stream)
         self._logger.debug(response)
 
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
@@ -124,7 +124,7 @@ class KinesisClient:
                 'PartitionKey': 'partitionKeyFoo'
             },
         ],
-            StreamName=self._kinesis_stream)
+                                            StreamName=self._kinesis_stream)
         self._logger.debug(response)
 
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:

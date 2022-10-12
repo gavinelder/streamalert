@@ -40,7 +40,7 @@ class ThreatIntel:
     MAX_QUERY_CNT = 100
     PRIMARY_KEY = 'ioc_value'
     SUB_TYPE_KEY = 'sub_type'
-    PROJECTION_EXPRESSION = '{},{}'.format(PRIMARY_KEY, SUB_TYPE_KEY)
+    PROJECTION_EXPRESSION = f'{PRIMARY_KEY},{SUB_TYPE_KEY}'
 
     _deserializer = TypeDeserializer()
     _client = None

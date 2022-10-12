@@ -53,31 +53,6 @@ def _get_auth_info(app_type):
             'client_secret': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             'client_id': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
         }
-    if app_type.startswith('gcloud'):
-        return {
-            'resource_names': 'projects/myapp-123456',
-            'keyfile': {
-                'type':
-                'service_account',
-                'resources': ['project/myapp-123456'],
-                'private_key_id':
-                'a5427e441234a5f416ab0a2e5d759752ef69fbf1',
-                'private_key': ('-----BEGIN PRIVATE KEY-----\nVGhpcyBpcyBub3QgcmVhbA==\n'
-                                '-----END PRIVATE KEY-----\n'),
-                'client_email':
-                'a-test-200%40myapp-123456.iam.gserviceaccount.com',
-                'client_id':
-                '316364948779587921167',
-                'auth_uri':
-                'https://accounts.google.com/o/oauth2/auth',
-                'token_uri':
-                'https://accounts.google.com/o/oauth2/token',
-                'auth_provider_x509_cert_url':
-                'https://www.googleapis.com/oauth2/v1/certs',
-                'client_x509_cert_url': ('https://www.googleapis.com/robot/v1/metadata/x509/'
-                                         'a-test-200%40myapp-123456.iam.gserviceaccount.com')
-            }
-        }
     if app_type.startswith('gsuite'):
         return {
             'delegation_email': 'test@email.com',
@@ -188,7 +163,8 @@ class MockLambdaClient:
                           (str, bytearray)) and not hasattr(kwargs['Payload'], 'read'):
             err = (
                 f"Invalid type for parameter Payload, value: {kwargs['Payload']},"
-                f"type: {type(kwargs['Payload'])}, valid types: < type 'str'> , < type 'bytearray'> , file-like object")
+                f"type: {type(kwargs['Payload'])}, valid types: < type 'str'> , < type 'bytearray'> , file-like object"
+            )
 
             raise ParamValidationError(response=err)
 

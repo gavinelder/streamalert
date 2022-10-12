@@ -204,7 +204,7 @@ class Alert:
                 source_service=record.get('SourceService'),
                 staged=record.get('Staged'))
         except (KeyError, TypeError, ValueError) as error:
-            raise AlertCreationError(error)
+            raise AlertCreationError(error) from error
 
     def output_dict(self):
         """Convert the alert into a dictionary ready to send to an output.

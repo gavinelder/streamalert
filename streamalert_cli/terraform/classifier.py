@@ -69,9 +69,9 @@ def generate_classifier(cluster_name, cluster_dict, config):
         'region': config['global']['account']['region'],
         'prefix': config['global']['account']['prefix'],
         'firehose_use_prefix': use_firehose_prefix,
-        'function_role_id': '${{module.{}_lambda.role_id}}'.format(tf_module_prefix),
-        'function_alias_arn': '${{module.{}_lambda.function_alias_arn}}'.format(tf_module_prefix),
-        'function_name': '${{module.{}_lambda.function_name}}'.format(tf_module_prefix),
+        'function_role_id': f'${{module.{tf_module_prefix}_lambda.role_id}}',
+        'function_alias_arn': f'${{module.{tf_module_prefix}_lambda.function_alias_arn}}',
+        'function_name': f'${{module.{tf_module_prefix}_lambda.function_name}}',
         'classifier_sqs_queue_arn': '${module.globals.classifier_sqs_queue_arn}',
         'classifier_sqs_sse_kms_key_arn': '${module.globals.classifier_sqs_sse_kms_key_arn}',
     }

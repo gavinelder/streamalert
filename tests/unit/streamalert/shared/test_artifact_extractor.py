@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from mock import call, patch
+from unittest.mock import call, patch
 from nose.tools import assert_equal
 
 from streamalert.shared.artifact_extractor import (Artifact, ArtifactExtractor)
@@ -27,7 +27,6 @@ from tests.unit.streamalert.shared.test_utils import (
 
 class TestArtifact:
     """Test Artifact class"""
-
     def test_record(self):
         """Artifact - Test record property in the Artifact class"""
         artifact = Artifact(normalized_type='test_normalized_type',

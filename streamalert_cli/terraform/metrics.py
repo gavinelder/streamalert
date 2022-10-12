@@ -135,7 +135,7 @@ def generate_cluster_cloudwatch_metric_filters(cluster_name, cluster_dict, confi
 
         metric_prefix = metrics.FUNC_PREFIXES[func]
 
-        log_group_name = '${{module.{}_{}_lambda.log_group_name}}'.format(func, cluster_name)
+        log_group_name = f'${{module.{func}_{cluster_name}_lambda.log_group_name}}'
 
         cluster_name = cluster_name.upper()
 

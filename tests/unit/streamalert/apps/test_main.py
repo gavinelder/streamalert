@@ -15,7 +15,7 @@ limitations under the License.
 """
 import os
 
-from mock import patch
+from unittest.mock import patch
 from moto import mock_ssm
 
 from streamalert.apps.main import handler

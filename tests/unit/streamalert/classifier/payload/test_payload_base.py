@@ -15,7 +15,7 @@ limitations under the License.
 """
 import json
 
-from mock import patch
+from unittest.mock import patch
 from nose.tools import assert_equal
 
 from streamalert.classifier.payload.payload_base import RegisterInput, StreamPayload
@@ -34,7 +34,6 @@ class TestRegisterInput:
         @RegisterInput
         class Test:
             """Fake test class to register"""
-
             def __init__(self, *args, **kwargs):
                 pass
 
@@ -64,7 +63,6 @@ class TestRegisterInput:
 
 class TestStreamPayload:
     """StreamPayload tests"""
-
     @patch.object(StreamPayload, '__abstractmethods__', frozenset())
     def setup(self):
         """StreamPayload - Setup"""

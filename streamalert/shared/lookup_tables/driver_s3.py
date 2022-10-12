@@ -62,7 +62,7 @@ class S3Driver(PersistenceDriver):
         #     "compression": "gzip"
         # },
 
-        super(S3Driver, self).__init__(configuration)
+        super().__init__(configuration)
 
         self._s3_bucket = configuration['bucket']
         self._s3_key = configuration['key']
@@ -247,7 +247,6 @@ class Encoding:
 
 class S3Adapter:
     """Adapter class that manages uploading data to and downloading data from AWS S3"""
-
     def __init__(self, driver, boto_s3_client, s3_bucket, s3_key):
         self._driver = driver
         self._s3_client = boto_s3_client
@@ -265,14 +264,13 @@ class S3Adapter:
         except ClientError as err:
             LOGGER.error('LookupTable (%s): Failed to upload to S3. Error message: %s',
                          self._driver.id, err.response['Error']['Message'])
-            raise LookupTablesCommitError(
-                f"LookupTable S3 Driver Failed with Message: {err.response['Error']['Message']}")
+            raise LookupTablesCommitError(f"LookupTable S3 Driver Failed with Message: {err.response['Error']['Message']}") from err
 
-        except (ConnectTimeoutError, ReadTimeoutError):
+
+        except (ConnectTimeoutError, ReadTimeoutError) as e:
             # Catching ConnectTimeoutError and ReadTimeoutError from botocore
             LOGGER.error('LookupTable (%s): Reading from S3 timed out', self._driver.id)
-            raise LookupTablesCommitError(
-                f'LookupTable ({self._driver.id}): Reading from S3 timed out')
+            raise LookupTablesCommitError(f'LookupTable ({self._driver.id}): Reading from S3 timed out') from e
 
     def download(self):
         """
@@ -295,11 +293,10 @@ class S3Adapter:
             LOGGER.error('LookupTable (%s): Encountered error while downloading %s from %s: %s',
                          self._driver.id, self._s3_key, self._s3_bucket,
                          err.response['Error']['Message'])
-            raise LookupTablesInitializationError(
-                f"LookupTable S3 Driver Failed with Message: {err.response['Error']['Message']}")
+            raise LookupTablesInitializationError(f"LookupTable S3 Driver Failed with Message: {err.response['Error']['Message']}") from err
 
-        except (ConnectTimeoutError, ReadTimeoutError):
+
+        except (ConnectTimeoutError, ReadTimeoutError) as e:
             # Catching ConnectTimeoutError and ReadTimeoutError from botocore
             LOGGER.error('LookupTable (%s): Reading from S3 timed out', self._driver.id)
-            raise LookupTablesInitializationError(
-                f'LookupTable ({self._driver.id}): Reading from S3 timed out')
+            raise LookupTablesInitializationError(f'LookupTable ({self._driver.id}): Reading from S3 timed out') from e

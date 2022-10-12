@@ -40,7 +40,6 @@ class DynamoDBDriver(PersistenceDriver):
     (!) NOTE: Currently, both the partition key and the sort key *MUST* be string types. It is
         not possible to have a non-string type for either of these.
     """
-
     def __init__(self, configuration):
         # Example configuration:
         # {
@@ -55,7 +54,7 @@ class DynamoDBDriver(PersistenceDriver):
         #     "key_delimiter": ":"
         # }
 
-        super(DynamoDBDriver, self).__init__(configuration)
+        super().__init__(configuration)
 
         self._dynamo_db_table = configuration['table']
         self._dynamo_db_partition_key = configuration['partition_key']
@@ -93,7 +92,7 @@ class DynamoDBDriver(PersistenceDriver):
         except ClientError as err:
             message = f"LookupTable ({self.id}): Encountered error while connecting with DynamoDB: \'{err.response['Error']['Message']}\'"
 
-            raise LookupTablesInitializationError(message)
+            raise LookupTablesInitializationError(message) from err
 
     def commit(self):
         for key, value in self._dirty_rows.items():
@@ -120,9 +119,9 @@ class DynamoDBDriver(PersistenceDriver):
                 self._table.put_item(**put_item_args)
                 self._cache.set(key, value, self._cache_refresh_minutes)
 
-            except (ClientError, ConnectTimeoutError, ReadTimeoutError):
-                raise LookupTablesInitializationError(
-                    f'LookupTable ({self.id}): Failure to set key')
+            except (ClientError, ConnectTimeoutError, ReadTimeoutError) as e:
+                raise LookupTablesInitializationError(f'LookupTable ({self.id}): Failure to set key') from e
+
 
         self._dirty_rows = {}
 
@@ -174,11 +173,11 @@ class DynamoDBDriver(PersistenceDriver):
             #       /dynamodb.html#DynamoDB.Table.get_item
             response = self._table.get_item(**get_item_args)
 
-        except (ConnectTimeoutError, ReadTimeoutError):
+        except (ConnectTimeoutError, ReadTimeoutError) as e:
             # Catching timeouts
             LOGGER.error('LookupTable (%s): Reading from DynamoDB timed out', self.id)
-            raise LookupTablesInitializationError(
-                f'LookupTable ({self.id}): Reading from DynamoDB timed out')
+            raise LookupTablesInitializationError(f'LookupTable ({self.id}): Reading from DynamoDB timed out') from e
+
 
         if 'Item' not in response:
             self._cache.set_blank(key, self._cache_refresh_minutes)

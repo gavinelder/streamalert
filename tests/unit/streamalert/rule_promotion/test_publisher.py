@@ -15,7 +15,7 @@ limitations under the License.
 """
 from datetime import datetime, timedelta
 
-from mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock
 from nose.tools import assert_equal, assert_raises
 
 from streamalert.rule_promotion.publisher import StatsPublisher

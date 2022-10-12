@@ -18,7 +18,7 @@ import os
 from io import StringIO
 
 from botocore.exceptions import ClientError
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from moto import mock_dynamodb2
 from nose.tools import assert_equal, assert_not_equal, assert_raises
 
@@ -50,7 +50,7 @@ class TestRuleTable:
     def _create_local_rules(cls, count=5):
         """Helper to create N fake local rules"""
         for i in range(count):
-            cls._create_local_rule_with_name('fake_rule_{:02d}'.format(i))
+            cls._create_local_rule_with_name(f'fake_rule_{i:02d}')
 
     @staticmethod
     def _create_local_rule_with_name(name):

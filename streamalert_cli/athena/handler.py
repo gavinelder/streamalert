@@ -285,12 +285,12 @@ def _construct_create_table_statement(schema, table_name, bucket, file_format='p
     for key_name in sorted(schema.keys()):
         key_type = schema[key_name]
         if isinstance(key_type, str):
-            schema_statement.append('{0} {1}'.format(key_name, key_type))
+            schema_statement.append(f'{key_name} {key_type}')
         # Account for nested structs
         elif isinstance(key_type, dict):
-            struct_schema = ', '.join('{0}:{1}'.format(sub_key, key_type[sub_key])
+            struct_schema = ', '.join(f'{sub_key}:{key_type[sub_key]}'
                                       for sub_key in sorted(key_type.keys()))
-            schema_statement.append('{0} struct<{1}>'.format(key_name, struct_schema))
+            schema_statement.append(f'{key_name} struct<{struct_schema}>')
 
     return CREATE_TABLE_STATEMENT.format(
         table_name=table_name,

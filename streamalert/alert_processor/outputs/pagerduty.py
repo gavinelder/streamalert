@@ -44,7 +44,6 @@ class EventsV2DataProvider:
     This is called the CommonEventFormat (PD-CEF). Documentation can be found here:
     https://support.pagerduty.com/docs/pd-cef
     """
-
     def events_v2_data(self, alert, descriptor, routing_key, with_record=True):
         """Helper method to generate the payload to create an event using PagerDuty Events API v2
 
@@ -169,7 +168,7 @@ class EventsV2DataProvider:
             'href': link['href'],
             'text': link['text'] if 'text' in link else link['href'],
         } for link in links
-            if isinstance(link, dict) and 'href' in link] if isinstance(links, list) else []
+                if isinstance(link, dict) and 'href' in link] if isinstance(links, list) else []
 
 
 @StreamAlertOutput
@@ -935,7 +934,6 @@ class JsonHttpProvider:
     HTTP implementation that's baked into the OutputDispatcher. It is safe to ignore the
     breach-of-abstraction violations here.
     """
-
     def __init__(self, output_dispatcher):
         self._output_dispatcher = output_dispatcher
 
@@ -982,7 +980,6 @@ class SslVerifiable:
     host is hit, since the handshake process is slow. Subsequent requests to the same host
     within the current request can void certificate verification to speed things up.
     """
-
     def __init__(self):
         self._host_ssl_verified = False
 
@@ -1013,7 +1010,7 @@ class PagerDutyRestApiClient(SslVerifiable):
     REST_API_BASE_URL = 'https://api.pagerduty.com'
 
     def __init__(self, authorization_token, user_email, http_provider, url=None):
-        super(PagerDutyRestApiClient, self).__init__()
+        super().__init__()
 
         self._authorization_token = authorization_token
         self._user_email = user_email
@@ -1028,8 +1025,8 @@ class PagerDutyRestApiClient(SslVerifiable):
         response = self._http_provider.get(self._get_users_url(), {
             'query': user_email,
         },
-            self._construct_headers(omit_email=True),
-            verify=self._should_do_ssl_verify())
+                                           self._construct_headers(omit_email=True),
+                                           verify=self._should_do_ssl_verify())
         self._update_ssl_verified(response)
 
         if not response:
@@ -1078,8 +1075,8 @@ class PagerDutyRestApiClient(SslVerifiable):
         escalation_policies = self._http_provider.get(self._get_escalation_policies_url(), {
             'query': escalation_policy_id,
         },
-            headers=self._construct_headers(),
-            verify=self._should_do_ssl_verify())
+                                                      headers=self._construct_headers(),
+                                                      verify=self._should_do_ssl_verify())
         self._update_ssl_verified(escalation_policies)
 
         if not escalation_policies:
@@ -1179,27 +1176,27 @@ class PagerDutyRestApiClient(SslVerifiable):
         return headers
 
     def _get_escalation_policies_url(self):
-        return '{base_url}/escalation_policies'.format(base_url=self._base_url)
+        return f'{self._base_url}/escalation_policies'
 
     def _get_priorities_url(self):
-        return '{base_url}/priorities'.format(base_url=self._base_url)
+        return f'{self._base_url}/priorities'
 
     def _get_incidents_url(self):
-        return '{base_url}/incidents'.format(base_url=self._base_url)
+        return f'{self._base_url}/incidents'
 
     def _get_incident_url(self, incident_id):
         return '{incidents_url}/{incident_id}'.format(incidents_url=self._get_incidents_url(),
                                                       incident_id=incident_id)
 
     def _get_incident_notes_url(self, incident_id):
-        return '{incident_url}/notes'.format(incident_url=self._get_incident_url(incident_id))
+        return f'{self._get_incident_url(incident_id)}/notes'
 
     def _get_incident_responder_requests_url(self, incident_id):
         return '{incident_url}/responder_requests'.format(
             incident_url=self._get_incident_url(incident_id))
 
     def _get_users_url(self):
-        return '{base_url}/users'.format(base_url=self._base_url)
+        return f'{self._base_url}/users'
 
 
 class PagerDutyEventsV2ApiClient(SslVerifiable):
@@ -1211,7 +1208,7 @@ class PagerDutyEventsV2ApiClient(SslVerifiable):
     EVENTS_V2_API_ENQUEUE_ENDPOINT = 'https://events.pagerduty.com/v2/enqueue'
 
     def __init__(self, http_provider, enqueue_endpoint=None):
-        super(PagerDutyEventsV2ApiClient, self).__init__()
+        super().__init__()
 
         self._http_provider = http_provider  # type: JsonHttpProvider
         self._enqueue_endpoint = enqueue_endpoint or self.EVENTS_V2_API_ENQUEUE_ENDPOINT
@@ -1251,7 +1248,7 @@ class PagerDutyEventsV1ApiClient(SslVerifiable):
     CLIENT_STREAMALERT = 'streamalert'
 
     def __init__(self, service_key, http_provider, api_endpoint=None):
-        super(PagerDutyEventsV1ApiClient, self).__init__()
+        super().__init__()
 
         self._service_key = service_key
         self._http_provider = http_provider  # type: JsonHttpProvider

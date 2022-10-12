@@ -17,7 +17,7 @@ from datetime import datetime
 import os
 
 from botocore.exceptions import ClientError
-from mock import ANY, MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 from moto import mock_dynamodb2
 from nose.tools import assert_equal, assert_raises
 

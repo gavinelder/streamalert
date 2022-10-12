@@ -26,7 +26,6 @@ from streamalert.shared.helpers.aws_api_client import AwsS3
 
 class MockLambdaClient:
     """http://boto3.readthedocs.io/en/latest/reference/services/lambda.html"""
-
     def __init__(self, name, **kwargs):
         self.region = kwargs.get('region')
         self.throw_exception = kwargs.get('throw_exception')
@@ -63,7 +62,6 @@ class MockAthenaClient:
     """http://boto3.readthedocs.io/en/latest/reference/services/athena.html"""
     class MockAthenaPaginator:
         """Mock class for paginating athena results"""
-
         def __init__(self, func, pages):
             self._func = func
             self._pages = pages

@@ -32,7 +32,7 @@ class BoxApp(AppIntegration):
     _MAX_RETRY_COUNT = 3
 
     def __init__(self, event, context):
-        super(BoxApp, self).__init__(event, context)
+        super().__init__(event, context)
         self._client = None
         self._next_stream_position = None
 
@@ -197,9 +197,9 @@ class BoxApp(AppIntegration):
         def keyfile_validator(keyfile):
             """A JSON formatted Box service account private key file key"""
             try:
-                with open(keyfile.strip(), 'r') as json_keyfile:
+                with open(keyfile.strip()) as json_keyfile:
                     auth_data = json.load(json_keyfile)
-            except (IOError, ValueError):
+            except (OSError, ValueError):
                 return False
 
             return auth_data if cls._load_auth(auth_data) else False

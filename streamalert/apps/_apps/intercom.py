@@ -15,7 +15,7 @@ class IntercomApp(AppIntegration):
     _INTERCOM_LOGS_URL = 'https://api.intercom.io/admins/activity_logs'
 
     def __init__(self, event, config):
-        super(IntercomApp, self).__init__(event, config)
+        super().__init__(event, config)
         self._next_page = None
 
     @classmethod

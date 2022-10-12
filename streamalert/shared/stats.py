@@ -74,7 +74,6 @@ class RuleStatisticTracker:
 
 class RuleStatistic:
     """Simple class for tracking rule times and call count"""
-
     def __init__(self, proc_time):
         self.calls = 0
         self.tracked_time = proc_time

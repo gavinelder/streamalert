@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 # pylint: disable=abstract-class-instantiated,protected-access,attribute-defined-outside-init
-from mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch, MagicMock
 from moto import mock_kms, mock_ssm
 from nose.tools import (assert_equal, assert_is_instance, assert_is_not_none, assert_is_none,
                         assert_count_equal)
@@ -75,7 +75,7 @@ def test_output_loading():
     expected_outputs = {
         'aws-firehose', 'aws-lambda', 'aws-lambda-v2', 'aws-s3', 'aws-ses', 'aws-sns', 'aws-sqs',
         'aws-cloudwatch-log', 'carbonblack', 'demisto', 'github', 'jira', 'jira-v2', 'komand',
-        'pagerduty', 'pagerduty-v2', 'pagerduty-incident', 'phantom', 'slack', 'teams'
+        'pagerduty', 'pagerduty-v2', 'pagerduty-incident', 'phantom', 'slack', 'teams' ,'victorops'
     }
     assert_count_equal(loaded_outputs, expected_outputs)
 

@@ -20,7 +20,6 @@ from streamalert.classifier.payload.apps import AppPayload
 
 class TestAppPayload:
     """AppPayload tests"""
-
     def test_pre_parse(self):
         """AppPayload - Pre Parse"""
         # pylint: disable=protected-access

@@ -18,7 +18,7 @@ import os
 
 import boto3
 from botocore.exceptions import ClientError
-from mock import patch
+from unittest.mock import patch
 from moto import mock_ssm
 from nose.tools import assert_equal, assert_false, assert_true, assert_dict_equal, raises
 

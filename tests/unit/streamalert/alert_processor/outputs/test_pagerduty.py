@@ -16,7 +16,7 @@ limitations under the License.
 # pylint: disable=protected-access,attribute-defined-outside-init,too-many-lines,invalid-name
 import re
 from collections import OrderedDict
-from mock import patch, Mock, MagicMock, call
+from unittest.mock import patch, Mock, MagicMock, call
 from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert.alert_processor.outputs.output_base import OutputDispatcher, OutputRequestFailure
@@ -1058,8 +1058,8 @@ class TestPagerDutyIncidentOutput:
 
         RequestMocker.assert_mock_with_no_calls_like(post_mock, responder_request_calls)
         log_error_mock.assert_called_with(
-            ('[pagerduty-incident] Failed to request a responder (invalid_responder@airbnb.com)'
-             ' on incident (incident_id)'))
+            '[pagerduty-incident] Failed to request a responder (invalid_responder@airbnb.com)'
+            ' on incident (incident_id)')
 
         expected_note = (
             'StreamAlert failed to correctly setup this incident. Please contact your '
@@ -1468,7 +1468,6 @@ class TestWorkContextUnit:
 
     This class does not mock out entire requests but rather mocks out behavior on the Work class.
     """
-
     def setup(self):
         incident = {'id': 'ABCDEFGH'}
         event = {'dedup_key': '000000ppppdpdpdpdpd'}
@@ -1570,12 +1569,9 @@ class RequestMocker:
             if condition(*args, **kwargs):
                 failed.append(index)
 
-        assert_false(
-            failed, (
-                f"Failed to assert that mock was not called.\nOut of {len(calls)} calls"
-                f", calls {', '.join([f'#{idx}' for idx in failed])} failed the condition."
-            )
-        )
+        assert_false(failed,
+                     (f"Failed to assert that mock was not called.\nOut of {len(calls)} calls"
+                      f", calls {', '.join([f'#{idx}' for idx in failed])} failed the condition."))
 
     @classmethod
     def setup_mock(cls, get_mock, conditions=None):

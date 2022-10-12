@@ -16,7 +16,7 @@ limitations under the License.
 import os
 
 from botocore.exceptions import ClientError
-from mock import call, Mock, patch
+from unittest.mock import call, Mock, patch
 from moto import mock_ssm
 from nose.tools import (assert_equal, assert_false, assert_is_instance, assert_is_none, assert_true,
                         raises)
@@ -34,7 +34,6 @@ from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 
 class TestStreamAlertApp:
     """Test class for the StreamAlertApp"""
-
     def test_get_all_apps(self):
         """StreamAlertApp - Get All Apps"""
         expected_apps = {
@@ -42,7 +41,6 @@ class TestStreamAlertApp:
             'box_admin_events',
             'duo_admin',
             'duo_auth',
-            'gcloud_audit',
             'gsuite_access_transparency',
             'gsuite_admin',
             'gsuite_calendar',

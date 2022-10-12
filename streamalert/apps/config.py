@@ -234,18 +234,16 @@ class AppConfig:
             parameters = AppConfig.SSM_CLIENT.get_parameters(Names=list(names), WithDecryption=True)
         except ClientError as err:
             joined_names = ', '.join(f"\'{name}\'" for name in names)
-            raise AppConfigError(
-                f"Could not get parameter with names {joined_names}. Error: {err.response['Error']['Message']}"
-            )
+            raise AppConfigError(f"Could not get parameter with names {joined_names}. Error: {err.response['Error']['Message']}") from err
+
 
         decoded_params = {}
         for param in parameters['Parameters']:
             try:
                 decoded_params[param['Name']] = json.loads(param['Value'])
-            except ValueError:
-                raise AppConfigError(
-                    f"Could not load value for parameter with name \'{param['Name']}\'. The value is not valid json: \'{param['Value']}\'"
-                )
+            except ValueError as e:
+                raise AppConfigError(f"Could not load value for parameter with name \'{param['Name']}\'. The value is not valid json: \'{param['Value']}\'") from e
+
 
         return decoded_params, parameters['InvalidParameters']
 

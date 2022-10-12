@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 # pylint: disable=protected-access,attribute-defined-outside-init,invalid-name
-from mock import patch
+from unittest.mock import patch
 from nose.tools import assert_true, assert_equal, assert_false
 
 from streamalert.alert_processor.helpers import _assemble_alert_publisher_for_output

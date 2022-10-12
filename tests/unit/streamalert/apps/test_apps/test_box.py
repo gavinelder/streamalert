@@ -17,7 +17,7 @@ import json
 import os
 
 from boxsdk.exception import BoxException
-from mock import call, Mock, mock_open, patch
+from unittest.mock import call, Mock, mock_open, patch
 from moto import mock_ssm
 from nose.tools import assert_equal, assert_false, assert_count_equal, assert_true
 import requests

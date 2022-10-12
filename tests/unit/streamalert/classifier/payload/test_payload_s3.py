@@ -21,7 +21,7 @@ import tempfile
 import boto3
 from botocore.exceptions import ClientError
 
-from mock import patch
+from unittest.mock import patch
 from moto import mock_s3
 from nose.tools import assert_equal, assert_raises
 from pyfakefs import fake_filesystem_unittest
@@ -123,7 +123,7 @@ class TestS3Payload:
     def test_jsonlines_reader_fallback(self):
         """S3Payload - JSON Lines Reader, Fallback"""
         with tempfile.SpooledTemporaryFile(max_size=10 * 1024) as reader:
-            reader.write('non-json-value\n'.encode())
+            reader.write(b'non-json-value\n')
             reader.seek(0)
             line_reader = S3Payload._jsonlines_reader(reader)
             assert_equal(reader == line_reader, True)
@@ -139,7 +139,7 @@ class TestS3Payload:
 
     def test_read_downloaded_object_fallback(self):
         """S3Payload - Read Downloaded Object, Fallback"""
-        value = 'non-json-value\n'.encode()
+        value = b'non-json-value\n'
         with tempfile.SpooledTemporaryFile(max_size=10 * 1024) as reader:
             reader.write(value)
             reader.seek(0)
@@ -149,7 +149,7 @@ class TestS3Payload:
     @mock_s3
     def test_read_file(self):
         """S3Payload - Read File"""
-        value = 'test_data'.encode()
+        value = b'test_data'
         boto3.resource('s3').Bucket(self._bucket).create()
         boto3.resource('s3').Bucket(self._bucket).put_object(Key=self._key, Body=value)
 

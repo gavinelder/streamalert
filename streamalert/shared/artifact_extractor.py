@@ -24,7 +24,6 @@ LOGGER = get_logger(__name__)
 
 class Artifact:
     """Encapsulation of a single Artifact that is extracted from an input record."""
-
     def __init__(self, function, record_id, source_type, normalized_type, value):
         """Create a new Artifact based on normalized information
 

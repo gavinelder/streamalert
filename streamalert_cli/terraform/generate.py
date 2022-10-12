@@ -513,7 +513,7 @@ def _generate_lookup_tables_settings(config):
     }
 
     for cluster in config.clusters():
-        roles.add('${{module.classifier_{}_lambda.role_id}}'.format(cluster))
+        roles.add(f'${{module.classifier_{cluster}_lambda.role_id}}')
 
     generated_config = {'module': {}}
 

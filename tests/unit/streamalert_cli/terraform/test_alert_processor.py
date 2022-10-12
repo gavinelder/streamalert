@@ -23,7 +23,6 @@ from streamalert_cli.terraform import alert_processor
 
 class TestAlertProcessor(unittest.TestCase):
     """Test the Terraform generation for the alert processor"""
-
     def setUp(self):
         """Create the CLIConfig and the expected template for these tests."""
         self.config = dict(CLIConfig(config_path='tests/unit/conf'))

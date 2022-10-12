@@ -97,7 +97,7 @@ def _generate(cluster_name, cluster_dict, config, account_ids, regions):
     parent_module_name = f'cloudwatch_logs_destination_{cluster_name}'
 
     prefix = config['global']['account']['prefix']
-    stream_arn = '${{module.kinesis_{}.arn}}'.format(cluster_name)
+    stream_arn = f'${{module.kinesis_{cluster_name}.arn}}'
 
     # Merge these regions with any that are already in the configuration
     all_regions = sorted(
@@ -130,7 +130,7 @@ def _generate(cluster_name, cluster_dict, config, account_ids, regions):
             'destination_kinesis_stream_arn':
             stream_arn,
             'cloudwatch_logs_subscription_role_arn':
-            ('${{module.{}.cloudwatch_logs_subscription_role_arn}}'.format(parent_module_name)),
+            (f'${{module.{parent_module_name}.cloudwatch_logs_subscription_role_arn}}'),
             'providers': {
                 'aws': f'aws.{region}'
             }

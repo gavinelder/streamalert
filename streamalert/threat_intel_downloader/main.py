@@ -86,11 +86,9 @@ class ThreatStream:
 
         try:
             decoded_creds = json.loads(response['Parameter']['Value'])
-        except ValueError:
-            raise ThreatStreamCredsError(
-                f"Cannot load value for parameter with name '{response['Parameter']['Name']}'. "
-                f"The value is not valid json: '{response['Parameter']['Value']}'"
-            )
+        except ValueError as e:
+            raise ThreatStreamCredsError(f"Cannot load value for parameter with name '{response['Parameter']['Name']}'. " f"The value is not valid json: '{response['Parameter']['Value']}'") from e
+
 
         self.api_user = decoded_creds['api_user']
         self.api_key = decoded_creds['api_key']
@@ -169,7 +167,7 @@ class ThreatStream:
                                  Payload=json.dumps({'next_url': next_url}),
                                  Qualifier=self._config['qualifier'])
         except ClientError as err:
-            raise ThreatStreamLambdaInvokeError(f'Error invoking function: {err}')
+            raise ThreatStreamLambdaInvokeError(f'Error invoking function: {err}') from err
 
     @staticmethod
     def _epoch_time(time_str, days=90):

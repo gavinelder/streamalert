@@ -2,10 +2,7 @@
 
 from streamalert.shared.rule import rule
 
-
-DNS_BLACKLIST = [
-    'evil.com.'
-]
+DNS_BLACKLIST = ['evil.com.']
 
 
 @rule(logs=['packetbeat:dns'])

@@ -18,7 +18,6 @@ import json
 
 class MockCLIConfig:
     """Fake CLI Config Class"""
-
     def __init__(self, config):
         self.config = config
         self.build_directory = 'streamalert_terraform_unit_test'

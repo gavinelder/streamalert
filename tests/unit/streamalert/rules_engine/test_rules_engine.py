@@ -17,7 +17,7 @@ limitations under the License.
 
 from datetime import datetime, timedelta
 
-from mock import Mock, patch, PropertyMock
+from unittest.mock import Mock, patch, PropertyMock
 from nose.tools import assert_equal, assert_false, assert_true
 
 from publishers.community.generic import remove_internal_fields
@@ -266,10 +266,10 @@ class TestRulesEngine:
                         'demisto': 'streamalert.shared.publisher.DefaultPublisher',
                         'slack': [that_publisher],
                         'slack:test': [ThisPublisher],
-        },
-            context=None,
-            merge_by_keys=None,
-            merge_window_mins=0)
+                    },
+                    context=None,
+                    merge_by_keys=None,
+                    merge_window_mins=0)
 
         # Override the Mock name attribute
         type(rule).name = PropertyMock(return_value='test_rule')
@@ -727,8 +727,8 @@ class TestRulesEngine:
         """RulesEngine - Run, Fail Subkey Check"""
         self._rules_engine._threat_intel = None
         with patch.object(self._rules_engine, '_process_subkeys') as subkey_mock, \
-                patch.object(self._rules_engine, '_alert_forwarder'), \
-                patch.object(self._rules_engine, '_rule_analysis') as analysis_mock:
+                    patch.object(self._rules_engine, '_alert_forwarder'), \
+                    patch.object(self._rules_engine, '_rule_analysis') as analysis_mock:
 
             subkey_mock.return_value = False
 
@@ -754,7 +754,7 @@ class TestRulesEngine:
         """RulesEngine - Run, No Rules"""
         self._rules_engine._threat_intel = None
         with patch.object(self._rules_engine, '_alert_forwarder'), \
-                patch.object(rules_engine_module, 'Rule') as rule_mock:
+                    patch.object(rules_engine_module, 'Rule') as rule_mock:
 
             rule_mock.rules_for_log_type.return_value = None
 
@@ -767,9 +767,9 @@ class TestRulesEngine:
         """RulesEngine - Run"""
         self._rules_engine._threat_intel = None
         with patch.object(self._rules_engine, '_process_subkeys'), \
-                patch.object(self._rules_engine, '_alert_forwarder') as alert_mock, \
-                patch.object(self._rules_engine, '_rule_analysis') as analysis_mock, \
-                patch.object(rules_engine_module, 'Rule') as rule_mock:
+                    patch.object(self._rules_engine, '_alert_forwarder') as alert_mock, \
+                    patch.object(self._rules_engine, '_rule_analysis') as analysis_mock, \
+                    patch.object(rules_engine_module, 'Rule') as rule_mock:
 
             rule_mock.rules_for_log_type.return_value = [
                 Mock(check_matchers=Mock(return_value=True))

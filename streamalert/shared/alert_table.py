@@ -24,7 +24,6 @@ from streamalert.shared.helpers.dynamodb import ignore_conditional_failure
 
 class AlertTable:
     """Provides convenience methods for accessing and modifying the alerts table."""
-
     def __init__(self, table_name):
         self._table = boto3.resource('dynamodb').Table(table_name)
 

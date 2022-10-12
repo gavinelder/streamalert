@@ -15,7 +15,7 @@ limitations under the License.
 """
 import boto3
 from botocore.exceptions import ClientError
-from mock import patch
+from unittest.mock import patch
 from moto import mock_kms
 from nose.tools import assert_equal, raises
 
@@ -28,7 +28,7 @@ class TestAwsKms:
     @mock_kms
     def test_encrypt_decrypt():
         """AwsApiClient - AwsKms - encrypt/decrypt - Encrypt and push creds, then pull them down"""
-        secret = 'shhhhhh'.encode()  # nosec
+        secret = b'shhhhhh'  # nosec
 
         client = boto3.client('kms', region_name=REGION)
         response = client.create_key()

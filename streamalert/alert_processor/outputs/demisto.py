@@ -116,7 +116,6 @@ class DemistoOutput(OutputDispatcher):
 
 class DemistoApiIntegration:
     """Bridge class to reduce coupling between DemistoOutput and whatever client we use."""
-
     def __init__(self, creds, dispatcher):
         self._creds = creds
         self._dispatcher = dispatcher
@@ -316,14 +315,14 @@ class DemistoRequestAssembler:
         def enumerate_fields(record, path=''):
             if isinstance(record, list):
                 for index, item in enumerate(record):
-                    enumerate_fields(item, '{}[{}]'.format(path, index))
+                    enumerate_fields(item, f'{path}[{index}]')
 
             elif isinstance(record, dict):
                 for key in record:
                     enumerate_fields(
                         record[key],
                         '{prefix}{key}'.format(
-                            prefix='{}.'.format(path) if path else '',  # Omit first period
+                            prefix=f'{path}.' if path else '',  # Omit first period
                             key=key))
 
             else:

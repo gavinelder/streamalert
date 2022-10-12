@@ -60,9 +60,8 @@ class EphemeralDriver(PersistenceDriver):
 
     This persistence driver does not actually store data anywhere--it just keeps it in memory.
     """
-
     def __init__(self, configuration):
-        super(EphemeralDriver, self).__init__(configuration)
+        super().__init__(configuration)
         self._cache = {}
 
     def initialize(self):

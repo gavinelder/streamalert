@@ -430,8 +430,7 @@ class S3Output(AWSOutput):
         # Keys need to be unique to avoid object overwriting
         key = (
             f"alerts/dt={datetime.now().strftime('%Y-%m-%d-%H')}/"
-            f"{alert.source_service}_{alert.source_entity}_{alert.rule_name}_{uuid.uuid4()}.json"
-        )
+            f"{alert.source_service}_{alert.source_entity}_{alert.rule_name}_{uuid.uuid4()}.json")
 
         LOGGER.debug('Sending %s to S3 bucket %s with key %s', alert, bucket, key)
 

@@ -126,7 +126,7 @@ class S3Payload(StreamPayload):
             # Test to ensure this is gzip data, then rewind
             reader.read(1)
             reader.rewind()
-        except IOError:
+        except OSError:
             # Fall back on the default reader
             reader = open_file
             reader.seek(0)
@@ -189,7 +189,7 @@ class S3Payload(StreamPayload):
 
             try:
                 client.download_fileobj(key, download)
-            except (IOError, ClientError):
+            except (OSError, ClientError):
                 LOGGER.exception('Failed to download object from S3')
                 raise
 
