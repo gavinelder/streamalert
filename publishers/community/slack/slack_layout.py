@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import calendar
-import cgi
+import html
 import json
 import urllib.error
 import urllib.parse
@@ -69,7 +69,7 @@ class Summary(AlertPublisher):
                 'title_link':
                 self._title_url(rule_name),
                 'text':
-                cgi.escape(rule_presentation['description']),
+                html.escape(rule_presentation['description']),
                 'image_url':
                 '',
                 'thumb_url':
@@ -167,7 +167,7 @@ class AttachPublication(AlertPublisher):
         publication['@slack.attachments'].append({
             'color': self._color(),
             'title': 'Alert Data:',
-            'text': cgi.escape(publication_block),
+            'text': html.escape(publication_block),
             'mrkdwn_in': ['text'],
         })
 
@@ -203,7 +203,7 @@ class AttachStringTemplate(AlertPublisher):
         publication['@slack.attachments'] = publication.get('@slack.attachments', [])
         publication['@slack.attachments'].append({
             'color': self._color(),
-            'text': cgi.escape(rendered_text),
+            'text': html.escape(rendered_text),
         })
 
         return publication
@@ -254,7 +254,7 @@ class AttachFullRecord(AlertPublisher):
 
         # Escape the document FIRST because it can increase character length which can throw off
         # document slicing
-        record_document = cgi.escape(record_document)
+        record_document = html.escape(record_document)
         record_document_lines = record_document.split('\n')
 
         def make_attachment(document, is_first, is_last):
