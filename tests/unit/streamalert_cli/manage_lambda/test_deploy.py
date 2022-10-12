@@ -15,8 +15,8 @@ limitations under the License.
 """
 # pylint: disable=protected-access
 import unittest
-
 from unittest.mock import patch
+
 from nose.tools import assert_equal
 
 from streamalert_cli.manage_lambda import deploy

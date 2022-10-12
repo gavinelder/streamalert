@@ -15,9 +15,10 @@ limitations under the License.
 """
 # pylint: disable=protected-access,attribute-defined-outside-init
 import base64
+from unittest.mock import MagicMock, Mock, patch
 
-from unittest.mock import patch, Mock, MagicMock
-from nose.tools import assert_false, assert_true, assert_equal, assert_is_not_none
+from nose.tools import (assert_equal, assert_false, assert_is_not_none,
+                        assert_true)
 
 from streamalert.alert_processor.outputs.github import GithubOutput
 from tests.unit.streamalert.alert_processor.helpers import get_alert

@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os
+from unittest.mock import patch
 
 from botocore.exceptions import ClientError
-from unittest.mock import patch
 from nose.tools import assert_equal, assert_false, assert_true, raises
 
 from streamalert.apps.batcher import Batcher

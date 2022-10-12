@@ -16,10 +16,10 @@ limitations under the License.
 import html
 from collections import OrderedDict
 
-from streamalert.alert_processor.helpers import compose_alert, elide_string_middle
-from streamalert.alert_processor.outputs.output_base import (OutputDispatcher, OutputProperty,
-                                                             OutputRequestFailure,
-                                                             StreamAlertOutput)
+from streamalert.alert_processor.helpers import (compose_alert,
+                                                 elide_string_middle)
+from streamalert.alert_processor.outputs.output_base import (
+    OutputDispatcher, OutputProperty, OutputRequestFailure, StreamAlertOutput)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

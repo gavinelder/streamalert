@@ -13,16 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from streamalert.shared.firehose import FirehoseClient
-from streamalert.shared.utils import get_database_name, get_data_file_format
 from streamalert.shared.alert import Alert
 from streamalert.shared.athena import AthenaClient
-from streamalert.shared.config import firehose_alerts_bucket, firehose_data_bucket
+from streamalert.shared.config import (firehose_alerts_bucket,
+                                       firehose_data_bucket)
+from streamalert.shared.firehose import FirehoseClient
 from streamalert.shared.logger import get_logger
+from streamalert.shared.utils import get_data_file_format, get_database_name
 from streamalert_cli.athena import helpers
 from streamalert_cli.helpers import continue_prompt, record_to_schema
-from streamalert_cli.utils import (CLICommand, generate_subparser, set_parser_epilog,
-                                   UniqueSortedListAction)
+from streamalert_cli.utils import (CLICommand, UniqueSortedListAction,
+                                   generate_subparser, set_parser_epilog)
 
 LOGGER = get_logger(__name__)
 

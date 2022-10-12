@@ -18,42 +18,43 @@ import os
 
 from streamalert.shared.config import ConfigError, firehose_alerts_bucket
 from streamalert.shared.logger import get_logger
-from streamalert.shared.utils import get_database_name, get_data_file_format
+from streamalert.shared.utils import get_data_file_format, get_database_name
 from streamalert_cli.athena.helpers import generate_alerts_table_schema
 from streamalert_cli.helpers import check_credentials
-from streamalert_cli.terraform.common import (
-    InvalidClusterName,
-    infinitedict,
-    monitoring_topic_name,
-    s3_access_logging_bucket,
-    terraform_state_bucket,
-)
-from streamalert_cli.terraform.artifact_extractor import generate_artifact_extractor
 from streamalert_cli.terraform.alert_merger import generate_alert_merger
 from streamalert_cli.terraform.alert_processor import generate_alert_processor
 from streamalert_cli.terraform.apps import generate_apps
+from streamalert_cli.terraform.artifact_extractor import \
+    generate_artifact_extractor
 from streamalert_cli.terraform.athena import generate_athena
+from streamalert_cli.terraform.classifier import generate_classifier
 from streamalert_cli.terraform.cloudtrail import generate_cloudtrail
-from streamalert_cli.terraform.cloudwatch_destinations import (
-    generate_cloudwatch_destinations, )
-from streamalert_cli.terraform.cloudwatch_events import generate_cloudwatch_events
+from streamalert_cli.terraform.cloudwatch_destinations import \
+    generate_cloudwatch_destinations
+from streamalert_cli.terraform.cloudwatch_events import \
+    generate_cloudwatch_events
+from streamalert_cli.terraform.common import (InvalidClusterName, infinitedict,
+                                              monitoring_topic_name,
+                                              s3_access_logging_bucket,
+                                              terraform_state_bucket)
 from streamalert_cli.terraform.firehose import generate_firehose
 from streamalert_cli.terraform.flow_logs import generate_flow_logs
 from streamalert_cli.terraform.helpers import terraform_check
 from streamalert_cli.terraform.kinesis_events import generate_kinesis_events
 from streamalert_cli.terraform.kinesis_streams import generate_kinesis_streams
-from streamalert_cli.terraform.metrics import (generate_aggregate_cloudwatch_metric_alarms,
-                                               generate_aggregate_cloudwatch_metric_filters,
-                                               generate_cluster_cloudwatch_metric_filters,
-                                               generate_cluster_cloudwatch_metric_alarms)
+from streamalert_cli.terraform.metrics import (
+    generate_aggregate_cloudwatch_metric_alarms,
+    generate_aggregate_cloudwatch_metric_filters,
+    generate_cluster_cloudwatch_metric_alarms,
+    generate_cluster_cloudwatch_metric_filters)
 from streamalert_cli.terraform.monitoring import generate_monitoring
 from streamalert_cli.terraform.rule_promotion import generate_rule_promotion
-from streamalert_cli.terraform.classifier import generate_classifier
 from streamalert_cli.terraform.rules_engine import generate_rules_engine
 from streamalert_cli.terraform.s3_events import generate_s3_events
-from streamalert_cli.terraform.scheduled_queries import (
-    generate_scheduled_queries_module_configuration)
-from streamalert_cli.terraform.threat_intel_downloader import generate_threat_intel_downloader
+from streamalert_cli.terraform.scheduled_queries import \
+    generate_scheduled_queries_module_configuration
+from streamalert_cli.terraform.threat_intel_downloader import \
+    generate_threat_intel_downloader
 from streamalert_cli.utils import CLICommand
 
 RESTRICTED_CLUSTER_NAMES = ('main', 'athena')

@@ -14,19 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os
-
-from botocore.exceptions import ClientError
-from unittest.mock import call, Mock, patch
-from moto import mock_ssm
-from nose.tools import (assert_equal, assert_false, assert_is_instance, assert_is_none, assert_true,
-                        raises)
+from unittest.mock import Mock, call, patch
 
 import requests
+from botocore.exceptions import ClientError
+from moto import mock_ssm
+from nose.tools import (assert_equal, assert_false, assert_is_instance,
+                        assert_is_none, assert_true, raises)
 from requests.exceptions import ConnectTimeout
 
 from streamalert.apps import StreamAlertApp
-from streamalert.apps.app_base import AppIntegration, safe_timeout, _report_time
 from streamalert.apps._apps.duo import DuoAuthApp
+from streamalert.apps.app_base import (AppIntegration, _report_time,
+                                       safe_timeout)
 from streamalert.apps.exceptions import AppException
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context

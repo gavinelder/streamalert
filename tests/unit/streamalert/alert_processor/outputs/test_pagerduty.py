@@ -16,13 +16,15 @@ limitations under the License.
 # pylint: disable=protected-access,attribute-defined-outside-init,too-many-lines,invalid-name
 import re
 from collections import OrderedDict
-from unittest.mock import patch, Mock, MagicMock, call
+from unittest.mock import MagicMock, Mock, call, patch
+
 from nose.tools import assert_equal, assert_false, assert_true
 
-from streamalert.alert_processor.outputs.output_base import OutputDispatcher, OutputRequestFailure
-from streamalert.alert_processor.outputs.pagerduty import (PagerDutyOutput, PagerDutyOutputV2,
-                                                           PagerDutyIncidentOutput, WorkContext,
-                                                           PagerDutyRestApiClient, JsonHttpProvider)
+from streamalert.alert_processor.outputs.output_base import (
+    OutputDispatcher, OutputRequestFailure)
+from streamalert.alert_processor.outputs.pagerduty import (
+    JsonHttpProvider, PagerDutyIncidentOutput, PagerDutyOutput,
+    PagerDutyOutputV2, PagerDutyRestApiClient, WorkContext)
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 
 

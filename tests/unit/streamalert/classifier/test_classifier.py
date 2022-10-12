@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from collections import OrderedDict
 import os
-
+from collections import OrderedDict
 from unittest.mock import Mock, patch
+
 from nose.tools import assert_equal, assert_raises
 
 import streamalert.classifier.classifier as classifier_module

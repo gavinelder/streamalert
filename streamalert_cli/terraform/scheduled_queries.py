@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from streamalert.shared.config import athena_partition_buckets_tf, athena_query_results_bucket
+from streamalert.shared.config import (athena_partition_buckets_tf,
+                                       athena_query_results_bucket)
 from streamalert_cli.terraform.common import monitoring_topic_arn
 
 

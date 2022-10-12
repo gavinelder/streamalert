@@ -18,14 +18,17 @@ import os
 
 import backoff
 import boto3
-from botocore.exceptions import ClientError, HTTPClientError
+from botocore.exceptions import ClientError
 from botocore.exceptions import ConnectionError as BotocoreConnectionError
+from botocore.exceptions import HTTPClientError
 
 from streamalert.shared import CLASSIFIER_FUNCTION_NAME as FUNCTION_NAME
+from streamalert.shared.backoff_handlers import (backoff_handler,
+                                                 giveup_handler,
+                                                 success_handler)
 from streamalert.shared.helpers import boto
 from streamalert.shared.logger import get_logger
 from streamalert.shared.metrics import MetricLogger
-from streamalert.shared.backoff_handlers import (backoff_handler, giveup_handler, success_handler)
 
 LOGGER = get_logger(__name__)
 

@@ -1,8 +1,10 @@
 from streamalert.shared.config import load_config
 from streamalert.shared.logger import get_logger
-from streamalert.shared.lookup_tables.configuration import LookupTablesConfiguration
+from streamalert.shared.lookup_tables.configuration import \
+    LookupTablesConfiguration
 from streamalert.shared.lookup_tables.drivers import NullDriver
-from streamalert.shared.lookup_tables.drivers_factory import construct_persistence_driver
+from streamalert.shared.lookup_tables.drivers_factory import \
+    construct_persistence_driver
 from streamalert.shared.lookup_tables.table import LookupTable
 
 LOGGER = get_logger(__name__)

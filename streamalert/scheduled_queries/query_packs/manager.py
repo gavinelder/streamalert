@@ -17,9 +17,10 @@ import json
 from logging import Logger
 
 from streamalert.scheduled_queries.handlers.athena import AthenaClient
-from streamalert.scheduled_queries.query_packs.configuration import (QueryPackConfiguration,
-                                                                     QueryPackRepository)
-from streamalert.scheduled_queries.query_packs.parameters import QueryParameterGenerator
+from streamalert.scheduled_queries.query_packs.configuration import (
+    QueryPackConfiguration, QueryPackRepository)
+from streamalert.scheduled_queries.query_packs.parameters import \
+    QueryParameterGenerator
 from streamalert.scheduled_queries.state.state_manager import StateManager
 from streamalert.scheduled_queries.support.clock import Clock
 

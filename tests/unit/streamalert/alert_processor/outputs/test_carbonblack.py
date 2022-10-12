@@ -15,14 +15,14 @@ limitations under the License.
 """
 # pylint: disable=unused-argument,attribute-defined-outside-init,protected-access
 from collections import OrderedDict
+from unittest.mock import MagicMock, Mock, call, patch
 
-from unittest.mock import call, patch, Mock, MagicMock
 from nose.tools import assert_false, assert_is_instance, assert_true
 
 from streamalert.alert_processor.outputs import carbonblack
 from streamalert.alert_processor.outputs.carbonblack import CarbonBlackOutput
-from tests.unit.streamalert.alert_processor import CONFIG
 from tests.unit.helpers.mocks import MockCBAPI
+from tests.unit.streamalert.alert_processor import CONFIG
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 
 

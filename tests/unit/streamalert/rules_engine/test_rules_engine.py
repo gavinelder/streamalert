@@ -16,14 +16,15 @@ limitations under the License.
 # pylint: disable=invalid-name
 
 from datetime import datetime, timedelta
+from unittest.mock import Mock, PropertyMock, patch
 
-from unittest.mock import Mock, patch, PropertyMock
 from nose.tools import assert_equal, assert_false, assert_true
 
-from publishers.community.generic import remove_internal_fields
-from streamalert.shared.publisher import AlertPublisher, Register, DefaultPublisher
 import streamalert.rules_engine.rules_engine as rules_engine_module
+from publishers.community.generic import remove_internal_fields
 from streamalert.rules_engine.rules_engine import RulesEngine
+from streamalert.shared.publisher import (AlertPublisher, DefaultPublisher,
+                                          Register)
 
 
 def mock_conf():

@@ -13,15 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from unittest.mock import MagicMock, Mock, call, patch
+
 # pylint: disable=protected-access,attribute-defined-outside-init,no-member
 import pymsteams
-from pymsteams import TeamsWebhookException
-from unittest.mock import MagicMock, Mock, patch, call
 from nose.tools import assert_equal, assert_false, assert_true
+from pymsteams import TeamsWebhookException
 
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.teams import TeamsOutput
-from tests.unit.streamalert.alert_processor.helpers import get_alert, get_random_alert
+from tests.unit.streamalert.alert_processor.helpers import (get_alert,
+                                                            get_random_alert)
 
 
 @patch(

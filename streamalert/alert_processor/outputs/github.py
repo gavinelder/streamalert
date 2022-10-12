@@ -13,14 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from collections import OrderedDict
 import base64
 import json
+from collections import OrderedDict
 
 from streamalert.alert_processor.helpers import compose_alert
-from streamalert.alert_processor.outputs.output_base import (OutputDispatcher, OutputProperty,
-                                                             OutputRequestFailure,
-                                                             StreamAlertOutput)
+from streamalert.alert_processor.outputs.output_base import (
+    OutputDispatcher, OutputProperty, OutputRequestFailure, StreamAlertOutput)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

@@ -17,13 +17,15 @@ import json
 import logging
 
 import boto3
-from botocore.exceptions import ClientError, ConnectTimeoutError, ReadTimeoutError
+from botocore.exceptions import (ClientError, ConnectTimeoutError,
+                                 ReadTimeoutError)
 
 import streamalert.shared.helpers.boto as boto_helpers
 from streamalert.shared.logger import get_logger
 from streamalert.shared.lookup_tables.cache import DriverCache
 from streamalert.shared.lookup_tables.drivers import PersistenceDriver
-from streamalert.shared.lookup_tables.errors import LookupTablesInitializationError
+from streamalert.shared.lookup_tables.errors import \
+    LookupTablesInitializationError
 
 LOGGER = get_logger(__name__)
 LOGGER_DEBUG_ENABLED = LOGGER.isEnabledFor(logging.DEBUG)

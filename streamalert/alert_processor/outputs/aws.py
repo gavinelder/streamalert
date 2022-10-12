@@ -13,23 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import json
+import uuid
 from abc import abstractmethod
 from collections import OrderedDict
+from datetime import datetime
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import datetime
-import json
-import uuid
 
 import backoff
-from botocore.exceptions import ClientError
 import boto3
+from botocore.exceptions import ClientError
 
-from streamalert.alert_processor.helpers import compose_alert, elide_string_middle
-from streamalert.alert_processor.outputs.output_base import (OutputDispatcher, OutputProperty,
+from streamalert.alert_processor.helpers import (compose_alert,
+                                                 elide_string_middle)
+from streamalert.alert_processor.outputs.output_base import (OutputDispatcher,
+                                                             OutputProperty,
                                                              StreamAlertOutput)
-from streamalert.shared.backoff_handlers import (backoff_handler, success_handler, giveup_handler)
+from streamalert.shared.backoff_handlers import (backoff_handler,
+                                                 giveup_handler,
+                                                 success_handler)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

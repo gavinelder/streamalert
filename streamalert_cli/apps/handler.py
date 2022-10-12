@@ -18,15 +18,10 @@ import string
 from streamalert.apps import StreamAlertApp
 from streamalert.shared.logger import get_logger
 from streamalert_cli.apps.helpers import save_app_auth_info
-from streamalert_cli.utils import (
-    add_memory_arg,
-    add_schedule_expression_arg,
-    add_timeout_arg,
-    CLICommand,
-    CLUSTERS,
-    generate_subparser,
-    set_parser_epilog,
-)
+from streamalert_cli.utils import (CLUSTERS, CLICommand, add_memory_arg,
+                                   add_schedule_expression_arg,
+                                   add_timeout_arg, generate_subparser,
+                                   set_parser_epilog)
 
 LOGGER = get_logger(__name__)
 

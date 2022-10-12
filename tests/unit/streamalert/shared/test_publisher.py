@@ -15,17 +15,15 @@ limitations under the License.
 """
 # pylint: disable=protected-access,attribute-defined-outside-init,invalid-name
 from unittest.mock import patch
-from nose.tools import assert_true, assert_equal, assert_false
 
-from streamalert.alert_processor.helpers import _assemble_alert_publisher_for_output
-from streamalert.shared.publisher import (
-    AlertPublisherRepository,
-    AlertPublisher,
-    CompositePublisher,
-    DefaultPublisher,
-    Register,
-    WrappedFunctionPublisher,
-)
+from nose.tools import assert_equal, assert_false, assert_true
+
+from streamalert.alert_processor.helpers import \
+    _assemble_alert_publisher_for_output
+from streamalert.shared.publisher import (AlertPublisher,
+                                          AlertPublisherRepository,
+                                          CompositePublisher, DefaultPublisher,
+                                          Register, WrappedFunctionPublisher)
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 
 

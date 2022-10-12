@@ -1,6 +1,8 @@
 """Alert when resources are made public."""
 import json
+
 from policyuniverse.policy import Policy
+
 from streamalert.shared.rule import rule
 
 

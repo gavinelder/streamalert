@@ -16,13 +16,12 @@ limitations under the License.
 # pylint: disable=attribute-defined-outside-init,protected-access
 import json
 import os
+from unittest.mock import Mock, call, patch
 
-from unittest.mock import Mock, patch, call
 from nose.tools import assert_equal, assert_true
 
 from streamalert.athena_partitioner.main import AthenaPartitioner
 from streamalert.shared.config import load_config
-
 from tests.unit.helpers.aws_mocks import MockAthenaClient
 
 

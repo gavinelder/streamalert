@@ -13,16 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
 import json
+import logging
 import re
 import socket
 import ssl
 
 import googleapiclient.discovery
 import googleapiclient.errors
-from google.oauth2 import service_account
 from google.auth.exceptions import GoogleAuthError
+from google.oauth2 import service_account
 
 from . import AppIntegration, StreamAlertApp, get_logger
 

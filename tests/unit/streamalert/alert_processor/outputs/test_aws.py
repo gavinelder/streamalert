@@ -16,27 +16,26 @@ limitations under the License.
 # pylint: disable=abstract-class-instantiated,protected-access,attribute-defined-outside-init
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
-import boto3
 from unittest.mock import MagicMock, Mock, patch
-from moto import mock_kinesis, mock_s3, mock_sns, mock_sqs, mock_ses
-from nose.tools import (assert_equal, assert_false, assert_is_not_none, assert_true)
+
+import boto3
+from moto import mock_kinesis, mock_s3, mock_ses, mock_sns, mock_sqs
+from nose.tools import (assert_equal, assert_false, assert_is_not_none,
+                        assert_true)
 
 from streamalert.alert_processor.helpers import compose_alert
-from streamalert.alert_processor.outputs.output_base import OutputProperty
 from streamalert.alert_processor.outputs import aws as aws_outputs
-from streamalert.alert_processor.outputs.aws import (
-    AWSOutput,
-    KinesisFirehoseOutput,
-    LambdaOutput,
-    S3Output,
-    SESOutput,
-    SNSOutput,
-    SQSOutput,
-    CloudwatchLogOutput,
-    LambdaOutputV2,
-)
-from tests.unit.streamalert.alert_processor import (CONFIG, MOCK_ENV, REGION)
-from tests.unit.streamalert.alert_processor.helpers import get_alert, get_random_alert
+from streamalert.alert_processor.outputs.aws import (AWSOutput,
+                                                     CloudwatchLogOutput,
+                                                     KinesisFirehoseOutput,
+                                                     LambdaOutput,
+                                                     LambdaOutputV2, S3Output,
+                                                     SESOutput, SNSOutput,
+                                                     SQSOutput)
+from streamalert.alert_processor.outputs.output_base import OutputProperty
+from tests.unit.streamalert.alert_processor import CONFIG, MOCK_ENV, REGION
+from tests.unit.streamalert.alert_processor.helpers import (get_alert,
+                                                            get_random_alert)
 
 
 class TestAWSOutput:

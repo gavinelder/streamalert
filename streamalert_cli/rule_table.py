@@ -14,11 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from streamalert.shared.rule_table import RuleTable
-from streamalert_cli.utils import (
-    CLICommand,
-    generate_subparser,
-    UniqueSortedListAction,
-)
+from streamalert_cli.utils import (CLICommand, UniqueSortedListAction,
+                                   generate_subparser)
 
 
 class RuleStagingCommand(CLICommand):

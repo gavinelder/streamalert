@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from streamalert.shared import metrics
-from streamalert.shared import CLUSTERED_FUNCTIONS
+from streamalert.shared import CLUSTERED_FUNCTIONS, metrics
 from streamalert.shared.logger import get_logger
 from streamalert_cli.terraform.common import infinitedict, monitoring_topic_arn
 

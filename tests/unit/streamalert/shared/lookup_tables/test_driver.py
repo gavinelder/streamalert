@@ -15,12 +15,12 @@ limitations under the License.
 """
 from nose.tools import assert_equal, assert_raises, assert_true
 
-from streamalert.shared.lookup_tables.drivers import (
-    EphemeralDriver,
-    NullDriver,
-)
-from streamalert.shared.lookup_tables.drivers_factory import construct_persistence_driver
-from streamalert.shared.lookup_tables.errors import LookupTablesConfigurationError
+from streamalert.shared.lookup_tables.drivers import (EphemeralDriver,
+                                                      NullDriver)
+from streamalert.shared.lookup_tables.drivers_factory import \
+    construct_persistence_driver
+from streamalert.shared.lookup_tables.errors import \
+    LookupTablesConfigurationError
 
 
 class TestEphemeralDriver:

@@ -15,9 +15,9 @@ limitations under the License.
 """
 # pylint: disable=protected-access
 import json
+from unittest.mock import Mock, patch
 
-from unittest.mock import patch, Mock
-from nose.tools import assert_equal, assert_true, assert_false
+from nose.tools import assert_equal, assert_false, assert_true
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert_cli.config import CLIConfig

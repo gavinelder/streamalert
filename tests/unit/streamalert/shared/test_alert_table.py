@@ -13,15 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime
 import os
+from datetime import datetime
+from unittest.mock import ANY, MagicMock, patch
 
 from botocore.exceptions import ClientError
-from unittest.mock import ANY, MagicMock, patch
 from moto import mock_dynamodb2
 from nose.tools import assert_equal, assert_raises
 
-from streamalert.shared import alert as alert_module, alert_table
+from streamalert.shared import alert as alert_module
+from streamalert.shared import alert_table
 from tests.unit.helpers.aws_mocks import setup_mock_alerts_table
 
 _ALERTS_TABLE = 'PREFIX_streamalert_alerts'

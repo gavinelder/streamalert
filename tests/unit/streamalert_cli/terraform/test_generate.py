@@ -15,12 +15,14 @@ limitations under the License.
 """
 from unittest.mock import ANY, Mock, patch
 
-from nose.tools import (assert_equal, assert_dict_equal, assert_false, assert_raises, assert_true)
+from nose.tools import (assert_dict_equal, assert_equal, assert_false,
+                        assert_raises, assert_true)
 
 from streamalert.shared.exceptions import ConfigError
 from streamalert_cli.config import CLIConfig
-from streamalert_cli.terraform import (common, cloudtrail, cloudwatch_destinations,
-                                       cloudwatch_events, flow_logs, generate)
+from streamalert_cli.terraform import (cloudtrail, cloudwatch_destinations,
+                                       cloudwatch_events, common, flow_logs,
+                                       generate)
 
 
 @patch('streamalert_cli.terraform.generate.write_vars', Mock())

@@ -21,8 +21,10 @@ from moto import mock_dynamodb2
 from nose.tools import assert_equal, assert_false, assert_raises, assert_true
 
 from streamalert.shared.config import load_config
-from streamalert.shared.lookup_tables.drivers_factory import construct_persistence_driver
-from streamalert.shared.lookup_tables.errors import LookupTablesInitializationError
+from streamalert.shared.lookup_tables.drivers_factory import \
+    construct_persistence_driver
+from streamalert.shared.lookup_tables.errors import \
+    LookupTablesInitializationError
 from tests.unit.helpers.aws_mocks import put_mock_dynamod_data
 
 

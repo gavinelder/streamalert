@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from unittest.mock import MagicMock
+
 from moto import mock_kinesis
 
 from streamalert.scheduled_queries.streamalert.kinesis import KinesisClient

@@ -15,15 +15,14 @@ limitations under the License.
 """
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
+
 from nose.tools import assert_equals, assert_false, assert_true
 
 from streamalert.scheduled_queries.query_packs.manager import (
-    QueryPack,
-    QueryPacksManager,
-    QueryPackExecutionContext,
-    QueryPacksManagerFactory,
-)
-from streamalert.scheduled_queries.query_packs.parameters import QueryParameterGenerator
+    QueryPack, QueryPackExecutionContext, QueryPacksManager,
+    QueryPacksManagerFactory)
+from streamalert.scheduled_queries.query_packs.parameters import \
+    QueryParameterGenerator
 
 
 class TestQueryPackExecutionContext:

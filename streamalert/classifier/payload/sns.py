@@ -15,7 +15,8 @@ limitations under the License.
 """
 import logging
 
-from streamalert.classifier.payload.payload_base import (PayloadRecord, RegisterInput,
+from streamalert.classifier.payload.payload_base import (PayloadRecord,
+                                                         RegisterInput,
                                                          StreamPayload)
 from streamalert.shared.logger import get_logger
 

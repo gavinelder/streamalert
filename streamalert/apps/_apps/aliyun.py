@@ -13,13 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime
 import json
 import re
+from datetime import datetime
 
-from aliyunsdkcore.client import AcsClient
-from aliyunsdkcore.acs_exception.exceptions import ServerException, ClientException
 from aliyunsdkactiontrail.request.v20171204 import LookupEventsRequest
+from aliyunsdkcore.acs_exception.exceptions import (ClientException,
+                                                    ServerException)
+from aliyunsdkcore.client import AcsClient
 
 from . import AppIntegration, StreamAlertApp, get_logger
 

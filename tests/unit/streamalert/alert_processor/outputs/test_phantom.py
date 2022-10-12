@@ -14,8 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 # pylint: disable=protected-access,attribute-defined-outside-init
-from unittest.mock import call, patch, PropertyMock, Mock, MagicMock
+from unittest.mock import MagicMock, Mock, PropertyMock, call, patch
+
 from nose.tools import assert_false, assert_true
+
 from streamalert.alert_processor.outputs.phantom import PhantomOutput
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 

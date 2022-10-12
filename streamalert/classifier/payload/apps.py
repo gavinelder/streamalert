@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from streamalert.classifier.payload.payload_base import (PayloadRecord, RegisterInput,
+from streamalert.classifier.payload.payload_base import (PayloadRecord,
+                                                         RegisterInput,
                                                          StreamPayload)
 from streamalert.shared import CLASSIFIER_FUNCTION_NAME as FUNCTION_NAME
 from streamalert.shared.metrics import MetricLogger

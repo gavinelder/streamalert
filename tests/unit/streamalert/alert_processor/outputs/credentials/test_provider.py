@@ -17,26 +17,23 @@ limitations under the License.
 import json
 import os
 from collections import OrderedDict
+from unittest.mock import MagicMock, patch
 
 from botocore.exceptions import ClientError
-from unittest.mock import patch, MagicMock
 from moto import mock_kms, mock_ssm
-from nose.tools import (
-    assert_equal,
-    assert_false,
-    assert_is_instance,
-    assert_is_none,
-    assert_is_not_none,
-    assert_not_equal,
-    assert_true,
-)
+from nose.tools import (assert_equal, assert_false, assert_is_instance,
+                        assert_is_none, assert_is_not_none, assert_not_equal,
+                        assert_true)
 
-from streamalert.alert_processor.outputs.output_base import OutputProperty
 from streamalert.alert_processor.outputs.credentials.provider import (
-    SSMDriver, LocalFileDriver, Credentials, OutputCredentialsProvider, EphemeralUnencryptedDriver,
-    SpooledTempfileDriver, get_formatted_output_credentials_name)
-from tests.unit.streamalert.alert_processor import (PREFIX, CONFIG, KMS_ALIAS, REGION, MOCK_ENV)
-from tests.unit.streamalert.alert_processor.helpers import (encrypt_with_kms, setup_mock_kms)
+    Credentials, EphemeralUnencryptedDriver, LocalFileDriver,
+    OutputCredentialsProvider, SpooledTempfileDriver, SSMDriver,
+    get_formatted_output_credentials_name)
+from streamalert.alert_processor.outputs.output_base import OutputProperty
+from tests.unit.streamalert.alert_processor import (CONFIG, KMS_ALIAS,
+                                                    MOCK_ENV, PREFIX, REGION)
+from tests.unit.streamalert.alert_processor.helpers import (encrypt_with_kms,
+                                                            setup_mock_kms)
 
 #
 # class Credentials Tests

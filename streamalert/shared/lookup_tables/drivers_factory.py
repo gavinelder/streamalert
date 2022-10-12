@@ -1,5 +1,8 @@
-from streamalert.shared.lookup_tables.drivers import PersistenceDriver, NullDriver, EphemeralDriver
-from streamalert.shared.lookup_tables.errors import LookupTablesConfigurationError
+from streamalert.shared.lookup_tables.drivers import (EphemeralDriver,
+                                                      NullDriver,
+                                                      PersistenceDriver)
+from streamalert.shared.lookup_tables.errors import \
+    LookupTablesConfigurationError
 
 
 def construct_persistence_driver(table_configuration):

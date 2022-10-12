@@ -15,8 +15,8 @@ limitations under the License.
 """
 # pylint: disable=too-many-lines
 import json
-
 from unittest.mock import patch
+
 from nose.tools import assert_equal
 
 from streamalert.classifier.parsers import JSONParser

@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os
-
 from unittest.mock import ANY, MagicMock, Mock, patch
-from nose.tools import (assert_equal, assert_is_instance, assert_is_none)
+
+from nose.tools import assert_equal, assert_is_instance, assert_is_none
 
 from streamalert.alert_processor.main import AlertProcessor, handler
 from streamalert.alert_processor.outputs.output_base import OutputDispatcher
 from streamalert.shared.alert import Alert
 from streamalert.shared.config import load_config
 from streamalert.shared.normalize import Normalizer
-from tests.unit.streamalert.alert_processor import (ALERTS_TABLE, MOCK_ENV)
+from tests.unit.streamalert.alert_processor import ALERTS_TABLE, MOCK_ENV
 
 MOCK_ENV.update({'ALERTS_TABLE': ALERTS_TABLE})
 

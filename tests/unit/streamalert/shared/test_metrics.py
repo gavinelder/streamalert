@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import importlib
 # pylint: disable=protected-access
 import os
-import importlib
+from unittest.mock import ANY, patch
 
-from unittest.mock import patch, ANY
 from nose.tools import assert_equal
 
 from streamalert import shared

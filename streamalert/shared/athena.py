@@ -13,15 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime
 import posixpath
+from datetime import datetime
 
 import backoff
 import boto3
 from botocore.exceptions import ClientError
 
-from streamalert.shared.backoff_handlers import (backoff_handler, success_handler)
 import streamalert.shared.helpers.boto as boto_helpers
+from streamalert.shared.backoff_handlers import (backoff_handler,
+                                                 success_handler)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

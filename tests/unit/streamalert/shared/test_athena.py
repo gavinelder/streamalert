@@ -13,17 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import os
 # pylint: disable=protected-access,attribute-defined-outside-init
 from datetime import datetime
-import os
-
 from unittest.mock import Mock, patch
-from nose.tools import (assert_equal, assert_false, assert_count_equal, assert_raises, assert_true,
-                        raises)
+
+from nose.tools import (assert_count_equal, assert_equal, assert_false,
+                        assert_raises, assert_true, raises)
 
 from streamalert.shared.athena import AthenaClient, AthenaQueryExecutionError
 from streamalert.shared.config import load_config
-
 from tests.unit.helpers.aws_mocks import MockAthenaClient
 
 

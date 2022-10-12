@@ -17,7 +17,8 @@ from collections import OrderedDict
 
 from cbapi.response import BannedHash, Binary, CbResponseAPI
 
-from streamalert.alert_processor.outputs.output_base import (OutputDispatcher, OutputProperty,
+from streamalert.alert_processor.outputs.output_base import (OutputDispatcher,
+                                                             OutputProperty,
                                                              StreamAlertOutput)
 from streamalert.shared.logger import get_logger
 

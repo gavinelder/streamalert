@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import json
-
 from unittest.mock import patch
+
 from nose.tools import assert_equal
 
-from streamalert.classifier.payload.payload_base import RegisterInput, StreamPayload
+from streamalert.classifier.payload.payload_base import (RegisterInput,
+                                                         StreamPayload)
 
 
 class TestRegisterInput:

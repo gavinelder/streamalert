@@ -13,13 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from streamalert.shared import metrics, CLUSTERED_FUNCTIONS
+from streamalert.shared import CLUSTERED_FUNCTIONS, metrics
 from streamalert.shared.logger import get_logger
-from streamalert_cli.utils import (
-    add_clusters_arg,
-    CLICommand,
-    set_parser_epilog,
-)
+from streamalert_cli.utils import (CLICommand, add_clusters_arg,
+                                   set_parser_epilog)
 
 LOGGER = get_logger(__name__)
 

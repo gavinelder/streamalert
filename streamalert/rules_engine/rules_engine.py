@@ -16,16 +16,17 @@ limitations under the License.
 from datetime import datetime, timedelta
 from os import environ as env
 
-from streamalert.shared.publisher import AlertPublisherRepository
 from streamalert.rules_engine.alert_forwarder import AlertForwarder
 from streamalert.rules_engine.threat_intel import ThreatIntel
-from streamalert.shared import resources, RULES_ENGINE_FUNCTION_NAME as FUNCTION_NAME
+from streamalert.shared import RULES_ENGINE_FUNCTION_NAME as FUNCTION_NAME
+from streamalert.shared import resources
 from streamalert.shared.alert import Alert
 from streamalert.shared.config import load_config
 from streamalert.shared.importer import import_folders
 from streamalert.shared.logger import get_logger
 from streamalert.shared.lookup_tables.core import LookupTables
 from streamalert.shared.metrics import MetricLogger
+from streamalert.shared.publisher import AlertPublisherRepository
 from streamalert.shared.rule import Rule
 from streamalert.shared.rule_table import RuleTable
 from streamalert.shared.stats import RuleStatisticTracker

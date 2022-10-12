@@ -15,15 +15,15 @@ limitations under the License.
 """
 import json
 import os
+from unittest.mock import Mock, call, mock_open, patch
 
-from boxsdk.exception import BoxException
-from unittest.mock import call, Mock, mock_open, patch
-from moto import mock_ssm
-from nose.tools import assert_equal, assert_false, assert_count_equal, assert_true
 import requests
+from boxsdk.exception import BoxException
+from moto import mock_ssm
+from nose.tools import (assert_count_equal, assert_equal, assert_false,
+                        assert_true)
 
 from streamalert.apps._apps.box import BoxApp
-
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 

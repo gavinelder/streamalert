@@ -15,13 +15,15 @@ limitations under the License.
 """
 # pylint: disable=too-many-lines
 from collections import OrderedDict
+
 import backoff
 
 from streamalert.alert_processor.helpers import compose_alert
-from streamalert.alert_processor.outputs.output_base import (OutputDispatcher, OutputProperty,
-                                                             OutputRequestFailure,
-                                                             StreamAlertOutput)
-from streamalert.shared.backoff_handlers import (backoff_handler, success_handler, giveup_handler)
+from streamalert.alert_processor.outputs.output_base import (
+    OutputDispatcher, OutputProperty, OutputRequestFailure, StreamAlertOutput)
+from streamalert.shared.backoff_handlers import (backoff_handler,
+                                                 giveup_handler,
+                                                 success_handler)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

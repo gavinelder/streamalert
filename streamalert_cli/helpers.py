@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from getpass import getpass
 import json
 import os
 import re
 import subprocess
+from getpass import getpass
 
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError

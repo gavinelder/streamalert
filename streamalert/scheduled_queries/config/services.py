@@ -20,16 +20,18 @@ from botocore import client as botocore_client
 from botocore.exceptions import ProfileNotFound
 
 from streamalert.scheduled_queries.command.processor import CommandProcessor
-from streamalert.scheduled_queries.config.lambda_conf import get_streamquery_env_vars
-from streamalert.scheduled_queries.container.container import ServiceDefinition, ServiceContainer
+from streamalert.scheduled_queries.config.lambda_conf import \
+    get_streamquery_env_vars
+from streamalert.scheduled_queries.container.container import (
+    ServiceContainer, ServiceDefinition)
 from streamalert.scheduled_queries.handlers.athena import AthenaClient
-from streamalert.scheduled_queries.query_packs.configuration import QueryPackRepository
+from streamalert.scheduled_queries.query_packs.configuration import \
+    QueryPackRepository
 from streamalert.scheduled_queries.query_packs.manager import (
-    QueryPackExecutionContext,
-    QueryPacksManagerFactory,
-    QueryParameterGenerator,
-)
-from streamalert.scheduled_queries.state.state_manager import StateManager, StepFunctionStateManager
+    QueryPackExecutionContext, QueryPacksManagerFactory,
+    QueryParameterGenerator)
+from streamalert.scheduled_queries.state.state_manager import (
+    StateManager, StepFunctionStateManager)
 from streamalert.scheduled_queries.streamalert.kinesis import KinesisClient
 from streamalert.scheduled_queries.support.clock import Clock
 from streamalert.shared.config import load_config

@@ -16,14 +16,16 @@ limitations under the License.
 # pylint: disable=unused-argument,attribute-defined-outside-init,protected-access
 from collections import OrderedDict
 from datetime import datetime
+from unittest.mock import MagicMock, Mock, patch
 
-from unittest.mock import patch, Mock, MagicMock
-from nose.tools import assert_is_instance, assert_true, assert_false, assert_equal
+from nose.tools import (assert_equal, assert_false, assert_is_instance,
+                        assert_true)
 
 from streamalert.alert_processor.helpers import compose_alert
-from streamalert.alert_processor.outputs.demisto import DemistoOutput, DemistoRequestAssembler
-from streamalert.alert_processor.outputs.output_base import OutputRequestFailure
-
+from streamalert.alert_processor.outputs.demisto import (
+    DemistoOutput, DemistoRequestAssembler)
+from streamalert.alert_processor.outputs.output_base import \
+    OutputRequestFailure
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 
 SAMPLE_CONTEXT = {

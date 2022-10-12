@@ -17,11 +17,11 @@ from datetime import datetime
 
 from streamalert.rule_promotion.publisher import StatsPublisher
 from streamalert.rule_promotion.statistic import StagingStatistic
-from streamalert.shared.utils import get_database_name
 from streamalert.shared.athena import AthenaClient
 from streamalert.shared.config import load_config
 from streamalert.shared.logger import get_logger
 from streamalert.shared.rule_table import RuleTable
+from streamalert.shared.utils import get_database_name
 
 LOGGER = get_logger(__name__)
 

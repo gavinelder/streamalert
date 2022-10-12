@@ -16,7 +16,8 @@ limitations under the License.
 from streamalert.shared.logger import get_logger
 from streamalert_cli.terraform.generate import terraform_generate_handler
 from streamalert_cli.terraform.helpers import terraform_runner
-from streamalert_cli.utils import CLICommand, set_parser_epilog, add_clusters_arg
+from streamalert_cli.utils import (CLICommand, add_clusters_arg,
+                                   set_parser_epilog)
 
 LOGGER = get_logger(__name__)
 

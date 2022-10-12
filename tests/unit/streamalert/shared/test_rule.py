@@ -15,8 +15,8 @@ limitations under the License.
 """
 # pylint: disable=protected-access
 import hashlib
-
 from unittest.mock import patch
+
 from nose.tools import assert_equal, assert_true, raises
 
 from streamalert.shared import rule, rule_table

@@ -14,25 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import json
-
 from unittest.mock import Mock
-from nose.tools import (
-    assert_equal,
-    assert_count_equal,
-    assert_false,
-    assert_raises,
-    assert_true,
-)
+
+from nose.tools import (assert_count_equal, assert_equal, assert_false,
+                        assert_raises, assert_true)
 from pyfakefs import fake_filesystem_unittest
 
-from streamalert.shared.config import (
-    artifact_extractor_enabled,
-    _validate_config,
-    load_config,
-    parse_lambda_arn,
-    ConfigError,
-)
-
+from streamalert.shared.config import (ConfigError, _validate_config,
+                                       artifact_extractor_enabled, load_config,
+                                       parse_lambda_arn)
 from tests.unit.helpers.config import basic_streamalert_config
 
 

@@ -13,13 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from collections import defaultdict
 import textwrap
+from collections import defaultdict
 
 from streamalert.shared import rule
 from streamalert.shared.logger import get_logger
 from streamalert_cli.test.event import TestEvent
-from streamalert_cli.test.format import format_green, format_red, format_underline
+from streamalert_cli.test.format import (format_green, format_red,
+                                         format_underline)
 
 LOGGER = get_logger(__name__)
 

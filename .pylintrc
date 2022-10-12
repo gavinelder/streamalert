@@ -62,7 +62,6 @@ disable=
     consider-using-f-string,
     import-outside-toplevel,
     no-else-return,
-    wrong-import-order,
     invalid-overridden-method,
     arguments-differ,
     unspecified-encoding,

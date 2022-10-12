@@ -23,11 +23,13 @@ To run terraform by hand, change to the terraform directory and run:
 
 terraform <cmd>
 """
-from abc import abstractmethod
-from argparse import _AppendAction, Action, ArgumentTypeError, RawDescriptionHelpFormatter
 import os
 import textwrap
-from streamalert.apps.config import AWS_RATE_RE, AWS_RATE_HELPER
+from abc import abstractmethod
+from argparse import (Action, ArgumentTypeError, RawDescriptionHelpFormatter,
+                      _AppendAction)
+
+from streamalert.apps.config import AWS_RATE_HELPER, AWS_RATE_RE
 
 CLUSTERS = [
     os.path.splitext(cluster)[0] for _, _, files in os.walk('./conf/clusters') for cluster in files

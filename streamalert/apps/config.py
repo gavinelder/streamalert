@@ -14,17 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import calendar
-from datetime import datetime
 import json
 import re
 import time
+from datetime import datetime
 
 import backoff
 import boto3
 from botocore import client
 from botocore.exceptions import ClientError
 
-from streamalert.apps.exceptions import AppAuthError, AppConfigError, AppStateError
+from streamalert.apps.exceptions import (AppAuthError, AppConfigError,
+                                         AppStateError)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

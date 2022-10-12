@@ -15,7 +15,7 @@ limitations under the License.
 """
 from nose.tools import assert_equal
 
-from streamalert_cli.terraform import common, classifier
+from streamalert_cli.terraform import classifier, common
 
 
 class TestTerraformGenerateClassifier:

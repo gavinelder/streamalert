@@ -15,15 +15,15 @@ limitations under the License.
 """
 # pylint: disable=protected-access,attribute-defined-outside-init
 from collections import Counter, OrderedDict
-from unittest.mock import patch, Mock, MagicMock
-from nose.tools import assert_equal, assert_false, assert_true, assert_set_equal
+from unittest.mock import MagicMock, Mock, patch
+
+from nose.tools import (assert_equal, assert_false, assert_set_equal,
+                        assert_true)
 
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.slack import SlackOutput
-from tests.unit.streamalert.alert_processor.helpers import (
-    get_random_alert,
-    get_alert,
-)
+from tests.unit.streamalert.alert_processor.helpers import (get_alert,
+                                                            get_random_alert)
 
 
 @patch('streamalert.alert_processor.outputs.output_base.OutputDispatcher.MAX_RETRY_ATTEMPTS', 1)

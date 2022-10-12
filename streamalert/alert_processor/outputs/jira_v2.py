@@ -13,9 +13,9 @@ limitations under the License.
 
 import base64
 
+from streamalert.alert_processor.outputs.jira import JiraOutput
 from streamalert.alert_processor.outputs.output_base import StreamAlertOutput
 from streamalert.shared.logger import get_logger
-from streamalert.alert_processor.outputs.jira import JiraOutput
 
 LOGGER = get_logger(__name__)
 

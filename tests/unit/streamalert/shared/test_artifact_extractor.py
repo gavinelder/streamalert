@@ -14,15 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from unittest.mock import call, patch
+
 from nose.tools import assert_equal
 
-from streamalert.shared.artifact_extractor import (Artifact, ArtifactExtractor)
+from streamalert.shared.artifact_extractor import Artifact, ArtifactExtractor
 from streamalert.shared.firehose import FirehoseClient
 from tests.unit.streamalert.shared.test_utils import (
-    generate_artifacts,
-    generate_categorized_records,
-    MOCK_RECORD_ID,
-)
+    MOCK_RECORD_ID, generate_artifacts, generate_categorized_records)
 
 
 class TestArtifact:

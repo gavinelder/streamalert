@@ -21,7 +21,10 @@ import boto3
 from boto3.dynamodb.types import TypeDeserializer
 from botocore.exceptions import ClientError, ParamValidationError
 from netaddr import IPNetwork
-from streamalert.shared.backoff_handlers import (backoff_handler, success_handler, giveup_handler)
+
+from streamalert.shared.backoff_handlers import (backoff_handler,
+                                                 giveup_handler,
+                                                 success_handler)
 from streamalert.shared.logger import get_logger
 from streamalert.shared.normalize import Normalizer
 from streamalert.shared.utils import in_network, valid_ip

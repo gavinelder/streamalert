@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from streamalert.shared import ATHENA_PARTITIONER_NAME
-from streamalert.shared.config import athena_partition_buckets_tf, athena_query_results_bucket
-from streamalert_cli.terraform.common import (
-    infinitedict,
-    s3_access_logging_bucket,
-)
+from streamalert.shared.config import (athena_partition_buckets_tf,
+                                       athena_query_results_bucket)
+from streamalert_cli.terraform.common import (infinitedict,
+                                              s3_access_logging_bucket)
 from streamalert_cli.terraform.lambda_module import generate_lambda
 
 

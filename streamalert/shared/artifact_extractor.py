@@ -13,11 +13,11 @@ limitations under the License.
 import re
 import uuid
 
-from streamalert.shared.firehose import FirehoseClient
 from streamalert.shared import CLASSIFIER_FUNCTION_NAME, config
-from streamalert.shared.metrics import MetricLogger
-from streamalert.shared.normalize import Normalizer, CONST_ARTIFACTS_FLAG
+from streamalert.shared.firehose import FirehoseClient
 from streamalert.shared.logger import get_logger
+from streamalert.shared.metrics import MetricLogger
+from streamalert.shared.normalize import CONST_ARTIFACTS_FLAG, Normalizer
 
 LOGGER = get_logger(__name__)
 

@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from unittest.mock import Mock, patch
+
 from nose.tools import assert_equal, assert_false, assert_raises, assert_true
 
 from streamalert.shared.exceptions import ConfigError
-from streamalert.shared.normalize import Normalizer, NormalizedType
+from streamalert.shared.normalize import NormalizedType, Normalizer
 from tests.unit.streamalert.shared.test_utils import MOCK_RECORD_ID
 
 

@@ -1,4 +1,5 @@
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
+
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

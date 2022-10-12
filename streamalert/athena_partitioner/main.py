@@ -13,19 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from collections import defaultdict
 import json
 import posixpath
 import re
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
+from collections import defaultdict
 
-from streamalert.shared.utils import get_database_name, get_data_file_format
 from streamalert.shared.athena import AthenaClient
 from streamalert.shared.config import athena_partition_buckets, load_config
 from streamalert.shared.exceptions import ConfigError
 from streamalert.shared.logger import get_logger
+from streamalert.shared.utils import get_data_file_format, get_database_name
 
 LOGGER = get_logger(__name__)
 

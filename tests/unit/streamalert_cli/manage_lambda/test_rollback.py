@@ -15,13 +15,13 @@ limitations under the License.
 """
 # pylint: disable=protected-access
 import unittest
+from unittest import mock
 
 from botocore.exceptions import ClientError
-from unittest import mock
 from nose.tools import assert_equal
 
 from streamalert_cli.manage_lambda import rollback
-from tests.unit.helpers.config import basic_streamalert_config, MockCLIConfig
+from tests.unit.helpers.config import MockCLIConfig, basic_streamalert_config
 
 
 class MockOptions:

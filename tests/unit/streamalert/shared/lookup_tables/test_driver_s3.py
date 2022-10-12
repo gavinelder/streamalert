@@ -13,23 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime
 import json
 import zlib
+from datetime import datetime
+from unittest.mock import ANY, MagicMock, patch
 
 import botocore
 from botocore.exceptions import ReadTimeoutError
-from unittest.mock import patch, ANY, MagicMock
 from moto import mock_s3
 from nose.tools import assert_equal, assert_raises
 
 from streamalert.shared.config import load_config
-from streamalert.shared.lookup_tables.driver_s3 import S3Driver, Compression, S3Adapter
-from streamalert.shared.lookup_tables.drivers_factory import construct_persistence_driver
+from streamalert.shared.lookup_tables.driver_s3 import (Compression, S3Adapter,
+                                                        S3Driver)
+from streamalert.shared.lookup_tables.drivers_factory import \
+    construct_persistence_driver
 from streamalert.shared.lookup_tables.errors import (
-    LookupTablesCommitError,
-    LookupTablesInitializationError,
-)
+    LookupTablesCommitError, LookupTablesInitializationError)
 from tests.unit.helpers.aws_mocks import put_mock_s3_object
 
 

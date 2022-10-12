@@ -13,17 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from collections import OrderedDict
-import os
 import logging
+import os
+from collections import OrderedDict
 
 from streamalert.classifier.clients import SQSClient
-from streamalert.shared.firehose import FirehoseClient
 from streamalert.classifier.parsers import get_parser
 from streamalert.classifier.payload.payload_base import StreamPayload
-from streamalert.shared import config, CLASSIFIER_FUNCTION_NAME as FUNCTION_NAME
+from streamalert.shared import CLASSIFIER_FUNCTION_NAME as FUNCTION_NAME
+from streamalert.shared import config
 from streamalert.shared.artifact_extractor import ArtifactExtractor
 from streamalert.shared.exceptions import ConfigError
+from streamalert.shared.firehose import FirehoseClient
 from streamalert.shared.logger import get_logger
 from streamalert.shared.metrics import MetricLogger
 from streamalert.shared.normalize import Normalizer

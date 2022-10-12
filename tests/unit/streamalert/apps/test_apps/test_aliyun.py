@@ -15,15 +15,14 @@ limitations under the License.
 """
 import json
 import os
-
 from unittest.mock import patch
-from moto import mock_ssm
-from nose.tools import assert_count_equal, assert_equal, assert_false, assert_true, raises
 
 from aliyunsdkcore.acs_exception.exceptions import ServerException
+from moto import mock_ssm
+from nose.tools import (assert_count_equal, assert_equal, assert_false,
+                        assert_true, raises)
 
 from streamalert.apps._apps.aliyun import AliyunApp
-
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 

@@ -13,16 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime
 import os
+from datetime import datetime
 from io import StringIO
+from unittest.mock import Mock, patch
 
 from botocore.exceptions import ClientError
-from unittest.mock import Mock, patch
 from moto import mock_dynamodb2
 from nose.tools import assert_equal, assert_not_equal, assert_raises
 
-from streamalert.shared import rule as rule_module, rule_table
+from streamalert.shared import rule as rule_module
+from streamalert.shared import rule_table
 from tests.unit.helpers.aws_mocks import setup_mock_rules_table
 
 _RULES_TABLE = 'PREFIX_streamalert_rules'

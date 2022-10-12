@@ -13,9 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from nose.tools import (assert_equal, assert_false, assert_true)
+from nose.tools import assert_equal, assert_false, assert_true
 
-from streamalert.shared.lookup_tables.configuration import LookupTablesConfiguration
+from streamalert.shared.lookup_tables.configuration import \
+    LookupTablesConfiguration
 
 
 class TestLookupTablesConfiguration:

@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from streamalert.shared.firehose import FirehoseClient
 from streamalert.shared.config import firehose_data_bucket
-from streamalert.shared.utils import get_database_name, get_data_file_format
+from streamalert.shared.firehose import FirehoseClient
+from streamalert.shared.utils import get_data_file_format, get_database_name
 from streamalert_cli.athena.helpers import generate_data_table_schema
 from streamalert_cli.terraform.common import monitoring_topic_arn
 

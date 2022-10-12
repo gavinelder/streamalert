@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import copy
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
 
-from nose.tools import (assert_equal, assert_false, assert_is_instance, assert_not_in,
-                        assert_raises, assert_true)
+from nose.tools import (assert_equal, assert_false, assert_is_instance,
+                        assert_not_in, assert_raises, assert_true)
 
 from streamalert.shared.alert import Alert, AlertCreationError
 

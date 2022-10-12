@@ -13,9 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from unittest.mock import patch
+
 import boto3
 from botocore.exceptions import ClientError
-from unittest.mock import patch
 from moto import mock_kms
 from nose.tools import assert_equal, raises
 

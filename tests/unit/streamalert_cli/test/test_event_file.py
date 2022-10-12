@@ -20,10 +20,8 @@ from pyfakefs import fake_filesystem_unittest
 
 from streamalert_cli.test.event_file import TestEventFile
 from streamalert_cli.test.results import TestResult
-from tests.unit.streamalert_cli.test.helpers import (
-    basic_test_event_data,
-    basic_test_file_json,
-)
+from tests.unit.streamalert_cli.test.helpers import (basic_test_event_data,
+                                                     basic_test_file_json)
 
 # Keep nose from trying to treat these as tests
 TestEventFile = nottest(TestEventFile)

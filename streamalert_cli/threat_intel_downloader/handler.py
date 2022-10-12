@@ -17,15 +17,10 @@ import re
 
 from streamalert.shared.logger import get_logger
 from streamalert.threat_intel_downloader.main import ThreatStream
-from streamalert_cli.helpers import user_input, save_parameter
-from streamalert_cli.utils import (
-    add_memory_arg,
-    add_schedule_expression_arg,
-    add_timeout_arg,
-    CLICommand,
-    generate_subparser,
-    UniqueSortedListAction,
-)
+from streamalert_cli.helpers import save_parameter, user_input
+from streamalert_cli.utils import (CLICommand, UniqueSortedListAction,
+                                   add_memory_arg, add_schedule_expression_arg,
+                                   add_timeout_arg, generate_subparser)
 
 LOGGER = get_logger(__name__)
 

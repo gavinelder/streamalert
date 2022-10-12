@@ -23,17 +23,15 @@ To run terraform by hand, change to the terraform directory and run:
 
 terraform <cmd>
 """
-from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 import sys
+from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 
 from streamalert import __version__ as version
 from streamalert_cli.config import DEFAULT_CONFIG_PATH
-from streamalert_cli.runner import cli_runner, StreamAlertCLICommandRepository
-from streamalert_cli.utils import (
-    DirectoryType,
-    generate_subparser,
-    UniqueSortedFileListAppendAction,
-)
+from streamalert_cli.runner import StreamAlertCLICommandRepository, cli_runner
+from streamalert_cli.utils import (DirectoryType,
+                                   UniqueSortedFileListAppendAction,
+                                   generate_subparser)
 
 
 def build_parser():

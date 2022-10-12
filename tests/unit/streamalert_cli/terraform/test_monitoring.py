@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from unittest.mock import patch
+
 from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert_cli.config import CLIConfig

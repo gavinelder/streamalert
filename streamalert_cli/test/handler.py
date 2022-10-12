@@ -15,9 +15,9 @@ limitations under the License.
 """
 import argparse
 import os
+from unittest.mock import MagicMock, patch
 
 import jmespath
-from unittest.mock import patch, MagicMock
 
 from streamalert.alert_processor import main as alert_processor
 from streamalert.alert_processor.helpers import compose_alert
@@ -29,16 +29,13 @@ from streamalert.shared.config import ConfigError
 from streamalert.shared.logger import get_logger
 from streamalert.shared.stats import RuleStatisticTracker
 from streamalert_cli.helpers import check_credentials
-from streamalert_cli.test.format import format_green, format_red, format_underline, format_yellow
-from streamalert_cli.test.mocks import LookupTableMocks, ThreatIntelMocks
 from streamalert_cli.test.event_file import TestEventFile
-from streamalert_cli.utils import (
-    CLICommand,
-    DirectoryType,
-    generate_subparser,
-    UniqueSortedFileListAction,
-    UniqueSortedListAction,
-)
+from streamalert_cli.test.format import (format_green, format_red,
+                                         format_underline, format_yellow)
+from streamalert_cli.test.mocks import LookupTableMocks, ThreatIntelMocks
+from streamalert_cli.utils import (CLICommand, DirectoryType,
+                                   UniqueSortedFileListAction,
+                                   UniqueSortedListAction, generate_subparser)
 
 LOGGER = get_logger(__name__)
 

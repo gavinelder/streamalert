@@ -13,16 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import time
 from abc import ABCMeta, abstractmethod, abstractproperty
 from json import JSONDecodeError
-import time
 
 import boto3
-from botocore.exceptions import ClientError
 import requests
+from botocore.exceptions import ClientError
 
-from streamalert.apps.config import AppConfig
 from streamalert.apps.batcher import Batcher
+from streamalert.apps.config import AppConfig
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

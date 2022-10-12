@@ -16,8 +16,8 @@ limitations under the License.
 import json
 
 from streamalert.shared.logger import get_logger
-from streamalert_cli.test.results import TestResult
 from streamalert_cli.test.format import format_red, format_underline
+from streamalert_cli.test.results import TestResult
 
 LOGGER = get_logger(__name__)
 

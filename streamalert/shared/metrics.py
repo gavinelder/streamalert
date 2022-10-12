@@ -15,8 +15,10 @@ limitations under the License.
 """
 import os
 
-from streamalert.shared import (ALERT_MERGER_NAME, ALERT_PROCESSOR_NAME, ATHENA_PARTITIONER_NAME,
-                                CLASSIFIER_FUNCTION_NAME, RULES_ENGINE_FUNCTION_NAME)
+from streamalert.shared import (ALERT_MERGER_NAME, ALERT_PROCESSOR_NAME,
+                                ATHENA_PARTITIONER_NAME,
+                                CLASSIFIER_FUNCTION_NAME,
+                                RULES_ENGINE_FUNCTION_NAME)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

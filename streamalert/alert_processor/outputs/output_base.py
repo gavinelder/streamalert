@@ -15,14 +15,17 @@ limitations under the License.
 """
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
-import requests
-from requests.exceptions import Timeout as ReqTimeout
-import urllib3
 
 import backoff
+import requests
+import urllib3
+from requests.exceptions import Timeout as ReqTimeout
 
-from streamalert.alert_processor.outputs.credentials.provider import OutputCredentialsProvider
-from streamalert.shared.backoff_handlers import (backoff_handler, success_handler, giveup_handler)
+from streamalert.alert_processor.outputs.credentials.provider import \
+    OutputCredentialsProvider
+from streamalert.shared.backoff_handlers import (backoff_handler,
+                                                 giveup_handler,
+                                                 success_handler)
 from streamalert.shared.helpers.boto import REGION
 from streamalert.shared.logger import get_logger
 

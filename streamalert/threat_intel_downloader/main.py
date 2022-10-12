@@ -13,20 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
 
 import backoff
 import boto3
-from botocore.exceptions import ClientError
 import requests
+from botocore.exceptions import ClientError
 
-from streamalert.shared.backoff_handlers import (backoff_handler, success_handler, giveup_handler)
+from streamalert.shared.backoff_handlers import (backoff_handler,
+                                                 giveup_handler,
+                                                 success_handler)
 from streamalert.shared.config import load_config, parse_lambda_arn
 from streamalert.shared.logger import get_logger
-from streamalert.threat_intel_downloader.exceptions import (ThreatStreamCredsError,
-                                                            ThreatStreamLambdaInvokeError,
-                                                            ThreatStreamRequestsError)
+from streamalert.threat_intel_downloader.exceptions import (
+    ThreatStreamCredsError, ThreatStreamLambdaInvokeError,
+    ThreatStreamRequestsError)
 
 LOGGER = get_logger(__name__)
 

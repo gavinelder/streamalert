@@ -15,7 +15,8 @@ limitations under the License.
 """
 from nose.tools import assert_equal
 
-from streamalert.shared.lookup_tables.drivers_factory import construct_persistence_driver
+from streamalert.shared.lookup_tables.drivers_factory import \
+    construct_persistence_driver
 from streamalert.shared.lookup_tables.table import LookupTable
 
 

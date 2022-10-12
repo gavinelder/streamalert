@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from collections import defaultdict, OrderedDict
 import json
 import os
 import re
+from collections import OrderedDict, defaultdict
 
 from streamalert.shared import CLUSTERED_FUNCTIONS
 from streamalert.shared.exceptions import ConfigError

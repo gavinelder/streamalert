@@ -18,12 +18,8 @@ from botocore.exceptions import ClientError
 
 from streamalert.shared.logger import get_logger
 from streamalert_cli.terraform.generate import terraform_generate_handler
-from streamalert_cli.utils import (
-    add_default_lambda_args,
-    CLICommand,
-    function_map,
-    set_parser_epilog,
-)
+from streamalert_cli.utils import (CLICommand, add_default_lambda_args,
+                                   function_map, set_parser_epilog)
 
 LOGGER = get_logger(__name__)
 

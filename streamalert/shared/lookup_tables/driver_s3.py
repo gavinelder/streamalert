@@ -19,16 +19,15 @@ import time
 import zlib
 
 import boto3
-from botocore.exceptions import ClientError, ConnectTimeoutError, ReadTimeoutError
+from botocore.exceptions import (ClientError, ConnectTimeoutError,
+                                 ReadTimeoutError)
 
 import streamalert.shared.helpers.boto as boto_helpers
 from streamalert.shared.logger import get_logger
 from streamalert.shared.lookup_tables.cache import DriverCache
 from streamalert.shared.lookup_tables.drivers import PersistenceDriver
 from streamalert.shared.lookup_tables.errors import (
-    LookupTablesCommitError,
-    LookupTablesInitializationError,
-)
+    LookupTablesCommitError, LookupTablesInitializationError)
 
 LOGGER = get_logger(__name__)
 

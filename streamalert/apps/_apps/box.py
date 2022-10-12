@@ -15,10 +15,10 @@ limitations under the License.
 """
 import json
 
+import requests
 from boxsdk import Client, JWTAuth
 from boxsdk.exception import BoxException
 from boxsdk.object.events import EnterpriseEventsStreamType
-import requests
 
 from . import AppIntegration, StreamAlertApp, get_logger, safe_timeout
 

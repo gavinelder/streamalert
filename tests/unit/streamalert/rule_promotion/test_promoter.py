@@ -13,18 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
+from unittest.mock import Mock, PropertyMock, patch
 
 from boto3 import client
-from unittest.mock import Mock, patch, PropertyMock
 from moto import mock_dynamodb2
 from nose.tools import assert_equal
 
 from streamalert.rule_promotion.promoter import RulePromoter
 from streamalert.rule_promotion.statistic import StagingStatistic
-from streamalert.shared import config, rule as rule_module
-from tests.unit.helpers.aws_mocks import MockAthenaClient, setup_mock_rules_table
+from streamalert.shared import config
+from streamalert.shared import rule as rule_module
+from tests.unit.helpers.aws_mocks import (MockAthenaClient,
+                                          setup_mock_rules_table)
 
 _RULES_TABLE = 'unit-test_streamalert_rules'
 

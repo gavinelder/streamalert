@@ -13,24 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from fnmatch import fnmatch
 import json
 import os
+from fnmatch import fnmatch
 
 from streamalert.shared.config import firehose_alerts_bucket
 from streamalert.shared.logger import get_logger
 from streamalert.shared.utils import get_data_file_format
-from streamalert_cli.athena.handler import create_table, create_log_tables
-from streamalert_cli.helpers import check_credentials, continue_prompt, run_command
+from streamalert_cli.athena.handler import create_log_tables, create_table
+from streamalert_cli.helpers import (check_credentials, continue_prompt,
+                                     run_command)
 from streamalert_cli.manage_lambda.deploy import deploy
 from streamalert_cli.terraform.generate import terraform_generate_handler
 from streamalert_cli.terraform.helpers import terraform_check, terraform_runner
-from streamalert_cli.utils import (
-    add_clusters_arg,
-    CLICommand,
-    set_parser_epilog,
-    UniqueSortedListAction,
-)
+from streamalert_cli.utils import (CLICommand, UniqueSortedListAction,
+                                   add_clusters_arg, set_parser_epilog)
 
 LOGGER = get_logger(__name__)
 

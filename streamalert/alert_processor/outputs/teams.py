@@ -19,11 +19,9 @@ import pymsteams
 from pymsteams import TeamsWebhookException
 
 from streamalert.alert_processor.helpers import compose_alert
-from streamalert.alert_processor.outputs.output_base import (
-    OutputDispatcher,
-    OutputProperty,
-    StreamAlertOutput,
-)
+from streamalert.alert_processor.outputs.output_base import (OutputDispatcher,
+                                                             OutputProperty,
+                                                             StreamAlertOutput)
 from streamalert.shared.logger import get_logger
 
 LOGGER = get_logger(__name__)

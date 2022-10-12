@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from unittest.mock import patch
+
 from nose.tools import assert_equal, assert_true
 
+from streamalert.shared.firehose import FirehoseClient
 from streamalert_cli.athena import helpers
 from streamalert_cli.config import CLIConfig
-from streamalert.shared.firehose import FirehoseClient
 
 CONFIG = CLIConfig(config_path='tests/unit/conf')
 

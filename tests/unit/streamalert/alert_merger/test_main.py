@@ -13,17 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import os
 # pylint: disable=attribute-defined-outside-init,protected-access
 from datetime import datetime, timedelta
-import os
+from unittest.mock import ANY, MagicMock, call, patch
 
-from unittest.mock import ANY, call, patch, MagicMock
 from moto import mock_dynamodb2, mock_lambda
 from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert.alert_merger import main
 from streamalert.shared.alert import Alert
-from tests.unit.helpers.aws_mocks import create_lambda_function, setup_mock_alerts_table
+from tests.unit.helpers.aws_mocks import (create_lambda_function,
+                                          setup_mock_alerts_table)
 
 _ALERTS_TABLE = 'PREFIX_streamalert_alerts'
 _ALERT_PROCESSOR = 'PREFIX_streamalert_alert_processor'

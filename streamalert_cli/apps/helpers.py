@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from streamalert.shared.logger import get_logger
 from streamalert.apps.config import AppConfig
-from streamalert_cli.helpers import user_input, save_parameter
+from streamalert.shared.logger import get_logger
+from streamalert_cli.helpers import save_parameter, user_input
 
 LOGGER = get_logger(__name__)
 

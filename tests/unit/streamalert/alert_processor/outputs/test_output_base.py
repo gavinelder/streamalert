@@ -14,18 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 # pylint: disable=abstract-class-instantiated,protected-access,attribute-defined-outside-init
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
 from moto import mock_kms, mock_ssm
-from nose.tools import (assert_equal, assert_is_instance, assert_is_not_none, assert_is_none,
-                        assert_count_equal)
+from nose.tools import (assert_count_equal, assert_equal, assert_is_instance,
+                        assert_is_none, assert_is_not_none)
 from requests.exceptions import Timeout as ReqTimeout
 
-from streamalert.alert_processor.outputs.output_base import (OutputDispatcher, OutputProperty,
-                                                             OutputRequestFailure,
-                                                             StreamAlertOutput)
 from streamalert.alert_processor.outputs.aws import S3Output
-from tests.unit.streamalert.alert_processor import (CONFIG, KMS_ALIAS, MOCK_ENV, REGION, PREFIX)
-from tests.unit.streamalert.alert_processor.helpers import (put_mock_ssm_parameters)
+from streamalert.alert_processor.outputs.output_base import (
+    OutputDispatcher, OutputProperty, OutputRequestFailure, StreamAlertOutput)
+from tests.unit.streamalert.alert_processor import (CONFIG, KMS_ALIAS,
+                                                    MOCK_ENV, PREFIX, REGION)
+from tests.unit.streamalert.alert_processor.helpers import \
+    put_mock_ssm_parameters
 
 
 def test_output_property_default():

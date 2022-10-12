@@ -15,10 +15,10 @@ limitations under the License.
 """
 import json
 
+from streamalert.alert_processor.outputs.output_base import (
+    OutputCredentialsProvider, StreamAlertOutput)
 from streamalert.shared.logger import get_logger
-from streamalert.alert_processor.outputs.output_base import (StreamAlertOutput,
-                                                             OutputCredentialsProvider)
-from streamalert_cli.helpers import user_input, response_is_valid
+from streamalert_cli.helpers import response_is_valid, user_input
 from streamalert_cli.outputs.helpers import output_exists
 from streamalert_cli.utils import CLICommand, generate_subparser
 

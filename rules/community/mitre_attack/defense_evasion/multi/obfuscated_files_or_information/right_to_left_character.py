@@ -1,6 +1,6 @@
 """Detection of the right to left override unicode character U+202E in file_name or process name."""
-from streamalert.shared.rule import rule
 from streamalert.shared.normalize import Normalizer
+from streamalert.shared.rule import rule
 
 
 @rule(datatypes=['command', 'path', 'file_name'])

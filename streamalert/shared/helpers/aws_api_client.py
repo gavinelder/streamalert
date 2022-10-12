@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import json
-import boto3
 
+import boto3
 from botocore.exceptions import ClientError
 
 from streamalert.shared.helpers.boto import default_config

@@ -15,15 +15,17 @@ limitations under the License.
 """
 import json
 import os
+from unittest.mock import patch
 
 import boto3
 from botocore.exceptions import ClientError
-from unittest.mock import patch
 from moto import mock_ssm
-from nose.tools import assert_equal, assert_false, assert_true, assert_dict_equal, raises
+from nose.tools import (assert_dict_equal, assert_equal, assert_false,
+                        assert_true, raises)
 
 from streamalert.apps.config import AppConfig
-from streamalert.apps.exceptions import AppAuthError, AppConfigError, AppStateError
+from streamalert.apps.exceptions import (AppAuthError, AppConfigError,
+                                         AppStateError)
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
 

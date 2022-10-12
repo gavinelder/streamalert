@@ -15,14 +15,15 @@ limitations under the License.
 """
 import json
 import zlib
-
 from unittest.mock import ANY, patch
-from moto import mock_s3, mock_dynamodb2
+
+from moto import mock_dynamodb2, mock_s3
 from nose.tools import assert_equal
 
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.core import LookupTables
-from tests.unit.helpers.aws_mocks import put_mock_s3_object, put_mock_dynamod_data
+from tests.unit.helpers.aws_mocks import (put_mock_dynamod_data,
+                                          put_mock_s3_object)
 
 
 class TestLookupTablesCore:

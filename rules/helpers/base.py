@@ -13,15 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from fnmatch import fnmatch
-import logging
 import json
+import logging
 import random
 import time
+from fnmatch import fnmatch
+
 import pathlib2
 
-from streamalert.shared.utils import (  # pylint: disable=unused-import
-    # Import some utility functions which are useful for rules as well
+from streamalert.shared.utils import (  # pylint: disable=unused-import; Import some utility functions which are useful for rules as well
     get_first_key, get_keys, in_network, valid_ip)
 
 logging.basicConfig()

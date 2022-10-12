@@ -18,7 +18,6 @@ import json
 import re
 import time
 import zlib
-
 from unittest.mock import patch
 
 from streamalert.classifier.parsers import ParserBase

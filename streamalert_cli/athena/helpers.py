@@ -15,10 +15,10 @@ limitations under the License.
 """
 import re
 
+from streamalert.shared.alert import Alert
 from streamalert.shared.artifact_extractor import Artifact
 from streamalert.shared.firehose import FirehoseClient
 from streamalert.shared.logger import get_logger
-from streamalert.shared.alert import Alert
 from streamalert_cli.helpers import record_to_schema
 
 LOGGER = get_logger(__name__)

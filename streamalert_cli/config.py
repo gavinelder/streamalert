@@ -23,9 +23,9 @@ import tempfile
 from streamalert.apps import StreamAlertApp
 from streamalert.shared import CLUSTERED_FUNCTIONS, config, metrics
 from streamalert.shared.logger import get_logger
-from streamalert_cli.terraform import TERRAFORM_FILES_PATH
 from streamalert_cli.apps.helpers import save_app_auth_info
 from streamalert_cli.helpers import continue_prompt
+from streamalert_cli.terraform import TERRAFORM_FILES_PATH
 
 DEFAULT_CONFIG_PATH = 'conf'
 LOGGER = get_logger(__name__)

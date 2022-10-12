@@ -15,7 +15,9 @@ limitations under the License.
 """
 from unittest.mock import Mock, patch
 
-from streamalert.shared.backoff_handlers import (backoff_handler, giveup_handler, success_handler)
+from streamalert.shared.backoff_handlers import (backoff_handler,
+                                                 giveup_handler,
+                                                 success_handler)
 
 
 def _get_details(with_wait=False):

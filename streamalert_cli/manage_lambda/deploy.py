@@ -17,12 +17,8 @@ from streamalert.shared import rule_table
 from streamalert.shared.logger import get_logger
 from streamalert_cli.terraform.generate import terraform_generate_handler
 from streamalert_cli.terraform.helpers import terraform_runner
-from streamalert_cli.utils import (
-    add_default_lambda_args,
-    CLICommand,
-    MutuallyExclusiveStagingAction,
-    set_parser_epilog,
-)
+from streamalert_cli.utils import (CLICommand, MutuallyExclusiveStagingAction,
+                                   add_default_lambda_args, set_parser_epilog)
 
 LOGGER = get_logger(__name__)
 

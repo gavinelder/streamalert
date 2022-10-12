@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import calendar
-from datetime import datetime
 import re
 import time
+from datetime import datetime
 
 import backoff
 import requests

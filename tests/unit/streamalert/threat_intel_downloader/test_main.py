@@ -13,23 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime
 import os
+from datetime import datetime
+from unittest.mock import Mock, patch
 
 import boto3
 from botocore.exceptions import ClientError
-from unittest.mock import Mock, patch
 from moto import mock_ssm
-from nose.tools import (assert_equal, raises)
+from nose.tools import assert_equal, raises
 
 from streamalert.shared.config import load_config
-from streamalert.threat_intel_downloader.exceptions import (ThreatStreamCredsError,
-                                                            ThreatStreamLambdaInvokeError,
-                                                            ThreatStreamRequestsError)
+from streamalert.threat_intel_downloader.exceptions import (
+    ThreatStreamCredsError, ThreatStreamLambdaInvokeError,
+    ThreatStreamRequestsError)
 from streamalert.threat_intel_downloader.main import ThreatStream
 from tests.unit.streamalert.apps.test_helpers import MockLambdaClient
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
-from tests.unit.streamalert.threat_intel_downloader.test_helpers import put_mock_params
+from tests.unit.streamalert.threat_intel_downloader.test_helpers import \
+    put_mock_params
 
 
 @patch('time.sleep', Mock())

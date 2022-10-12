@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 """Script to sort conf/logs.json schema file"""
 import json
-import os
 import logging
-
+import os
 from collections import OrderedDict
 
 CONF_LOGS_FILE = os.path.join(os.path.dirname(__file__), '../../conf/logs.json')

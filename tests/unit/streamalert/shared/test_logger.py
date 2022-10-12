@@ -15,11 +15,11 @@ limitations under the License.
 """
 import logging
 import os
-
 from unittest.mock import patch
+
 from nose.tools import assert_equal, assert_is_instance
 
-from streamalert.shared.logger import get_logger, LogFormatter, set_formatter
+from streamalert.shared.logger import LogFormatter, get_logger, set_formatter
 
 
 def test_get_logger():

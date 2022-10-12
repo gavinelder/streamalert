@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from base64 import b64encode
-from datetime import datetime
 import hashlib
 import hmac
 import re
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
+from base64 import b64encode
+from datetime import datetime
 
 import requests
 

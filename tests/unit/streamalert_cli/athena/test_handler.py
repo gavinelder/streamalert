@@ -15,14 +15,14 @@ limitations under the License.
 """
 # pylint: disable=protected-access
 from unittest.mock import Mock, patch
+
 from nose.tools import assert_equal, assert_true
 
 from streamalert.shared.firehose import FirehoseClient
 from streamalert_cli.athena import handler
 from streamalert_cli.config import CLIConfig
-
 from tests.unit.helpers.aws_mocks import MockAthenaClient
-from tests.unit.helpers.config import athena_cli_basic_config, MockCLIConfig
+from tests.unit.helpers.config import MockCLIConfig, athena_cli_basic_config
 
 
 class TestAthenaCli:

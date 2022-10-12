@@ -13,22 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import gzip
 import json
 import logging
-import urllib.request
-import urllib.parse
-import urllib.error
-import gzip
 import os
-import tempfile
 import subprocess
+import tempfile
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import boto3
-from botocore.exceptions import ClientError
 import jsonlines
+from botocore.exceptions import ClientError
 
-from streamalert.classifier.payload.payload_base import (PayloadRecord, RegisterInput,
+from streamalert.classifier.payload.payload_base import (PayloadRecord,
+                                                         RegisterInput,
                                                          StreamPayload)
 from streamalert.shared import CLASSIFIER_FUNCTION_NAME as FUNCTION_NAME
 from streamalert.shared.logger import get_logger

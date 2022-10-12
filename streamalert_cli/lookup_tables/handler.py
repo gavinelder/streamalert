@@ -19,7 +19,8 @@ import json
 from streamalert.shared.logger import get_logger
 from streamalert.shared.lookup_tables.core import LookupTables
 from streamalert.shared.lookup_tables.utils import LookupTablesMagic
-from streamalert_cli.utils import CLICommand, generate_subparser, set_parser_epilog
+from streamalert_cli.utils import (CLICommand, generate_subparser,
+                                   set_parser_epilog)
 
 LOGGER = get_logger(__name__)
 
