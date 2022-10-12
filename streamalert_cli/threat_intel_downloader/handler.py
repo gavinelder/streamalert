@@ -232,6 +232,7 @@ def save_api_creds_info(region, overwrite=False):
         LOGGER.info('Threat Intel Downloader credentials were successfully '
                     'saved to parameter store.')
     else:
-        LOGGER.error('Threat Intel Downloader credentials were not saved to ' 'parameter store.')
+        LOGGER.error('Threat Intel Downloader credentials were not saved to '
+                     'parameter store.')
 
     return saved
