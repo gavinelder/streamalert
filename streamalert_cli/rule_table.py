@@ -115,8 +115,9 @@ class RuleStagingCommand(CLICommand):
 
         table_name = f"{config['global']['account']['prefix']}_streamalert_rules"
         if options.subcommand == 'status':
-            print(RuleTable(table_name).status(options.verbose))
-
+            #print(RuleTable.print_status(table_name, verbose=options.verbose))
+            #print(RuleTable(table_name).__str__(options.verbose))
+            print(RuleTable(table_name),verbose = options.verbose)
         if options.subcommand in {'stage', 'unstage'}:
             stage = (options.subcommand == 'stage')
             table = RuleTable(table_name)
