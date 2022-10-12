@@ -274,7 +274,7 @@ class TestResult(TestEvent):
             [output:descriptor]: (Error Type) Error message
         """
         return ([
-        f"""{item['output_descriptor']}: {f"({type(item['error']).__name__}) {item['error']}" if 'error' in item else item['failure']}""" 
+        f"""{item['output_descriptor']}: {f"({type(item['error']).__name__}) {item['error']}" if 'error' in item else item['failure']}"""
         for item in self._publication_results if not item['success']] if self.publisher_tests_were_run else [])
 
     @property

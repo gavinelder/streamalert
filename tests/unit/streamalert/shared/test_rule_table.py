@@ -363,7 +363,7 @@ Rule            Staged?
                 'StagedUntil': '2018-04-23T02:23:13.0Z'
             })
         with patch('sys.stdout', new=StringIO()) as stdout:
-            print(self.rule_table.__str__(True))
+            print(self.rule_table, True)
             expected_output = """
 Rule            Staged?
   1: test_01    False

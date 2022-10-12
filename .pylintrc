@@ -70,7 +70,6 @@ disable=
     no-value-for-parameter,
     raise-missing-from,
     use-dict-literal,
-    unnecessary-dunder-call,
     implicit-str-concat,
     consider-using-from-import,
     consider-using-dict-items,
