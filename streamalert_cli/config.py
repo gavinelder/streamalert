@@ -513,7 +513,7 @@ class CLIConfig:
 
     @staticmethod
     def _config_writer(path, data, sort=False):
-        with open(path, 'r+') as conf_file:
+        with open(path, 'r+', encoding="utf-8") as conf_file:
             json.dump(data, conf_file, indent=2, separators=(',', ': '), sort_keys=sort)
             conf_file.truncate()
 

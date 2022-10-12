@@ -57,7 +57,7 @@ def run_command(runner_args, cwd='./', **kwargs):
     if runner_args[0] == 'terraform' and runner_args[1] == 'init':
         runner_args.append('-force-copy')
 
-    stdout_option = open(os.devnull, 'w') if kwargs.get('quiet') else None
+    stdout_option = open(os.devnull, 'w', encoding="utf-8") if kwargs.get('quiet') else None
     try:
         subprocess.check_call(runner_args, stdout=stdout_option, cwd=cwd)  # nosec
     except subprocess.CalledProcessError as err:

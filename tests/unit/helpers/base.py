@@ -49,7 +49,7 @@ def mock_open(filename, contents=None, complain=True):  # pylint: disable=unused
             f.name = filename
         else:
             mocked_file.stop()
-            f = open(*args)
+            f = open(*args, encoding="utf-8")
             mocked_file.start()
         open_files.add(f.name)
         return f

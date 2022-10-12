@@ -77,7 +77,7 @@ class TestEventFile:
         Returns:
             dict: Loaded JSON from test event file
         """
-        with open(self._full_path) as test_event_file:
+        with open(self._full_path, encoding="utf-8") as test_event_file:
             try:
                 data = json.load(test_event_file)
             except (ValueError, TypeError):

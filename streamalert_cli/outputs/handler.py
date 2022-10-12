@@ -233,7 +233,7 @@ class OutputSetFromFileSubCommand(CLICommand, OutputSharedMethods):
             bool: False if errors occurred, True otherwise
         """
         try:
-            with open(options.file) as json_file_fp:
+            with open(options.file, encoding="utf-8") as json_file_fp:
                 file_contents = json.load(json_file_fp)
         except Exception:  # pylint: disable=broad-except
             LOGGER.error("Error opening file %s", options.file)
@@ -352,7 +352,7 @@ class OutputGenerateSkeletonSubCommand(CLICommand):
             }]
 
         try:
-            with open(options.file, 'w') as json_file_fp:
+            with open(options.file, 'w', encoding="utf-8") as json_file_fp:
                 json.dump(skeleton, json_file_fp, indent=2, sort_keys=True)
         except Exception as err:  # pylint: disable=broad-except
             LOGGER.error(err)

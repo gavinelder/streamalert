@@ -128,7 +128,7 @@ class LookupTablesSetFromFile(CLICommand):
 
         old_value = table.get(options.key)
 
-        with open(options.file) as json_file_fp:
+        with open(options.file, encoding="utf-8") as json_file_fp:
             new_value = json.load(json_file_fp)
 
         print('  Value: {} --> {}'.format(json.dumps(old_value, indent=2, sort_keys=True),

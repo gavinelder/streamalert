@@ -54,7 +54,9 @@ def compose_alert(alert, output, descriptor):
     #   This is a temporary workaround
     #   A more permanent solution will involve refactoring the OutputDispatcher to load on-demand
     #   instead of eagerly.
+    # pylint: disable=import-outside-toplevel
     from streamalert.alert_processor.outputs.output_base import OutputDispatcher
+    # pylint: enable=import-outside-toplevel
     output_service_name = output.__service__ if isinstance(output, OutputDispatcher) else None
 
     if not output_service_name:

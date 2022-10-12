@@ -197,7 +197,7 @@ class BoxApp(AppIntegration):
         def keyfile_validator(keyfile):
             """A JSON formatted Box service account private key file key"""
             try:
-                with open(keyfile.strip()) as json_keyfile:
+                with open(keyfile.strip(), encoding="utf-8") as json_keyfile:
                     auth_data = json.load(json_keyfile)
             except (OSError, ValueError):
                 return False

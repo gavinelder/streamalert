@@ -315,7 +315,7 @@ def _load_json_file(path, ordered=False):
         ConfigError: Raised if any ValueErrors occur during json.load(...)
     """
     kwargs = {'object_pairs_hook': OrderedDict if ordered else None}
-    with open(path) as data:
+    with open(path, encoding="utf-8") as data:
         try:
             return json.load(data, **kwargs)
         except ValueError as e:

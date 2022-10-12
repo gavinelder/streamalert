@@ -421,7 +421,7 @@ class LocalFileDriver(CredentialsProvidingDriver, FileDescriptorProvider, Creden
 
     def load_credentials(self, descriptor):
         local_cred_location = self.get_file_path(descriptor)
-        with open(local_cred_location, 'rb') as cred_file:
+        with open(local_cred_location, 'rb', encoding="utf-8") as cred_file:
             encrypted_credentials = cred_file.read()
 
         return Credentials(encrypted_credentials, True, self._region)
@@ -467,7 +467,7 @@ class LocalFileDriver(CredentialsProvidingDriver, FileDescriptorProvider, Creden
         if not os.path.exists(file_path):
             os.makedirs(os.path.dirname(file_path))
 
-        return open(file_path, 'a+b')  # read+write and in binary mode
+        return open(file_path, 'a+b' , encoding="utf-8")  # read+write and in binary mode
 
     def get_file_path(self, descriptor):
         return os.path.join(self._temp_dir,

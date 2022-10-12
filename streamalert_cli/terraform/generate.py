@@ -668,5 +668,5 @@ def _create_terraform_module_file(generated_config, filename):
     Dumps the given generated_config, a JSON dict, into the given filename under the terraform/
     directory, as a .tf.json file.
     """
-    with open(filename, 'w') as file:
+    with open(filename, 'w', encoding="utf-8") as file:
         json.dump(generated_config, file, indent=2, sort_keys=True)

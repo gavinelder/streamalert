@@ -242,7 +242,7 @@ def write_partitions_statements(statements, sanitized_table_name):
     """Write partitions statements to a file if re-creating new partitions failed"""
     file_name = f'partitions_{sanitized_table_name}.txt'
     LOGGER.error('Rebuild partitions failed, writing to local file with name %s', file_name)
-    with open(file_name, 'w') as partition_file:
+    with open(file_name, 'w', encoding="utf-8") as partition_file:
         partition_file.write(statements)
 
 
