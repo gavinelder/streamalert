@@ -7,6 +7,7 @@ DNS_BLACKLIST = [
     'evil.com.'
 ]
 
+
 @rule(logs=['packetbeat:dns'])
 def packetbeat_blacklisted_domain(rec):
     """

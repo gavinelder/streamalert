@@ -77,8 +77,7 @@ class AthenaPartitioner:
         else:
             message = (
                 f'file format "{self._file_format}" is not supported. Supported file format are "parquet", "json". '
-                f'Please update the setting in athena_partitioner_config in "conf/lambda.json"'
-            )
+                f'Please update the setting in athena_partitioner_config in "conf/lambda.json"')
             raise ConfigError(message)
 
         self._athena_buckets = athena_partition_buckets(config)

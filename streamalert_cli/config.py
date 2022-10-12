@@ -252,8 +252,7 @@ class CLIConfig:
             if not function_config.get('enable_custom_metrics'):
                 prompt = (
                     f"Metrics are not currently enabled for the '{function_name}' function within the '{cluster}' cluster. "
-                    f"Would you like to enable metrics for this cluster?"
-                )
+                    f"Would you like to enable metrics for this cluster?")
                 if continue_prompt(message=prompt):
                     self.toggle_metrics(function_name, enabled=True, clusters=[cluster])
 
@@ -299,8 +298,7 @@ class CLIConfig:
             if not self._clusters_with_metrics_enabled(function_name):
                 prompt = (
                     f"Metrics are not currently enabled for the \'{function_name}\' function within any cluster. Creating an alarm will "
-                    f"have no effect until metrics are enabled for this function in at least one cluster. Would you still like to continue?"
-                )
+                    f"have no effect until metrics are enabled for this function in at least one cluster. Would you still like to continue?")
 
                 if not continue_prompt(message=prompt):
                     return False
@@ -382,8 +380,7 @@ class CLIConfig:
         if func_name in cluster_config['modules'].get('streamalert_apps', {}):
             prompt = (
                 f"An app with the name \'{app_name}\' is already configured for cluster \'{cluster_name}\'. "
-                f"Would you like to update the existing app\'s configuration?"
-            )
+                f"Would you like to update the existing app\'s configuration?")
 
             exists = True
 

@@ -210,8 +210,7 @@ class DynamoDBDriver(PersistenceDriver):
             if len(components) != 2:
                 message = (
                     f"LookupTable ({self.id}): Invalid key. The requested table requires a sort key, which the provided key ('{key}') "
-                    f"does not provide, given the configured delimiter: '{self._key_delimiter}'"
-                )
+                    f"does not provide, given the configured delimiter: '{self._key_delimiter}'")
                 raise LookupTablesInitializationError(message)
 
             return {

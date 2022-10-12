@@ -71,8 +71,7 @@ class PayloadRecord:
             return (
                 f'<{self.__class__.__name__} valid:{bool(self)}; log type:{self.log_schema_type}; '
                 f'parsed records:{len(self.parsed_records)}; '
-                f'invalid records:{len(self.invalid_records)} ({invalid_records}); raw record:{record_data};>'
-            )
+                f'invalid records:{len(self.invalid_records)} ({invalid_records}); raw record:{record_data};>')
         return (
             f'<{self.__class__.__name__} valid:{bool(self)}; log type:{self.log_schema_type}; parsed records:{len(self.parsed_records)};>'
         )

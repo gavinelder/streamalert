@@ -290,7 +290,7 @@ description:
     this one will simply cause the sentence to continue flowing
     as normal.
 
-    However a double linebreak will cause a real newline character 
+    However a double linebreak will cause a real newline character
     to appear in the final product.
 
 
@@ -318,7 +318,7 @@ description:
         case = '''
     description:
         https://airbnb.com
-    
+
         The above url is line broken from this comment.
     '''
 

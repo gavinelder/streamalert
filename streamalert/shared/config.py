@@ -372,8 +372,7 @@ def _validate_config(config):
                 if old_format:
                     error += (
                         f". The usage of the '{old_format}' within 'modules' has been deprecated and "
-                        f"'{config_name}'should be included as a top level key"
-                    )
+                        f"'{config_name}'should be included as a top level key")
 
                 raise ConfigError(error)
 

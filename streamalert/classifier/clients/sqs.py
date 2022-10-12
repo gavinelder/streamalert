@@ -49,7 +49,7 @@ class SQSClient:
 
     def __init__(self):
         if queue_url := os.environ.get('SQS_QUEUE_URL', ''):
-            # Only recreate the queue resource if it's not already cached
+                # Only recreate the queue resource if it's not already cached
             SQSClient._queue = (SQSClient._queue or boto3.resource(
                 'sqs', config=boto.default_config()).Queue(queue_url))
         else:

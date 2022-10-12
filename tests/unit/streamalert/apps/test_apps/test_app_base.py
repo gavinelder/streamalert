@@ -40,11 +40,6 @@ class TestStreamAlertApp:
         expected_apps = {
             'aliyun_actiontrail',
             'box_admin_events',
-            'buildkite_audit',
-            'cortex_xdr_agent_audit',
-            'cortex_xdr_management_audit',
-            'config_cat_log_audit',
-            'cloudflare_audit_logs',
             'duo_admin',
             'duo_auth',
             'gcloud_audit',

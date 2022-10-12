@@ -3,6 +3,8 @@ from streamalert.shared.rule import rule
 from streamalert.shared.rule import disable
 
 # Remove the @disable decorator to use this rule in a live deployment
+
+
 @disable
 @rule(
     logs=['fleet:results']

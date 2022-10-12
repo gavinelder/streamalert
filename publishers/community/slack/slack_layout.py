@@ -16,7 +16,9 @@ limitations under the License.
 import calendar
 import cgi
 import json
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 
 from streamalert.shared.publisher import AlertPublisher, Register
 from streamalert.shared.description import RuleDescriptionParser
@@ -122,6 +124,7 @@ class AttachRuleInfo(AlertPublisher):
     It can include such fields as "reference" or "playbook" but will NOT include the description
     or the author.
     """
+
     def publish(self, alert, publication):
         publication['@slack.attachments'] = publication.get('@slack.attachments', [])
 
@@ -151,6 +154,7 @@ class AttachPublication(AlertPublisher):
     By default, this publisher needs to be run after the Summary publisher, as it depends on
     the magic-magic _previous_publication field.
     """
+
     def publish(self, alert, publication):
         if '@slack._previous_publication' not in publication or '@slack.attachments' not in publication:
             # This publisher cannot be run except immediately after the Summary publisher
@@ -195,6 +199,7 @@ class AttachStringTemplate(AlertPublisher):
     If this publisher is run after the Summary publisher, it will correctly pull the original
     publication from the @slack._previous_publication, otherwise it uses the default publication.
     """
+
     def publish(self, alert, publication):
         rendered_text = self._render_text(alert, publication)
 

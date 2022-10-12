@@ -316,10 +316,8 @@ class FirehoseClient:
 
         # combine the base_name and first 8 chars of hash result together as new
         # stream name.
-        return f'{base_name}{hashlib.md5(stream_name.encode(),usedforsecurity=False).hexdigest()}'[:
-                                                                                                   cls
-                                                                                                   .
-                                                                                                   AWS_FIREHOSE_NAME_MAX_LEN]
+        return f'{base_name}{hashlib.md5(stream_name.encode(),usedforsecurity=False).hexdigest()}'[
+            : cls . AWS_FIREHOSE_NAME_MAX_LEN]
 
     @classmethod
     def artifacts_firehose_stream_name(cls, config):

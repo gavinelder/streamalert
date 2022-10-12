@@ -76,8 +76,7 @@ class Alert:
         if not set(kwargs).issubset(self._EXPECTED_INIT_KWARGS):
             raise AlertCreationError(
                 f"Invalid Alert kwargs: {', '.join(sorted(set(kwargs).difference(self._EXPECTED_INIT_KWARGS)))} "
-                f"are not in the expected set of {', '.join(sorted(self._EXPECTED_INIT_KWARGS))}"
-            )
+                f"are not in the expected set of {', '.join(sorted(self._EXPECTED_INIT_KWARGS))}")
 
         # Empty strings and empty sets are not allowed in Dynamo, so for safety we explicitly
         # convert any Falsey value to the expected type during Alert creation.

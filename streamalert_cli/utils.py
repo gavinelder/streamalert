@@ -257,8 +257,7 @@ def add_default_lambda_args(lambda_parser):
         metavar='FUNCTIONS',
         help=(
             f"One or more of the following functions to perform this action against: {', '.join(functions)}. "
-            f"If omitted, this action will be performed against all functions."
-        ),
+            f"If omitted, this action will be performed against all functions."),
         nargs='+',
         action=UniqueSortedListAction)
 

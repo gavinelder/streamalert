@@ -188,8 +188,7 @@ class MockLambdaClient:
                           (str, bytearray)) and not hasattr(kwargs['Payload'], 'read'):
             err = (
                 f"Invalid type for parameter Payload, value: {kwargs['Payload']},"
-                f"type: {type(kwargs['Payload'])}, valid types: < type 'str'> , < type 'bytearray'> , file-like object"
-            )
+                f"type: {type(kwargs['Payload'])}, valid types: < type 'str'> , < type 'bytearray'> , file-like object")
 
             raise ParamValidationError(response=err)
 

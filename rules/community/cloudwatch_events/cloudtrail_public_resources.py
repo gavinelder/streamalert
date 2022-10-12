@@ -3,6 +3,7 @@ import json
 from policyuniverse.policy import Policy
 from streamalert.shared.rule import rule
 
+
 @rule(logs=['cloudtrail:events'])
 def cloudtrail_public_resources(rec):
     """

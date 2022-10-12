@@ -89,7 +89,6 @@ class VictorOpsOutput(OutputDispatcher):
 
         publication = compose_alert(alert, self, descriptor)
 
-
         headers = {
             'Content-Type': 'application/json',
             'X-VO-Api-Id': creds['victorops_api_id'],
@@ -110,6 +109,6 @@ class VictorOpsOutput(OutputDispatcher):
             data,
             headers,
             True
-            )
+        )
 
         return self._check_http_response(resp)

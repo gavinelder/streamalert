@@ -28,6 +28,7 @@ class ShortenTitle(AlertPublisher):
     Instead, this publisher strips out the 'StreamAlert Rule Triggered' prefix and opts to only
     output the rule name.
     """
+
     def publish(self, alert, publication):
 
         publication['@pagerduty-v2.summary'] = alert.rule_name
