@@ -15,7 +15,6 @@ limitations under the License.
 """
 import json
 
-from nose.tools import assert_equal, assert_is_none
 
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import artifact_extractor

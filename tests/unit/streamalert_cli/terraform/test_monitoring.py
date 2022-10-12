@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import patch
 
-from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import common, monitoring

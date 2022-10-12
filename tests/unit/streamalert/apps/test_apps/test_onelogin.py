@@ -17,7 +17,6 @@ import os
 from unittest.mock import Mock, patch
 
 from moto import mock_ssm
-from nose.tools import assert_count_equal, assert_equal, assert_false
 
 from streamalert.apps._apps.onelogin import OneLoginApp
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params

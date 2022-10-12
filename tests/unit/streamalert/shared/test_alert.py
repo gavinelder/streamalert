@@ -17,8 +17,7 @@ import copy
 import json
 from datetime import datetime, timedelta
 
-from nose.tools import (assert_equal, assert_false, assert_is_instance,
-                        assert_not_in, assert_raises, assert_true)
+from nose.tools import assert_raises
 
 from streamalert.shared.alert import Alert, AlertCreationError
 

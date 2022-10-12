@@ -17,8 +17,6 @@ limitations under the License.
 from collections import Counter, OrderedDict
 from unittest.mock import MagicMock, Mock, patch
 
-from nose.tools import (assert_equal, assert_false, assert_set_equal,
-                        assert_true)
 
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.slack import SlackOutput

@@ -17,7 +17,7 @@ limitations under the License.
 
 from unittest.mock import call, patch
 
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert.shared.importer import (_path_to_module, _python_file_paths,

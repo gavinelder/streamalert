@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import patch
 
-from nose.tools import assert_equal, assert_true
 
 from streamalert.shared.firehose import FirehoseClient
 from streamalert_cli.athena import helpers

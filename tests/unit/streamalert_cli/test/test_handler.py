@@ -18,7 +18,7 @@ from io import StringIO
 from unittest import mock
 from unittest.mock import MagicMock, Mock, patch
 
-from nose.tools import assert_equal, assert_raises, nottest
+from nose.tools import assert_raises, nottest
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert.shared.config import load_config

@@ -20,8 +20,7 @@ from unittest.mock import patch
 import boto3
 from botocore.exceptions import ClientError
 from moto import mock_ssm
-from nose.tools import (assert_dict_equal, assert_equal, assert_false,
-                        assert_true, raises)
+from nose.tools import raises
 
 from streamalert.apps.config import AppConfig
 from streamalert.apps.exceptions import (AppAuthError, AppConfigError,

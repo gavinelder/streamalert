@@ -19,7 +19,6 @@ from datetime import datetime, timedelta
 from unittest.mock import ANY, MagicMock, call, patch
 
 from moto import mock_dynamodb2, mock_lambda
-from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert.alert_merger import main
 from streamalert.shared.alert import Alert

@@ -17,7 +17,6 @@ from unittest.mock import Mock, patch
 
 from botocore.exceptions import ClientError, ParamValidationError
 from netaddr import IPNetwork
-from nose.tools import assert_equal
 
 from streamalert.rules_engine.threat_intel import ThreatIntel
 

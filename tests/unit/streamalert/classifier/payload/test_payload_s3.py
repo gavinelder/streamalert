@@ -22,7 +22,7 @@ from unittest.mock import patch
 import boto3
 from botocore.exceptions import ClientError
 from moto import mock_s3
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert.classifier.payload.s3 import S3Payload, S3PayloadError

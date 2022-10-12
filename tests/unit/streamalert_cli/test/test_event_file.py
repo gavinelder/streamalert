@@ -15,7 +15,7 @@ limitations under the License.
 """
 from unittest.mock import Mock
 
-from nose.tools import assert_equal, nottest
+from nose.tools import nottest
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert_cli.test.event_file import TestEventFile

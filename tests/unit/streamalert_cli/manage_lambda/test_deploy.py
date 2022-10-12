@@ -17,7 +17,6 @@ limitations under the License.
 import unittest
 from unittest.mock import patch
 
-from nose.tools import assert_equal
 
 from streamalert_cli.manage_lambda import deploy
 from tests.unit.helpers.config import basic_streamalert_config

@@ -17,7 +17,7 @@ import os
 from collections import OrderedDict
 from unittest.mock import Mock, patch
 
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 
 import streamalert.classifier.classifier as classifier_module
 from streamalert.classifier.classifier import Classifier

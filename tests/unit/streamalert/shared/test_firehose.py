@@ -16,7 +16,6 @@ limitations under the License.
 from unittest.mock import Mock, patch
 
 from botocore.exceptions import ClientError
-from nose.tools import assert_equal
 
 from streamalert.shared.firehose import FirehoseClient
 

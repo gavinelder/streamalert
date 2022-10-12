@@ -16,7 +16,7 @@ limitations under the License.
 from datetime import datetime, timedelta
 from unittest.mock import PropertyMock, patch
 
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 
 from streamalert.rule_promotion.publisher import StatsPublisher
 from streamalert.rule_promotion.statistic import StagingStatistic

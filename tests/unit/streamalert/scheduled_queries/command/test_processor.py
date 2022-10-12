@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import MagicMock
 
-from nose.tools import assert_false, assert_true
 
 from streamalert.scheduled_queries.command.processor import CommandProcessor
 

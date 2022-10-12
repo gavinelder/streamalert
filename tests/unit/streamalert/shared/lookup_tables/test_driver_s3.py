@@ -21,7 +21,7 @@ from unittest.mock import ANY, MagicMock, patch
 import botocore
 from botocore.exceptions import ReadTimeoutError
 from moto import mock_s3
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.driver_s3 import (Compression, S3Adapter,

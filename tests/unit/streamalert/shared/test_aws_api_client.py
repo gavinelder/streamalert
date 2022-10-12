@@ -18,7 +18,7 @@ from unittest.mock import patch
 import boto3
 from botocore.exceptions import ClientError
 from moto import mock_kms
-from nose.tools import assert_equal, raises
+from nose.tools import raises
 
 from streamalert.shared.helpers.aws_api_client import AwsKms
 from tests.unit.streamalert.alert_processor import KMS_ALIAS, REGION

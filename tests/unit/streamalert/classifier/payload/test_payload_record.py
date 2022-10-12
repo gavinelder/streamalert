@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import Mock
 
-from nose.tools import assert_equal
 
 from streamalert.classifier.payload.payload_base import PayloadRecord
 

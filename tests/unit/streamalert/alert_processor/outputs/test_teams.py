@@ -17,7 +17,6 @@ from unittest.mock import MagicMock, Mock, call, patch
 
 # pylint: disable=protected-access,attribute-defined-outside-init,no-member
 import pymsteams
-from nose.tools import assert_equal, assert_false, assert_true
 from pymsteams import TeamsWebhookException
 
 from streamalert.alert_processor.helpers import compose_alert

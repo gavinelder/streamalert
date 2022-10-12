@@ -17,8 +17,6 @@ limitations under the License.
 from unittest.mock import MagicMock, Mock, patch
 
 from moto import mock_kms, mock_ssm
-from nose.tools import (assert_count_equal, assert_equal, assert_is_instance,
-                        assert_is_none, assert_is_not_none)
 from requests.exceptions import Timeout as ReqTimeout
 
 from streamalert.alert_processor.outputs.aws import S3Output

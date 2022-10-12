@@ -21,9 +21,6 @@ from unittest.mock import MagicMock, patch
 
 from botocore.exceptions import ClientError
 from moto import mock_kms, mock_ssm
-from nose.tools import (assert_equal, assert_false, assert_is_instance,
-                        assert_is_none, assert_is_not_none, assert_not_equal,
-                        assert_true)
 
 from streamalert.alert_processor.outputs.credentials.provider import (
     Credentials, EphemeralUnencryptedDriver, LocalFileDriver,

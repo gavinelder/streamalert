@@ -1,7 +1,6 @@
 """Tests for streamalert/shared/utils.py"""
 import json
 
-from nose.tools import assert_equal, assert_false
 
 from streamalert.shared import utils
 from streamalert.shared.normalize import Normalizer

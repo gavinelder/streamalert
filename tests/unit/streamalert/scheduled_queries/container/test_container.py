@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from nose.tools import assert_equals, assert_raises, assert_true
+from nose.tools import assert_raises
 
 from streamalert.scheduled_queries.config.services import configure_container
 from streamalert.scheduled_queries.container.container import ServiceContainer

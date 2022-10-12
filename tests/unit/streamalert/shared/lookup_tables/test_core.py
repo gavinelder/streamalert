@@ -18,7 +18,6 @@ import zlib
 from unittest.mock import ANY, patch
 
 from moto import mock_dynamodb2, mock_s3
-from nose.tools import assert_equal
 
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.core import LookupTables

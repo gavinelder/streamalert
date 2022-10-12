@@ -18,8 +18,7 @@ import os
 from datetime import datetime
 from unittest.mock import Mock, patch
 
-from nose.tools import (assert_count_equal, assert_equal, assert_false,
-                        assert_raises, assert_true, raises)
+from nose.tools import (assert_raises, raises)
 
 from streamalert.shared.athena import AthenaClient, AthenaQueryExecutionError
 from streamalert.shared.config import load_config

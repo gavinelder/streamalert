@@ -18,7 +18,6 @@ limitations under the License.
 from datetime import datetime, timedelta
 from unittest.mock import Mock, PropertyMock, patch
 
-from nose.tools import assert_equal, assert_false, assert_true
 
 import streamalert.rules_engine.rules_engine as rules_engine_module
 from publishers.community.generic import remove_internal_fields

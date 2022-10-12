@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import call, patch
 
-from nose.tools import assert_equal
 
 from streamalert.shared.artifact_extractor import Artifact, ArtifactExtractor
 from streamalert.shared.firehose import FirehoseClient

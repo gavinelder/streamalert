@@ -20,7 +20,7 @@ from unittest.mock import Mock, patch
 
 from botocore.exceptions import ClientError
 from moto import mock_dynamodb2
-from nose.tools import assert_equal, assert_not_equal, assert_raises
+from nose.tools import assert_raises
 
 from streamalert.shared import rule as rule_module
 from streamalert.shared import rule_table

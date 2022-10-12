@@ -16,7 +16,6 @@ limitations under the License.
 import json
 from unittest.mock import patch
 
-from nose.tools import assert_equal
 
 from streamalert.classifier import parsers
 from streamalert.classifier.parsers import ParserBase

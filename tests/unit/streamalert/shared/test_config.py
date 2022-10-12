@@ -16,8 +16,7 @@ limitations under the License.
 import json
 from unittest.mock import Mock
 
-from nose.tools import (assert_count_equal, assert_equal, assert_false,
-                        assert_raises, assert_true)
+from nose.tools import assert_raises
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert.shared.config import (ConfigError, _validate_config,

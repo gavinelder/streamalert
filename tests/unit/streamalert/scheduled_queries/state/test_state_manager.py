@@ -16,7 +16,6 @@ limitations under the License.
 from datetime import datetime
 from unittest.mock import MagicMock
 
-from nose.tools import assert_equals, assert_false, assert_true
 
 from streamalert.scheduled_queries.state.state_manager import (
     StateManager, StepFunctionStateManager)

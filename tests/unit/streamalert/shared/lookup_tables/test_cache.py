@@ -15,7 +15,6 @@ limitations under the License.
 """
 from datetime import datetime
 
-from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert.shared.lookup_tables.cache import DriverCache
 

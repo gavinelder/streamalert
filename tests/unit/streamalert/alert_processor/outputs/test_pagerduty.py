@@ -18,7 +18,6 @@ import re
 from collections import OrderedDict
 from unittest.mock import MagicMock, Mock, call, patch
 
-from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher, OutputRequestFailure)

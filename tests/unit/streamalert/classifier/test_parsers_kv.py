@@ -15,7 +15,6 @@ limitations under the License.
 """
 from collections import OrderedDict
 
-from nose.tools import assert_equal
 
 from streamalert.classifier.parsers import KVParser
 

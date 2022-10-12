@@ -15,7 +15,7 @@ limitations under the License.
 """
 from unittest.mock import Mock, patch
 
-from nose.tools import assert_equal, assert_false, assert_raises, assert_true
+from nose.tools import assert_raises
 
 from streamalert.shared.exceptions import ConfigError
 from streamalert.shared.normalize import NormalizedType, Normalizer

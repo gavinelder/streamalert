@@ -16,7 +16,7 @@ limitations under the License.
 from unittest.mock import Mock, patch
 
 from botocore.exceptions import ClientError
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 
 from streamalert.classifier.clients import sqs
 from streamalert.classifier.clients.sqs import SQSClient, SQSClientError

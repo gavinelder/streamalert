@@ -19,7 +19,6 @@ from unittest.mock import Mock, PropertyMock, patch
 
 from boto3 import client
 from moto import mock_dynamodb2
-from nose.tools import assert_equal
 
 from streamalert.rule_promotion.promoter import RulePromoter
 from streamalert.rule_promotion.statistic import StagingStatistic

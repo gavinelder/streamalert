@@ -20,7 +20,7 @@ from unittest.mock import Mock, patch
 import boto3
 from botocore.exceptions import ClientError
 from moto import mock_ssm
-from nose.tools import assert_equal, raises
+from nose.tools import raises
 
 from streamalert.shared.config import load_config
 from streamalert.threat_intel_downloader.exceptions import (

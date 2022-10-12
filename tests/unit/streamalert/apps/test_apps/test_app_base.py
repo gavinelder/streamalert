@@ -19,8 +19,7 @@ from unittest.mock import Mock, call, patch
 import requests
 from botocore.exceptions import ClientError
 from moto import mock_ssm
-from nose.tools import (assert_equal, assert_false, assert_is_instance,
-                        assert_is_none, assert_true, raises)
+from nose.tools import raises
 from requests.exceptions import ConnectTimeout
 
 from streamalert.apps import StreamAlertApp

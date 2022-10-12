@@ -18,7 +18,6 @@ import importlib
 import os
 from unittest.mock import ANY, patch
 
-from nose.tools import assert_equal
 
 from streamalert import shared
 

@@ -19,7 +19,7 @@ from unittest.mock import ANY, MagicMock, patch
 
 from botocore.exceptions import ClientError
 from moto import mock_dynamodb2
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 
 from streamalert.shared import alert as alert_module
 from streamalert.shared import alert_table

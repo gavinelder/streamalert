@@ -17,7 +17,7 @@ import os
 from unittest.mock import patch
 
 from botocore.exceptions import ClientError
-from nose.tools import assert_equal, assert_false, assert_true, raises
+from nose.tools import raises
 
 from streamalert.apps.batcher import Batcher
 from tests.unit.streamalert.apps.test_helpers import MockLambdaClient

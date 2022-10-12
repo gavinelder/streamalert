@@ -17,7 +17,6 @@ limitations under the License.
 from collections import namedtuple
 from unittest.mock import Mock, patch
 
-from nose.tools import assert_equal
 
 from streamalert.shared import stats
 

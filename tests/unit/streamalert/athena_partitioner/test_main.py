@@ -18,7 +18,6 @@ import json
 import os
 from unittest.mock import Mock, call, patch
 
-from nose.tools import assert_equal, assert_true
 
 from streamalert.athena_partitioner.main import AthenaPartitioner
 from streamalert.shared.config import load_config

@@ -23,8 +23,7 @@ from unittest.mock import Mock, mock_open, patch
 import googleapiclient
 from google.auth import exceptions
 from moto import mock_ssm
-from nose.tools import (assert_count_equal, assert_equal, assert_false,
-                        assert_true, raises)
+from nose.tools import raises
 
 from streamalert.apps._apps.gsuite import GSuiteReportsApp
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params

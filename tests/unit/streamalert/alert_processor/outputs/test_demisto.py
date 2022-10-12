@@ -18,8 +18,6 @@ from collections import OrderedDict
 from datetime import datetime
 from unittest.mock import MagicMock, Mock, patch
 
-from nose.tools import (assert_equal, assert_false, assert_is_instance,
-                        assert_true)
 
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.demisto import (

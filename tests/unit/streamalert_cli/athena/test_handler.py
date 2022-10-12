@@ -16,7 +16,6 @@ limitations under the License.
 # pylint: disable=protected-access
 from unittest.mock import Mock, patch
 
-from nose.tools import assert_equal, assert_true
 
 from streamalert.shared.firehose import FirehoseClient
 from streamalert_cli.athena import handler

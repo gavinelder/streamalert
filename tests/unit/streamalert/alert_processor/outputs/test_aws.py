@@ -20,8 +20,6 @@ from unittest.mock import MagicMock, Mock, patch
 
 import boto3
 from moto import mock_kinesis, mock_s3, mock_ses, mock_sns, mock_sqs
-from nose.tools import (assert_equal, assert_false, assert_is_not_none,
-                        assert_true)
 
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs import aws as aws_outputs

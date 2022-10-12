@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 from botocore.exceptions import ReadTimeoutError
 from moto import mock_dynamodb2
-from nose.tools import assert_equal, assert_false, assert_raises, assert_true
+from nose.tools import assert_raises
 
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.drivers_factory import \

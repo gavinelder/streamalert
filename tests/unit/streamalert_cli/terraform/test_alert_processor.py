@@ -15,7 +15,6 @@ limitations under the License.
 """
 import unittest
 
-from nose.tools import assert_equal
 
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import alert_processor

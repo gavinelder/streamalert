@@ -17,7 +17,6 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 from dateutil.tz import tzlocal
-from nose.tools import assert_equals, assert_false, assert_true
 
 from streamalert.scheduled_queries.handlers.athena import (
     AthenaClient, AthenaQueryExecution, AthenaQueryResult)

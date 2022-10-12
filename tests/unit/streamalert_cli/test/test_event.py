@@ -15,7 +15,7 @@ limitations under the License.
 """
 from unittest.mock import patch
 
-from nose.tools import assert_equal, nottest
+from nose.tools import nottest
 
 from streamalert_cli.test.event import TestEvent
 from tests.unit.streamalert_cli.test.helpers import basic_test_event_data

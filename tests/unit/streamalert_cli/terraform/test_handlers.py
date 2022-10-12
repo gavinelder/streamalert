@@ -17,7 +17,6 @@ import json
 import os
 from unittest.mock import Mock, patch
 
-from nose.tools import assert_equal, assert_false
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert_cli.terraform.handlers import get_tf_modules

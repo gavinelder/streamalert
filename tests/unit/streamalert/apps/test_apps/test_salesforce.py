@@ -17,8 +17,7 @@ import os
 from unittest.mock import Mock, patch
 
 from moto import mock_ssm
-from nose.tools import (assert_count_equal, assert_equal, assert_false,
-                        assert_true, raises)
+from nose.tools import raises
 from requests.exceptions import Timeout
 
 from streamalert.apps._apps.salesforce import SalesforceApp, SalesforceAppError

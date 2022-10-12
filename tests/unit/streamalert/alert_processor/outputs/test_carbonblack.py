@@ -17,7 +17,6 @@ limitations under the License.
 from collections import OrderedDict
 from unittest.mock import MagicMock, Mock, call, patch
 
-from nose.tools import assert_false, assert_is_instance, assert_true
 
 from streamalert.alert_processor.outputs import carbonblack
 from streamalert.alert_processor.outputs.carbonblack import CarbonBlackOutput

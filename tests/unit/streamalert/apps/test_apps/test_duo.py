@@ -18,7 +18,7 @@ from unittest.mock import Mock, patch
 
 import requests
 from moto import mock_ssm
-from nose.tools import assert_count_equal, assert_equal, assert_false, raises
+from nose.tools import raises
 
 from streamalert.apps._apps.duo import DuoAdminApp, DuoApp, DuoAuthApp
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params

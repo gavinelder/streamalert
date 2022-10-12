@@ -18,7 +18,6 @@ import unittest
 from unittest import mock
 
 from botocore.exceptions import ClientError
-from nose.tools import assert_equal
 
 from streamalert_cli.manage_lambda import rollback
 from tests.unit.helpers.config import MockCLIConfig, basic_streamalert_config
