@@ -397,7 +397,7 @@ class TestTeamsOutput:
         record_section_mock.assert_called()
         record_section_mock.assert_called_with(alert.record)
         add_sections_mock.assert_called()
-        assert_equal(add_sections_mock.call_count, 1)
+        assert add_sections_mock.call_count == 1
         loaded_message.addSection.assert_called()
         loaded_message.addSection.assert_has_calls(
             [call('Alert_Section'), call('Record_Section')], any_order=False)
@@ -445,7 +445,7 @@ class TestTeamsOutput:
 
         # Verify buttons
         add_buttons_mock.assert_called()
-        assert_equal(add_buttons_mock.call_count, 1)
+        assert add_buttons_mock.call_count == 1
 
     @patch('logging.Logger.info')
     @patch.object(TeamsOutput, '_format_message')
@@ -454,7 +454,7 @@ class TestTeamsOutput:
 
         message_mock.return_value = Mock(send=Mock(return_value='Worked'))
 
-        assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
         # Tests
         log_mock.assert_called()
@@ -468,7 +468,7 @@ class TestTeamsOutput:
         exception = TeamsWebhookException('BOOM!')
 
         message_mock.return_value = Mock(send=Mock(side_effect=exception))
-        assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert not self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
         # Tests
         log_mock.assert_called()
@@ -485,7 +485,7 @@ class TestTeamsOutput:
         descriptor = "bad_descriptor"
 
         # Tests
-        assert_false(self._dispatcher.dispatch(get_alert(), ":".join([self.SERVICE, descriptor])))
+        assert not self._dispatcher.dispatch(get_alert(), ":".join([self.SERVICE, descriptor]))
         log_mock.assert_called()
         log_mock.assert_has_calls([
             call('No credentials found for descriptor: %s', descriptor),

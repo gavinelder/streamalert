@@ -37,20 +37,20 @@ class TestLookupTable:
 
     def test_table_nonexistent(self):
         """LookupTable - Basic Table - Nonexistent Key None Default"""
-        assert_equal(self._table.get('nonexistent_key'), None)
+        assert self._table.get('nonexistent_key') == None
 
     def test_table_nonexistent_default(self):
         """LookupTable - Basic Table - Nonexistent Key With Default"""
-        assert_equal(self._table.get('nonexistent_key', '1'), '1')
+        assert self._table.get('nonexistent_key', '1') == '1'
 
     def test_table_existent(self):
         """LookupTable - Basic Table - Existent"""
-        assert_equal(self._table.get('this', '?'), 'that')
+        assert self._table.get('this', '?') == 'that'
 
     def test_table_driver_id(self):
         """LookupTable - Basic Table - Driver Id"""
-        assert_equal(self._table.driver_id, 'ephemeral:1')
+        assert self._table.driver_id == 'ephemeral:1'
 
     def test_table_driver_type(self):
         """LookupTable - Basic Table - Driver Type"""
-        assert_equal(self._table.driver_type, 'ephemeral')
+        assert self._table.driver_type == 'ephemeral'

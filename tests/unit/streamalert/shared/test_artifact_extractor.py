@@ -40,7 +40,7 @@ class TestArtifact:
             'value': 'test_value'
         }
 
-        assert_equal(artifact.artifact, expected_result)
+        assert artifact.artifact == expected_result
 
 
 class TestArtifactExtractor:
@@ -68,7 +68,7 @@ class TestArtifactExtractor:
             call.debug('Extracted %d artifact(s)', 0)
         ])
 
-        assert_equal(self._artifact_extractor._artifacts, [])
+        assert self._artifact_extractor._artifacts == []
 
     @patch('uuid.uuid4')
     @patch.object(FirehoseClient, '_send_batch')
@@ -86,4 +86,4 @@ class TestArtifactExtractor:
         send_batch_mock.assert_called_with('unit_test_dst_fh_arn',
                                            generate_artifacts(firehose_records=True), 'classifier')
 
-        assert_equal(self._artifact_extractor._artifacts, generate_artifacts())
+        assert self._artifact_extractor._artifacts == generate_artifacts()

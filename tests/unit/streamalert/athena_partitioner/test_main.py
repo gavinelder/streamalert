@@ -63,14 +63,14 @@ class TestAthenaPartitioner:
         }
         result = self._partitioner._add_partitions()
 
-        assert_true(result)
+        assert result
 
     @patch('logging.Logger.warning')
     def test_add_partitions_none(self, log_mock):
         """AthenaPartitioner - Add Partitions, None to Add"""
         result = self._partitioner._add_partitions()
         log_mock.assert_called_with('No partitions to add')
-        assert_equal(result, False)
+        assert result == False
 
     def test_get_partitions_from_keys_parquet(self):
         """AthenaPartitioner - Get Partitions From Keys in parquet format"""
@@ -123,7 +123,7 @@ class TestAthenaPartitioner:
 
         result = self._partitioner._get_partitions_from_keys()
 
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     @patch('logging.Logger.warning')
     def test_get_partitions_from_keys_error(self, log_mock):
@@ -135,7 +135,7 @@ class TestAthenaPartitioner:
 
         log_mock.assert_called_with('The key %s does not match any regex, skipping',
                                     bad_key.decode('utf-8'))
-        assert_equal(result, {})
+        assert result == {}
 
     @staticmethod
     def _s3_record(count):
@@ -288,4 +288,4 @@ class TestAthenaPartitionerJSON:
 
         result = self._partitioner._get_partitions_from_keys()
 
-        assert_equal(result, expected_result)
+        assert result == expected_result

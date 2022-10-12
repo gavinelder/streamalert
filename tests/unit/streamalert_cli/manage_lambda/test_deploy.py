@@ -37,7 +37,7 @@ class DeployTest(unittest.TestCase):
             'module.classifier_prod_iam',
             'module.classifier_prod_lambda',
         }
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     @patch('logging.Logger.warning')
     def test_lambda_terraform_targets_invalid_target(self, log_mock):
@@ -49,6 +49,6 @@ class DeployTest(unittest.TestCase):
         clusters = []
         result = deploy._lambda_terraform_targets(config, functions, clusters)
 
-        assert_equal(result, set())
+        assert result == set()
         log_mock.assert_called_with('Function is not enabled and will be ignored: %s',
                                     'scheduled_queries')

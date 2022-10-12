@@ -55,25 +55,24 @@ class TestDuoApp:
     def test_generate_auth_hmac_failure(self, log_mock):
         """DuoApp - Generate Auth, hmac Failure"""
         self._app._config.auth['secret_key'] = {'bad_secret'}
-        assert_false(self._app._generate_auth('hostname', {}))
+        assert not self._app._generate_auth('hostname', {})
         log_mock.assert_called_with('Could not generate hmac signature')
 
     def test_generate_auth(self):
         """DuoApp - Generate Auth"""
         auth = self._app._generate_auth('hostname', {})
-        assert_count_equal(list(auth.keys()), {'Date', 'Authorization', 'Host'})
+        assert collections.Counter(list(auth.keys())) == collections.Counter({'Date', 'Authorization', 'Host'})
 
     def test_sleep(self):
         """DuoApp - Sleep Seconds"""
         self._app._poll_count = 1
-        assert_equal(self._app._sleep_seconds(), 0)
+        assert self._app._sleep_seconds() == 0
         self._app._poll_count = 2
-        assert_equal(self._app._sleep_seconds(), 60)
+        assert self._app._sleep_seconds() == 60
 
     def test_required_auth_info(self):
         """DuoApp - Required Auth Info"""
-        assert_count_equal(list(self._app.required_auth_info().keys()),
-                           {'api_hostname', 'integration_key', 'secret_key'})
+        assert collections.Counter(list(self._app.required_auth_info().keys())) == collections.Counter({'api_hostname', 'integration_key', 'secret_key'})
 
     @staticmethod
     def _get_sample_logs(count, base_time):
@@ -99,7 +98,7 @@ class TestDuoApp:
     def test_get_duo_logs_bad_headers(self, requests_mock):
         """DuoApp - Get Duo Logs, Bad Headers"""
         self._app._config.auth['secret_key'] = {'bad_secret'}
-        assert_false(self._app._get_duo_logs('hostname', 'full_url'))
+        assert not self._app._get_duo_logs('hostname', 'full_url')
         requests_mock.assert_not_called()
 
     @patch('requests.get')
@@ -107,10 +106,10 @@ class TestDuoApp:
         """DuoApp - Get Duo Logs, Bad Response"""
         requests_mock.return_value = Mock(status_code=404, content='something went wrong')
 
-        assert_false(self._app._get_duo_logs('hostname', 'full_url'))
+        assert not self._app._get_duo_logs('hostname', 'full_url')
 
         # The .json should be called on the response once, to return the response.
-        assert_equal(requests_mock.return_value.json.call_count, 1)
+        assert requests_mock.return_value.json.call_count == 1
 
     @patch('requests.get')
     def test_gather_logs(self, requests_mock):
@@ -123,8 +122,8 @@ class TestDuoApp:
                                           json=Mock(return_value={'response': logs}))
 
         gathered_logs = self._app._gather_logs()
-        assert_equal(len(gathered_logs), log_count)
-        assert_equal(self._app._last_timestamp, base_time + log_count - 1)
+        assert len(gathered_logs) == log_count
+        assert self._app._last_timestamp == base_time + log_count - 1
 
     @patch('requests.get')
     def test_gather_logs_empty(self, requests_mock):
@@ -134,7 +133,7 @@ class TestDuoApp:
                                               'response': []
                                           }]))
 
-        assert_false(self._app._gather_logs())
+        assert not self._app._gather_logs()
 
     @patch('requests.get')
     @patch('logging.Logger.exception')
@@ -142,7 +141,7 @@ class TestDuoApp:
         """DuoApp - Gather Logs, Bad Response"""
         requests_mock.side_effect = requests.exceptions.SSLError(None, request='Bad')
 
-        assert_false(self._app._gather_logs())
+        assert not self._app._gather_logs()
         log_mock.assert_called_with('Received bad response from duo')
 
 
@@ -163,22 +162,22 @@ def test_endpoint_not_implemented():
 def test_duo_admin_endpoint():
     """DuoAdminApp - Verify Endpoint"""
     # pylint: disable=protected-access
-    assert_equal(DuoAdminApp._endpoint(), '/admin/v1/logs/administrator')
+    assert DuoAdminApp._endpoint() == '/admin/v1/logs/administrator'
 
 
 def test_duo_admin_type():
     """DuoAdminApp - Verify Type"""
     # pylint: disable=protected-access
-    assert_equal(DuoAdminApp._type(), 'admin')
+    assert DuoAdminApp._type() == 'admin'
 
 
 def test_duo_auth_endpoint():
     """DuoAuthApp - Verify Endpoint"""
     # pylint: disable=protected-access
-    assert_equal(DuoAuthApp._endpoint(), '/admin/v1/logs/authentication')
+    assert DuoAuthApp._endpoint() == '/admin/v1/logs/authentication'
 
 
 def test_duo_auth_type():
     """DuoAuthApp - Verify Type"""
     # pylint: disable=protected-access
-    assert_equal(DuoAuthApp._type(), 'auth')
+    assert DuoAuthApp._type() == 'auth'

@@ -38,4 +38,4 @@ class TestSnsPayload:
 
         payload = SnsPayload(None, record)
         result = [rec._record_data for rec in list(payload.pre_parse())]
-        assert_equal(result, expected_result)
+        assert result == expected_result

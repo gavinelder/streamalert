@@ -80,9 +80,9 @@ class RollbackTest(unittest.TestCase):
             'alert', 'alert_merger', 'apps', 'athena', 'classifier', 'rule', 'rule_promo',
             'scheduled_queries', 'threat_intel_downloader'
         ]
-        assert_equal(
+        assert (
             rollback.RollbackCommand.handler(MockOptions(None, funcs),
-                                             MockCLIConfig(config=basic_streamalert_config())),
+                                             MockCLIConfig(config=basic_streamalert_config())) ==
             True)
         mock_helper.assert_has_calls([
             mock.call(mock.ANY, 'unit-test_streamalert_alert_processor'),
@@ -103,9 +103,9 @@ class RollbackTest(unittest.TestCase):
     def test_rollback_subset(self, mock_helper):
         """CLI - Lambda rollback apps and rule"""
         mock_helper.return_value = True
-        assert_equal(
+        assert (
             rollback.RollbackCommand.handler(MockOptions(None, ['apps', 'rule']),
-                                             MockCLIConfig(config=basic_streamalert_config())),
+                                             MockCLIConfig(config=basic_streamalert_config())) ==
             True)
         mock_helper.assert_has_calls([
             mock.call(mock.ANY, 'unit-test_corp_box_admin_events_box_collector_app'),

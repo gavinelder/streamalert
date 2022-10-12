@@ -93,7 +93,7 @@ class TestAlertProcessor(unittest.TestCase):
                 }
             }
         }
-        assert_equal(expected, result)
+        assert expected == result
 
     def test_generate_minimal_options(self):
         """CLI - Terraform Generate Alert Processor - Minimal Options"""
@@ -139,4 +139,4 @@ class TestAlertProcessor(unittest.TestCase):
                 }
             }
         }
-        assert_equal(expected, result)
+        assert expected == result

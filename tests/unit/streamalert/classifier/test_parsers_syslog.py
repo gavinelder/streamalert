@@ -47,7 +47,7 @@ class TestSyslogParser:
         # get parsed data
         parser = SyslogParser(options)
         result = parser._parse(data)
-        assert_equal(result, [(expected_record, True)])
+        assert result == [(expected_record, True)]
 
     def test_parse_invalid_data(self):
         """Syslog Parser - Parse, Invalid"""
@@ -65,4 +65,4 @@ class TestSyslogParser:
         # get parsed data
         parser = SyslogParser(options)
         result = parser._parse(data)
-        assert_equal(result, [(data, False)])
+        assert result == [(data, False)]

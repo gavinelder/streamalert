@@ -90,9 +90,9 @@ class TestRulePromotion:
             }
         }
 
-        assert_equal(result, expected)
+        assert result == expected
 
     def test_generate_disabled(self):
         """CLI - Terraform Generate Rule Promotion, Staging Disabled"""
         result = rule_promotion.generate_rule_promotion(config=self.config)
-        assert_equal(result, False)
+        assert result == False

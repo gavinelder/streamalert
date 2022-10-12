@@ -40,8 +40,8 @@ class TestAlertMergeGroup:
                       merge_by_keys=['key'],
                       merge_window=timedelta(minutes=5))
         group = main.AlertMergeGroup(alert)
-        assert_true(group.add(alert))  # An alert can always merge with itself
-        assert_equal([alert, alert], group.alerts)
+        assert group.add(alert)  # An alert can always merge with itself
+        assert [alert, alert] == group.alerts
 
     def test_add_not_mergeable(self):
         """Alert Merger - Merge Group - Did Not Add Alert to Group"""
@@ -54,8 +54,8 @@ class TestAlertMergeGroup:
                        merge_by_keys=['other'],
                        merge_window=timedelta(minutes=5))
         group = main.AlertMergeGroup(alert1)
-        assert_false(group.add(alert2))
-        assert_equal([alert1], group.alerts)
+        assert not group.add(alert2)
+        assert [alert1] == group.alerts
 
 
 class TestAlertMerger:
@@ -91,8 +91,8 @@ class TestAlertMerger:
         with patch.object(self.merger.table, 'get_alert_records', return_value=records):
             result = list(self.merger._alert_generator('test_rule'))
             # Valid record is returned
-            assert_equal(1, len(result))
-            assert_equal(records[0]['AlertID'], result[0].alert_id)
+            assert 1 == len(result)
+            assert records[0]['AlertID'] == result[0].alert_id
             # Invalid record logs an exception
             mock_logger.exception.assert_called_once_with('Invalid alert record %s', records[1])
 
@@ -104,7 +104,7 @@ class TestAlertMerger:
                   merge_by_keys=['key'],
                   merge_window=timedelta(minutes=10))
         ]
-        assert_equal([], main.AlertMerger._merge_groups(alerts))
+        assert [] == main.AlertMerger._merge_groups(alerts)
 
     def test_merge_groups_single(self):
         """Alert Merger - Alert Collection - Single Merge Group"""
@@ -125,8 +125,8 @@ class TestAlertMerger:
         ]
 
         groups = main.AlertMerger._merge_groups(alerts)
-        assert_equal(1, len(groups))
-        assert_equal(alerts, groups[0].alerts)
+        assert 1 == len(groups)
+        assert alerts == groups[0].alerts
 
     def test_merge_groups_complex(self):
         """Alert Merger - Alert Collection - Complex Merge Groups"""
@@ -193,11 +193,11 @@ class TestAlertMerger:
         ]
 
         groups = main.AlertMerger._merge_groups(alerts)
-        assert_equal(4, len(groups))
-        assert_equal(alerts[:2], groups[0].alerts)
-        assert_equal(alerts[2:5], groups[1].alerts)
-        assert_equal(alerts[5:7], groups[2].alerts)
-        assert_equal([alerts[7]], groups[3].alerts)
+        assert 4 == len(groups)
+        assert alerts[:2] == groups[0].alerts
+        assert alerts[2:5] == groups[1].alerts
+        assert alerts[5:7] == groups[2].alerts
+        assert [alerts[7]] == groups[3].alerts
 
     @patch.object(main.AlertMergeGroup, 'MAX_ALERTS_PER_GROUP', 2)
     def test_merge_groups_limit_reached(self):
@@ -212,10 +212,10 @@ class TestAlertMerger:
 
         # Since max alerts per group is 2, it should create 3 merged groups.
         groups = main.AlertMerger._merge_groups(alerts)
-        assert_equal(3, len(groups))
-        assert_equal(alerts[:2], groups[0].alerts)
-        assert_equal(alerts[2:4], groups[1].alerts)
-        assert_equal(alerts[4:], groups[2].alerts)
+        assert 3 == len(groups)
+        assert alerts[:2] == groups[0].alerts
+        assert alerts[2:4] == groups[1].alerts
+        assert alerts[4:] == groups[2].alerts
 
     @patch.object(main, 'LOGGER')
     @patch.object(main.AlertMerger, 'MAX_LAMBDA_PAYLOAD_SIZE', 600)

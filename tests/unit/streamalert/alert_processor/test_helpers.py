@@ -23,11 +23,11 @@ def test_elide_string_middle():
     alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
     # String shortened
-    assert_equal('ab ... yz', elide_string_middle(alphabet, 10))
-    assert_equal('abcde ... vwxyz', elide_string_middle(alphabet, 15))
-    assert_equal('abcdefg ... tuvwxyz', elide_string_middle(alphabet, 20))
-    assert_equal('abcdefghij ... qrstuvwxyz', elide_string_middle(alphabet, 25))
+    assert 'ab ... yz' == elide_string_middle(alphabet, 10)
+    assert 'abcde ... vwxyz' == elide_string_middle(alphabet, 15)
+    assert 'abcdefg ... tuvwxyz' == elide_string_middle(alphabet, 20)
+    assert 'abcdefghij ... qrstuvwxyz' == elide_string_middle(alphabet, 25)
 
     # String unchanged
-    assert_equal(alphabet, elide_string_middle(alphabet, 26))
-    assert_equal(alphabet, elide_string_middle(alphabet, 50))
+    assert alphabet == elide_string_middle(alphabet, 26)
+    assert alphabet == elide_string_middle(alphabet, 50)

@@ -38,8 +38,8 @@ def test_generate_cloudwatch_monitoring():
         'kinesis_alarms_enabled': True
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict['module']['cloudwatch_monitoring_test'], expected_cloudwatch_tf)
+    assert result
+    assert cluster_dict['module']['cloudwatch_monitoring_test'] == expected_cloudwatch_tf
 
 
 def test_generate_cloudwatch_monitoring_with_settings():
@@ -58,8 +58,8 @@ def test_generate_cloudwatch_monitoring_with_settings():
         'kinesis_iterator_age_error_threshold': '3000000'
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict['module']['cloudwatch_monitoring_advanced'], expected_cloudwatch_tf)
+    assert result
+    assert cluster_dict['module']['cloudwatch_monitoring_advanced'] == expected_cloudwatch_tf
 
 
 def test_generate_cloudwatch_monitoring_disabled():
@@ -68,8 +68,8 @@ def test_generate_cloudwatch_monitoring_disabled():
     cluster = 'trusted'
     result = monitoring.generate_monitoring(cluster, cluster_dict, CONFIG)
 
-    assert_true(result)
-    assert_true(f'cloudwatch_monitoring_{cluster}' not in cluster_dict['module'])
+    assert result
+    assert f'cloudwatch_monitoring_{cluster}' not in cluster_dict['module']
 
 
 def test_generate_cloudwatch_monitoring_no_kinesis():
@@ -88,8 +88,8 @@ def test_generate_cloudwatch_monitoring_no_kinesis():
         'kinesis_alarms_enabled': False
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict['module']['cloudwatch_monitoring_test'], expected_cloudwatch_tf)
+    assert result
+    assert cluster_dict['module']['cloudwatch_monitoring_test'] == expected_cloudwatch_tf
 
 
 def test_generate_cloudwatch_monitoring_no_lambda():
@@ -108,8 +108,8 @@ def test_generate_cloudwatch_monitoring_no_lambda():
         'kinesis_alarms_enabled': True
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict['module']['cloudwatch_monitoring_test'], expected_cloudwatch_tf)
+    assert result
+    assert cluster_dict['module']['cloudwatch_monitoring_test'] == expected_cloudwatch_tf
 
 
 def test_generate_cloudwatch_monitoring_custom_sns():
@@ -131,8 +131,8 @@ def test_generate_cloudwatch_monitoring_custom_sns():
         'kinesis_alarms_enabled': True
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict['module']['cloudwatch_monitoring_test'],
+    assert result
+    assert (cluster_dict['module']['cloudwatch_monitoring_test'] ==
                  expected_cloudwatch_tf_custom)
 
 
@@ -144,5 +144,5 @@ def test_generate_cloudwatch_monitoring_invalid_config(mock_logging):
     cluster_dict = common.infinitedict()
     result = monitoring.generate_monitoring('test', cluster_dict, CONFIG)
 
-    assert_true(mock_logging.error.called)
-    assert_false(result)
+    assert mock_logging.error.called
+    assert not result

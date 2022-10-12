@@ -81,4 +81,4 @@ def test_generate_scheduled_queries():
 
     result = scheduled_queries.generate_scheduled_queries_module_configuration(CONFIG)
 
-    assert_equal(result, expected_sq_config)
+    assert result == expected_sq_config

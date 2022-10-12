@@ -83,4 +83,4 @@ def test_generate_athena():
 
     athena_config = athena.generate_athena(config=CONFIG)
 
-    assert_equal(athena_config, expected_athena_config)
+    assert athena_config == expected_athena_config

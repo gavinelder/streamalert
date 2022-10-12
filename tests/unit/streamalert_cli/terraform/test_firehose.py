@@ -56,7 +56,7 @@ class TestFirehoseGenerate:
             }
         }
 
-        assert_equal(cluster_dict, expected_result)
+        assert cluster_dict == expected_result
 
     def test_firehose_enabled_log(self):
         """CLI - Terraform Generate Kinesis Firehose, Enabled Log"""
@@ -85,7 +85,7 @@ class TestFirehoseGenerate:
                 }
             }
         }
-        assert_equal(cluster_dict, expected_result)
+        assert cluster_dict == expected_result
 
     def test_firehose_enabled_log_alarm_defaults(self):
         """CLI - Terraform Generate Kinesis Firehose, Enabled Alarm - Default Settings"""
@@ -134,7 +134,7 @@ class TestFirehoseGenerate:
             }
         }
 
-        assert_equal(cluster_dict, expected_result)
+        assert cluster_dict == expected_result
 
     def test_firehose_enabled_log_alarm_custom(self):
         """CLI - Terraform Generate Kinesis Firehose, Enabled Alarm - Custom Settings"""
@@ -192,7 +192,7 @@ class TestFirehoseGenerate:
             }
         }
 
-        assert_equal(cluster_dict, expected_result)
+        assert cluster_dict == expected_result
 
     def test_firehose_enabled_log_alarm_custom_sns(self):
         """CLI - Terraform Generate Kinesis Firehose, Enabled Alarm - Custom SNS"""
@@ -229,7 +229,7 @@ class TestFirehoseGenerate:
             }
         }
 
-        assert_equal(cluster_dict, expected_result)
+        assert cluster_dict == expected_result
 
     def test_firehose_enabled_log_json(self):
         """CLI - Terraform Generate Kinesis Firehose, Enabled Log with output in JSON format"""
@@ -258,4 +258,4 @@ class TestFirehoseGenerate:
                 }
             }
         }
-        assert_equal(cluster_dict, expected_result)
+        assert cluster_dict == expected_result

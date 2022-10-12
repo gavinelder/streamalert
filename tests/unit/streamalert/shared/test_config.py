@@ -96,21 +96,21 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
         expected_keys = {
             'clusters', 'global', 'lambda', 'logs', 'outputs', 'threat_intel', 'normalized_types'
         }
-        assert_equal(set(config), expected_keys)
+        assert set(config) == expected_keys
 
     @staticmethod
     def test_load_exclude():
         """Shared - Config Loading - Exclude"""
         config = load_config(exclude={'global.json', 'logs.json'})
         expected_keys = {'clusters', 'lambda', 'outputs', 'threat_intel', 'normalized_types'}
-        assert_equal(set(config), expected_keys)
+        assert set(config) == expected_keys
 
     @staticmethod
     def test_load_exclude_clusters():
         """Shared - Config Loading - Exclude Clusters"""
         config = load_config(exclude={'clusters'})
         expected_keys = {'global', 'lambda', 'logs', 'outputs', 'threat_intel', 'normalized_types'}
-        assert_equal(set(config), expected_keys)
+        assert set(config) == expected_keys
 
     @staticmethod
     def test_load_exclude_schemas():
@@ -122,7 +122,7 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
             'lambda',
             'outputs',
         }
-        assert_equal(set(config), expected_keys)
+        assert set(config) == expected_keys
 
     @staticmethod
     def test_load_include():
@@ -130,8 +130,8 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
         config = load_config(include={'clusters', 'logs.json'})
         expected_keys = ['clusters', 'logs']
         expected_clusters_keys = ['prod', 'dev']
-        assert_count_equal(list(config.keys()), expected_keys)
-        assert_count_equal(list(config['clusters'].keys()), expected_clusters_keys)
+        assert collections.Counter(list(config.keys())) == collections.Counter(expected_keys)
+        assert collections.Counter(list(config['clusters'].keys())) == collections.Counter(expected_clusters_keys)
 
     @staticmethod
     def test_load_schemas():
@@ -139,7 +139,7 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
         # Load from separate dir where logs.json doesn't exist
         config = load_config(conf_dir='conf_schemas')
         basic_config = basic_streamalert_config()
-        assert_equal(config['logs'], basic_config['logs'])
+        assert config['logs'] == basic_config['logs']
 
     @staticmethod
     def test_load_schemas_logs():
@@ -147,7 +147,7 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
         # Check if data was loaded from conf/logs.json or the schemas dir if both exist
         config = load_config(conf_dir='conf')
         # Logs.json is preferred over schemas for backwards compatibility.
-        assert_equal(config['logs'], {})
+        assert config['logs'] == {}
 
 
 class TestConfigValidation:
@@ -210,10 +210,10 @@ class TestConfigValidation:
         context = get_mock_lambda_context(func_name)
 
         env = parse_lambda_arn(context.invoked_function_arn)
-        assert_equal(env['region'], 'us-east-1')
-        assert_equal(env['account_id'], '123456789012')
-        assert_equal(env['function_name'], func_name)
-        assert_equal(env['qualifier'], 'development')
+        assert env['region'] == 'us-east-1'
+        assert env['account_id'] == '123456789012'
+        assert env['function_name'] == func_name
+        assert env['qualifier'] == 'development'
 
     def test_missing_streamalert_module(self):
         """Shared - Config Validator, Missing streamalert Module"""
@@ -285,12 +285,12 @@ class TestConfigArtifactExtractor():
 
     def test_artifact_extractor_disabled_by_default(self):
         """Shared - artifact extractor is disabled with default config"""
-        assert_false(artifact_extractor_enabled(self.default_conf_data))
+        assert not artifact_extractor_enabled(self.default_conf_data)
 
     def test_artifact_extractor(self):
         """Shared - test artifact_extractor_enabled helper"""
         self.default_conf_data['global']['infrastructure']['artifact_extractor']['enabled'] = True
-        assert_false(artifact_extractor_enabled(self.default_conf_data))
+        assert not artifact_extractor_enabled(self.default_conf_data)
 
         self.default_conf_data['global']['infrastructure']['firehose']['enabled'] = True
-        assert_true(artifact_extractor_enabled(self.default_conf_data))
+        assert artifact_extractor_enabled(self.default_conf_data)

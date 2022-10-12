@@ -139,4 +139,4 @@ class TestTerraformGenerateRuleEngine:
             }
         }
 
-        assert_equal(result, expected_result)
+        assert result == expected_result

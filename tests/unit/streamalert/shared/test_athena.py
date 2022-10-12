@@ -49,7 +49,7 @@ class TestAthenaClient:
         expected_path = f's3://test-streamalert-athena-results/unit-test/{date_format}'
         with patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-west-1'}):
             client = AthenaClient(self._db_name, 'test-streamalert-athena-results', 'unit-test')
-            assert_equal(client.results_path, expected_path)
+            assert client.results_path == expected_path
 
     def test_unique_values_from_query(self):
         """Athena - Unique Values from Query"""
@@ -82,31 +82,31 @@ class TestAthenaClient:
         expected_result = {'foobar', 'barfoo', 'foobarbaz'}
 
         result = self.client._unique_values_from_query(query)
-        assert_count_equal(result, expected_result)
+        assert collections.Counter(result) == collections.Counter(expected_result)
 
     def test_check_database_exists(self):
         """Athena - Check Database Exists"""
         self.client._client.results = [{'Data': [{'VarCharValue': self._db_name}]}]
 
-        assert_true(self.client.check_database_exists())
+        assert self.client.check_database_exists()
 
     def test_check_database_exists_invalid(self):
         """Athena - Check Database Exists - Does Not Exist"""
         self.client._client.results = None
 
-        assert_false(self.client.check_database_exists())
+        assert not self.client.check_database_exists()
 
     def test_check_table_exists(self):
         """Athena - Check Table Exists"""
         self.client._client.results = [{'Data': [{'VarCharValue': 'test_table'}]}]
 
-        assert_true(self.client.check_table_exists('test_table'))
+        assert self.client.check_table_exists('test_table')
 
     def test_check_table_exists_invalid(self):
         """Athena - Check Table Exists - Does Not Exist"""
         self.client._client.results = None
 
-        assert_false(self.client.check_table_exists('test_table'))
+        assert not self.client.check_table_exists('test_table')
 
     def test_get_table_partitions(self):
         """Athena - Get Table Partitions"""
@@ -136,7 +136,7 @@ class TestAthenaClient:
         expected_result = {'dt=2018-12-10-10', 'dt=2018-12-09-10', 'dt=2018-12-11-10'}
 
         result = self.client.get_table_partitions('test_table')
-        assert_count_equal(result, expected_result)
+        assert collections.Counter(result) == collections.Counter(expected_result)
 
     def test_get_table_partitions_error(self):
         """Athena - Get Table Partitions, Exception"""
@@ -145,7 +145,7 @@ class TestAthenaClient:
 
     def test_drop_table(self):
         """Athena - Drop Table, Success"""
-        assert_true(self.client.drop_table('test_table'))
+        assert self.client.drop_table('test_table')
 
     def test_drop_table_failure(self):
         """Athena - Drop Table, Failure"""
@@ -172,8 +172,8 @@ class TestAthenaClient:
                 }]
             },
         ]
-        assert_true(self.client.drop_all_tables())
-        assert_equal(drop_table_mock.call_count, 2)
+        assert self.client.drop_all_tables()
+        assert drop_table_mock.call_count == 2
 
     @patch('streamalert.shared.athena.AthenaClient.drop_table')
     def test_drop_all_tables_failure(self, drop_table_mock):
@@ -196,7 +196,7 @@ class TestAthenaClient:
             },
         ]
         drop_table_mock.side_effect = [True, True, False]
-        assert_false(self.client.drop_all_tables())
+        assert not self.client.drop_all_tables()
 
     def test_drop_all_tables_exception(self):
         """Athena - Drop All Tables, Exception"""
@@ -218,7 +218,7 @@ class TestAthenaClient:
             },
         ]
         result = self.client._execute_and_wait('SQL query')
-        assert_true(result in self.client._client.query_executions)
+        assert result in self.client._client.query_executions
 
     def test_execute_and_wait_failed(self):
         """Athena - Execute and Wait, Failed"""
@@ -234,7 +234,7 @@ class TestAthenaClient:
         ]
 
         items = list(self.client.query_result_paginator('test query'))
-        assert_count_equal(items, [{'ResultSet': {'Rows': [data]}}] * 4)
+        assert collections.Counter(items) == collections.Counter([{'ResultSet': {'Rows': [data]}}] * 4)
 
     @raises(AthenaQueryExecutionError)
     def test_query_result_paginator_error(self):
@@ -244,7 +244,7 @@ class TestAthenaClient:
 
     def test_run_async_query(self):
         """Athena - Run Async Query, Success"""
-        assert_true(self.client.run_async_query('test query'))
+        assert self.client.run_async_query('test query')
 
     def test_run_async_query_failure(self):
         """Athena - Run Async Query, Failure"""

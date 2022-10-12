@@ -44,7 +44,7 @@ def test_record_to_schema_no_recurse():
 
     result = helpers.record_to_schema(record, recursive=False)
 
-    assert_equal(result, expected_result)
+    assert result == expected_result
 
 
 def test_record_to_schema_recurse():
@@ -76,4 +76,4 @@ def test_record_to_schema_recurse():
 
     result = helpers.record_to_schema(record, recursive=True)
 
-    assert_equal(result, expected_result)
+    assert result == expected_result

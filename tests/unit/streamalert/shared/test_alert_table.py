@@ -61,7 +61,7 @@ class TestAlertTable:
 
     def test_name(self):
         """Alert Table - Name Property"""
-        assert_equal(_ALERTS_TABLE, self.alert_table.name)
+        assert _ALERTS_TABLE == self.alert_table.name
 
     def test_paginate_multiple(self):
         """Alert Table - Paginate Traverses Multiple Pages"""
@@ -72,29 +72,29 @@ class TestAlertTable:
             return {'Items': [1], 'LastEvaluatedKey': 'somewhere'}
 
         results = list(self.alert_table._paginate(mock_table_op, {}))
-        assert_equal([1, 2], results)
+        assert [1, 2] == results
 
     def test_rule_names_generator(self):
         """Alert Table - Rule Names Generator From Table Scan"""
-        assert_equal({'even', 'odd'}, set(self.alert_table.rule_names_generator()))
+        assert {'even', 'odd'} == set(self.alert_table.rule_names_generator())
 
     def test_get_alert_records(self):
         """Alert Table - Pending Alerts From Table Query"""
         result = list(self.alert_table.get_alert_records('odd', _ALERT_PROCESSOR_TIMEOUT_SEC))
-        assert_equal(1, len(result))
+        assert 1 == len(result)
         # All the properties should be the same between the two alerts
-        assert_equal(self.alerts[1].dynamo_record(), result[0])
+        assert self.alerts[1].dynamo_record() == result[0]
 
     def test_get_alert_record(self):
         """Alert Table - Get a Single Alert"""
         result = self.alert_table.get_alert_record(self.alerts[0].rule_name,
                                                    self.alerts[0].alert_id)
-        assert_equal(self.alerts[0].dynamo_record(), result)
+        assert self.alerts[0].dynamo_record() == result
 
     def test_add_alerts(self):
         """Alert Table - Add Alerts"""
         items = self.alert_table._table.scan()['Items']
-        assert_equal(3, len(items))
+        assert 3 == len(items)
 
     def test_mark_as_dispatched(self):
         """Alert Table - Mark As Dispatched"""
@@ -105,7 +105,7 @@ class TestAlertTable:
 
         # Verify that there is now 1 attempt
         result = self.alert_table.get_alert_record(alert.rule_name, alert.alert_id)
-        assert_equal(1, result['Attempts'])
+        assert 1 == result['Attempts']
 
     def test_mark_as_dispatched_conditional_fail(self):
         """Alert Table - Mark As Dispatched - Alert is Already Deleted"""
@@ -165,4 +165,4 @@ class TestAlertTable:
     def test_delete_alert(self):
         """Alert Table - Delete Alert"""
         self.alert_table.delete_alerts([(alert.rule_name, alert.alert_id) for alert in self.alerts])
-        assert_equal(0, len(self.alert_table._table.scan()['Items']))
+        assert 0 == len(self.alert_table._table.scan()['Items'])

@@ -50,13 +50,13 @@ class RuleImportTest(fake_filesystem_unittest.TestCase):
         expected = {
             'matchers/default.py', 'rules/example.py', 'rules/community/cloudtrail/critical_api.py'
         }
-        assert_equal(expected, result)
+        assert expected == result
 
     @staticmethod
     def test_path_to_module():
         """Rule - Path to Module"""
-        assert_equal('name', _path_to_module('name.py'))
-        assert_equal('a.b.c.name', _path_to_module('a/b/c/name.py'))
+        assert 'name' == _path_to_module('name.py')
+        assert 'a.b.c.name' == _path_to_module('a/b/c/name.py')
 
     @staticmethod
     def test_path_to_module_invalid():

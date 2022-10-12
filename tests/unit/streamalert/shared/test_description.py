@@ -29,7 +29,7 @@ author: Derek Wang
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {'author': ['Derek Wang'], 'description': []})
+        assert data == {'author': ['Derek Wang'], 'description': []}
 
     @staticmethod
     def test_strange_spacing():
@@ -42,7 +42,7 @@ author: Derek Wang
     '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {'author': ['Derek Wang'], 'description': []})
+        assert data == {'author': ['Derek Wang'], 'description': []}
 
     @staticmethod
     def test_no_fields():
@@ -54,8 +54,8 @@ This rule has no format and thus the entire
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'description': [
                     'This rule has no format and thus the entire',
                     'string is considered to be lines of the',
@@ -72,8 +72,8 @@ This rule has no format and thus the entire
     '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'description': [
                     'This rule has some colons in it in strange places. For example: right here',
                     'But should not have fields because... reasons.',
@@ -89,7 +89,7 @@ owner:  Bobby Tables
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(data, {'author': ['Derek Wang'], 'description': [], 'owner': ['Bobby Tables']})
+        assert data == {'author': ['Derek Wang'], 'description': [], 'owner': ['Bobby Tables']}
 
     @staticmethod
     def test_multiple_fields_multiple_lines():
@@ -101,8 +101,8 @@ reference:  There is no cow level
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author': ['Derek Wang (CSIRT)'],
                 'description': [],
                 'reference': ['There is no cow level', 'Greed is good'],
@@ -119,8 +119,8 @@ reference:  There is no cow level
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author': ['Derek Wang (CSIRT)'],
                 'description': [
                     'Lorem ipsum bacon jalapeno cheeseburger',
@@ -140,8 +140,8 @@ reference:  https://www.google.com
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'description':
                 ['This rule triggers when the temperature of the boiler exceeds 9000', ''],
                 'author': ['Derek Wang (CSIRT)'],
@@ -160,8 +160,8 @@ reference:  https://www.google.com
 '''
 
         data = RuleDescriptionParser.parse(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author': ['Derek Wang (CSIRT)', ''],
                 'description': [],
                 'att&ck tactic': ['Defense Evasion'],
@@ -179,7 +179,7 @@ author: Derek Wang
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(data, {'author': 'Derek Wang', 'description': '', 'fields': {}})
+        assert data == {'author': 'Derek Wang', 'description': '', 'fields': {}}
 
     @staticmethod
     def test_multiple_fields_multiple_lines():
@@ -192,8 +192,8 @@ description:  This description
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author': 'Derek Wang',
                 'description': 'This description has multiple lines with inconsistent indentation',
                 'fields': {}
@@ -211,8 +211,8 @@ reference:    https://www.airbnb.com/
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author': 'Derek Wang',
                 'description': 'Lorem ipsum bacon Cheeseburger',
                 'fields': {
@@ -230,8 +230,8 @@ reference:    https://www.airbnb.com/
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author': '',
                 'description': '',
                 'fields': {
@@ -249,8 +249,8 @@ reference:    https://www.airbnb.com/users/notifications
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author': '',
                 'description': '',
                 'fields': {
@@ -269,8 +269,8 @@ reference:    https://www.airbnb.com/users/notifications
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author': '',
                 'description': '',
                 'fields': {
@@ -298,8 +298,8 @@ description:
 '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author':
                 '',
                 'description': ('This is a long description where normal linebreaks like '
@@ -323,8 +323,8 @@ description:
     '''
 
         data = RuleDescriptionParser.present(case)
-        assert_equal(
-            data, {
+        assert (
+            data == {
                 'author':
                 '',
                 'description': ('https://airbnb.com\n'

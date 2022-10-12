@@ -37,14 +37,14 @@ class TestCSVParser:
         # get parsed data
         parser = CSVParser(options)
         result = parser.parse(data)
-        assert_equal(result, True)
+        assert result == True
 
         expected_result = [{
             'date': '01-01-2018',
             'host': 'test-01.stg.foo.net',
             'message': 'test message!!!!'
         }]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_basic_parsing_bytes(self):
         """CSVParser - Basic CSV data, bytes"""
@@ -54,14 +54,14 @@ class TestCSVParser:
         # get parsed data
         parser = CSVParser(options)
         result = parser.parse(data)
-        assert_equal(result, True)
+        assert result == True
 
         expected_result = [{
             'date': '01-01-2018',
             'host': 'test-01.stg.foo.net',
             'message': 'test message!!!!'
         }]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_csv_parsing_space_delimited(self):
         """CSVParser - Space separated data"""
@@ -71,14 +71,14 @@ class TestCSVParser:
         # get parsed data
         parser = CSVParser(options)
         result = parser.parse(data)
-        assert_equal(result, True)
+        assert result == True
 
         expected_result = [{
             'date': '02-02-2018',
             'host': 'test-01.stg.foo.net',
             'message': 'test message!!!!'
         }]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_csv_parsing_alt_quoted(self):
         """CSVParser - Single Quoted Field"""
@@ -89,7 +89,7 @@ class TestCSVParser:
         # get parsed data
         parser = CSVParser(options)
         result = parser.parse(data)
-        assert_equal(result, True)
+        assert result == True
 
         expected_result = [{
             'host': 'test-host',
@@ -97,7 +97,7 @@ class TestCSVParser:
             'message': 'CREATE TABLE test ( id INTEGER, type VARCHAR(64) NOT NULL)'
         }]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_csv_parsing_from_json(self):
         """CSVParser - CSV within JSON"""
@@ -129,7 +129,7 @@ class TestCSVParser:
         # get parsed data
         parser = CSVParser(options)
         result = parser.parse(data)
-        assert_equal(result, True)
+        assert result == True
 
         expected_result = [{
             'host': 'host-name',
@@ -149,7 +149,7 @@ class TestCSVParser:
             }
         }]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_nested_csv(self):
         """CSVParser - Nested CSV"""
@@ -168,7 +168,7 @@ class TestCSVParser:
         # get parsed data
         parser = CSVParser(options)
         result = parser.parse(data)
-        assert_equal(result, True)
+        assert result == True
 
         expected_result = [{
             'date': 'Jan 10, 2017',
@@ -184,7 +184,7 @@ class TestCSVParser:
             }
         }]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_nested_csv_invalid(self):
         """CSVParser - Nested CSV, Invalid"""
@@ -198,8 +198,8 @@ class TestCSVParser:
         # get parsed data
         parser = CSVParser(options)
         result = parser.parse(data)
-        assert_equal(result, False)
+        assert result == False
 
         expected_result = [['Jan 10, 2017', 'chef,web-server,1']]
 
-        assert_equal(parser.invalid_parses, expected_result)
+        assert parser.invalid_parses == expected_result

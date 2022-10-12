@@ -34,24 +34,24 @@ def test_output_property_default():
     """OutputProperty defaults"""
     prop = OutputProperty()
 
-    assert_equal(prop.description, '')
-    assert_equal(prop.value, '')
-    assert_equal(prop.input_restrictions, {' ', ':'})
-    assert_equal(prop.mask_input, False)
-    assert_equal(prop.cred_requirement, False)
+    assert prop.description == ''
+    assert prop.value == ''
+    assert prop.input_restrictions == {' ', ':'}
+    assert prop.mask_input == False
+    assert prop.cred_requirement == False
 
 
 def test_get_dispatcher_good():
     """StreamAlertOutput - Get Valid Dispatcher"""
     dispatcher = StreamAlertOutput.get_dispatcher('aws-s3')
-    assert_is_not_none(dispatcher)
+    assert dispatcher is not None
 
 
 @patch('logging.Logger.error')
 def test_get_dispatcher_bad(log_mock):
     """StreamAlertOutput - Get Invalid Dispatcher"""
     dispatcher = StreamAlertOutput.get_dispatcher('aws-s4')
-    assert_is_none(dispatcher)
+    assert dispatcher is None
     log_mock.assert_called_with('Designated output service [%s] does not exist', 'aws-s4')
 
 
@@ -59,7 +59,7 @@ def test_get_dispatcher_bad(log_mock):
 def test_create_dispatcher():
     """StreamAlertOutput - Create Dispatcher"""
     dispatcher = StreamAlertOutput.create_dispatcher('aws-s3', CONFIG)
-    assert_is_instance(dispatcher, S3Output)
+    assert isinstance(dispatcher, S3Output)
 
 
 def test_user_defined_properties():
@@ -67,7 +67,7 @@ def test_user_defined_properties():
     for output in list(StreamAlertOutput.get_all_outputs().values()):
         props = output.get_user_defined_properties()
         # The user defined properties should at a minimum contain a descriptor
-        assert_is_not_none(props.get('descriptor'))
+        assert props.get('descriptor') is not None
 
 
 def test_output_loading():
@@ -79,7 +79,7 @@ def test_output_loading():
         'aws-cloudwatch-log', 'carbonblack', 'demisto', 'github', 'jira', 'jira-v2', 'komand',
         'pagerduty', 'pagerduty-v2', 'pagerduty-incident', 'phantom', 'slack', 'teams' ,'victorops'
     }
-    assert_count_equal(loaded_outputs, expected_outputs)
+    assert collections.Counter(loaded_outputs) == collections.Counter(expected_outputs)
 
 
 @patch.object(OutputDispatcher, '__service__', 'test_service')
@@ -107,7 +107,7 @@ class TestOutputDispatcher:
                                                 config=CONFIG,
                                                 defaults=None,
                                                 region=REGION)
-        assert_equal(self._dispatcher._credentials_provider._service_name, 'test_service')
+        assert self._dispatcher._credentials_provider._service_name == 'test_service'
 
     @patch('logging.Logger.info')
     def test_log_status_success(self, log_mock):
@@ -129,12 +129,12 @@ class TestOutputDispatcher:
         # Test with a good response code
         mock_response.status_code = 200
         result = self._dispatcher._check_http_response(mock_response)
-        assert_equal(result, True)
+        assert result == True
 
         # Test with a bad response code
         mock_response.status_code = 440
         result = self._dispatcher._check_http_response(mock_response)
-        assert_equal(result, False)
+        assert result == False
 
     @mock_ssm
     @mock_kms
@@ -147,10 +147,10 @@ class TestOutputDispatcher:
 
         loaded_creds = self._dispatcher._load_creds(self._descriptor)
 
-        assert_is_not_none(loaded_creds)
-        assert_equal(len(loaded_creds), 2)
-        assert_equal(loaded_creds['url'], creds['url'])
-        assert_equal(loaded_creds['token'], creds['token'])
+        assert loaded_creds is not None
+        assert len(loaded_creds) == 2
+        assert loaded_creds['url'] == creds['url']
+        assert loaded_creds['token'] == creds['token']
 
     def test_format_output_config(self):
         """OutputDispatcher - Format Output Config"""
@@ -159,16 +159,16 @@ class TestOutputDispatcher:
 
             formatted = self._dispatcher.format_output_config(CONFIG, props)
 
-            assert_equal(len(formatted), 2)
-            assert_equal(formatted[0], 'unit_test_channel')
-            assert_equal(formatted[1], 'test_channel')
+            assert len(formatted) == 2
+            assert formatted[0] == 'unit_test_channel'
+            assert formatted[1] == 'test_channel'
 
     @patch.object(OutputDispatcher, '_get_exceptions_to_catch', Mock(return_value=(ValueError)))
     def test_catch_exceptions_non_default(self):
         """OutputDispatcher - Catch Non Default Exceptions"""
         exceptions = self._dispatcher._catch_exceptions()
 
-        assert_equal(exceptions, (OutputRequestFailure, ReqTimeout, ValueError))
+        assert exceptions == (OutputRequestFailure, ReqTimeout, ValueError)
 
     @patch.object(OutputDispatcher, '_get_exceptions_to_catch',
                   Mock(return_value=(ValueError, TypeError)))
@@ -176,11 +176,11 @@ class TestOutputDispatcher:
         """OutputDispatcher - Catch Non Default Exceptions Tuple"""
         exceptions = self._dispatcher._catch_exceptions()
 
-        assert_equal(exceptions, (OutputRequestFailure, ReqTimeout, ValueError, TypeError))
+        assert exceptions == (OutputRequestFailure, ReqTimeout, ValueError, TypeError)
 
     @patch.object(OutputDispatcher, '_get_exceptions_to_catch', Mock(return_value=()))
     def test_catch_exceptions_default(self):
         """OutputDispatcher - Catch Default Exceptions"""
         exceptions = self._dispatcher._catch_exceptions()
 
-        assert_equal(exceptions, (OutputRequestFailure, ReqTimeout))
+        assert exceptions == (OutputRequestFailure, ReqTimeout)

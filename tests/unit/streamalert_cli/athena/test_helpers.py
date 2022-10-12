@@ -32,7 +32,7 @@ def test_generate_athena_schema_simple():
 
     expected_athena_schema = {'`unit_key_01`': 'bigint', '`unit_key_02`': 'string'}
 
-    assert_equal(athena_schema, expected_athena_schema)
+    assert athena_schema == expected_athena_schema
 
 
 def test_generate_athena_schema_special_key():
@@ -50,7 +50,7 @@ def test_generate_athena_schema_special_key():
         '`key11`': 'decimal(10,3)'
     }
 
-    assert_equal(athena_schema, expected_athena_schema)
+    assert athena_schema == expected_athena_schema
 
 
 def test_generate_athena_schema_nested():
@@ -72,7 +72,7 @@ def test_generate_athena_schema_nested():
         }
     }
 
-    assert_equal(athena_schema, expected_athena_schema)
+    assert athena_schema == expected_athena_schema
 
 
 def test_add_partition_statements():
@@ -96,8 +96,8 @@ def test_add_partition_statements():
 
     results = helpers.add_partition_statements(partitions, 'bucket', 'test')
     results_copy = list(results)
-    assert_equal(len(results_copy), 1)
-    assert_equal(results_copy[0], expected_result)
+    assert len(results_copy) == 1
+    assert results_copy[0] == expected_result
 
 
 @patch.object(helpers, 'MAX_QUERY_LENGTH', 256)
@@ -112,7 +112,7 @@ def test_add_partition_statements_exceed_length():
 
     results = helpers.add_partition_statements(partitions, 'bucket', 'test')
     results_copy = list(results)
-    assert_equal(len(results_copy), 2)
+    assert len(results_copy) == 2
 
     expected_result_0 = ("ALTER TABLE test ADD IF NOT EXISTS "
                          "PARTITION (dt = '2013-12-01-04') "
@@ -124,8 +124,8 @@ def test_add_partition_statements_exceed_length():
                          "LOCATION 's3://bucket/test/2017/12/01/01' "
                          "PARTITION (dt = '2018-12-01-05') "
                          "LOCATION 's3://bucket/test/2018/12/01/05'")
-    assert_equal(results_copy[0], expected_result_0)
-    assert_equal(results_copy[1], expected_result_1)
+    assert results_copy[0] == expected_result_0
+    assert results_copy[1] == expected_result_1
 
 
 # pylint: disable=protected-access
@@ -134,7 +134,7 @@ def test_generate_data_table_schema():
     config = CLIConfig(config_path='tests/unit/conf')
     config['global']['infrastructure']['firehose']['enabled_logs'] = {'test:log.name.with.dots': {}}
 
-    assert_true(helpers.generate_data_table_schema(config, 'test:log.name.with.dots'))
+    assert helpers.generate_data_table_schema(config, 'test:log.name.with.dots')
     FirehoseClient._ENABLED_LOGS.clear()
 
 
@@ -146,7 +146,7 @@ def test_generate_data_table_schema_2():
         'cloudwatch:test_match_types': {}
     }
 
-    assert_true(helpers.generate_data_table_schema(config, 'cloudwatch:test_match_types'))
+    assert helpers.generate_data_table_schema(config, 'cloudwatch:test_match_types')
     FirehoseClient._ENABLED_LOGS.clear()
 
 
@@ -157,4 +157,4 @@ def test_generate_artifact_table_schema():
     expected_result = [('function', 'string'), ('source_type', 'string'),
                        ('streamalert_record_id', 'string'), ('type', 'string'), ('value', 'string')]
 
-    assert_equal(result, expected_result)
+    assert result == expected_result

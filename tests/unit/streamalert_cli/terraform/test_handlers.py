@@ -69,11 +69,11 @@ class TestTerraformHandlers(fake_filesystem_unittest.TestCase):
             'resource': {'resource1.foo', 'resource2.bar', 'resource3.pan'}
         }
 
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     @patch('streamalert_cli.terraform.handlers.terraform_generate_handler',
            Mock(return_value=False))
     def test_get_tf_modules_early_return(self):
         """CLI - Terraform handler function get tf modules return early"""
         config = Mock(return_value={}, build_directory=self._build_directory)
-        assert_false(get_tf_modules(config, generate=True))
+        assert not get_tf_modules(config, generate=True)

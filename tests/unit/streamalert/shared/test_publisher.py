@@ -74,9 +74,8 @@ class TestRegister:
     @staticmethod
     def test_register_works_properly():
         """AlertPublisher - @Register - Works properly"""
-        assert_true(
-            AlertPublisherRepository.has_publisher(
-                AlertPublisherRepository.get_publisher_name(SamplePublisher1)))
+        assert AlertPublisherRepository.has_publisher(
+                AlertPublisherRepository.get_publisher_name(SamplePublisher1))
 
 
 class TestCompositePublisher:
@@ -93,7 +92,7 @@ class TestCompositePublisher:
         publication = publisher.publish(alert, {})
 
         expectation = {'test2': True}
-        assert_equal(publication, expectation)
+        assert publication == expectation
 
 
 class TestWrappedFunctionPublisher:
@@ -106,52 +105,51 @@ class TestWrappedFunctionPublisher:
         publication = publisher.publish(alert, {})
 
         expectation = {'test4': True}
-        assert_equal(publication, expectation)
+        assert publication == expectation
 
 
 class TestAlertPublisherRepository:
     @staticmethod
     def test_is_valid_publisher_class():
         """AlertPublisherRepository - is_valid_publisher() - Class"""
-        assert_true(AlertPublisherRepository.is_valid_publisher(SamplePublisher1))
+        assert AlertPublisherRepository.is_valid_publisher(SamplePublisher1)
 
     @staticmethod
     def test_is_valid_publisher_function():
         """AlertPublisherRepository - is_valid_publisher() - Function"""
-        assert_true(AlertPublisherRepository.is_valid_publisher(sample_publisher_5))
+        assert AlertPublisherRepository.is_valid_publisher(sample_publisher_5)
 
     @staticmethod
     def test_is_valid_publisher_invalid():
         """AlertPublisherRepository - is_valid_publisher() - Class"""
-        assert_false(AlertPublisherRepository.is_valid_publisher('aaa'))
+        assert not AlertPublisherRepository.is_valid_publisher('aaa')
 
     @staticmethod
     def test_get_publisher_name_class():
         """AlertPublisherRepository - get_publisher_name() - Class"""
 
         name = AlertPublisherRepository.get_publisher_name(SamplePublisher1)
-        assert_equal(name, 'tests.unit.streamalert.shared.test_publisher.SamplePublisher1')
+        assert name == 'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'
 
     @staticmethod
     def test_get_publisher_name_function():
         """AlertPublisherRepository - get_publisher_name() - Function"""
 
         name = AlertPublisherRepository.get_publisher_name(sample_publisher_5)
-        assert_equal(name, 'tests.unit.streamalert.shared.test_publisher.sample_publisher_5')
+        assert name == 'tests.unit.streamalert.shared.test_publisher.sample_publisher_5'
 
     @staticmethod
     def test_registers_default_publishers():
         """AlertPublisher - AlertPublisherRepository - all_publishers()"""
         publishers = AlertPublisherRepository.all_publishers()
 
-        assert_true(len(publishers) > 0)
+        assert len(publishers) > 0
 
     @staticmethod
     def test_has_publisher():
         """AlertPublisher - AlertPublisherRepository - get_publisher() - SamplePublisher1"""
-        assert_true(
-            AlertPublisherRepository.has_publisher(
-                'tests.unit.streamalert.shared.test_publisher.SamplePublisher1'))
+        assert AlertPublisherRepository.has_publisher(
+                'tests.unit.streamalert.shared.test_publisher.SamplePublisher1')
 
     @staticmethod
     def test_get_publisher():
@@ -159,7 +157,7 @@ class TestAlertPublisherRepository:
         publisher = AlertPublisherRepository.get_publisher(
             'tests.unit.streamalert.shared.test_publisher.SamplePublisher1')
 
-        assert_true(isinstance(publisher, SamplePublisher1))
+        assert isinstance(publisher, SamplePublisher1)
 
     @staticmethod
     def test_create_composite_publisher():
@@ -169,17 +167,17 @@ class TestAlertPublisherRepository:
             'tests.unit.streamalert.shared.test_publisher.SamplePublisher2',
         ])
 
-        assert_true(isinstance(publisher, CompositePublisher))
-        assert_equal(len(publisher._publishers), 2)
-        assert_true(isinstance(publisher._publishers[0], SamplePublisher1))
-        assert_true(isinstance(publisher._publishers[1], SamplePublisher2))
+        assert isinstance(publisher, CompositePublisher)
+        assert len(publisher._publishers) == 2
+        assert isinstance(publisher._publishers[0], SamplePublisher1)
+        assert isinstance(publisher._publishers[1], SamplePublisher2)
 
     @staticmethod
     def test_create_composite_publisher_default():
         """AlertPublisher - AlertPublisherRepository - create_composite_publisher() - Default"""
         publisher = AlertPublisherRepository.create_composite_publisher([])
 
-        assert_true(isinstance(publisher, DefaultPublisher))
+        assert isinstance(publisher, DefaultPublisher)
 
     @staticmethod
     @patch('logging.Logger.error')
@@ -187,7 +185,7 @@ class TestAlertPublisherRepository:
         """AlertPublisher - AlertPublisherRepository - create_composite_publisher() - No Exist"""
         publisher = AlertPublisherRepository.create_composite_publisher(['no_exist'])
 
-        assert_true(isinstance(publisher, DefaultPublisher))
+        assert isinstance(publisher, DefaultPublisher)
         error_log.assert_called_with('Publisher [%s] does not exist', 'no_exist')
 
 
@@ -204,7 +202,7 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, DefaultPublisher))
+        assert isinstance(publisher, DefaultPublisher)
 
     def test_assemble_alert_publisher_for_output_single_string(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - String"""
@@ -213,9 +211,9 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, CompositePublisher))
-        assert_equal(len(publisher._publishers), 1)
-        assert_true(isinstance(publisher._publishers[0], SamplePublisher1))
+        assert isinstance(publisher, CompositePublisher)
+        assert len(publisher._publishers) == 1
+        assert isinstance(publisher._publishers[0], SamplePublisher1)
 
     def test_assemble_alert_publisher_for_output_list_string(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - List of Strings"""
@@ -227,10 +225,10 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, CompositePublisher))
-        assert_equal(len(publisher._publishers), 2)
-        assert_true(isinstance(publisher._publishers[0], SamplePublisher1))
-        assert_true(isinstance(publisher._publishers[1], SamplePublisher2))
+        assert isinstance(publisher, CompositePublisher)
+        assert len(publisher._publishers) == 2
+        assert isinstance(publisher._publishers[0], SamplePublisher1)
+        assert isinstance(publisher._publishers[1], SamplePublisher2)
 
     def test_assemble_alert_publisher_for_output_dict_empty(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Empty Dict"""
@@ -239,7 +237,7 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, DefaultPublisher))
+        assert isinstance(publisher, DefaultPublisher)
 
     def test_assemble_alert_publisher_for_output_dict_irrelevant_key(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict with Irrelevant Key"""
@@ -250,7 +248,7 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, DefaultPublisher))
+        assert isinstance(publisher, DefaultPublisher)
 
     def test_assemble_alert_publisher_for_output_dict_key_string(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict with Key -> String"""
@@ -262,9 +260,9 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, CompositePublisher))
-        assert_equal(len(publisher._publishers), 1)
-        assert_true(isinstance(publisher._publishers[0], SamplePublisher1))
+        assert isinstance(publisher, CompositePublisher)
+        assert len(publisher._publishers) == 1
+        assert isinstance(publisher._publishers[0], SamplePublisher1)
 
     def test_assemble_alert_publisher_for_output_dict_key_array(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict with Key -> List"""
@@ -279,8 +277,8 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, CompositePublisher))
-        assert_equal(len(publisher._publishers), 2)
+        assert isinstance(publisher, CompositePublisher)
+        assert len(publisher._publishers) == 2
 
     def test_assemble_alert_publisher_for_output_dict_key_descriptor_string(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict matches Desc String"""
@@ -293,8 +291,8 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, CompositePublisher))
-        assert_equal(len(publisher._publishers), 1)
+        assert isinstance(publisher, CompositePublisher)
+        assert len(publisher._publishers) == 1
 
     def test_assemble_alert_publisher_for_output_dict_key_descriptor_list(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict matches Desc List"""
@@ -311,8 +309,8 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, CompositePublisher))
-        assert_equal(len(publisher._publishers), 2)
+        assert isinstance(publisher, CompositePublisher)
+        assert len(publisher._publishers) == 2
 
     def test_assemble_alert_publisher_for_output_dict_key_both_descriptor_output_list(self):
         """AlertPublisher - AlertPublisherRepository - assemble() - Dict full match Lists"""
@@ -333,11 +331,11 @@ class TestAlertPublisherRepositoryAssemblePublisher:
         publisher = _assemble_alert_publisher_for_output(self._alert, self._output,
                                                          self._descriptor)
 
-        assert_true(isinstance(publisher, CompositePublisher))
-        assert_equal(len(publisher._publishers), 4)
+        assert isinstance(publisher, CompositePublisher)
+        assert len(publisher._publishers) == 4
 
         # Order is important; the generic ones are loaded first then the specific ones are last
-        assert_true(isinstance(publisher._publishers[0], SamplePublisher1))
-        assert_true(isinstance(publisher._publishers[1], SamplePublisher2))
-        assert_true(isinstance(publisher._publishers[2], SamplePublisher3))
-        assert_true(isinstance(publisher._publishers[3], SamplePublisher4))
+        assert isinstance(publisher._publishers[0], SamplePublisher1)
+        assert isinstance(publisher._publishers[1], SamplePublisher2)
+        assert isinstance(publisher._publishers[2], SamplePublisher3)
+        assert isinstance(publisher._publishers[3], SamplePublisher4)

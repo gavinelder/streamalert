@@ -37,27 +37,27 @@ class TestEphemeralDriver:
 
     def test_driver_type(self):
         """LookupTable - Drivers - Ephemeral Driver - Type"""
-        assert_true(isinstance(self._driver, EphemeralDriver))
+        assert isinstance(self._driver, EphemeralDriver)
 
     def test_driver_nonexistent(self):
         """LookupTable - Drivers - Ephemeral Driver - Nonexistent Key None Default"""
-        assert_equal(self._driver.get('nonexistent_key'), None)
+        assert self._driver.get('nonexistent_key') == None
 
     def test_driver_nonexistent_default(self):
         """LookupTable - Drivers - Ephemeral Driver - Nonexistent Key With Default"""
-        assert_equal(self._driver.get('nonexistent_key'), None)
+        assert self._driver.get('nonexistent_key') == None
 
     def test_driver_existent(self):
         """LookupTable - Drivers - Ephemeral Driver - Existent"""
-        assert_equal(self._driver.get('those'), {'theys': 'thens'})
+        assert self._driver.get('those') == {'theys': 'thens'}
 
     def test_table_driver_id(self):
         """LookupTable - Drivers - Ephemeral Driver - Id"""
-        assert_equal(self._driver.id, 'ephemeral:1')
+        assert self._driver.id == 'ephemeral:1'
 
     def test_table_driver_type(self):
         """LookupTable - Drivers - Ephemeral Driver - Type"""
-        assert_equal(self._driver.driver_type, 'ephemeral')
+        assert self._driver.driver_type == 'ephemeral'
 
 
 class TestNullDriver:
@@ -74,27 +74,27 @@ class TestNullDriver:
 
     def test_driver_type(self):
         """LookupTable - Drivers - Null Driver - Type"""
-        assert_true(isinstance(self._driver, NullDriver))
+        assert isinstance(self._driver, NullDriver)
 
     def test_driver_nonexistent(self):
         """LookupTable - Drivers - Null Driver - Nonexistent Key None Default"""
-        assert_equal(self._driver.get('nonexistent_key'), None)
+        assert self._driver.get('nonexistent_key') == None
 
     def test_driver_nonexistent_default(self):
         """LookupTable - Drivers - Null Driver - Nonexistent Key With Default"""
-        assert_equal(self._driver.get('nonexistent_key'), None)
+        assert self._driver.get('nonexistent_key') == None
 
     def test_driver_existent(self):
         """LookupTable - Drivers - Null Driver - Existent"""
-        assert_equal(self._driver.get('those'), None)
+        assert self._driver.get('those') == None
 
     def test_table_driver_id(self):
         """LookupTable - Drivers - Null Driver - Id"""
-        assert_equal(self._driver.id, 'null:1')
+        assert self._driver.id == 'null:1'
 
     def test_table_driver_type(self):
         """LookupTable - Drivers - Null Driver - Type"""
-        assert_equal(self._driver.driver_type, 'null')
+        assert self._driver.driver_type == 'null'
 
 
 def test_construct_persistence_driver_nope():

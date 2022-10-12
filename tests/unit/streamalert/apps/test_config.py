@@ -62,7 +62,7 @@ class TestAppConfig:
 
     def test_validate_auth_(self):
         """AppConfig - Validate Authentication Info"""
-        assert_equal(self._config.validate_auth({'host', 'secret'}), True)
+        assert self._config.validate_auth({'host', 'secret'}) == True
 
     @raises(AppAuthError)
     def test_validate_auth_empty(self):
@@ -85,14 +85,14 @@ class TestAppConfig:
             'unit_test_prefix_unit_test_cluster_streamalert_classifier',
             'invocation_type': 'successive'
         }
-        assert_dict_equal(event, expected_event)
+        assert event == expected_event
 
     def test_set_starting_timestamp(self):
         """AppConfig - Set Starting Timestamp"""
         assigned_value = 'test'
         self._config.last_timestamp = assigned_value
         self._config.set_starting_timestamp(None)
-        assert_equal(self._config.start_last_timestamp, assigned_value)
+        assert self._config.start_last_timestamp == assigned_value
 
     @patch('calendar.timegm')
     def test_determine_last_time_no_format(self, time_mock):
@@ -101,7 +101,7 @@ class TestAppConfig:
         time_mock.return_value = 1000
         expected_result = 400
         result = self._config._determine_last_time(None)
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     @patch('calendar.timegm')
     def test_determine_last_time_formatted(self, time_mock):
@@ -110,7 +110,7 @@ class TestAppConfig:
         time_mock.return_value = 1000
         expected_result = '1970-01-01T00:06:40-00:00'
         result = self._config._determine_last_time('%Y-%m-%dT%H:%M:%S-00:00')
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     @raises(AppConfigError)
     def test_get_parameters_invalid_json(self):
@@ -139,12 +139,12 @@ class TestAppConfig:
     def test_get_parameters_bad_names(self, json_mock):
         """AppConfig - Get parameter, Bad Names"""
         _, invalid_names = AppConfig._get_parameters('bad_name')
-        assert_equal(invalid_names[0], 'bad_name')
+        assert invalid_names[0] == 'bad_name'
         json_mock.loads.assert_not_called()
 
     def test_evaluate_interval(self):
         """AppConfig - Evaluate Interval"""
-        assert_equal(self._config._evaluate_interval(), 60 * 10)
+        assert self._config._evaluate_interval() == 60 * 10
 
     @raises(AppStateError)
     @patch('streamalert.apps.config.AppConfig.SSM_CLIENT')
@@ -179,14 +179,14 @@ class TestAppConfig:
         self._config.mark_failure()
         self._config.mark_success()
 
-        assert_equal(save_mock.call_count, 2)
+        assert save_mock.call_count == 2
 
     def test_scrub_auth_info(self):
         """AppConfig - Scrub Auth Info"""
         auth_key = 'test_auth'
         param_dict = {auth_key: {'api_hostname': 'test_data'}}
         scrubbed_config = self._config._scrub_auth_info(param_dict, auth_key)
-        assert_equal(scrubbed_config[auth_key]['api_hostname'], '*********')
+        assert scrubbed_config[auth_key]['api_hostname'] == '*********'
 
     @patch('logging.Logger.info')
     def test_report_remaining_seconds(self, log_mock):
@@ -224,36 +224,36 @@ class TestAppConfig:
 
     def test_is_failing(self):
         """AppConfig - Check If Failing"""
-        assert_false(self._config.is_failing)
+        assert not self._config.is_failing
 
     def test_is_partial(self):
         """AppConfig - Check If Partial Run"""
-        assert_false(self._config.is_partial)
+        assert not self._config.is_partial
 
     def test_is_running(self):
         """AppConfig - Check If Running"""
-        assert_false(self._config.is_running)
+        assert not self._config.is_running
 
     def test_is_success(self):
         """AppConfig - Check If Success"""
-        assert_true(self._config.is_success)
+        assert self._config.is_success
 
     def test_mark_partial(self):
         """AppConfig - Mark Partial"""
         self._config.mark_partial()
-        assert_equal(self._config.current_state, 'partial')
+        assert self._config.current_state == 'partial'
 
     def test_mark_running(self):
         """AppConfig - Mark Running"""
         self._config.mark_running()
-        assert_equal(self._config.current_state, 'running')
+        assert self._config.current_state == 'running'
 
     def test_mark_success(self):
         """AppConfig - Mark Success"""
         self._config.mark_success()
-        assert_equal(self._config.current_state, 'succeeded')
+        assert self._config.current_state == 'succeeded'
 
     def test_mark_failure(self):
         """AppConfig - Mark Failure"""
         self._config.mark_failure()
-        assert_equal(self._config.current_state, 'failed')
+        assert self._config.current_state == 'failed'

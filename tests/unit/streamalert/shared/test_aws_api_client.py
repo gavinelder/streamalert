@@ -38,7 +38,7 @@ class TestAwsKms:
         ciphertext = AwsKms.encrypt(secret, region=REGION, key_alias=KMS_ALIAS)
         response = AwsKms.decrypt(ciphertext, region=REGION)
 
-        assert_equal(response, secret)
+        assert response == secret
 
     @staticmethod
     @raises(ClientError)

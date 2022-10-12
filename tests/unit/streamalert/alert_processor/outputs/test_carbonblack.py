@@ -50,12 +50,12 @@ class TestCarbonBlackOutput:
 
     def test_get_user_defined_properties(self):
         """CarbonBlackOutput - User Defined Properties"""
-        assert_is_instance(CarbonBlackOutput.get_user_defined_properties(), OrderedDict)
+        assert isinstance(CarbonBlackOutput.get_user_defined_properties(), OrderedDict)
 
     @patch('logging.Logger.error')
     def test_dispatch_no_context(self, mock_logger):
         """CarbonBlackOutput - Dispatch No Context"""
-        assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert not self._dispatcher.dispatch(get_alert(), self.OUTPUT)
         mock_logger.assert_has_calls([
             call('[%s] Alert must contain context to run actions', 'carbonblack'),
             call('Failed to send alert to %s:%s', 'carbonblack', 'unit_test_carbonblack')
@@ -65,19 +65,19 @@ class TestCarbonBlackOutput:
     def test_dispatch_already_banned(self, mock_cb):
         """CarbonBlackOutput - Dispatch Already Banned"""
         alert_context = {'carbonblack': {'action': 'ban', 'value': 'BANNED_ENABLED_HASH'}}
-        assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT)
 
     @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
     def test_dispatch_banned_disabled(self, mock_cb):
         """CarbonBlackOutput - Dispatch Banned Disabled"""
         alert_context = {'carbonblack': {'action': 'ban', 'value': 'BANNED_DISABLED_HASH'}}
-        assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT)
 
     @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
     def test_dispatch_not_banned(self, mock_cb):
         """CarbonBlackOutput - Dispatch Not Banned"""
         alert_context = {'carbonblack': {'action': 'ban', 'value': 'NOT_BANNED_HASH'}}
-        assert_true(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT)
 
     @patch('logging.Logger.error')
     @patch.object(carbonblack, 'CbResponseAPI', side_effect=MockCBAPI)
@@ -88,7 +88,7 @@ class TestCarbonBlackOutput:
                 'action': 'rickroll',
             }
         }
-        assert_false(self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT))
+        assert not self._dispatcher.dispatch(get_alert(context=alert_context), self.OUTPUT)
 
         mock_logger.assert_has_calls([
             call('[%s] Action not supported: %s', 'carbonblack', 'rickroll'),

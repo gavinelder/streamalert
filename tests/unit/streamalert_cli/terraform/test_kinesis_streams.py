@@ -58,8 +58,8 @@ def test_kinesis_streams():
         }
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict, expected_result)
+    assert result
+    assert cluster_dict == expected_result
 
 
 def test_kinesis_streams_with_trusted_account():
@@ -99,8 +99,8 @@ def test_kinesis_streams_with_trusted_account():
         }
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict, expected_result)
+    assert result
+    assert cluster_dict == expected_result
 
 
 def test_kinesis_streams_with_custom_name():
@@ -143,5 +143,5 @@ def test_kinesis_streams_with_custom_name():
         }
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict, expected_result)
+    assert result
+    assert cluster_dict == expected_result

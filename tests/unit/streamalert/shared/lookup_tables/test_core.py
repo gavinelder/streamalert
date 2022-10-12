@@ -91,23 +91,23 @@ class TestLookupTablesCore:
 
     def test_get(self):
         """LookupTables - Core - get()"""
-        assert_equal(self._lookup_tables.get('foo', 'key_1'), 'foo_1')
+        assert self._lookup_tables.get('foo', 'key_1') == 'foo_1'
 
     def test_get_table_s3(self):
         """LookupTables - Core - table() - S3"""
         table = self._lookup_tables.table('foo')
-        assert_equal(table.get('key_2'), 'foo_2')
+        assert table.get('key_2') == 'foo_2'
 
     def test_get_table_dynamodb(self):
         """LookupTables - Core - table() - DynamoDB"""
         table = self._lookup_tables.table('dinosaur')
-        assert_equal(table.get('aaaa:1'), 'Over 9000!')
+        assert table.get('aaaa:1') == 'Over 9000!'
 
     @patch('logging.Logger.error')
     def test_get_nonexistent_table(self, mock_logger):
         """LookupTables - Core - table()"""
         table = self._lookup_tables.table('does-not-exist')
-        assert_equal(table.get('key_2'), None)
+        assert table.get('key_2') == None
 
         mock_logger.assert_any_call(
             ('Nonexistent LookupTable \'%s\' referenced. Defaulting to null table. '

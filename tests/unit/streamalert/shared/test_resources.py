@@ -21,8 +21,8 @@ from streamalert.shared import resources
 def test_get_required_outputs():
     """Shared - Get Required Outputs"""
     outputs = resources.get_required_outputs()
-    assert_equal(len(outputs), 1)
-    assert_equal(outputs, {'aws-firehose:alerts'})
+    assert len(outputs) == 1
+    assert outputs == {'aws-firehose:alerts'}
 
 
 def test_merge_required_outputs_dne():
@@ -40,11 +40,11 @@ def test_merge_required_outputs_dne():
 
     outputs = resources.merge_required_outputs(users_config, "test")
 
-    assert_equal(len(outputs), 4)
+    assert len(outputs) == 4
 
     expected_fh = {'alerts': 'test_streamalert_alert_delivery'}
 
-    assert_count_equal(outputs['aws-firehose'], expected_fh)
+    assert collections.Counter(outputs['aws-firehose']) == collections.Counter(expected_fh)
 
 
 def test_merge_required_outputs_exists():
@@ -63,8 +63,8 @@ def test_merge_required_outputs_exists():
 
     outputs = resources.merge_required_outputs(users_config, "test")
 
-    assert_equal(len(outputs), 3)
+    assert len(outputs) == 3
 
     expected_fh = {'notalerts': 'resource_name', 'alerts': 'test_streamalert_alert_delivery'}
 
-    assert_count_equal(outputs['aws-firehose'], expected_fh)
+    assert collections.Counter(outputs['aws-firehose']) == collections.Counter(expected_fh)

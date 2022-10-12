@@ -92,7 +92,7 @@ class TestThreatStream:
             'memory': '128',
             'timeout': '60'
         }
-        assert_equal(self.threatstream._load_config(arn), expected_config)
+        assert self.threatstream._load_config(arn) == expected_config
 
     def test_process_data(self):
         """ThreatStream - Process Raw IOC Data"""
@@ -117,7 +117,7 @@ class TestThreatStream:
             'type': 'domain',
             'expiration_ts': 1512000062
         }]
-        assert_equal(processed_data, expected_result)
+        assert processed_data == expected_result
 
     @mock_ssm
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
@@ -126,8 +126,8 @@ class TestThreatStream:
         value = {'api_user': 'test_user', 'api_key': 'test_key'}
         put_mock_params(ThreatStream.CRED_PARAMETER_NAME, value)
         self.threatstream._load_api_creds()
-        assert_equal(self.threatstream.api_user, 'test_user')
-        assert_equal(self.threatstream.api_key, 'test_key')
+        assert self.threatstream.api_user == 'test_user'
+        assert self.threatstream.api_key == 'test_key'
 
     @mock_ssm
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
@@ -136,8 +136,8 @@ class TestThreatStream:
         value = {'api_user': 'test_user', 'api_key': 'test_key'}
         put_mock_params(ThreatStream.CRED_PARAMETER_NAME, value)
         self.threatstream._load_api_creds()
-        assert_equal(self.threatstream.api_user, 'test_user')
-        assert_equal(self.threatstream.api_key, 'test_key')
+        assert self.threatstream.api_user == 'test_user'
+        assert self.threatstream.api_key == 'test_key'
         self.threatstream._load_api_creds()
 
     @mock_ssm
@@ -181,13 +181,13 @@ class TestThreatStream:
         date_mock.utcfromtimestamp = datetime.utcfromtimestamp
         expected_value = datetime(year=2017, month=11, day=30)
         value = self.threatstream._epoch_time(None)
-        assert_equal(datetime.utcfromtimestamp(value), expected_value)
+        assert datetime.utcfromtimestamp(value) == expected_value
 
     def test_epoch_from_time(self):
         """ThreatStream - Epoch, From Timestamp"""
         expected_value = datetime(year=2017, month=11, day=30)
         value = self.threatstream._epoch_time('2017-11-30T00:00:00.000Z')
-        assert_equal(datetime.utcfromtimestamp(value), expected_value)
+        assert datetime.utcfromtimestamp(value) == expected_value
 
     @raises(ValueError)
     def test_epoch_from_bad_time(self):
@@ -197,26 +197,26 @@ class TestThreatStream:
     def test_excluded_sub_types(self):
         """ThreatStream - Excluded Sub Types Property"""
         expected_value = ['bot_ip', 'brute_ip', 'scan_ip', 'spam_ip', 'tor_ip']
-        assert_equal(self.threatstream.excluded_sub_types, expected_value)
+        assert self.threatstream.excluded_sub_types == expected_value
 
     def test_ioc_keys(self):
         """ThreatStream - IOC Keys Property"""
         expected_value = ['expiration_ts', 'itype', 'source', 'type', 'value']
-        assert_equal(self.threatstream.ioc_keys, expected_value)
+        assert self.threatstream.ioc_keys == expected_value
 
     def test_ioc_sources(self):
         """ThreatStream - IOC Sources Property"""
         expected_value = ['crowdstrike', '@airbnb.com']
-        assert_equal(self.threatstream.ioc_sources, expected_value)
+        assert self.threatstream.ioc_sources == expected_value
 
     def test_ioc_types(self):
         """ThreatStream - IOC Types Property"""
         expected_value = ['domain', 'ip', 'md5']
-        assert_equal(self.threatstream.ioc_types, expected_value)
+        assert self.threatstream.ioc_types == expected_value
 
     def test_threshold(self):
         """ThreatStream - Threshold Property"""
-        assert_equal(self.threatstream.threshold, 499000)
+        assert self.threatstream.threshold == 499000
 
     @patch('streamalert.threat_intel_downloader.main.ThreatStream._finalize')
     @patch('streamalert.threat_intel_downloader.main.requests.get')

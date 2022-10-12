@@ -67,12 +67,12 @@ class TestStreamAlertApp:
             'slack_integration',
         }
 
-        assert_equal(expected_apps, set(StreamAlertApp.get_all_apps()))
+        assert expected_apps == set(StreamAlertApp.get_all_apps())
 
     @patch('streamalert.apps.app_base.Batcher', Mock())
     def test_get_app(self):
         """StreamAlertApp - Get App"""
-        assert_equal(StreamAlertApp.get_app('duo_auth'), DuoAuthApp)
+        assert StreamAlertApp.get_app('duo_auth') == DuoAuthApp
 
     @raises(AppException)
     def test_get_app_invalid_type(self):
@@ -116,7 +116,7 @@ class TestAppIntegration:
     def test_check_http_response_good(self):
         """App Integration - Check HTTP Response, Success"""
         response = Mock(status_code=200)
-        assert_true(self._app._check_http_response(response))
+        assert self._app._check_http_response(response)
 
     @patch('logging.Logger.info')
     @patch('streamalert.apps.app_base.time')
@@ -128,7 +128,7 @@ class TestAppIntegration:
         def _test():
             pass
 
-        assert_equal(_test(), 200.0)
+        assert _test() == 200.0
         log_mock.assert_called_with('[%s] Function executed in %.4f seconds.', '_test', 200.0)
 
     def test_safe_timeout(self):
@@ -137,17 +137,17 @@ class TestAppIntegration:
         def _test():
             raise ConnectTimeout(response='too slow')
 
-        assert_equal(_test(), (False, None))
+        assert _test() == (False, None)
 
     @patch('streamalert.apps.app_base.AppIntegration._required_auth_info')
     def test_required_auth_info(self, auth_mock):
         """App Integration - Required Auth Info"""
         expected_result = {'host': 'host_name'}
         auth_mock.return_value = expected_result
-        assert_equal(self._app.required_auth_info(), expected_result)
+        assert self._app.required_auth_info() == expected_result
 
         auth_mock.return_value = None
-        assert_equal(self._app.required_auth_info(), {})
+        assert self._app.required_auth_info() == {}
 
     @patch('logging.Logger.error')
     def test_check_http_response_bad(self, log_mock):
@@ -155,27 +155,27 @@ class TestAppIntegration:
         response = Mock(status_code=404, content='hey')
 
         # Check to make sure this resulted in a return of False
-        assert_false(self._app._check_http_response(response))
+        assert not self._app._check_http_response(response)
 
         # Make sure the logger was called with the proper info
         log_mock.assert_called_with('[%s] HTTP request failed: [%d] %s', self._app, 404, 'hey')
 
     def test_initialize(self):
         """App Integration - Initialize, Valid"""
-        assert_true(self._app._initialize())
+        assert self._app._initialize()
 
     @patch('logging.Logger.warning')
     def test_initialize_running(self, log_mock):
         """App Integration - Initialize, Already Running"""
         self._app._config.current_state = 'running'
-        assert_false(self._app._initialize())
+        assert not self._app._initialize()
         log_mock.assert_called_with('[%s] App already running', self._app)
 
     @patch('logging.Logger.error')
     def test_initialize_partial(self, log_mock):
         """App Integration - Initialize, Partial Execution"""
         self._app._config.current_state = 'partial'
-        assert_false(self._app._initialize())
+        assert not self._app._initialize()
         log_mock.assert_called_with('[%s] App in partial execution state, exiting', self._app)
 
     @patch('streamalert.apps.config.AppConfig.mark_success')
@@ -184,7 +184,7 @@ class TestAppIntegration:
         test_new_time = 50000000
         self._app._last_timestamp = test_new_time
         self._app._finalize()
-        assert_equal(self._app._config.last_timestamp, test_new_time)
+        assert self._app._config.last_timestamp == test_new_time
         mark_mock.assert_called()
 
     @patch('streamalert.apps.app_base.AppIntegration._invoke_successive_app')
@@ -246,11 +246,11 @@ class TestAppIntegration:
                                           json=Mock(return_value={'message': failed_message}))
 
         result, response = self._app._make_get_request('hostname', None, None)
-        assert_false(result)
-        assert_equal(response['message'], failed_message)
+        assert not result
+        assert response['message'] == failed_message
 
         # The .json should be called on the response once, to return the response.
-        assert_equal(requests_mock.return_value.json.call_count, 1)
+        assert requests_mock.return_value.json.call_count == 1
 
     @patch('requests.post')
     def test_make_post_request_json(self, requests_mock):
@@ -259,13 +259,13 @@ class TestAppIntegration:
         requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=message))
         args = 'hostname'
         result, response = self._app._make_post_request(args, None, None)
-        assert_true(result)
+        assert result
         kwargs = {'headers': None, 'json': None, 'timeout': 3.05}
         requests_mock.assert_called_with(args, **kwargs)
-        assert_equal(response, message)
+        assert response == message
 
         # The .json should be called on the response once, to return the response.
-        assert_equal(requests_mock.return_value.json.call_count, 1)
+        assert requests_mock.return_value.json.call_count == 1
 
     @patch('requests.post')
     def test_make_post_request_non_json(self, requests_mock):
@@ -274,13 +274,13 @@ class TestAppIntegration:
         requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=message))
         args = 'hostname'
         result, response = self._app._make_post_request(args, None, None, False)
-        assert_true(result)
+        assert result
         kwargs = {'headers': None, 'data': None, 'timeout': 3.05}
         requests_mock.assert_called_with(args, **kwargs)
-        assert_equal(response, message)
+        assert response == message
 
         # The .json should be called on the response once, to return the response.
-        assert_equal(requests_mock.return_value.json.call_count, 1)
+        assert requests_mock.return_value.json.call_count == 1
 
     @patch('logging.Logger.error')
     def test_gather_no_logs(self, log_mock):
@@ -288,7 +288,7 @@ class TestAppIntegration:
         with patch.object(AppIntegration, '_gather_logs') as subclass_gather_mock:
             subclass_gather_mock.return_value = []
             result = self._app._gather()
-            assert_is_instance(result, float)
+            assert isinstance(result, float)
             log_mock.assert_called_with(
                 '[%s] Gather process was not able to poll any logs on poll #%d', self._app, 1)
 
@@ -300,7 +300,7 @@ class TestAppIntegration:
         with patch.object(AppIntegration, '_gather_logs') as subclass_gather_mock:
             subclass_gather_mock.return_value = ['log01', 'log02', 'log03']
             self._app._gather()
-            assert_equal(self._app._gathered_log_count, 3)
+            assert self._app._gathered_log_count == 3
             log_mock.assert_called_with('[%s] Function executed in %.4f seconds.', '_gather', 200.0)
 
     @patch('streamalert.apps.app_base.AppIntegration._finalize')
@@ -321,7 +321,7 @@ class TestAppIntegration:
         gather_mock.side_effect = [3, 3]
         self._app._more_to_poll = True
         self._app.gather()
-        assert_equal(gather_mock.call_count, 2)
+        assert gather_mock.call_count == 2
 
     @patch('streamalert.apps.app_base.AppIntegration._finalize')
     def test_gather_running(self, finalize_mock):
@@ -341,5 +341,5 @@ class TestAppIntegration:
         requests_mock.return_value.status_code = 504
 
         result, response = self._app._make_post_request('', None, None, False)
-        assert_false(result)
-        assert_is_none(response)
+        assert not result
+        assert response is None

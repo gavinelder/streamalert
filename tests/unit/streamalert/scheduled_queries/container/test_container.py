@@ -24,7 +24,7 @@ class TestServiceContainer:
     def test_get_parameter():
         """StreamQuery - ServiceContainer - get_parameter"""
         container = ServiceContainer({'a': 'b'})
-        assert_equals(container.get_parameter('a'), 'b')
+        assert container.get_parameter('a') == 'b'
 
     @staticmethod
     def test_get_parameter_raise():
@@ -38,7 +38,7 @@ class TestServiceContainer:
         container = ServiceContainer({'command_name': "the_test", 'log_level': 'INFO'})
         configure_container(container)
 
-        assert_true(container.get('logger'))
+        assert container.get('logger')
 
     @staticmethod
     def test_get_logger_raises_on_missing_params():
@@ -63,13 +63,13 @@ class TestServiceContainer:
         })
         configure_container(container)
 
-        assert_true(container.get('streamalert_forwarder'))
-        assert_true(container.get('athena'))
-        assert_true(container.get('query_parameter_generator'))
-        assert_true(container.get('query_pack_repository'))
-        assert_true(container.get('query_pack_manager_factory'))
-        assert_true(container.get('boto3_kinesis_client'))
-        assert_true(container.get('boto3_athena_client'))
+        assert container.get('streamalert_forwarder')
+        assert container.get('athena')
+        assert container.get('query_parameter_generator')
+        assert container.get('query_pack_repository')
+        assert container.get('query_pack_manager_factory')
+        assert container.get('boto3_kinesis_client')
+        assert container.get('boto3_athena_client')
 
     @staticmethod
     def test_get_raises_on_missing():

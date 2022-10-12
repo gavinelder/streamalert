@@ -134,4 +134,4 @@ class TestTerraformGenerateClassifier:
             }
         }
 
-        assert_equal(cluster_dict, expected_result)
+        assert cluster_dict == expected_result

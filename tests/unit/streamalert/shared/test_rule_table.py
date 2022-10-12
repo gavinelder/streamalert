@@ -64,7 +64,7 @@ class TestRuleTable:
 
     def test_rule_table_name(self):
         """Rule Table - Table Name"""
-        assert_equal(self.rule_table.name, _RULES_TABLE)
+        assert self.rule_table.name == _RULES_TABLE
 
     def test_local_rule_names(self):
         """Rule Table - Local Rule Names"""
@@ -72,7 +72,7 @@ class TestRuleTable:
         for rule_name in expected_result:
             self._create_local_rule_with_name(rule_name)
 
-        assert_equal(self.rule_table.local_rule_names, expected_result)
+        assert self.rule_table.local_rule_names == expected_result
 
     def test_remote_rule_names(self):
         """Rule Table - Remote Rule Names"""
@@ -80,7 +80,7 @@ class TestRuleTable:
         for rule_name in expected_result:
             self._create_db_rule_with_name(rule_name)
 
-        assert_equal(self.rule_table.remote_rule_names, expected_result)
+        assert self.rule_table.remote_rule_names == expected_result
 
     def test_remote_rule_info(self):
         """Rule Table - Remote Rule Info"""
@@ -98,7 +98,7 @@ class TestRuleTable:
         for rule_name in expected_result:
             self._create_db_rule_with_name(rule_name)
 
-        assert_equal(self.rule_table.remote_rule_info, expected_result)
+        assert self.rule_table.remote_rule_info == expected_result
 
     def test_local_not_remote_names(self):
         """Rule Table - Local and Not Remote Rule Names"""
@@ -109,7 +109,7 @@ class TestRuleTable:
         for rule_name in expected_result:
             self._create_local_rule_with_name(rule_name)
 
-        assert_equal(self.rule_table.local_not_remote, expected_result)
+        assert self.rule_table.local_not_remote == expected_result
 
     def test_remote_not_local_names(self):
         """Rule Table - Remote and Not Local Rule Names"""
@@ -120,13 +120,13 @@ class TestRuleTable:
         for rule_name in expected_result:
             self._create_db_rule_with_name(rule_name)
 
-        assert_equal(self.rule_table.remote_not_local, expected_result)
+        assert self.rule_table.remote_not_local == expected_result
 
     def test_add_new_rules(self):
         """Rule Table - Add New Rules"""
         self._create_local_rules(2)
         self.rule_table._add_new_rules()
-        assert_equal(self.rule_table._table.item_count, 2)
+        assert self.rule_table._table.item_count == 2
 
     def test_delete_old_rules(self):
         """Rule Table - Delete New Rules"""
@@ -140,7 +140,7 @@ class TestRuleTable:
 
         # Ensure the remote state is updated for the deletion of a rule
         self.rule_table._del_old_rules()
-        assert_equal(len(self.rule_table._load_remote_state()), original_count - 1)
+        assert len(self.rule_table._load_remote_state()) == original_count - 1
 
     def test_load_remote_state_init(self):
         """Rule Table - Load Remote State of Rules, New Database"""
@@ -151,7 +151,7 @@ class TestRuleTable:
         expected_state = {'fake_rule_00': {'Staged': False}, 'fake_rule_01': {'Staged': False}}
 
         state = self.rule_table._load_remote_state()
-        assert_equal(state, expected_state)
+        assert state == expected_state
 
     @patch('streamalert.shared.rule_table.RuleTable._staged_window')
     def test_load_remote_state_state(self, window_mock):
@@ -181,14 +181,14 @@ class TestRuleTable:
         }
 
         state = self.rule_table._load_remote_state()
-        assert_equal(state, expected_state)
+        assert state == expected_state
 
     def test_dynamo_record_init(self):
         """Rule Table - DynamoDB Record, New Database"""
         expected_record = {'RuleName': 'foo_rule', 'Staged': False}
 
         record = self.rule_table._dynamo_record('foo_rule', True)
-        assert_equal(record, expected_record)
+        assert record == expected_record
 
     @patch('streamalert.shared.rule_table.RuleTable._staged_window')
     def test_dynamo_record(self, window_mock):
@@ -202,7 +202,7 @@ class TestRuleTable:
         }
 
         record = self.rule_table._dynamo_record('foo_rule', False)
-        assert_equal(record, expected_record)
+        assert record == expected_record
 
     def test_get_rule_info(self):
         """Rule Table - Get Rule Info"""
@@ -210,7 +210,7 @@ class TestRuleTable:
         self._create_db_rule_with_name(rule_name, True)
 
         expected_result = {'Staged': True}
-        assert_equal(self.rule_table.rule_info(rule_name), expected_result)
+        assert self.rule_table.rule_info(rule_name) == expected_result
 
     @patch('streamalert.shared.rule_table.datetime')
     def test_staged_window(self, date_mock):
@@ -224,24 +224,24 @@ class TestRuleTable:
                                                  microsecond=123456)
 
         staged_at, staged_until = self.rule_table._staged_window()
-        assert_equal(staged_at, '2001-01-01T12:00:10.123456Z')
-        assert_equal(staged_until, '2001-01-03T12:00:10.123456Z')
+        assert staged_at == '2001-01-01T12:00:10.123456Z'
+        assert staged_until == '2001-01-03T12:00:10.123456Z'
 
     def test_update(self):
         """Rule Table - Update"""
         rule_name = 'init_rule'
         self._create_db_rule_with_name(rule_name)
-        assert_equal(self.rule_table._table.item_count, 1)
+        assert self.rule_table._table.item_count == 1
         self._create_local_rule_with_name('test_rule_01')
         self._create_local_rule_with_name('test_rule_02')
 
         # Run the update to ensure the old rule was deleted and the new rules are added
         self.rule_table.update()
-        assert_equal(len(self.rule_table._load_remote_state()), 2)
+        assert len(self.rule_table._load_remote_state()) == 2
         item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
-        assert_equal(item.get('Item'), None)
+        assert item.get('Item') == None
         item = self.rule_table._table.get_item(Key={'RuleName': 'test_rule_02'})
-        assert_equal(item['Item']['RuleName'], 'test_rule_02')
+        assert item['Item']['RuleName'] == 'test_rule_02'
 
     def test_toggle_staged_state_true(self):
         """Rule Table - Toggle Staging, Staged=True"""
@@ -250,14 +250,14 @@ class TestRuleTable:
 
         # Make sure the item that was added is not staged
         item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
-        assert_equal(item['Item']['Staged'], False)
+        assert item['Item']['Staged'] == False
 
         # Try to toggle the state to staged
         self.rule_table.toggle_staged_state(rule_name, True)
 
         # Make sure the item is now staged
         item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
-        assert_equal(item['Item']['Staged'], True)
+        assert item['Item']['Staged'] == True
 
     def test_toggle_staged_state_false(self):
         """Rule Table - Toggle Staging, Staged=False"""
@@ -266,14 +266,14 @@ class TestRuleTable:
 
         # Make sure the item that was added is staged
         item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
-        assert_equal(item['Item']['Staged'], True)
+        assert item['Item']['Staged'] == True
 
         # Try to toggle the state to unstaged
         self.rule_table.toggle_staged_state(rule_name, False)
 
         # Make sure the item is now unstaged
         item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
-        assert_equal(item['Item']['Staged'], False)
+        assert item['Item']['Staged'] == False
 
     @patch('logging.Logger.error')
     def test_toggle_staged_state_nonexistent(self, log_mock):
@@ -299,7 +299,7 @@ class TestRuleTable:
 
         # Make sure the item that was added is staged
         orig_item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
-        assert_equal(orig_item['Item']['Staged'], staged)
+        assert orig_item['Item']['Staged'] == staged
 
         # Try to toggle the state of the already staged rule to staged
         # This should implicitly update the staging window
@@ -309,8 +309,8 @@ class TestRuleTable:
 
         # Make sure the item is still staged
         new_item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
-        assert_equal(new_item['Item']['Staged'], True)
-        assert_not_equal(orig_item['Item']['StagedAt'], new_item['Item']['StagedAt'])
+        assert new_item['Item']['Staged'] == True
+        assert orig_item['Item']['StagedAt'] != new_item['Item']['StagedAt']
 
     def test_toggle_staged_state_error(self):
         """Rule Table - Toggle Staging, ClientError Occurred"""
@@ -342,7 +342,7 @@ Rule            Staged?
 """
 
             output = stdout.getvalue().strip()
-            assert_equal(output, expected_output.strip())
+            assert output == expected_output.strip()
 
     def test_print_table_empty(self):
         """Rule Table - Print Table, Empty"""
@@ -350,7 +350,7 @@ Rule            Staged?
             print(self.rule_table)
             expected_output = 'Rule table is empty'
             output = stdout.getvalue().strip()
-            assert_equal(output, expected_output.strip())
+            assert output == expected_output.strip()
 
     def test_print_table_verbose(self):
         """Rule Table - Print Table, Verbose"""
@@ -374,4 +374,4 @@ Rule            Staged?
 """
 
             output = stdout.getvalue().strip()
-            assert_equal(output, expected_output.strip())
+            assert output == expected_output.strip()

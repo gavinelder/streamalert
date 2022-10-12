@@ -59,31 +59,31 @@ class TestCLIConfig:
 
     def test_load_config(self):
         """CLI - Load config"""
-        assert_equal(self.config['global']['account']['prefix'], 'unit-test')
+        assert self.config['global']['account']['prefix'] == 'unit-test'
 
     def test_terraform_files(self):
         """CLI - Terraform Files"""
-        assert_equal(self.config.terraform_files, {'/test/terraform/file.tf'})
+        assert self.config.terraform_files == {'/test/terraform/file.tf'}
 
     def test_toggle_metric(self):
         """CLI - Metric toggling"""
         self.config.toggle_metrics('athena_partitioner', enabled=True)
-        assert_equal(self.config['lambda']['athena_partitioner_config']['enable_custom_metrics'],
+        assert (self.config['lambda']['athena_partitioner_config']['enable_custom_metrics'] ==
                      True)
 
         self.config.toggle_metrics('alert_processor', enabled=False)
-        assert_equal(self.config['lambda']['alert_processor_config']['enable_custom_metrics'],
+        assert (self.config['lambda']['alert_processor_config']['enable_custom_metrics'] ==
                      False)
 
     def test_aggregate_alarm_exists(self):
         """CLI - Aggregate alarm check"""
         result = self.config._alarm_exists('Aggregate Unit Testing Failed Parses Alarm')
-        assert_true(result)
+        assert result
 
     def test_cluster_alarm_exists(self):
         """CLI - Cluster alarm check"""
         result = self.config._alarm_exists('Prod Unit Testing Failed Parses Alarm')
-        assert_true(result)
+        assert result
 
     def test_cluster_alarm_creation(self):
         """CLI - Adding CloudWatch metric alarm, cluster"""
@@ -124,7 +124,7 @@ class TestCLIConfig:
         self.config.add_metric_alarm(alarm_info)
         result = self.config['clusters']['prod']['classifier_config']['custom_metric_alarms']
 
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     def test_aggregate_alarm_creation(self):
         """CLI - Adding CloudWatch metric alarm, aggregate"""
@@ -155,7 +155,7 @@ class TestCLIConfig:
         self.config.add_metric_alarm(alarm_info)
         result = self.config['lambda']['classifier_config']['custom_metric_alarms']
 
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     def test_add_threat_intel_with_table_name(self):
         """CLI - Add Threat Intel config with default dynamodb table name"""
@@ -177,7 +177,7 @@ class TestCLIConfig:
             }
         }
 
-        assert_equal(self.config['threat_intel'], expected_config)
+        assert self.config['threat_intel'] == expected_config
 
     def test_add_threat_intel_without_table_name(self):
         """CLI - Add Threat Intel config without dynamodb table name from cli"""
@@ -201,7 +201,7 @@ class TestCLIConfig:
             }
         }
 
-        assert_equal(self.config['threat_intel'], expected_config)
+        assert self.config['threat_intel'] == expected_config
 
     @patch('logging.Logger.info')
     @patch('streamalert_cli.config.CLIConfig.write')
@@ -222,7 +222,7 @@ class TestCLIConfig:
             'target_utilization': 70
         }
         result = self.config.add_threat_intel_downloader(ti_downloader_info)
-        assert_true(result)
+        assert result
         expected_config = {
             'autoscale': True,
             'enabled': True,
@@ -240,13 +240,13 @@ class TestCLIConfig:
             'min_read_capacity': 5,
             'target_utilization': 70
         }
-        assert_equal(self.config['lambda']['threat_intel_downloader_config'], expected_config)
+        assert self.config['lambda']['threat_intel_downloader_config'] == expected_config
         write_mock.assert_called()
         log_mock.assert_not_called()
 
         # no config changed if threat intel downloader already been enabled via CLI
         result = self.config.add_threat_intel_downloader(ti_downloader_info)
-        assert_false(result)
+        assert not result
         write_mock.assert_called_once()
         log_mock.assert_called_with('Threat Intel Downloader has been enabled. '
                                     'Please edit config/lambda.json if you want to '

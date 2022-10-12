@@ -42,11 +42,11 @@ class TestKVParser:
         # get parsed data
         parser = KVParser(options)
         result = parser.parse(data)
-        assert_equal(result, True)
+        assert result == True
 
         expected_result = [{'name': 'joe bob', 'result': 'success'}]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_extract_record_invalid_field_count(self):
         """KV Parser - Extract Record, Invalid Field Count"""
@@ -55,7 +55,7 @@ class TestKVParser:
 
         # get parsed data
         parser = KVParser(options)
-        assert_equal(parser._extract_record(data), False)
+        assert parser._extract_record(data) == False
 
     def test_extract_record_duplicate_fields(self):
         """KV Parser - Extract Record, Duplicate Fields"""
@@ -70,4 +70,4 @@ class TestKVParser:
 
         expected_result = {'name': 'foo', 'result': 'bar', 'test': 'baz'}
 
-        assert_equal(result, expected_result)
+        assert result == expected_result

@@ -102,17 +102,17 @@ class TestDynamoDBDriver:
     def test_get(self):
         """LookupTables - Drivers - DynamoDB Driver - Get Key"""
         self._driver.initialize()
-        assert_equal(self._driver.get('aaaa:1'), 'could_this_be_a_foo?')
+        assert self._driver.get('aaaa:1') == 'could_this_be_a_foo?'
 
     def test_get_2(self):
         """LookupTables - Drivers - DynamoDB Driver - Get Key #2"""
         self._driver.initialize()
-        assert_equal(self._driver.get('aaaa:2'), 'or_is_this_just_fantasy?')
+        assert self._driver.get('aaaa:2') == 'or_is_this_just_fantasy?'
 
     def test_non_existent_key(self):
         """LookupTables - Drivers - DynamoDB Driver - Get - Non-existent Key with default"""
         self._driver.initialize()
-        assert_equal(self._driver.get('key_????:2', 'default?'), 'default?')
+        assert self._driver.get('key_????:2', 'default?') == 'default?'
 
     def test_non_existent_table_key(self):
         """LookupTables - Drivers - DynamoDB Driver - Get - Non-existent Table"""
@@ -139,14 +139,14 @@ class TestDynamoDBDriver:
         """LookupTables - Drivers - DynamoDB Driver - Refresh - On First Read"""
         self._driver.initialize()
 
-        assert_false(self._driver._cache.has('bbbb:1'))
+        assert not self._driver._cache.has('bbbb:1')
 
-        assert_equal(self._driver.get('bbbb:1', '?'), 'beeffedfeedbeefdeaddeafbeddab')
+        assert self._driver.get('bbbb:1', '?') == 'beeffedfeedbeefdeaddeafbeddab'
 
         mock_logger.assert_called_with('LookupTable (%s): Key %s needs refresh, starting now.',
                                        'dynamodb:table_name', 'bbbb:1')
 
-        assert_true(self._driver._cache.has('bbbb:1'))
+        assert self._driver._cache.has('bbbb:1')
 
     @patch('logging.Logger.debug')
     def test_barely_does_not_need_refresh(self, mock_logger):
@@ -161,7 +161,7 @@ class TestDynamoDBDriver:
         self._driver._cache._clock.time_machine(
             datetime(year=3000, month=1, day=1, minute=2, second=59))
 
-        assert_equal(self._driver.get('bbbb:1'), 'stale')
+        assert self._driver.get('bbbb:1') == 'stale'
 
         mock_logger.assert_any_call('LookupTable (%s): Key %s does not need refresh. TTL: %s',
                                     'dynamodb:table_name', 'bbbb:1',
@@ -180,7 +180,7 @@ class TestDynamoDBDriver:
         self._driver._cache._clock.time_machine(
             datetime(year=3000, month=1, day=1, minute=3, second=1))
 
-        assert_equal(self._driver.get('bbbb:1'), 'beeffedfeedbeefdeaddeafbeddab')
+        assert self._driver.get('bbbb:1') == 'beeffedfeedbeefdeaddeafbeddab'
 
         mock_logger.assert_called_with('LookupTable (%s): Key %s needs refresh, starting now.',
                                        'dynamodb:table_name', 'bbbb:1')
@@ -191,7 +191,7 @@ class TestDynamoDBDriver:
 
         self._driver.set('asdfasdf:1', 'A whole new world')
         self._driver.commit()
-        assert_equal(self._driver.get('asdfasdf:1'), 'A whole new world')
+        assert self._driver.get('asdfasdf:1') == 'A whole new world'
 
     def test_invalid_key(self, ):
         """LookupTables - Drivers - DynamoDB Driver - Get - Invalid key raises"""
@@ -251,15 +251,15 @@ class TestDynamoDBDriver_MultiTable:
     def test_get_int(self):
         """LookupTables - Drivers - DynamoDB Multi Driver - Integer - Get Key"""
         self._int_driver.initialize()
-        assert_equal(self._int_driver.get('aaaa-bbbb-cccc'), 123)
+        assert self._int_driver.get('aaaa-bbbb-cccc') == 123
 
     def test_get_string(self):
         """LookupTables - Drivers - DynamoDB Multi Driver - String - Get Key"""
         self._string_driver.initialize()
-        assert_equal(self._string_driver.get('aaaa-bbbb-cccc'), 'hello world!')
+        assert self._string_driver.get('aaaa-bbbb-cccc') == 'hello world!'
 
     def test_get_dict(self):
         """LookupTables - Drivers - DynamoDB Multi Driver - Dict - Get Key"""
         self._dict_driver.initialize()
         data = self._dict_driver.get('aaaa-bbbb-cccc')
-        assert_equal(data['message']['depth'], 'Will this work?')
+        assert data['message']['depth'] == 'Will this work?'

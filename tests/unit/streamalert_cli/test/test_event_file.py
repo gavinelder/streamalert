@@ -59,7 +59,7 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         expected_stringer = ('\033[4m\nFile: rules/community/unit_test/file.json\n\033[0m'
                              '\nTest #01: \033[0;32;1mPass\033[0m')
 
-        assert_equal(str(event), expected_stringer)
+        assert str(event) == expected_stringer
 
     def test_stringer_with_error(self):
         """StreamAlert CLI - TestEventFile Stringer, Error"""
@@ -69,18 +69,18 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         expected_stringer = ('\033[4m\nFile: rules/community/unit_test/file.json\n\033[0m'
                              '\n\033[0;31;1mBad thing happened\033[0m')
 
-        assert_equal(str(event), expected_stringer)
+        assert str(event) == expected_stringer
 
     def test_bool(self):
         """StreamAlert CLI - TestEventFile Bool"""
         # pylint: disable=protected-access
         event = TestEventFile(self._DEFAULT_EVENT_PATH)
 
-        assert_equal(bool(event), False)
+        assert bool(event) == False
 
         event._results.append(self._fake_result(True))
 
-        assert_equal(bool(event), True)
+        assert bool(event) == True
 
     def test_passed(self):
         """StreamAlert CLI - TestEventFile Passed"""
@@ -88,7 +88,7 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         event = TestEventFile(self._DEFAULT_EVENT_PATH)
         event._results.append(self._fake_result(True))
 
-        assert_equal(event.passed, True)
+        assert event.passed == True
 
     def test_failed(self):
         """StreamAlert CLI - TestEventFile Failed"""
@@ -96,15 +96,15 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         event = TestEventFile(self._DEFAULT_EVENT_PATH)
         event._results.append(self._fake_result(False))
 
-        assert_equal(event.failed, True)
+        assert event.failed == True
 
     def test_load_file_valid(self):
         """StreamAlert CLI - TestEventFile Load File, Valid"""
         event = TestEventFile(self._DEFAULT_EVENT_PATH)
         value = list(event.load_file())
 
-        assert_equal(len(value), 1)
-        assert_equal(event.error, None)
+        assert len(value) == 1
+        assert event.error == None
 
     def test_load_file_invalid_json(self):
         """StreamAlert CLI - TestEventFile Load File, Invalid JSON"""
@@ -114,7 +114,7 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         event = TestEventFile(file_path)
         list(event.load_file())
 
-        assert_equal(event.error, 'Test event file is not valid JSON')
+        assert event.error == 'Test event file is not valid JSON'
 
     def test_load_file_invalid_format(self):
         """StreamAlert CLI - TestEventFile Load File, Invalid Format"""
@@ -124,5 +124,5 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         event = TestEventFile(file_path)
         list(event.load_file())
 
-        assert_equal(event.error,
+        assert (event.error ==
                      'Test event file is improperly formatted; events should be in a list')

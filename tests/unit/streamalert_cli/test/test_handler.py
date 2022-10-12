@@ -106,4 +106,4 @@ class TestTestRunner(fake_filesystem_unittest.TestCase):
             self.runner._process_test_file(self._DEFAULT_EVENT_PATH)
 
         # The CLUSTER env var should be properly deduced and set now
-        assert_equal(os.environ['CLUSTER'], 'test')
+        assert os.environ['CLUSTER'] == 'test'

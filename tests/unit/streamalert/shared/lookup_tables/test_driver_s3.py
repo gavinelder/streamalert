@@ -89,13 +89,13 @@ class TestS3Driver:
     def test_get(self):
         """LookupTables - Drivers - S3 Driver - Get Key"""
         self._foo_driver.initialize()
-        assert_equal(self._foo_driver.get('key_1'), 'foo_1')
+        assert self._foo_driver.get('key_1') == 'foo_1'
 
     @patch('logging.Logger.debug')
     def test_get_decompressed(self, mock_logger):
         """LookupTables - Drivers - S3 Driver - Compressed Get - Get Key"""
         self._bar_driver.initialize()
-        assert_equal(self._bar_driver.get('key_1'), 'compressed_bar_1')
+        assert self._bar_driver.get('key_1') == 'compressed_bar_1'
 
         mock_logger.assert_any_call('LookupTable (%s): Object decompressed to %d byte payload',
                                     's3:bucket_name/bar.json', ANY)
@@ -110,7 +110,7 @@ class TestS3Driver:
                 'key_2': 'not_compressed_bar_2',
             }))
         self._bar_driver.initialize()
-        assert_equal(self._bar_driver.get('key_1'), 'not_compressed_bar_1')
+        assert self._bar_driver.get('key_1') == 'not_compressed_bar_1'
 
         mock_logger.assert_any_call(
             'LookupTable (%s): Data is not compressed; defaulting to original payload',
@@ -119,7 +119,7 @@ class TestS3Driver:
     def test_non_existent_key(self):
         """LookupTables - Drivers - S3 Driver - Get - Non-existent Key with default"""
         self._foo_driver.initialize()
-        assert_equal(self._foo_driver.get('key_????', 'default?'), 'default?')
+        assert self._foo_driver.get('key_????', 'default?') == 'default?'
 
     @patch('logging.Logger.error')
     def test_non_existent_bucket_key(self, mock_logger):
@@ -168,7 +168,7 @@ class TestS3Driver:
             datetime(year=3000, month=1, day=1, minute=9, second=59))
 
         # Do another fetch and observe that it's still stale
-        assert_equal(self._foo_driver.get('key_1'), 'stale')
+        assert self._foo_driver.get('key_1') == 'stale'
 
         mock_logger.assert_any_call('LookupTable (%s): Does not need refresh. TTL: %s',
                                     's3:bucket_name/foo.json',
@@ -188,7 +188,7 @@ class TestS3Driver:
             datetime(year=3000, month=1, day=1, minute=10, second=1))
 
         # Do another fetch and observe our updated results
-        assert_equal(self._foo_driver.get('key_1'), 'foo_1')
+        assert self._foo_driver.get('key_1') == 'foo_1'
 
         mock_logger.assert_any_call('LookupTable (%s): Needs refresh, starting now.',
                                     's3:bucket_name/foo.json')
@@ -199,7 +199,7 @@ class TestS3Driver:
 
         self._foo_driver.set('new_key', 'BazBuzz')
         self._foo_driver.commit()
-        assert_equal(self._foo_driver.get('new_key'), 'BazBuzz')
+        assert self._foo_driver.get('new_key') == 'BazBuzz'
 
     @patch('logging.Logger.warning')
     def test_set_commit_nothing(self, mock_logger):
@@ -220,7 +220,7 @@ class TestCompression:
         compressed_data = Compression.gz_compress(driver, original_data.encode())
         decompressed_data = Compression.gz_decompress(driver, compressed_data)
 
-        assert_equal(original_data, decompressed_data.decode())
+        assert original_data == decompressed_data.decode()
 
 
 class TestS3Adapter:

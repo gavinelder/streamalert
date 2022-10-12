@@ -58,23 +58,23 @@ class TestS3Payload:
 
     def test_bucket_property(self):
         """S3Payload - Bucket Property"""
-        assert_equal(self._payload.bucket, self._bucket)
+        assert self._payload.bucket == self._bucket
 
     def test_key_property(self):
         """S3Payload - Key Property"""
-        assert_equal(self._payload.key, self._key)
+        assert self._payload.key == self._key
 
     def test_size_property(self):
         """S3Payload - Size Property"""
-        assert_equal(self._payload.size, self._size)
+        assert self._payload.size == self._size
 
     def test_display_size_property(self):
         """S3Payload - Dispaly Size Property"""
-        assert_equal(self._payload.display_size, '0.1KB')
+        assert self._payload.display_size == '0.1KB'
 
     def test_unquote(self):
         """S3Payload - Unquote"""
-        assert_equal(S3Payload._unquote('this%26that'), 'this&that')
+        assert S3Payload._unquote('this%26that') == 'this&that'
 
     def test_check_size_exception_large(self):
         """S3Payload - Check Size, Too Large Raises Exception"""
@@ -84,7 +84,7 @@ class TestS3Payload:
     def test_check_size_zero(self):
         """S3Payload - Check Size, Zero"""
         self._payload.raw_record['s3']['object']['size'] = 0
-        assert_equal(self._payload._check_size(), False)
+        assert self._payload._check_size() == False
 
     def test_gz_reader(self):
         """S3Payload - GZ Reader"""
@@ -96,8 +96,8 @@ class TestS3Payload:
             writer.close()
             reader.seek(0)
             gz_reader = S3Payload._gz_reader(reader)
-            assert_equal(isinstance(gz_reader, gzip.GzipFile), True)
-            assert_equal(gz_reader.read(), json_line + json_line)
+            assert isinstance(gz_reader, gzip.GzipFile) == True
+            assert gz_reader.read() == json_line + json_line
 
     def test_gz_reader_non_gz(self):
         """S3Payload - GZ Reader, Non-gzip"""
@@ -107,7 +107,7 @@ class TestS3Payload:
             reader.writelines([json_line, json_line])
             reader.seek(0)
             non_gz_reader = S3Payload._gz_reader(reader)
-            assert_equal(reader == non_gz_reader, True)
+            assert (reader == non_gz_reader) == True
 
     def test_jsonlines_reader(self):
         """S3Payload - JSON Lines Reader"""
@@ -117,7 +117,7 @@ class TestS3Payload:
             reader.writelines([json_line, json_line])
             reader.seek(0)
             line_reader = S3Payload._jsonlines_reader(reader)
-            assert_equal(reader != line_reader, True)
+            assert (reader != line_reader) == True
 
     def test_jsonlines_reader_fallback(self):
         """S3Payload - JSON Lines Reader, Fallback"""
@@ -125,7 +125,7 @@ class TestS3Payload:
             reader.write(b'non-json-value\n')
             reader.seek(0)
             line_reader = S3Payload._jsonlines_reader(reader)
-            assert_equal(reader == line_reader, True)
+            assert (reader == line_reader) == True
 
     def test_read_downloaded_object(self):
         """S3Payload - Read Downloaded Object"""
@@ -134,7 +134,7 @@ class TestS3Payload:
             reader.write(json.dumps(record, indent=2).encode())
             reader.seek(0)
             read_lines = list(S3Payload._read_downloaded_object(reader))
-            assert_equal(read_lines, [(1, record)])
+            assert read_lines == [(1, record)]
 
     def test_read_downloaded_object_fallback(self):
         """S3Payload - Read Downloaded Object, Fallback"""
@@ -143,7 +143,7 @@ class TestS3Payload:
             reader.write(value)
             reader.seek(0)
             read_lines = list(S3Payload._read_downloaded_object(reader))
-            assert_equal(read_lines, [(1, value)])
+            assert read_lines == [(1, value)]
 
     @mock_s3
     def test_read_file(self):
@@ -154,7 +154,7 @@ class TestS3Payload:
 
         payload = S3Payload(None, self._record)
         read_lines = list(payload._read_file())
-        assert_equal(read_lines, [(1, value)])
+        assert read_lines == [(1, value)]
 
     @mock_s3
     def test_read_file_error(self):
@@ -173,7 +173,7 @@ class TestS3Payload:
 
             payload = S3Payload(None, self._record)
             result = [rec._record_data for rec in list(payload.pre_parse())]
-            assert_equal(result, expected_result)
+            assert result == expected_result
 
 
 class TestCleanup(fake_filesystem_unittest.TestCase):

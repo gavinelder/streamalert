@@ -44,14 +44,14 @@ class TestSlackApp:
 
     def test_required_auth_info(self):
         """SlackApp - Required Auth Info"""
-        assert_count_equal(list(self._app.required_auth_info().keys()), {'auth_token'})
+        assert collections.Counter(list(self._app.required_auth_info().keys())) == collections.Counter({'auth_token'})
 
     @patch('requests.post')
     @patch('logging.Logger.error')
     def test_error_code_return(self, log_mock, requests_mock):
         """SlackApp - Gather Logs - Bad Response"""
         requests_mock.return_value = Mock(status_code=404)
-        assert_false(self._app._gather_logs())
+        assert not self._app._gather_logs()
         log_mock.assert_called_with('Received bad response from slack')
 
     @patch('requests.post')
@@ -63,7 +63,7 @@ class TestSlackApp:
                                               'ok': False,
                                               'error': 'paid_only'
                                           }))
-        assert_false(self._app._gather_logs())
+        assert not self._app._gather_logs()
         log_mock.assert_called_with('Received error or warning from slack: %s', 'paid_only')
 
 
@@ -84,7 +84,7 @@ class TestSlackAccessApp:
 
     def test_sleep_seconds(self):
         """SlackAccessApp - Sleep Seconds"""
-        assert_equal(3, self._app._sleep_seconds())
+        assert 3 == self._app._sleep_seconds()
 
     @staticmethod
     def _get_sample_access_logs():
@@ -157,7 +157,7 @@ class TestSlackAccessApp:
         requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         gathered_logs = self._app._gather_logs()
-        assert_equal(len(gathered_logs), 2)
+        assert len(gathered_logs) == 2
 
     @patch('requests.post')
     def test_gather_access_logs_some_filtered(self, requests_mock):
@@ -167,7 +167,7 @@ class TestSlackAccessApp:
 
         self._app._last_timestamp = 1422922593
         gathered_logs = self._app._gather_logs()
-        assert_equal(len(gathered_logs), 1)
+        assert len(gathered_logs) == 1
 
     @patch('requests.post')
     def test_gather_access_logs_all_filtered(self, requests_mock):
@@ -177,7 +177,7 @@ class TestSlackAccessApp:
 
         self._app._last_timestamp = 1522922593
         gathered_logs = self._app._gather_logs()
-        assert_equal(len(gathered_logs), 0)
+        assert len(gathered_logs) == 0
 
     @patch('requests.post')
     def test_gather_logs_no_entries(self, requests_mock):
@@ -194,7 +194,7 @@ class TestSlackAccessApp:
                     'pages': 1
                 }
             }))
-        assert_equal(0, len(self._app._gather_logs()))
+        assert 0 == len(self._app._gather_logs())
 
     @patch('requests.post')
     def test_gather_logs_malformed_response(self, requests_mock):
@@ -210,7 +210,7 @@ class TestSlackAccessApp:
                     'pages': 1
                 }
             }))
-        assert_false(self._app._gather_logs())
+        assert not self._app._gather_logs()
 
     @patch('requests.post')
     def test_gather_logs_basic_pagination(self, requests_mock):
@@ -221,9 +221,9 @@ class TestSlackAccessApp:
 
         self._app._last_timestamp = 1522922593
         gathered_logs = self._app._gather_logs()
-        assert_equal(len(gathered_logs), 0)
-        assert_equal(self._app._next_page, 2)
-        assert_equal(True, self._app._more_to_poll)
+        assert len(gathered_logs) == 0
+        assert self._app._next_page == 2
+        assert True == self._app._more_to_poll
 
     @patch('requests.post')
     def test_gather_logs_before_parameter(self, requests_mock):
@@ -236,10 +236,10 @@ class TestSlackAccessApp:
         self._app._last_timestamp = 1522922593
         gathered_logs = self._app._gather_logs()
         assert 'before' not in list(requests_mock.call_args[1]['data'].keys())  # nosec
-        assert_equal(len(gathered_logs), 0)
-        assert_equal(self._app._next_page, 1)
-        assert_equal(True, self._app._more_to_poll)
-        assert_equal(self._app._before_time, logs['logins'][-1]['date_first'])
+        assert len(gathered_logs) == 0
+        assert self._app._next_page == 1
+        assert True == self._app._more_to_poll
+        assert self._app._before_time == logs['logins'][-1]['date_first']
 
         self._app._gather_logs()
         assert 'before' in list(requests_mock.call_args[1]['data'].keys())  # nosec
@@ -262,7 +262,7 @@ class TestSlackIntegrationsApp:
 
     def test_sleep_seconds(self):
         """SlackIntegrationsApp - Sleep Seconds"""
-        assert_equal(3, self._app._sleep_seconds())
+        assert 3 == self._app._sleep_seconds()
 
     @patch('requests.post')
     def test_gather_logs_malformed_response(self, requests_mock):
@@ -278,7 +278,7 @@ class TestSlackIntegrationsApp:
                     'pages': 1
                 }
             }))
-        assert_false(self._app._gather_logs())
+        assert not self._app._gather_logs()
 
     @staticmethod
     def _get_sample_integrations_logs():
@@ -329,7 +329,7 @@ class TestSlackIntegrationsApp:
         requests_mock.return_value = Mock(status_code=200, json=Mock(return_value=logs))
 
         gathered_logs = self._app._gather_logs()
-        assert_equal(len(gathered_logs), 3)
+        assert len(gathered_logs) == 3
 
     @patch('requests.post')
     def test_gather_integration_logs_filtered(self, requests_mock):
@@ -339,7 +339,7 @@ class TestSlackIntegrationsApp:
 
         self._app._last_timestamp = 1392163201
         gathered_logs = self._app._gather_logs()
-        assert_equal(len(gathered_logs), 1)
+        assert len(gathered_logs) == 1
 
     @patch('requests.post')
     def test_gather_logs_basic_pagination(self, requests_mock):
@@ -350,9 +350,9 @@ class TestSlackIntegrationsApp:
 
         self._app._last_timestamp = 1392163204
         gathered_logs = self._app._gather_logs()
-        assert_equal(len(gathered_logs), 0)
-        assert_equal(self._app._next_page, 2)
-        assert_equal(True, self._app._more_to_poll)
+        assert len(gathered_logs) == 0
+        assert self._app._next_page == 2
+        assert True == self._app._more_to_poll
 
 
 @raises(NotImplementedError)

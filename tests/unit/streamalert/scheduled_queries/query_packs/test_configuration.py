@@ -29,11 +29,11 @@ class TestConfiguration:
                                         description='yoo hoo and a bottle of rum',
                                         tags=['tag1', 'tag2'])
 
-        assert_equals(config.name, 'bubblebumblebaddabbabblerabblebarrelmumble')
-        assert_equals(config.query_template, 'SELECT * FROM knowhere')
-        assert_equals(config.query_parameters, [])
-        assert_equals(config.description, 'yoo hoo and a bottle of rum')
-        assert_equals(config.tags, ['tag1', 'tag2'])
+        assert config.name == 'bubblebumblebaddabbabblerabblebarrelmumble'
+        assert config.query_template == 'SELECT * FROM knowhere'
+        assert config.query_parameters == []
+        assert config.description == 'yoo hoo and a bottle of rum'
+        assert config.tags == ['tag1', 'tag2']
 
     @staticmethod
     def test_query_construction():
@@ -44,7 +44,7 @@ class TestConfiguration:
                                         description='yoo hoo and a bottle of rum',
                                         tags=['tag1', 'tag2'])
 
-        assert_equals(config.generate_query(date='2000-01-01'),
+        assert (config.generate_query(date='2000-01-01') ==
                       "SELECT * FROM helloworld WHERE dt = '2000-01-01'")
 
 
@@ -54,4 +54,4 @@ class TestQueryPackRepository:
         """StreamQuery - QueryPackRepository - get_packs"""
         QueryPackRepository.load_packs(['scheduled_queries/'])
 
-        assert_true(len(QueryPackRepository.get_packs()) >= 1)
+        assert len(QueryPackRepository.get_packs()) >= 1

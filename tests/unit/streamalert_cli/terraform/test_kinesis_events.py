@@ -40,5 +40,5 @@ def test_kinesis_events():
         }
     }
 
-    assert_true(result)
-    assert_equal(cluster_dict, expected_result)
+    assert result
+    assert cluster_dict == expected_result

@@ -59,8 +59,8 @@ def test_generate_s3_events():
         }
     }
 
-    assert_equal(result, True)
-    assert_equal(cluster_dict, expected_config)
+    assert result == True
+    assert cluster_dict == expected_config
 
 
 def test_generate_s3_events_with_prefix():
@@ -94,4 +94,4 @@ def test_generate_s3_events_with_prefix():
         }
     }
 
-    assert_equal(cluster_dict, expected_config)
+    assert cluster_dict == expected_config

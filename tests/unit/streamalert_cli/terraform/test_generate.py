@@ -47,9 +47,9 @@ class TestTerraformGenerate:
             'server_side_encryption_configuration', 'policy'
         }
 
-        assert_equal(type(bucket), dict)
-        assert_equal(bucket['bucket'], 'unit.test.bucket')
-        assert_equal(set(bucket.keys()), required_keys)
+        assert type(bucket) == dict
+        assert bucket['bucket'] == 'unit.test.bucket'
+        assert set(bucket.keys()) == required_keys
 
     def test_generate_s3_bucket_lifecycle(self):
         """CLI - Terraform Generate S3 Bucket with Lifecycle"""
@@ -65,10 +65,10 @@ class TestTerraformGenerate:
                                                  }
                                              })
 
-        assert_equal(bucket['lifecycle_rule']['prefix'], 'logs/')
-        assert_equal(bucket['force_destroy'], False)
-        assert_equal(type(bucket['lifecycle_rule']), dict)
-        assert_equal(type(bucket['versioning']), dict)
+        assert bucket['lifecycle_rule']['prefix'] == 'logs/'
+        assert bucket['force_destroy'] == False
+        assert type(bucket['lifecycle_rule']) == dict
+        assert type(bucket['versioning']) == dict
 
     def test_generate_main(self):
         """CLI - Terraform Generate Main"""
@@ -208,8 +208,8 @@ class TestTerraformGenerate:
             }
         }
 
-        assert_dict_equal(tf_main['terraform'], tf_main_expected['terraform'])
-        assert_dict_equal(tf_main['resource'], tf_main_expected['resource'])
+        assert tf_main['terraform'] == tf_main_expected['terraform']
+        assert tf_main['resource'] == tf_main_expected['resource']
 
     def test_generate_main_s3_access_logging(self):
         """CLI - Terraform Generate Main with Alternate S3 Access Logging Bucket"""
@@ -220,7 +220,7 @@ class TestTerraformGenerate:
         tf_main = generate.generate_main(config=self.config, init=False)
 
         # Should not "create" the logging bucket
-        assert_true('logging_bucket' not in tf_main['resource']['aws_s3_bucket'])
+        assert 'logging_bucket' not in tf_main['resource']['aws_s3_bucket']
 
     def test_generate_main_with_firehose(self):
         """CLI - Terraform Generate Main with Firehose Enabled"""
@@ -243,17 +243,16 @@ class TestTerraformGenerate:
             'kinesis_firehose_cloudwatch_test_match_types_2'
         }
 
-        assert_true(
-            all(expected_module in generated_modules
-                for expected_module in expected_kinesis_modules))
+        assert all(expected_module in generated_modules
+                for expected_module in expected_kinesis_modules)
 
-        assert_equal(
-            generated_modules['kinesis_firehose_cloudwatch_test_match_types']['s3_bucket_name'],
+        assert (
+            generated_modules['kinesis_firehose_cloudwatch_test_match_types']['s3_bucket_name'] ==
             'my-data')
-        assert_equal(
-            generated_modules['kinesis_firehose_cloudwatch_test_match_types']['buffer_size'], 10)
-        assert_equal(
-            generated_modules['kinesis_firehose_cloudwatch_test_match_types']['buffer_interval'],
+        assert (
+            generated_modules['kinesis_firehose_cloudwatch_test_match_types']['buffer_size'] == 10)
+        assert (
+            generated_modules['kinesis_firehose_cloudwatch_test_match_types']['buffer_interval'] ==
             650)
 
     def test_generate_main_alerts_firehose(self):
@@ -264,9 +263,9 @@ class TestTerraformGenerate:
         }
         tf_main = generate.generate_main(config=self.config, init=False)
 
-        assert_equal(tf_main['module']['globals']['alerts_firehose_bucket_name'],
+        assert (tf_main['module']['globals']['alerts_firehose_bucket_name'] ==
                      'test-bucket-name')
-        assert_equal(tf_main['module']['globals']['alerts_firehose_buffer_interval'], 600)
+        assert tf_main['module']['globals']['alerts_firehose_buffer_interval'] == 600
 
     def test_generate_flow_logs(self):
         """CLI - Terraform Generate Flow Logs"""
@@ -314,7 +313,7 @@ class TestTerraformGenerate:
             }
         }
 
-        assert_equal(self.cluster_dict, expected)
+        assert self.cluster_dict == expected
 
     def test_generate_cloudtrail_minimal(self):
         """CLI - Terraform Generate CloudTrail Module, Minimal Settings"""
@@ -341,7 +340,7 @@ class TestTerraformGenerate:
             }
         }
 
-        assert_equal(expected, self.cluster_dict['module'])
+        assert expected == self.cluster_dict['module']
 
     def test_generate_cloudtrail_with_s3_events(self):
         """CLI - Terraform Generate CloudTrail Module, With S3 Events"""
@@ -388,7 +387,7 @@ class TestTerraformGenerate:
             }
         }
 
-        assert_equal(expected, self.cluster_dict['module'])
+        assert expected == self.cluster_dict['module']
 
     def test_generate_cloudtrail_with_cloudwatch_logs(self):
         """CLI - Terraform Generate CloudTrail Module, With CloudWatch Logs"""
@@ -462,7 +461,7 @@ class TestTerraformGenerate:
             },
         }
 
-        assert_equal(expected, self.cluster_dict['module'])
+        assert expected == self.cluster_dict['module']
 
     def test_generate_cloudtrail_cloudwatch_logs_and_s3(self):
         """CLI - Terraform Generate CloudTrail Module, With S3 and CloudWatch Logs"""
@@ -549,7 +548,7 @@ class TestTerraformGenerate:
             },
         }
 
-        assert_equal(expected, self.cluster_dict['module'])
+        assert expected == self.cluster_dict['module']
 
     def test_generate_cloudwatch_destinations(self):
         """CLI - Terraform Generate CloudWatch Destinations"""
@@ -600,7 +599,7 @@ class TestTerraformGenerate:
             }
         }
 
-        assert_equal(expected, self.cluster_dict['module'])
+        assert expected == self.cluster_dict['module']
 
     def test_generate_cloudwatch_events(self):
         """CLI - Terraform Generate CloudWatch Events"""
@@ -616,7 +615,7 @@ class TestTerraformGenerate:
             },
         }
 
-        assert_equal(expected, self.cluster_dict['module'])
+        assert expected == self.cluster_dict['module']
 
     def test_generate_cloudwatch_events_no_pattern(self):
         """CLI - Terraform Generate CloudWatch Events, No Pattern"""
@@ -634,7 +633,7 @@ class TestTerraformGenerate:
             },
         }
 
-        assert_equal(expected, self.cluster_dict['module'])
+        assert expected == self.cluster_dict['module']
 
     @patch('streamalert_cli.terraform.cloudwatch_events.LOGGER.error')
     def test_generate_cloudwatch_events_invalid_pattern(self, log_mock):
@@ -645,7 +644,7 @@ class TestTerraformGenerate:
 
         cloudwatch_events.generate_cloudwatch_events('advanced', self.cluster_dict, self.config)
 
-        assert_true(log_mock.called)
+        assert log_mock.called
 
     def test_generate_cwe_cross_acct_map_regions(self):
         """CLI - Terraform Generate CloudWatch Events Cross Account Region Map"""
@@ -671,7 +670,7 @@ class TestTerraformGenerate:
             }
         }
 
-        assert_equal(expected, result)
+        assert expected == result
 
     def test_generate_cloudwatch_events_cross_account(self):
         """CLI - Terraform Generate CloudWatch Events Cross Account"""
@@ -714,7 +713,7 @@ class TestTerraformGenerate:
             },
         }
 
-        assert_equal(expected, self.cluster_dict['module'])
+        assert expected == self.cluster_dict['module']
 
     def test_generate_cluster_test(self):
         """CLI - Terraform Generate Test Cluster"""
@@ -728,8 +727,8 @@ class TestTerraformGenerate:
             'kinesis_test', 'kinesis_events_test', 's3_events_unit-test_test_unit-test-bucket'
         }
 
-        assert_equal(set(tf_cluster['module']), test_modules)
-        assert_equal(set(tf_cluster), cluster_keys)
+        assert set(tf_cluster['module']) == test_modules
+        assert set(tf_cluster) == cluster_keys
 
     def test_generate_cluster_advanced(self):
         """CLI - Terraform Generate Advanced Cluster"""
@@ -758,8 +757,8 @@ class TestTerraformGenerate:
             's3_events_unit-test_advanced_unit-test_cloudtrail_data'
         }
 
-        assert_equal(set(tf_cluster['module'].keys()), advanced_modules)
-        assert_equal(set(tf_cluster.keys()), cluster_keys)
+        assert set(tf_cluster['module'].keys()) == advanced_modules
+        assert set(tf_cluster.keys()) == cluster_keys
 
     def test_generate_main_with_sqs_url_unspecified(self):
         """CLI - Terraform Generate Main with unspecified classifier_sqs.use_prefix"""
@@ -767,8 +766,8 @@ class TestTerraformGenerate:
 
         result = generate.generate_main(config=self.config, init=False)
 
-        assert_equal(result['module']['globals']['source'], './modules/tf_globals')
-        assert_true(result['module']['globals']['sqs_use_prefix'])
+        assert result['module']['globals']['source'] == './modules/tf_globals'
+        assert result['module']['globals']['sqs_use_prefix']
 
     def test_generate_main_with_sqs_url_true(self):
         """CLI - Terraform Generate Main with classifier_sqs.use_prefix = True"""
@@ -776,8 +775,8 @@ class TestTerraformGenerate:
 
         result = generate.generate_main(config=self.config, init=False)
 
-        assert_equal(result['module']['globals']['source'], './modules/tf_globals')
-        assert_true(result['module']['globals']['sqs_use_prefix'])
+        assert result['module']['globals']['source'] == './modules/tf_globals'
+        assert result['module']['globals']['sqs_use_prefix']
 
     def test_generate_main_with_sqs_url_false(self):
         """CLI - Terraform Generate Main with classifier_sqs.use_prefix = False"""
@@ -785,8 +784,8 @@ class TestTerraformGenerate:
 
         result = generate.generate_main(config=self.config, init=False)
 
-        assert_equal(result['module']['globals']['source'], './modules/tf_globals')
-        assert_false(result['module']['globals']['sqs_use_prefix'])
+        assert result['module']['globals']['source'] == './modules/tf_globals'
+        assert not result['module']['globals']['sqs_use_prefix']
 
     def test_generate_required_lambda_invalid_config(self):
         "CLI - Terraform Generate Global Lambda Settings, Invalid Config"

@@ -52,7 +52,7 @@ class TestAthenaCli:
                            'LOCATION \'s3://bucket-name/table-name/\'')
 
         result = handler._construct_create_table_statement(schema, 'table-name', 'bucket-name')
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     @staticmethod
     def test_rebuild_partitions():
@@ -91,7 +91,7 @@ class TestAthenaCli:
 
             table = 'unit_my_test'
             bucket = 'bucket'
-            assert_true(handler.rebuild_partitions(table, bucket, config))
+            assert handler.rebuild_partitions(table, bucket, config)
 
     @staticmethod
     @patch('streamalert.shared.athena.AthenaClient.check_table_exists', Mock(return_value=False))
@@ -103,7 +103,7 @@ class TestAthenaCli:
             'test:log.name.with.dots': {}
         }
 
-        assert_true(handler.create_table('test:log.name.with.dots', 'bucket', config))
+        assert handler.create_table('test:log.name.with.dots', 'bucket', config)
 
     @staticmethod
     @patch('streamalert.shared.athena.AthenaClient.check_table_exists', Mock(return_value=False))
@@ -115,4 +115,4 @@ class TestAthenaCli:
             'cloudwatch:test_match_types': {}
         }
 
-        assert_true(handler.create_table('cloudwatch:test_match_types', 'bucket', config))
+        assert handler.create_table('cloudwatch:test_match_types', 'bucket', config)

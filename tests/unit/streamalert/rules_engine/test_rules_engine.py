@@ -89,8 +89,8 @@ class TestRulesEngine:
         config = mock_conf()
         config['global']['infrastructure']['rule_staging']['enabled'] = False
         RulesEngine._load_rule_table(config)
-        assert_equal(RulesEngine._rule_table, None)
-        assert_equal(RulesEngine._RULE_TABLE_LAST_REFRESH, datetime(year=1970, month=1, day=1))
+        assert RulesEngine._rule_table == None
+        assert RulesEngine._RULE_TABLE_LAST_REFRESH == datetime(year=1970, month=1, day=1)
 
     @patch('logging.Logger.debug')
     def test_load_rule_table_no_refresh(self, log_mock):
@@ -99,7 +99,7 @@ class TestRulesEngine:
         RulesEngine._RULE_TABLE_LAST_REFRESH = datetime.utcnow()
         RulesEngine._rule_table = 'table'
         self._rules_engine._load_rule_table(config)
-        assert_equal(self._rules_engine._rule_table, 'table')
+        assert self._rules_engine._rule_table == 'table'
         log_mock.assert_called()
 
     @patch.dict('os.environ', {'STREAMALERT_PREFIX': 'test_prefix'})
@@ -119,15 +119,15 @@ class TestRulesEngine:
             rule_table_mock.return_value = 'new_table'
             date_mock.utcnow.return_value = fake_date_now
             self._rules_engine._load_rule_table(config)
-            assert_equal(self._rules_engine._rule_table == 'new_table', True)
-            assert_equal(self._rules_engine._RULE_TABLE_LAST_REFRESH, fake_date_now)
+            assert (self._rules_engine._rule_table == 'new_table') == True
+            assert self._rules_engine._RULE_TABLE_LAST_REFRESH == fake_date_now
             log_mock.assert_called()
 
     def test_process_subkeys_none(self):
         """RulesEngine - Process Subkeys, None Defined"""
         rule = Mock(req_subkeys=None)
 
-        assert_equal(RulesEngine._process_subkeys(None, rule), True)
+        assert RulesEngine._process_subkeys(None, rule) == True
 
     def test_process_subkeys_missing_key(self):
         """RulesEngine - Process Subkeys, Missing Key"""
@@ -136,7 +136,7 @@ class TestRulesEngine:
         record = {'host': 'host1.web.prod.net'}
 
         result = RulesEngine._process_subkeys(record, rule)
-        assert_equal(result, False)
+        assert result == False
 
     def test_process_subkeys_bad_type(self):
         """RulesEngine - Process Subkeys, Bad Subtype"""
@@ -145,7 +145,7 @@ class TestRulesEngine:
         record = {'host': 'host1.web.prod.net', 'data': 'value'}
 
         result = RulesEngine._process_subkeys(record, rule)
-        assert_equal(result, False)
+        assert result == False
 
     def test_process_subkeys_missing_subkey(self):
         """RulesEngine - Process Subkeys, Missing Subkey"""
@@ -154,7 +154,7 @@ class TestRulesEngine:
         record = {'host': 'host1.web.prod.net', 'data': {'category': 'web-server'}}
 
         result = RulesEngine._process_subkeys(record, rule)
-        assert_equal(result, False)
+        assert result == False
 
     def test_process_subkeys(self):
         """RulesEngine - Process Subkeys"""
@@ -163,7 +163,7 @@ class TestRulesEngine:
         record = {'host': 'host1.web.prod.net', 'data': {'location': 'us-west-2'}}
 
         result = RulesEngine._process_subkeys(record, rule)
-        assert_equal(result, True)
+        assert result == True
 
     # -- Tests for _rule_analysis()
 
@@ -207,7 +207,7 @@ class TestRulesEngine:
                                           source_service='kinesis',
                                           staged=False)
 
-            assert_equal(result is not None, True)
+            assert (result is not None) == True
 
     def test_rule_analysis_staged(self):
         """RulesEngine - Rule Analysis, Staged"""
@@ -248,13 +248,13 @@ class TestRulesEngine:
                                           source_service='kinesis',
                                           staged=True)
 
-            assert_equal(result is not None, True)
+            assert (result is not None) == True
 
     def test_rule_analysis_false(self):
         """RulesEngine - Rule Analysis, False"""
         rule = Mock(process=Mock(return_value=False), )
         result = self._rules_engine._rule_analysis({'record': {'foo': 'bar'}}, rule)
-        assert_equal(result is None, True)
+        assert (result is None) == True
 
     def test_rule_analysis_with_publishers(self):
         """RulesEngine - Rule Analysis, Publishers"""
@@ -307,7 +307,7 @@ class TestRulesEngine:
                 source_service='kinesis',
                 staged=False)
 
-            assert_equal(result is not None, True)
+            assert (result is not None) == True
 
     # --- Tests for _configure_outputs()
 
@@ -317,7 +317,7 @@ class TestRulesEngine:
         output = []
         result = self._rules_engine._check_valid_output(output)
 
-        assert_false(result)
+        assert not result
 
     def test_check_valid_output_int(self):
         """RulesEngine - _check_valid_output, int"""
@@ -325,7 +325,7 @@ class TestRulesEngine:
         output = 1
         result = self._rules_engine._check_valid_output(output)
 
-        assert_false(result)
+        assert not result
 
     def test_check_valid_output_invalid_string(self):
         """RulesEngine - _check_valid_output, invalid string"""
@@ -333,7 +333,7 @@ class TestRulesEngine:
         output = "aws-sns"  # missing :
         result = self._rules_engine._check_valid_output(output)
 
-        assert_false(result)
+        assert not result
 
     def test_check_valid_output_valid_string(self):
         """RulesEngine - _check_valid_output, valid string"""
@@ -341,7 +341,7 @@ class TestRulesEngine:
         output = "aws-sns:test"
         result = self._rules_engine._check_valid_output(output)
 
-        assert_true(result)
+        assert result
 
     @patch('logging.Logger.error')
     def test_call_dynamic_output_function_raise_error(self, log_error):
@@ -353,7 +353,7 @@ class TestRulesEngine:
         dynamic_outputs = self._rules_engine._call_dynamic_output_function(
             dynamic_output_function, rule_name, [])
 
-        assert_equal(dynamic_outputs, [])
+        assert dynamic_outputs == []
         log_error.assert_called_with('Exception when calling dynamic_output %s for rule %s', 'test',
                                      rule_name)
 
@@ -365,7 +365,7 @@ class TestRulesEngine:
         dynamic_outputs = self._rules_engine._call_dynamic_output_function(
             dynamic_output_function, "test", [record])
 
-        assert_equal(dynamic_outputs, ["test"])
+        assert dynamic_outputs == ["test"]
         dynamic_output_function.assert_called()
         dynamic_output_function.assert_called_with(record)
 
@@ -377,7 +377,7 @@ class TestRulesEngine:
         dynamic_outputs = self._rules_engine._call_dynamic_output_function(
             dynamic_output_function, "test", [record])
 
-        assert_equal(dynamic_outputs, ["test"])
+        assert dynamic_outputs == ["test"]
         dynamic_output_function.assert_called()
         dynamic_output_function.assert_called_with(record)
 
@@ -389,7 +389,7 @@ class TestRulesEngine:
         dynamic_outputs = self._rules_engine._call_dynamic_output_function(
             dynamic_output_function, "test", [record])
 
-        assert_equal(dynamic_outputs, [])
+        assert dynamic_outputs == []
         dynamic_output_function.assert_called()
         dynamic_output_function.assert_called_with(record)
 
@@ -411,7 +411,7 @@ class TestRulesEngine:
             dynamic_outputs = self._rules_engine._configure_dynamic_outputs(record, rule)
 
             # Tests
-            assert_equal(dynamic_outputs, ["aws-sns:test"])
+            assert dynamic_outputs == ["aws-sns:test"]
             call_dynamic.assert_called()
             call_dynamic.assert_called_with(dynamic_output, rule.name, [record])
 
@@ -433,7 +433,7 @@ class TestRulesEngine:
             dynamic_outputs = self._rules_engine._configure_dynamic_outputs(record, rule)
 
             # Tests
-            assert_equal(dynamic_outputs, ["aws-sns:test"])
+            assert dynamic_outputs == ["aws-sns:test"]
             call_dynamic.assert_called()
             call_dynamic.assert_called_with(dynamic_output, rule.name, [record, rule.context])
 
@@ -455,7 +455,7 @@ class TestRulesEngine:
             dynamic_outputs = self._rules_engine._configure_dynamic_outputs(record, rule)
 
             # Tests
-            assert_equal(dynamic_outputs, [])
+            assert dynamic_outputs == []
             call_dynamic.assert_called()
             call_dynamic.assert_called_with(dynamic_output, rule.name, [record])
 
@@ -475,7 +475,7 @@ class TestRulesEngine:
             # Tests
             rule.is_staged.assert_called()
             check_valid.assert_called()
-            assert_equal(outputs, self._rules_engine._required_outputs_set)
+            assert outputs == self._rules_engine._required_outputs_set
 
     def test_configure_outputs_unstaged_with_static_outputs(self):
         """RulesEngine - _configure_outputs, unstaged with static outputs"""
@@ -495,7 +495,7 @@ class TestRulesEngine:
             rule.is_staged.assert_called()
             check_valid.assert_called()
             expected = self._rules_engine._required_outputs_set.union({"aws-sns:static"})
-            assert_equal(outputs, expected)
+            assert outputs == expected
 
     def test_configure_outputs_unstaged_with_no_outputs(self):
         """RulesEngine - _configure_outputs, unstaged with no additional outputs"""
@@ -513,7 +513,7 @@ class TestRulesEngine:
 
             # Tests
             rule.is_staged.assert_called()
-            assert_equal(outputs, self._rules_engine._required_outputs_set)
+            assert outputs == self._rules_engine._required_outputs_set
 
     def test_configure_outputs_unstaged_with_dynamic_outputs(self):
         """RulesEngine - _configure_outputs, unstaged with dynamic outputs"""
@@ -538,7 +538,7 @@ class TestRulesEngine:
                 configure_dynamic.assert_called_with(record, rule)
                 check_valid.assert_called()
                 expected = self._rules_engine._required_outputs_set.union({"aws-sns:dynamic"})
-                assert_equal(outputs, expected)
+                assert outputs == expected
 
     def test_configure_outputs_unstaged_with_all_outputs(self):
         """RulesEngine - _configure_outputs, unstaged with all output sources"""
@@ -564,7 +564,7 @@ class TestRulesEngine:
                 check_valid.assert_called()
                 expected = self._rules_engine._required_outputs_set.union(
                     {"aws-sns:static", "aws-sns:dynamic"})
-                assert_equal(outputs, expected)
+                assert outputs == expected
 
     def test_configure_outputs_invalid_output(self):
         """RulesEngine - _configure_outputs, unstaged with all outputs and one invalid output"""
@@ -585,7 +585,7 @@ class TestRulesEngine:
             configure_dynamic.assert_called()
             configure_dynamic.assert_called_with(record, rule)
             expected = self._rules_engine._required_outputs_set.union({"aws-sns:static"})
-            assert_equal(outputs, expected)
+            assert outputs == expected
 
     # --- Tests for _configure_publishers()
 
@@ -600,7 +600,7 @@ class TestRulesEngine:
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = None
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
 
     def test_configure_publishers_single_string(self):
         """RulesEngine - _configure_publishers, Single string"""
@@ -610,7 +610,7 @@ class TestRulesEngine:
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = {'slack:test': ['streamalert.shared.publisher.DefaultPublisher']}
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
 
     def test_configure_publishers_single_reference(self):
         """RulesEngine - _configure_publishers, Single reference"""
@@ -620,7 +620,7 @@ class TestRulesEngine:
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = {'slack:test': ['streamalert.shared.publisher.DefaultPublisher']}
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
 
     @patch('logging.Logger.warning')
     def test_configure_publishers_single_invalid_string(self, log_warn):
@@ -631,7 +631,7 @@ class TestRulesEngine:
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = {'slack:test': []}
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
         log_warn.assert_called_with('Requested publisher named (%s) is not registered.', 'blah')
 
     @patch('logging.Logger.error')
@@ -646,7 +646,7 @@ class TestRulesEngine:
         publishers = self._rules_engine._configure_publishers(rule, outputs)
         expectation = {'slack:test': []}
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
         log_error.assert_called_with('Invalid publisher argument: %s', self)
 
     def test_configure_publishers_single_applies_to_multiple_outputs(self):
@@ -661,7 +661,7 @@ class TestRulesEngine:
             'pagerduty:test': ['streamalert.shared.publisher.DefaultPublisher'],
         }
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
 
     def test_configure_publishers_list(self):
         """RulesEngine - _configure_publishers, List"""
@@ -676,7 +676,7 @@ class TestRulesEngine:
             ]
         }
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
 
     def test_configure_publishers_mixed_list(self):
         """RulesEngine - _configure_publishers, Mixed List"""
@@ -699,7 +699,7 @@ class TestRulesEngine:
             'demisto:test': ['streamalert.shared.publisher.DefaultPublisher']
         }
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
 
     def test_configure_publishers_mixed_single(self):
         """RulesEngine - _configure_publishers, Mixed Single"""
@@ -722,7 +722,7 @@ class TestRulesEngine:
             'demisto:test': ['streamalert.shared.publisher.DefaultPublisher']
         }
 
-        assert_equal(publishers, expectation)
+        assert publishers == expectation
 
     def test_run_subkey_failure(self):
         """RulesEngine - Run, Fail Subkey Check"""

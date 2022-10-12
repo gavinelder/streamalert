@@ -177,7 +177,7 @@ class TestDemistoOutput:
 
     def test_get_user_defined_properties(self):
         """DemistoOutput - User Defined Properties"""
-        assert_is_instance(DemistoOutput.get_user_defined_properties(), OrderedDict)
+        assert isinstance(DemistoOutput.get_user_defined_properties(), OrderedDict)
 
     @patch('requests.post')
     def test_dispatch(self, request_mock):
@@ -191,7 +191,7 @@ class TestDemistoOutput:
 
         success = self._dispatcher.dispatch(alert, self.OUTPUT)
 
-        assert_true(success)
+        assert success
 
         expected_data = {
             'type': 'Unclassified',
@@ -234,7 +234,7 @@ class TestDemistoOutput:
 
         success = self._dispatcher.dispatch(alert, self.OUTPUT)
 
-        assert_false(success)
+        assert not success
 
         class Matcher:
             def __eq__(self, other):
@@ -253,11 +253,11 @@ def test_assemble():
 
     request = DemistoRequestAssembler.assemble(alert, alert_publication)
 
-    assert_equal(request.incident_name, 'cb_binarystore_file_added')
-    assert_equal(request.incident_type, 'Unclassified')
-    assert_equal(request.severity, 0)
-    assert_equal(request.owner, 'StreamAlert')
-    assert_equal(request.labels, EXPECTED_LABELS_FOR_SAMPLE_ALERT)
-    assert_equal(request.details, 'Info about this rule and what actions to take')
-    assert_equal(request.custom_fields, {})
-    assert_equal(request.create_investigation, True)
+    assert request.incident_name == 'cb_binarystore_file_added'
+    assert request.incident_type == 'Unclassified'
+    assert request.severity == 0
+    assert request.owner == 'StreamAlert'
+    assert request.labels == EXPECTED_LABELS_FOR_SAMPLE_ALERT
+    assert request.details == 'Info about this rule and what actions to take'
+    assert request.custom_fields == {}
+    assert request.create_investigation == True
