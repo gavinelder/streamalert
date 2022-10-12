@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import calendar
-import html
 import json
 import urllib.error
 import urllib.parse
 import urllib.request
+from html import escape as html_escape
 
 from streamalert.shared.description import RuleDescriptionParser
 from streamalert.shared.publisher import AlertPublisher, Register
@@ -69,7 +69,7 @@ class Summary(AlertPublisher):
                 'title_link':
                 self._title_url(rule_name),
                 'text':
-                html.escape(rule_presentation['description']),
+                html_escape(rule_presentation['description'], quote=False),
                 'image_url':
                 '',
                 'thumb_url':
@@ -167,7 +167,7 @@ class AttachPublication(AlertPublisher):
         publication['@slack.attachments'].append({
             'color': self._color(),
             'title': 'Alert Data:',
-            'text': html.escape(publication_block),
+            'text': html_escape(publication_block, quote=False),
             'mrkdwn_in': ['text'],
         })
 
@@ -203,7 +203,7 @@ class AttachStringTemplate(AlertPublisher):
         publication['@slack.attachments'] = publication.get('@slack.attachments', [])
         publication['@slack.attachments'].append({
             'color': self._color(),
-            'text': html.escape(rendered_text),
+            'text': html_escape(rendered_text,quote=False),
         })
 
         return publication
@@ -254,7 +254,7 @@ class AttachFullRecord(AlertPublisher):
 
         # Escape the document FIRST because it can increase character length which can throw off
         # document slicing
-        record_document = html.escape(record_document)
+        record_document = html_escape(record_document, quote=False)
         record_document_lines = record_document.split('\n')
 
         def make_attachment(document, is_first, is_last):
