@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         python:
-          - 3.9
+          - '3.10'
         task:
           - name: Lint
             command: |

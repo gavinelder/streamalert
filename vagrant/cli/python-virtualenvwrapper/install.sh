@@ -1,5 +1,5 @@
 # Install python dependencies
-apt-get install python-pip python3.9-venv virtualenvwrapper -y
+apt-get install python-pip python3.10-venv virtualenvwrapper -y
 
 # Install Python with the version specified from the deadsnakes ppa
 apt-get install software-properties-common -y
