@@ -17,6 +17,7 @@ import uuid
 import zipfile
 from datetime import datetime
 from io import BytesIO
+from moto import mock_lambda , mock_iam
 
 import boto3
 from botocore.exceptions import ClientError
@@ -147,17 +148,29 @@ def handler(event, context):
 
     return package_output.read()
 
+def get_role_name(region):
+    with mock_iam():
+        iam = boto3.client("iam", region_name=region)
+        try:
+            return iam.get_role(RoleName="my-role")["Role"]["Arn"]
+        except ClientError:
+            return iam.create_role(
+                RoleName="my-role",
+                AssumeRolePolicyDocument="some policy",
+                Path="/my-path/",
+            )["Role"]["Arn"]
 
+@mock_lambda
 def create_lambda_function(function_name, region):
-    """Helper function to create mock lambda function"""
+    """Helper function to create mock lambda function""" 
     if function_name.find(':') != -1:
         function_name = function_name.split(':')[0]
 
     boto3.client('lambda', region_name=region).create_function(
         FunctionName=function_name,
         Runtime='python3.10',
-        Role='arn:aws:iam::123456789012:role/lambda_basic_execution',
-        Handler='function.handler',
+        Role=get_role_name(region),
+        Handler='lambda_function.lambda_handler',
         Description='test lambda function',
         Timeout=3,
         MemorySize=128,
