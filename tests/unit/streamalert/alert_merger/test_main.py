@@ -60,7 +60,7 @@ class TestAlertMergeGroup:
 class TestAlertMerger:
     """Tests for merger/main.py:AlertMerger class"""
     @patch.dict(
-        os.environ, {
+       'os.environ', {
             'ALERT_PROCESSOR': _ALERT_PROCESSOR,
             'ALERT_PROCESSOR_TIMEOUT_SEC': str(_ALERT_PROCESSOR_TIMEOUT_SEC),
             'ALERTS_TABLE': _ALERTS_TABLE,
@@ -82,6 +82,7 @@ class TestAlertMerger:
         self.dynamo_mock.stop()
         self.lambda_mock.stop()
 
+    # patch the object main and logger for pytest
     @patch.object(main, 'LOGGER')
     def test_alert_generator(self, mock_logger):
         """Alert Merger - Sorted Alerts - Invalid Alerts are Logged"""
