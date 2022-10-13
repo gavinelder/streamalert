@@ -18,7 +18,7 @@ from unittest.mock import Mock, patch
 
 from moto import mock_ssm
 from requests.exceptions import Timeout
-
+import collections
 import pytest
 from streamalert.apps._apps.salesforce import SalesforceApp, SalesforceAppError
 from tests.unit.streamalert.apps.test_helpers import (
@@ -207,7 +207,7 @@ class TestSalesforceApp:
         mock_get.return_value = Mock(status_code=200, json=Mock(side_effect=Timeout))
         success, response = self._app._make_get_request('FULL_URL', {'headers': 'headers_data'})
         assert not success
-        assert response == None
+        assert response is None
         mock_logger.assert_called_with('Request timed out for when sending get request to %s',
                                        'FULL_URL')
 
@@ -258,14 +258,14 @@ class TestSalesforceApp:
     @patch('requests.get', Mock(side_effect=SalesforceAppError))
     def test_fetch_event_logs_exception(self, mock_logger):
         """SalesforceApp - Fetch event logs while SalesforceAppError raised"""
-        assert self._app._fetch_event_logs('LOG_FILE_PATH') == None
+        assert self._app._fetch_event_logs('LOG_FILE_PATH') is None
         mock_logger.assert_called_with('Failed to get event logs', exc_info=1)
 
     @patch('requests.get')
     def test_fetch_event_logs_timeout(self, mock_get):
         """SalesforceApp - Fetch event logs while timeout"""
         mock_get.return_value = Mock(status_code=200, json=Mock(side_effect=Timeout))
-        assert self._app._fetch_event_logs('LOG_FILE_PATH') == None
+        assert self._app._fetch_event_logs('LOG_FILE_PATH') is None
 
     @patch('requests.get')
     @patch('requests.post')
@@ -308,7 +308,7 @@ class TestSalesforceApp:
         mock_get.return_value = Mock(
             status_code=200, json=Mock(side_effect=[list_salesforce_api_versions(), Timeout]))
 
-        assert self._app._gather_logs() == None
+        assert self._app._gather_logs() is None
         mock_logger.assert_called_once()
 
         mock_get.return_value = Mock(status_code=204,
@@ -316,7 +316,7 @@ class TestSalesforceApp:
                                          'errorCode': 'ERROR_CODE',
                                          'message': 'error message'
                                      }))
-        assert self._app._gather_logs() == None
+        assert self._app._gather_logs() is None
 
     def test_sleep_seconds(self):
         """SalesforceApp - Verify sleep seconds"""

@@ -18,10 +18,10 @@ from io import StringIO
 from unittest import mock
 from unittest.mock import MagicMock, Mock, patch
 
+import pytest
 from nose.tools import nottest
 from pyfakefs import fake_filesystem_unittest
 
-import pytest
 from streamalert.shared.config import load_config
 from streamalert.shared.exceptions import ConfigError
 from streamalert_cli.config import CLIConfig
@@ -36,7 +36,7 @@ class TestTestRunner(fake_filesystem_unittest.TestCase):
     """Test the TestEventFile class"""
     # pylint: disable=protected-access
 
-    TEST_CONFIG_PATH = 'tests/unit/conf'
+    TEST_CONFIG_PATH = 'tests/uwnit/conf'
     _DEFAULT_EVENT_PATH = 'rules/community/unit_test/file.json'
 
     def setUp(self):

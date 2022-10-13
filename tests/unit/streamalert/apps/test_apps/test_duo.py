@@ -17,6 +17,7 @@ import os
 from unittest.mock import Mock, patch
 
 import requests
+import collections
 from moto import mock_ssm
 
 import pytest

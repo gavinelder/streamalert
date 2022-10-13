@@ -19,6 +19,7 @@ from unittest.mock import patch
 
 from aliyunsdkcore.acs_exception.exceptions import ServerException
 from moto import mock_ssm
+import collections
 
 import pytest
 from streamalert.apps._apps.aliyun import AliyunApp

@@ -19,6 +19,7 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 import pytest
+import collections
 from streamalert.shared.athena import AthenaClient, AthenaQueryExecutionError
 from streamalert.shared.config import load_config
 from tests.unit.helpers.aws_mocks import MockAthenaClient

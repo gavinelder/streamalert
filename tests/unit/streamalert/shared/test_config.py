@@ -19,6 +19,7 @@ from unittest.mock import Mock
 from pyfakefs import fake_filesystem_unittest
 
 import pytest
+import collections
 from streamalert.shared.config import (ConfigError, _validate_config,
                                        artifact_extractor_enabled, load_config,
                                        parse_lambda_arn)

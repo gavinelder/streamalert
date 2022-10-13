@@ -19,6 +19,7 @@ from unittest.mock import Mock, patch
 from moto import mock_ssm
 
 import pytest
+import collections
 from streamalert.apps._apps.slack import (SlackAccessApp, SlackApp,
                                           SlackIntegrationsApp)
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params

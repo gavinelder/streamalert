@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import time
-from abc import ABCMeta, abstractmethod , abstractproperty
+from abc import ABCMeta, abstractmethod, abstractproperty
 from json import JSONDecodeError
 
 import boto3

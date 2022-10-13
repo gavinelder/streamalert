@@ -19,7 +19,7 @@ import socket
 import ssl
 from datetime import datetime, timedelta
 from unittest.mock import Mock, mock_open, patch
-
+import collections
 import googleapiclient
 from google.auth import exceptions
 from moto import mock_ssm
