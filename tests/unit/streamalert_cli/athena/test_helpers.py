@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import patch
 
-
 from streamalert.shared.firehose import FirehoseClient
 from streamalert_cli.athena import helpers
 from streamalert_cli.config import CLIConfig

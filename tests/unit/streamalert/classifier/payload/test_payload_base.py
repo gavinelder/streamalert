@@ -16,7 +16,6 @@ limitations under the License.
 import json
 from unittest.mock import patch
 
-
 from streamalert.classifier.payload.payload_base import (RegisterInput,
                                                          StreamPayload)
 

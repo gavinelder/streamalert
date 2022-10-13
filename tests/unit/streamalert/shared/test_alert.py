@@ -17,8 +17,7 @@ import copy
 import json
 from datetime import datetime, timedelta
 
-from nose.tools import assert_raises
-
+import pytest
 from streamalert.shared.alert import Alert, AlertCreationError
 
 
@@ -52,11 +51,11 @@ class TestAlert:
 
     def test_alert_encoder_invalid_json(self):
         """Alert Class - Alert Encoder - Invalid JSON raises parent exception"""
-        assert_raises(TypeError, json.dumps, RuntimeWarning, default=list)
+        pytest.raises(TypeError, json.dumps, RuntimeWarning, default=list)
 
     def test_init_invalid_kwargs(self):
         """Alert Class - Init With Invalid Kwargs"""
-        assert_raises(AlertCreationError, Alert, '', {}, set(), cluster='test', invalid='nonsense')
+        pytest.raises(AlertCreationError, Alert, '', {}, set(), cluster='test', invalid='nonsense')
 
     def test_ordering(self):
         """Alert Class - Alerts Are Sorted By Creation"""
@@ -122,7 +121,7 @@ class TestAlert:
 
     def test_create_from_dynamo_record_invalid(self):
         """Alert Class - AlertCreationError raised for an invalid Dynamo Record"""
-        assert_raises(AlertCreationError, Alert.create_from_dynamo_record, {})
+        pytest.raises(AlertCreationError, Alert.create_from_dynamo_record, {})
 
     def test_output_dict(self):
         """Alert Class - Output Dict"""

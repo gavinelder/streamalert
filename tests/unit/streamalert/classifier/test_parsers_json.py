@@ -17,7 +17,6 @@ limitations under the License.
 import json
 from unittest.mock import patch
 
-
 from streamalert.classifier.parsers import JSONParser
 
 

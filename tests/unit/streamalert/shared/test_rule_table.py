@@ -20,8 +20,8 @@ from unittest.mock import Mock, patch
 
 from botocore.exceptions import ClientError
 from moto import mock_dynamodb2
-from nose.tools import assert_raises
 
+import pytest
 from streamalert.shared import rule as rule_module
 from streamalert.shared import rule_table
 from tests.unit.helpers.aws_mocks import setup_mock_rules_table
@@ -321,7 +321,7 @@ class TestRuleTable:
                           side_effect=ClientError({'Error': {
                               'Code': 'TEST'
                           }}, 'UpdateItem')):
-            assert_raises(ClientError, self.rule_table.toggle_staged_state, rule_name, True)
+            pytest.raises(ClientError, self.rule_table.toggle_staged_state, rule_name, True)
 
     def test_print_table(self):
         """Rule Table - Print Table"""

@@ -17,9 +17,9 @@ import os
 from unittest.mock import Mock, patch
 
 from moto import mock_ssm
-from nose.tools import raises
 from requests.exceptions import Timeout
 
+import pytest
 from streamalert.apps._apps.salesforce import SalesforceApp, SalesforceAppError
 from tests.unit.streamalert.apps.test_helpers import (
     get_event, get_salesforce_log_files, list_salesforce_api_versions,
@@ -95,7 +95,7 @@ class TestSalesforceApp:
         """SalesforceApp - Required Auth Info"""
         assert collections.Counter(list(self._app.required_auth_info().keys())) == collections.Counter({'client_id', 'client_secret', 'username', 'password', 'security_token'})
 
-    @raises(SalesforceAppError)
+    @pytest.mark.xfail(raises=SalesforceAppError)
     @patch('requests.post')
     def test_validate_status_code_401(self, mock_post):
         """SalesforceApp - Validate status code 401"""
@@ -132,7 +132,7 @@ class TestSalesforceApp:
         assert not self._app._validate_status_code(resp)
         mock_logger.assert_called_with('Exceeded API request limits')
 
-    @raises(SalesforceAppError)
+    @pytest.mark.xfail(raises=SalesforceAppError)
     @patch('requests.post')
     def test_validate_status_code_500(self, mock_post):
         """SalesforceApp - Validate status code 500"""
@@ -327,7 +327,7 @@ class TestSalesforceApp:
         assert self._app.date_formatter() == '%Y-%m-%dT%H:%M:%SZ'
 
 
-@raises(NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError)
 def test_type_not_implemented():
     """SalesforceApp - Subclassmethod _type not implemented"""
 

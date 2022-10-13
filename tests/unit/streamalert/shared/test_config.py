@@ -16,9 +16,9 @@ limitations under the License.
 import json
 from unittest.mock import Mock
 
-from nose.tools import assert_raises
 from pyfakefs import fake_filesystem_unittest
 
+import pytest
 from streamalert.shared.config import (ConfigError, _validate_config,
                                        artifact_extractor_enabled, load_config,
                                        parse_lambda_arn)
@@ -81,12 +81,12 @@ class TestConfigLoading(fake_filesystem_unittest.TestCase):
     def test_load_invalid_file(self):
         """Shared - Config Loading - Bad JSON"""
         self.fs.create_file('conf/clusters/bad.json', contents='test string')
-        assert_raises(ConfigError, load_config)
+        pytest.raises(ConfigError, load_config)
 
     @staticmethod
     def test_load_invalid_path():
         """Shared - Config Loading - Bad JSON"""
-        assert_raises(ConfigError, load_config, include={'foobar.json'})
+        pytest.raises(ConfigError, load_config, include={'foobar.json'})
 
     @staticmethod
     def test_load_all():
@@ -160,7 +160,7 @@ class TestConfigValidation:
         config['logs']['json_log'].pop('schema')
         config['logs']['csv_log'].pop('schema')
 
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
     def test_config_no_parsers(self):
         """Shared - Config Validator - No Parser in Log"""
@@ -171,7 +171,7 @@ class TestConfigValidation:
         config['logs']['json_log'].pop('parser')
         config['logs']['csv_log'].pop('parser')
 
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
     def test_config_no_logs_key(self):
         """Shared - Config Validator - No Logs Key in Source"""
@@ -181,7 +181,7 @@ class TestConfigValidation:
         # Remove everything from the sources entry
         config['clusters']['prod']['data_sources']['kinesis']['stream_1'] = {}
 
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
     def test_config_empty_logs_list(self):
         """Shared - Config Validator - Empty Logs List in Source"""
@@ -191,7 +191,7 @@ class TestConfigValidation:
         # Set the logs key to an empty list
         config['clusters']['prod']['data_sources']['kinesis']['stream_1'] = []
 
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
     def test_config_invalid_datasources(self):
         """Shared - Config Validator - Invalid Datasources"""
@@ -201,7 +201,7 @@ class TestConfigValidation:
         # Set the sources value to contain an invalid data source ('sqs')
         config['clusters']['prod']['data_sources'] = {'sqs': {'queue_1': {}}}
 
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
     def test_parse_lambda_arn(self):
         """Shared - Config - Parse Lambda ARN"""
@@ -218,7 +218,7 @@ class TestConfigValidation:
         """Shared - Config Validator, Missing streamalert Module"""
         config = basic_streamalert_config()
         del config['clusters']['prod']['classifier_config']
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
     def test_config_invalid_ioc_types(self):
         """Shared - Config Validator - IOC Types, Invalid"""
@@ -230,7 +230,7 @@ class TestConfigValidation:
 
         config['normalized_types'] = {'log_type': {'sourceAddress': ['ip_address']}}
 
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
     def test_config_ioc_types_no_normalized_types(self):
         """Shared - Config Validator - IOC Types, Without Normalized Types"""
@@ -242,13 +242,13 @@ class TestConfigValidation:
         if 'normalized_types' in config:
             del config['normalized_types']
 
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
     def test_config_duplicate_sources(self):
         """Shared - Config Validator - Duplicate Data Sources in Cluster Configs"""
         config = basic_streamalert_config()
         config['clusters']['dev'] = config['clusters']['prod']
-        assert_raises(ConfigError, _validate_config, config)
+        pytest.raises(ConfigError, _validate_config, config)
 
 
 class TestConfigArtifactExtractor():

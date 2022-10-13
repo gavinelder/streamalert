@@ -15,7 +15,6 @@ limitations under the License.
 """
 from collections import OrderedDict
 
-
 from streamalert.classifier.parsers import KVParser
 
 

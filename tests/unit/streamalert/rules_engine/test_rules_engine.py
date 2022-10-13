@@ -18,7 +18,6 @@ limitations under the License.
 from datetime import datetime, timedelta
 from unittest.mock import Mock, PropertyMock, patch
 
-
 import streamalert.rules_engine.rules_engine as rules_engine_module
 from publishers.community.generic import remove_internal_fields
 from streamalert.rules_engine.rules_engine import RulesEngine

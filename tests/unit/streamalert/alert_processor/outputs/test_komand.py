@@ -16,7 +16,6 @@ limitations under the License.
 # pylint: disable=protected-access,attribute-defined-outside-init
 from unittest.mock import MagicMock, Mock, patch
 
-
 from streamalert.alert_processor.outputs.komand import KomandOutput
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 

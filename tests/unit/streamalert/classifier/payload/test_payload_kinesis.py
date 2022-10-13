@@ -15,7 +15,6 @@ limitations under the License.
 """
 import json
 
-
 from streamalert.classifier.payload.kinesis import KinesisPayload
 
 

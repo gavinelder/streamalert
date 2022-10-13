@@ -21,8 +21,8 @@ from unittest.mock import ANY, MagicMock, patch
 import botocore
 from botocore.exceptions import ReadTimeoutError
 from moto import mock_s3
-from nose.tools import assert_raises
 
+import pytest
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.driver_s3 import (Compression, S3Adapter,
                                                         S3Driver)
@@ -124,7 +124,7 @@ class TestS3Driver:
     @patch('logging.Logger.error')
     def test_non_existent_bucket_key(self, mock_logger):
         """LookupTables - Drivers - S3 Driver - Get - Non-existent Bucket Key"""
-        assert_raises(LookupTablesInitializationError, self._bad_driver.initialize)
+        pytest.raises(LookupTablesInitializationError, self._bad_driver.initialize)
         mock_logger.assert_any_call(
             'LookupTable (%s): Encountered error while downloading %s from %s: %s',
             's3:bucket_name/invalid-key', 'invalid-key', 'bucket_name',
@@ -138,7 +138,7 @@ class TestS3Driver:
                                                     'Test Read timed out.',
                                                     endpoint_url='test/url')
 
-        assert_raises(LookupTablesInitializationError, self._foo_driver.initialize)
+        pytest.raises(LookupTablesInitializationError, self._foo_driver.initialize)
 
         mock_logger.assert_called_with('LookupTable (%s): Reading from S3 timed out',
                                        's3:bucket_name/foo.json')
@@ -233,7 +233,7 @@ class TestS3Adapter:
             botocore.exceptions.ClientError({'Error': {'Message': 'uh oh'}}, 'operation_name')
         adapter = S3Adapter(driver, boto_s3_client, 'bucket', 'key')
 
-        assert_raises(LookupTablesCommitError, adapter.upload, 'asdf')
+        pytest.raises(LookupTablesCommitError, adapter.upload, 'asdf')
 
     @staticmethod
     def test_upload_with_timeout():
@@ -244,4 +244,4 @@ class TestS3Adapter:
             botocore.exceptions.ConnectTimeoutError(endpoint_url='http://yay')
         adapter = S3Adapter(driver, boto_s3_client, 'bucket', 'key')
 
-        assert_raises(LookupTablesCommitError, adapter.upload, 'asdf')
+        pytest.raises(LookupTablesCommitError, adapter.upload, 'asdf')

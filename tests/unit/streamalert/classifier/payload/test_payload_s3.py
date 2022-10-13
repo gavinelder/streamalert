@@ -22,9 +22,9 @@ from unittest.mock import patch
 import boto3
 from botocore.exceptions import ClientError
 from moto import mock_s3
-from nose.tools import assert_raises
 from pyfakefs import fake_filesystem_unittest
 
+import pytest
 from streamalert.classifier.payload.s3 import S3Payload, S3PayloadError
 
 
@@ -79,7 +79,7 @@ class TestS3Payload:
     def test_check_size_exception_large(self):
         """S3Payload - Check Size, Too Large Raises Exception"""
         self._payload.raw_record['s3']['object']['size'] = 1024 * 1024 * 129  # 129 MB
-        assert_raises(S3PayloadError, self._payload._check_size)
+        pytest.raises(S3PayloadError, self._payload._check_size)
 
     def test_check_size_zero(self):
         """S3Payload - Check Size, Zero"""
@@ -162,7 +162,7 @@ class TestS3Payload:
         boto3.resource('s3').Bucket(self._bucket).create()
         payload = S3Payload(None, self._record)
         result = payload._read_file()
-        assert_raises(ClientError, list, result)
+        pytest.raises(ClientError, list, result)
 
     def test_pre_parse(self):
         """S3Payload - Pre Parse"""

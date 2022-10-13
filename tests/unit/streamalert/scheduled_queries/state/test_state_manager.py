@@ -16,7 +16,6 @@ limitations under the License.
 from datetime import datetime
 from unittest.mock import MagicMock
 
-
 from streamalert.scheduled_queries.state.state_manager import (
     StateManager, StepFunctionStateManager)
 

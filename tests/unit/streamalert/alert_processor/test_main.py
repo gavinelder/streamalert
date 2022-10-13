@@ -16,7 +16,6 @@ limitations under the License.
 import os
 from unittest.mock import ANY, MagicMock, Mock, patch
 
-
 from streamalert.alert_processor.main import AlertProcessor, handler
 from streamalert.alert_processor.outputs.output_base import OutputDispatcher
 from streamalert.shared.alert import Alert

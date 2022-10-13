@@ -18,8 +18,8 @@ from unittest.mock import patch
 
 from botocore.exceptions import ReadTimeoutError
 from moto import mock_dynamodb2
-from nose.tools import assert_raises
 
+import pytest
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.drivers_factory import \
     construct_persistence_driver
@@ -116,7 +116,7 @@ class TestDynamoDBDriver:
 
     def test_non_existent_table_key(self):
         """LookupTables - Drivers - DynamoDB Driver - Get - Non-existent Table"""
-        assert_raises(LookupTablesInitializationError, self._bad_driver.initialize)
+        pytest.raises(LookupTablesInitializationError, self._bad_driver.initialize)
 
     @patch('boto3.resource')
     @patch('logging.Logger.error')
@@ -129,7 +129,7 @@ class TestDynamoDBDriver:
 
         self._driver.initialize()
 
-        assert_raises(LookupTablesInitializationError, self._driver.get, 'bbbb:1')
+        pytest.raises(LookupTablesInitializationError, self._driver.get, 'bbbb:1')
 
         mock_logger.assert_any_call('LookupTable (%s): Reading from DynamoDB timed out',
                                     'dynamodb:table_name')
@@ -197,7 +197,7 @@ class TestDynamoDBDriver:
         """LookupTables - Drivers - DynamoDB Driver - Get - Invalid key raises"""
         self._driver.initialize()
 
-        assert_raises(LookupTablesInitializationError, self._driver.get, 'invalid-key')
+        pytest.raises(LookupTablesInitializationError, self._driver.get, 'invalid-key')
 
 
 # pylint: disable=protected-access,attribute-defined-outside-init,invalid-name

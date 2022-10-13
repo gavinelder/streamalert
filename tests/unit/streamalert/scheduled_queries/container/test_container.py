@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from nose.tools import assert_raises
-
+import pytest
 from streamalert.scheduled_queries.config.services import configure_container
 from streamalert.scheduled_queries.container.container import ServiceContainer
 
@@ -30,7 +29,7 @@ class TestServiceContainer:
     def test_get_parameter_raise():
         """StreamQuery - ServiceContainer - get_parameter - raises on invalid"""
         container = ServiceContainer({'a': 'b'})
-        assert_raises(ValueError, container.get_parameter, 'q')
+        pytest.raises(ValueError, container.get_parameter, 'q')
 
     @staticmethod
     def test_get_logger():
@@ -46,7 +45,7 @@ class TestServiceContainer:
         container = ServiceContainer({})
         configure_container(container)
 
-        assert_raises(ValueError, container.get, 'logger')
+        pytest.raises(ValueError, container.get, 'logger')
 
     @staticmethod
     def test_get_everything_else():
@@ -77,4 +76,4 @@ class TestServiceContainer:
         container = ServiceContainer({})
         configure_container(container)
 
-        assert_raises(ValueError, container.get, 'ablsadflj')
+        pytest.raises(ValueError, container.get, 'ablsadflj')

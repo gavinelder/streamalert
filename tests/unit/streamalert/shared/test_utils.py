@@ -1,7 +1,6 @@
 """Tests for streamalert/shared/utils.py"""
 import json
 
-
 from streamalert.shared import utils
 from streamalert.shared.normalize import Normalizer
 

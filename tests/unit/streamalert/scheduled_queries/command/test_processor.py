@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import MagicMock
 
-
 from streamalert.scheduled_queries.command.processor import CommandProcessor
 
 

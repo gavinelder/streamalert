@@ -15,7 +15,6 @@ limitations under the License.
 """
 import json
 
-
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import artifact_extractor
 

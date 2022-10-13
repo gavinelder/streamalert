@@ -20,8 +20,8 @@ from unittest.mock import patch
 import boto3
 from botocore.exceptions import ClientError
 from moto import mock_ssm
-from nose.tools import raises
 
+import pytest
 from streamalert.apps.config import AppConfig
 from streamalert.apps.exceptions import (AppAuthError, AppConfigError,
                                          AppStateError)
@@ -45,7 +45,7 @@ class TestAppConfig:
         self._context = get_mock_lambda_context(self._test_app_name)
         self._config = AppConfig.load_config(self._event, self._context)
 
-    @raises(AppConfigError)
+    @pytest.mark.xfail(raises=AppConfigError)
     def test_load_config_bad_event(self):
         """AppConfig - Load config with a bad event"""
         # Remove one of the required keys from the state
@@ -53,7 +53,7 @@ class TestAppConfig:
         del event['destination_function_name']
         AppConfig.load_config(event, get_mock_lambda_context(self._test_app_name))
 
-    @raises(AppConfigError)
+    @pytest.mark.xfail(raises=AppConfigError)
     def test_evaluate_interval_invalid(self):
         """AppConfig - Evaluate Interval, Invalid Interval"""
         self._config._event['schedule_expression'] = 'rate(1 hours)'
@@ -63,13 +63,13 @@ class TestAppConfig:
         """AppConfig - Validate Authentication Info"""
         assert self._config.validate_auth({'host', 'secret'}) == True
 
-    @raises(AppAuthError)
+    @pytest.mark.xfail(raises=AppAuthError)
     def test_validate_auth_empty(self):
         """AppConfig - Validate Authentication Info, No Auth"""
         self._config._auth_config.clear()
         self._config.validate_auth({'host', 'secret'})
 
-    @raises(AppAuthError)
+    @pytest.mark.xfail(raises=AppAuthError)
     def test_validate_auth_missing_key(self):
         """AppConfig - Validate Authentication Info, Missing Auth Key"""
         self._config.validate_auth({'new_key'})
@@ -111,7 +111,7 @@ class TestAppConfig:
         result = self._config._determine_last_time('%Y-%m-%dT%H:%M:%S-00:00')
         assert result == expected_result
 
-    @raises(AppConfigError)
+    @pytest.mark.xfail(raises=AppConfigError)
     def test_get_parameters_invalid_json(self):
         """AppConfig - Get Parameters, Invalid JSON"""
         with patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'}):
@@ -122,7 +122,7 @@ class TestAppConfig:
                                               Overwrite=True)
             self._config._get_parameters(key)
 
-    @raises(AppConfigError)
+    @pytest.mark.xfail(raises=AppConfigError)
     @patch('streamalert.apps.config.AppConfig.SSM_CLIENT')
     def test_get_parameters_exception(self, client_mock):
         """AppConfig - Get Parameters, ClientError"""
@@ -145,7 +145,7 @@ class TestAppConfig:
         """AppConfig - Evaluate Interval"""
         assert self._config._evaluate_interval() == 60 * 10
 
-    @raises(AppStateError)
+    @pytest.mark.xfail(raises=AppStateError)
     @patch('streamalert.apps.config.AppConfig.SSM_CLIENT')
     def test_save_state_error(self, client_mock):
         """AppConfig - Save State, Error"""
@@ -211,12 +211,12 @@ class TestAppConfig:
         self._config.context = {}
         save_mock.assert_not_called()
 
-    @raises(AppStateError)
+    @pytest.mark.xfail(raises=AppStateError)
     def test_set_context_not_a_dictionary(self):
         """AppConfig - Context not a Dictionary"""
         self._config.context = [1, 2, 3]
 
-    @raises(AppStateError)
+    @pytest.mark.xfail(raises=AppStateError)
     def test_set_context_not_serializable(self):
         """AppConfig - Context not Serializable"""
         self._config.context = {"key": object()}

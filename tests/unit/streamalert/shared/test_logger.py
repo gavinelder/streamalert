@@ -17,7 +17,6 @@ import logging
 import os
 from unittest.mock import patch
 
-
 from streamalert.shared.logger import LogFormatter, get_logger, set_formatter
 
 

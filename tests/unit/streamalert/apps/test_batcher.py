@@ -17,8 +17,8 @@ import os
 from unittest.mock import patch
 
 from botocore.exceptions import ClientError
-from nose.tools import raises
 
+import pytest
 from streamalert.apps.batcher import Batcher
 from tests.unit.streamalert.apps.test_helpers import MockLambdaClient
 
@@ -53,7 +53,7 @@ class TestAppBatcher:
                                     log_count, 'destination_func',
                                     '9af88643-7b3c-43cd-baae-addb73bb4d27')
 
-    @raises(ClientError)
+    @pytest.mark.xfail(raises=ClientError)
     def test_send_logs_lambda_exception(self):
         """App Integration Batcher - Send Logs to StreamAlert, Exception"""
         MockLambdaClient._raise_exception = True

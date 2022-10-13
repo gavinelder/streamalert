@@ -16,7 +16,6 @@ limitations under the License.
 import json
 from collections import OrderedDict
 
-
 from streamalert.classifier.parsers import CSVParser
 
 

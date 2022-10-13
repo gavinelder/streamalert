@@ -16,8 +16,8 @@ limitations under the License.
 from unittest.mock import Mock, patch
 
 from botocore.exceptions import ClientError
-from nose.tools import assert_raises
 
+import pytest
 from streamalert.classifier.clients import sqs
 from streamalert.classifier.clients.sqs import SQSClient, SQSClientError
 
@@ -51,7 +51,7 @@ class TestSQSClient:
 
     def test_init_no_queue_url(self):
         """SQSClient - Init, No URL in Environment"""
-        assert_raises(SQSClientError, SQSClient)
+        pytest.raises(SQSClientError, SQSClient)
 
     def test_queue_property(self):
         """SQSClient - Queue Property"""

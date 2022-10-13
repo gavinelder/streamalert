@@ -17,7 +17,6 @@ limitations under the License.
 from collections import OrderedDict
 from unittest.mock import MagicMock, Mock, call, patch
 
-
 from streamalert.alert_processor.outputs import carbonblack
 from streamalert.alert_processor.outputs.carbonblack import CarbonBlackOutput
 from tests.unit.helpers.mocks import MockCBAPI

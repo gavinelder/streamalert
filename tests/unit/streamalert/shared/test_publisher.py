@@ -16,7 +16,6 @@ limitations under the License.
 # pylint: disable=protected-access,attribute-defined-outside-init,invalid-name
 from unittest.mock import patch
 
-
 from streamalert.alert_processor.helpers import \
     _assemble_alert_publisher_for_output
 from streamalert.shared.publisher import (AlertPublisher,

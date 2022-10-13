@@ -18,9 +18,10 @@ from io import StringIO
 from unittest import mock
 from unittest.mock import MagicMock, Mock, patch
 
-from nose.tools import assert_raises, nottest
+from nose.tools import nottest
 from pyfakefs import fake_filesystem_unittest
 
+import pytest
 from streamalert.shared.config import load_config
 from streamalert.shared.exceptions import ConfigError
 from streamalert_cli.config import CLIConfig
@@ -57,7 +58,7 @@ class TestTestRunner(fake_filesystem_unittest.TestCase):
                 service='s3'  # s3 here is a misconfiguration, should be kinesis
             ))
 
-        assert_raises(ConfigError, self.runner._process_test_file, self._DEFAULT_EVENT_PATH)
+        pytest.raises(ConfigError, self.runner._process_test_file, self._DEFAULT_EVENT_PATH)
         log_mock.assert_has_calls([
             mock.call('Cluster "%s" does not have service "%s" configured as a data source',
                       'advanced', 's3'),
@@ -78,7 +79,7 @@ class TestTestRunner(fake_filesystem_unittest.TestCase):
                 source='nonexistent_source',  # invalid source here
                 service='kinesis'))
 
-        assert_raises(ConfigError, self.runner._process_test_file, self._DEFAULT_EVENT_PATH)
+        pytest.raises(ConfigError, self.runner._process_test_file, self._DEFAULT_EVENT_PATH)
         log_mock.assert_has_calls([
             mock.call('Cluster "%s" does not have service "%s" configured as a data source',
                       'advanced', 'kinesis'),

@@ -15,8 +15,7 @@ limitations under the License.
 """
 from unittest.mock import ANY, Mock, patch
 
-from nose.tools import assert_raises
-
+import pytest
 from streamalert.shared.exceptions import ConfigError
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import (cloudtrail, cloudwatch_destinations,
@@ -789,7 +788,7 @@ class TestTerraformGenerate:
     def test_generate_required_lambda_invalid_config(self):
         "CLI - Terraform Generate Global Lambda Settings, Invalid Config"
 
-        assert_raises(
+        pytest.raises(
             ConfigError,
             generate.generate_global_lambda_settings,
             config=self.config,

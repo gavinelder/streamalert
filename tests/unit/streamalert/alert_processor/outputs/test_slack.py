@@ -17,7 +17,6 @@ limitations under the License.
 from collections import Counter, OrderedDict
 from unittest.mock import MagicMock, Mock, patch
 
-
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.slack import SlackOutput
 from tests.unit.streamalert.alert_processor.helpers import (get_alert,

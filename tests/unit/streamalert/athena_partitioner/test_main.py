@@ -18,7 +18,6 @@ import json
 import os
 from unittest.mock import Mock, call, patch
 
-
 from streamalert.athena_partitioner.main import AthenaPartitioner
 from streamalert.shared.config import load_config
 from tests.unit.helpers.aws_mocks import MockAthenaClient

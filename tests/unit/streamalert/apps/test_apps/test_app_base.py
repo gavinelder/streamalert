@@ -19,9 +19,9 @@ from unittest.mock import Mock, call, patch
 import requests
 from botocore.exceptions import ClientError
 from moto import mock_ssm
-from nose.tools import raises
 from requests.exceptions import ConnectTimeout
 
+import pytest
 from streamalert.apps import StreamAlertApp
 from streamalert.apps._apps.duo import DuoAuthApp
 from streamalert.apps.app_base import (AppIntegration, _report_time,
@@ -73,7 +73,7 @@ class TestStreamAlertApp:
         """StreamAlertApp - Get App"""
         assert StreamAlertApp.get_app('duo_auth') == DuoAuthApp
 
-    @raises(AppException)
+    @pytest.mark.xfail(raises=AppException)
     def test_get_app_invalid_type(self):
         """StreamAlertApp - Get App, Invalid Type"""
         StreamAlertApp.get_app('bad_app')
@@ -213,7 +213,7 @@ class TestAppIntegration:
         ]
         log_mock.assert_has_calls(calls)
 
-    @raises(ClientError)
+    @pytest.mark.xfail(raises=ClientError)
     @patch('boto3.client')
     @patch('logging.Logger.error')
     def test_invoke_successive_app_exception(self, log_mock, boto_mock):

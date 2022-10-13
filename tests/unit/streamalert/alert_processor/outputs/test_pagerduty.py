@@ -18,7 +18,6 @@ import re
 from collections import OrderedDict
 from unittest.mock import MagicMock, Mock, call, patch
 
-
 from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher, OutputRequestFailure)
 from streamalert.alert_processor.outputs.pagerduty import (

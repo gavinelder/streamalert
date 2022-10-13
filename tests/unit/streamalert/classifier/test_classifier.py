@@ -17,8 +17,7 @@ import os
 from collections import OrderedDict
 from unittest.mock import Mock, patch
 
-from nose.tools import assert_raises
-
+import pytest
 import streamalert.classifier.classifier as classifier_module
 from streamalert.classifier.classifier import Classifier
 from streamalert.shared.exceptions import ConfigError
@@ -145,12 +144,12 @@ class TestClassifier:
 
     def test_load_logs_for_resource_invalid_service(self):
         """Classifier - Load Logs for Resource, Invalid Service"""
-        assert_raises(ConfigError, self._classifier._load_logs_for_resource, 'invalid_service',
+        pytest.raises(ConfigError, self._classifier._load_logs_for_resource, 'invalid_service',
                       self._resource_name)
 
     def test_load_logs_for_resource_invalid_resource(self):
         """Classifier - Load Logs for Resource, Invalid Resource"""
-        assert_raises(ConfigError, self._classifier._load_logs_for_resource, self._service_name,
+        pytest.raises(ConfigError, self._classifier._load_logs_for_resource, self._service_name,
                       'invalid_resource')
 
     @patch.object(classifier_module, 'get_parser')

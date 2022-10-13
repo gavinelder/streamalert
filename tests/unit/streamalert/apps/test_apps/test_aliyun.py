@@ -19,8 +19,8 @@ from unittest.mock import patch
 
 from aliyunsdkcore.acs_exception.exceptions import ServerException
 from moto import mock_ssm
-from nose.tools import raises
 
+import pytest
 from streamalert.apps._apps.aliyun import AliyunApp
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
@@ -63,7 +63,7 @@ class TestAliyunApp:
         validation_function = self._app.required_auth_info()['region_id']['format']
         assert validation_function('ap-northeast') == False
 
-    @raises(ServerException)
+    @pytest.mark.xfail(raises=ServerException)
     @patch('aliyunsdkcore.client.AcsClient.do_action_with_exception')
     @patch('logging.Logger.exception')
     def test_server_exception(self, log_mock, client_mock):

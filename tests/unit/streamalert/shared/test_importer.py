@@ -17,9 +17,9 @@ limitations under the License.
 
 from unittest.mock import call, patch
 
-from nose.tools import assert_raises
 from pyfakefs import fake_filesystem_unittest
 
+import pytest
 from streamalert.shared.importer import (_path_to_module, _python_file_paths,
                                          import_folders)
 
@@ -61,10 +61,10 @@ class RuleImportTest(fake_filesystem_unittest.TestCase):
     @staticmethod
     def test_path_to_module_invalid():
         """Rule - Path to Module, Raises Exception"""
-        with assert_raises(NameError):
+        with pytest.raises(NameError):
             _path_to_module('a.b.py')
 
-        with assert_raises(NameError):
+        with pytest.raises(NameError):
             _path_to_module('a/b/old.name.py')
 
     @staticmethod

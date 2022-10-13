@@ -16,7 +16,6 @@ limitations under the License.
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-
 from streamalert.scheduled_queries.query_packs.manager import (
     QueryPack, QueryPackExecutionContext, QueryPacksManager,
     QueryPacksManagerFactory)

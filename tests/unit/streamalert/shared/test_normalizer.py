@@ -15,8 +15,7 @@ limitations under the License.
 """
 from unittest.mock import Mock, patch
 
-from nose.tools import assert_raises
-
+import pytest
 from streamalert.shared.exceptions import ConfigError
 from streamalert.shared.normalize import NormalizedType, Normalizer
 from tests.unit.streamalert.shared.test_utils import MOCK_RECORD_ID
@@ -355,7 +354,7 @@ class TestNormalizer:
         """Normalizer - Load From Config, Empty"""
         normalizer = Normalizer.load_from_config({})
         assert normalizer == Normalizer
-        assert normalizer._types_config == None
+        assert normalizer._types_config is None
 
     def test_load_from_config_from_log_conf(self):
         """Normalizer - Load normalization config from "logs" field in the config"""
@@ -478,7 +477,7 @@ class TestNormalizer:
                 }
             }
         }
-        assert_raises(ConfigError, Normalizer.load_from_config, config)
+        pytest.raises(ConfigError, Normalizer.load_from_config, config)
 
         config = {
             'logs': {
@@ -501,7 +500,7 @@ class TestNormalizer:
                 'other_log_type': {}
             }
         }
-        assert_raises(ConfigError, Normalizer.load_from_config, config)
+        pytest.raises(ConfigError, Normalizer.load_from_config, config)
 
     @patch('uuid.uuid4', Mock(return_value=MOCK_RECORD_ID))
     def test_load_from_config_with_flag(self):

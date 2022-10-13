@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import Mock
 
-
 from streamalert.classifier.payload.payload_base import PayloadRecord
 
 

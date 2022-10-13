@@ -16,8 +16,7 @@ limitations under the License.
 from datetime import datetime, timedelta
 from unittest.mock import PropertyMock, patch
 
-from nose.tools import assert_raises
-
+import pytest
 from streamalert.rule_promotion.publisher import StatsPublisher
 from streamalert.rule_promotion.statistic import StagingStatistic
 from streamalert.shared import athena, config
@@ -130,7 +129,7 @@ class TestStatsPublisher:
         stat = list(self._get_fake_stats(count=1))[0]
         with patch.object(self.publisher, '_athena_client', new_callable=PropertyMock) as mock:
             mock.run_async_query.side_effect = athena.AthenaQueryExecutionError()
-            assert_raises(athena.AthenaQueryExecutionError, self.publisher._query_alerts, stat)
+            pytest.raises(athena.AthenaQueryExecutionError, self.publisher._query_alerts, stat)
 
     def test_query_alerts(self):
         """StatsPublisher - Query Alerts"""

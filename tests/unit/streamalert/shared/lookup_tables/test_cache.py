@@ -15,7 +15,6 @@ limitations under the License.
 """
 from datetime import datetime
 
-
 from streamalert.shared.lookup_tables.cache import DriverCache
 
 

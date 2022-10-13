@@ -18,8 +18,8 @@ from unittest.mock import Mock, patch
 
 import requests
 from moto import mock_ssm
-from nose.tools import raises
 
+import pytest
 from streamalert.apps._apps.duo import DuoAdminApp, DuoApp, DuoAuthApp
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
@@ -145,7 +145,7 @@ class TestDuoApp:
         log_mock.assert_called_with('Received bad response from duo')
 
 
-@raises(NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError)
 def test_endpoint_not_implemented():
     """DuoApp - Subclass Endpoint Not Implemented"""
 

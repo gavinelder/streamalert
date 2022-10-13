@@ -17,7 +17,6 @@ limitations under the License.
 import base64
 from unittest.mock import MagicMock, Mock, patch
 
-
 from streamalert.alert_processor.outputs.github import GithubOutput
 from tests.unit.streamalert.alert_processor.helpers import get_alert
 

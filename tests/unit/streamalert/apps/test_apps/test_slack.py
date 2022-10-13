@@ -17,8 +17,8 @@ import os
 from unittest.mock import Mock, patch
 
 from moto import mock_ssm
-from nose.tools import raises
 
+import pytest
 from streamalert.apps._apps.slack import (SlackAccessApp, SlackApp,
                                           SlackIntegrationsApp)
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params
@@ -355,7 +355,7 @@ class TestSlackIntegrationsApp:
         assert True == self._app._more_to_poll
 
 
-@raises(NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError)
 def test_type_not_implemented():
     """SlackApp - Subclass Type Not Implemented"""
 
@@ -373,7 +373,7 @@ def test_type_not_implemented():
     SlackFakeApp._type()
 
 
-@raises(NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError)
 def test_sleep_not_implemented():
     """SlackApp - Subclass Sleep Seconds Not Implemented"""
 
@@ -391,7 +391,7 @@ def test_sleep_not_implemented():
     SlackFakeApp._sleep_seconds()
 
 
-@raises(NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError)
 def test_endpoint_not_implemented():
     """SlackApp - Subclass Endpoint Not Implemented"""
 
@@ -410,7 +410,7 @@ def test_endpoint_not_implemented():
 
 
 @mock_ssm
-@raises(NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError)
 def test_filter_entries_not_implemented():
     """SlackApp - Subclass Filter Entries Not Implemented"""
 

@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from nose.tools import assert_raises
-
+import pytest
 from streamalert.shared.lookup_tables.drivers import (EphemeralDriver,
                                                       NullDriver)
 from streamalert.shared.lookup_tables.drivers_factory import \
@@ -41,11 +40,11 @@ class TestEphemeralDriver:
 
     def test_driver_nonexistent(self):
         """LookupTable - Drivers - Ephemeral Driver - Nonexistent Key None Default"""
-        assert self._driver.get('nonexistent_key') == None
+        assert self._driver.get('nonexistent_key') is None
 
     def test_driver_nonexistent_default(self):
         """LookupTable - Drivers - Ephemeral Driver - Nonexistent Key With Default"""
-        assert self._driver.get('nonexistent_key') == None
+        assert self._driver.get('nonexistent_key') is None
 
     def test_driver_existent(self):
         """LookupTable - Drivers - Ephemeral Driver - Existent"""
@@ -78,15 +77,15 @@ class TestNullDriver:
 
     def test_driver_nonexistent(self):
         """LookupTable - Drivers - Null Driver - Nonexistent Key None Default"""
-        assert self._driver.get('nonexistent_key') == None
+        assert self._driver.get('nonexistent_key') is None
 
     def test_driver_nonexistent_default(self):
         """LookupTable - Drivers - Null Driver - Nonexistent Key With Default"""
-        assert self._driver.get('nonexistent_key') == None
+        assert self._driver.get('nonexistent_key') is None
 
     def test_driver_existent(self):
         """LookupTable - Drivers - Null Driver - Existent"""
-        assert self._driver.get('those') == None
+        assert self._driver.get('those') is None
 
     def test_table_driver_id(self):
         """LookupTable - Drivers - Null Driver - Id"""
@@ -99,4 +98,4 @@ class TestNullDriver:
 
 def test_construct_persistence_driver_nope():
     """LookupTable - Drivers - construct_persistence_driver - Nonexistent"""
-    assert_raises(LookupTablesConfigurationError, construct_persistence_driver, {})
+    pytest.raises(LookupTablesConfigurationError, construct_persistence_driver, {})

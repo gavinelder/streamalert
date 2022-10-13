@@ -18,7 +18,6 @@ from collections import OrderedDict
 from datetime import datetime
 from unittest.mock import MagicMock, Mock, patch
 
-
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.demisto import (
     DemistoOutput, DemistoRequestAssembler)

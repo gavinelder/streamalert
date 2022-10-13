@@ -19,8 +19,8 @@ from unittest.mock import ANY, MagicMock, patch
 
 from botocore.exceptions import ClientError
 from moto import mock_dynamodb2
-from nose.tools import assert_raises
 
+import pytest
 from streamalert.shared import alert as alert_module
 from streamalert.shared import alert_table
 from tests.unit.helpers.aws_mocks import setup_mock_alerts_table
@@ -142,7 +142,7 @@ class TestAlertTable:
 
         self.alert_table._table.update_item.side_effect = mock_update
 
-        assert_raises(ClientError, self.alert_table.mark_as_dispatched, self.alerts[0])
+        pytest.raises(ClientError, self.alert_table.mark_as_dispatched, self.alerts[0])
 
     def test_update_sent_outputs(self):
         """Alert Table - Update Retry Outputs"""
@@ -160,7 +160,7 @@ class TestAlertTable:
 
         self.alert_table._table.update_item.side_effect = mock_update
 
-        assert_raises(ClientError, self.alert_table.update_sent_outputs, self.alerts[0])
+        pytest.raises(ClientError, self.alert_table.update_sent_outputs, self.alerts[0])
 
     def test_delete_alert(self):
         """Alert Table - Delete Alert"""

@@ -17,8 +17,7 @@ limitations under the License.
 import hashlib
 from unittest.mock import patch
 
-from nose.tools import raises
-
+import pytest
 from streamalert.shared import rule, rule_table
 
 
@@ -68,13 +67,13 @@ def {}(_):
         self._create_rule_helper('test_rule')
         assert list(rule.Rule._rules.keys()) == ['test_rule']
 
-    @raises(rule.RuleCreationError)
+    @pytest.mark.xfail(raises=rule.RuleCreationError)
     def test_rule_invalid(self):
         """Rule - Create Rule, Missing Args"""
         # Rules must either have `logs` or `datatypes` defined
         self._create_rule_helper('test_rule', {'outputs': ['fake_output']})
 
-    @raises(rule.RuleCreationError)
+    @pytest.mark.xfail(raises=rule.RuleCreationError)
     def test_rule_exists(self):
         """Rule - Create Rule, Rule Already Exists"""
         # Rules must either have `logs` or `datatypes` defined

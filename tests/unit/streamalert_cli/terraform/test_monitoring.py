@@ -15,7 +15,6 @@ limitations under the License.
 """
 from unittest.mock import patch
 
-
 from streamalert_cli.config import CLIConfig
 from streamalert_cli.terraform import common, monitoring
 

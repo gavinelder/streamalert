@@ -20,8 +20,8 @@ from unittest.mock import Mock, patch
 import boto3
 from botocore.exceptions import ClientError
 from moto import mock_ssm
-from nose.tools import raises
 
+import pytest
 from streamalert.shared.config import load_config
 from streamalert.threat_intel_downloader.exceptions import (
     ThreatStreamCredsError, ThreatStreamLambdaInvokeError,
@@ -141,20 +141,20 @@ class TestThreatStream:
         self.threatstream._load_api_creds()
 
     @mock_ssm
-    @raises(ClientError)
+    @pytest.mark.xfail(raises=ClientError)
     def test_load_api_creds_client_errors(self):
         """ThreatStream - Load API creds from SSM, ClientError"""
         self.threatstream._load_api_creds()
 
     @patch('boto3.client')
-    @raises(ThreatStreamCredsError)
+    @pytest.mark.xfail(raises=ThreatStreamCredsError)
     def test_load_api_creds_empty_response(self, boto_mock):
         """ThreatStream - Load API creds from SSM, Empty Response"""
         boto_mock.return_value.get_parameter.return_value = None
         self.threatstream._load_api_creds()
 
     @mock_ssm
-    @raises(ThreatStreamCredsError)
+    @pytest.mark.xfail(raises=ThreatStreamCredsError)
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
     def test_load_api_creds_invalid_json(self):
         """ThreatStream - Load API creds from SSM with invalid JSON"""
@@ -165,7 +165,7 @@ class TestThreatStream:
         self.threatstream._load_api_creds()
 
     @mock_ssm
-    @raises(ThreatStreamCredsError)
+    @pytest.mark.xfail(raises=ThreatStreamCredsError)
     @patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
     def test_load_api_creds_no_api_key(self):
         """ThreatStream - Load API creds from SSM, No API Key"""
@@ -189,7 +189,7 @@ class TestThreatStream:
         value = self.threatstream._epoch_time('2017-11-30T00:00:00.000Z')
         assert datetime.utcfromtimestamp(value) == expected_value
 
-    @raises(ValueError)
+    @pytest.mark.xfail(raises=ValueError)
     def test_epoch_from_bad_time(self):
         """ThreatStream - Epoch, Error"""
         self.threatstream._epoch_time('20171130T00:00:00.000Z')
@@ -253,7 +253,7 @@ class TestThreatStream:
         }]
         finalize_mock.assert_called_with(expected_intel, next_url)
 
-    @raises(ThreatStreamRequestsError)
+    @pytest.mark.xfail(raises=ThreatStreamRequestsError)
     @patch('streamalert.threat_intel_downloader.main.requests.get')
     def test_connect_with_unauthed(self, get_mock):
         """ThreatStream - Connection to ThreatStream.com, Unauthorized Error"""
@@ -261,14 +261,14 @@ class TestThreatStream:
         get_mock.return_value.status_code = 401
         self.threatstream._connect('previous_url')
 
-    @raises(ThreatStreamRequestsError)
+    @pytest.mark.xfail(raises=ThreatStreamRequestsError)
     @patch('streamalert.threat_intel_downloader.main.requests.get')
     def test_connect_with_retry_error(self, get_mock):
         """ThreatStream - Connection to ThreatStream.com, Retry Error"""
         get_mock.return_value.status_code = 500
         self.threatstream._connect('previous_url')
 
-    @raises(ThreatStreamRequestsError)
+    @pytest.mark.xfail(raises=ThreatStreamRequestsError)
     @patch('streamalert.threat_intel_downloader.main.requests.get')
     def test_connect_with_unknown_error(self, get_mock):
         """ThreatStream - Connection to ThreatStream.com, Unknown Error"""
@@ -322,7 +322,7 @@ class TestThreatStream:
         batch_writer.__enter__.return_value.put_item.assert_called_with(Item=expected_intel)
 
     @patch('boto3.resource')
-    @raises(ClientError)
+    @pytest.mark.xfail(raises=ClientError)
     def test_write_to_dynamodb_table_error(self, boto_mock):
         """ThreatStream - Write Intel to DynamoDB Table, Error"""
         intel = [self._get_fake_intel('malicious_domain.com', 'test_source')]
@@ -340,7 +340,7 @@ class TestThreatStream:
         boto_mock.assert_called_once()
 
     @patch('boto3.client', Mock(return_value=MockLambdaClient()))
-    @raises(ThreatStreamLambdaInvokeError)
+    @pytest.mark.xfail(raises=ThreatStreamLambdaInvokeError)
     def test_invoke_lambda_function_error(self):
         """ThreatStream - Invoke Lambda Function, Error"""
         MockLambdaClient._raise_exception = True
