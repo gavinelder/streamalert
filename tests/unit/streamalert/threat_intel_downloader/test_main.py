@@ -338,7 +338,7 @@ class TestThreatStream:
         boto_mock.return_value = MockLambdaClient()
         self.threatstream._invoke_lambda_function('next_token')
         boto_mock.assert_called_once()
-
+    
     @patch('boto3.client', Mock(return_value=MockLambdaClient()))
     @pytest.mark.xfail(raises=ThreatStreamLambdaInvokeError)
     def test_invoke_lambda_function_error(self):

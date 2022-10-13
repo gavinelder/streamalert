@@ -17,12 +17,15 @@ import json
 
 import pytest
 
-@pytest.mark.nottest
+#@pytest.mark.nottest
+@pytest.mark.usefixtures('patcher')
 def basic_test_file_json(**kwargs):
     return json.dumps([basic_test_event_data(**kwargs)])
 
 
 @pytest.mark.nottest
+# This is not a test itself, but a helper function for tests
+@pytest.mark.usefixtures('patcher')
 def basic_test_event_data(log='misc_log_type',
                           service='unit-test-service',
                           source='unit-test-source',

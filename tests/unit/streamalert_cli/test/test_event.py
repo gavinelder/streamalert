@@ -21,7 +21,8 @@ import pytest
 from streamalert_cli.test.event import TestEvent
 from tests.unit.streamalert_cli.test.helpers import basic_test_event_data
 
-TestEvent = pytest.mark.nottest(TestEvent)
+#TestEvent = pytest.mark.nottest(TestEvent)
+TestEvent = pytest.mark.usefixtures('patcher')(TestEvent)
 
 class TestTestEvent:
     """Test the TestEvent class"""

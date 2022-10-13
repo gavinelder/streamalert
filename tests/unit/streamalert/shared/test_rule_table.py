@@ -19,7 +19,7 @@ from io import StringIO
 from unittest.mock import Mock, patch
 
 from botocore.exceptions import ClientError
-from moto import mock_dynamodb2
+from moto import mock_dynamodb
 
 import pytest
 from streamalert.shared import rule as rule_module
@@ -37,7 +37,7 @@ class TestRuleTable:
     def setup(self):
         """Rule Table - Create mock table and rules"""
         # pylint: disable=attribute-defined-outside-init
-        self.dynamo_mock = mock_dynamodb2()
+        self.dynamo_mock = mock_dynamodb()
         self.dynamo_mock.start()
         setup_mock_rules_table(_RULES_TABLE)
         self.rule_table = rule_table.RuleTable(_RULES_TABLE)

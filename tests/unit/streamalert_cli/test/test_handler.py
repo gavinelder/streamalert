@@ -27,7 +27,9 @@ from streamalert_cli.config import CLIConfig
 from streamalert_cli.test.handler import TestRunner
 from tests.unit.streamalert_cli.test.helpers import basic_test_file_json
 
-TestRunner = pytest.mark.nottest(TestRunner)
+#TestRunner = pytest.mark.nottest(TestRunner)
+#Test Runner is not a test class, so we don't want to run it as a test
+TestRunner = pytest.mark.usefixtures('patcher')(TestRunner)
 
 class TestTestRunner(fake_filesystem_unittest.TestCase):
     """Test the TestEventFile class"""

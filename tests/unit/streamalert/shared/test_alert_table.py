@@ -18,7 +18,7 @@ from datetime import datetime
 from unittest.mock import ANY, MagicMock, patch
 
 from botocore.exceptions import ClientError
-from moto import mock_dynamodb2
+from moto import mock_dynamodb
 
 import pytest
 from streamalert.shared import alert as alert_module
@@ -37,7 +37,7 @@ class TestAlertTable:
     def setup(self):
         """Alert Table - Create mock table and alerts"""
         # pylint: disable=attribute-defined-outside-init
-        self.dynamo_mock = mock_dynamodb2()
+        self.dynamo_mock = mock_dynamodb()
         self.dynamo_mock.start()
 
         setup_mock_alerts_table(_ALERTS_TABLE)

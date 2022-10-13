@@ -15,6 +15,7 @@ limitations under the License.
 """
 
 from streamalert.shared import resources
+import collections
 
 
 def test_get_required_outputs():

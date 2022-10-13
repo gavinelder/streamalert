@@ -24,9 +24,10 @@ from tests.unit.streamalert_cli.test.helpers import (basic_test_event_data,
                                                      basic_test_file_json)
 
 # Keep nose from trying to treat these as tests
-TestEventFile = pytest.mark.nottest(TestEventFile)
-
-TestResult = pytest.mark.nottest(TestResult)
+#TestEventFile = pytest.mark.nottest(TestEventFile)
+TestEventFile = pytest.mark.usefixtures('patcher')(TestEventFile)
+#TestResult = pytest.mark.nottest(TestResult)
+TestResult = pytest.mark.usefixtures('patcher')(TestResult)
 
 
 class TestTestEventFile(fake_filesystem_unittest.TestCase):
