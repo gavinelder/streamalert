@@ -36,10 +36,11 @@ future==0.18.2
 gitdb==4.0.5
 GitPython==3.1.27
 google-api-core==1.31.6
-google-api-python-client==2.64.0
+google-api-python-client==1.12.11
 google-auth==1.35.0
 google-auth-httplib2==0.1.0
 googleapis-common-protos==1.52.0
+graphql-core==3.2.3
 httplib2==0.20.4
 idna==2.8
 imagesize==1.4.1
@@ -64,6 +65,8 @@ more-itertools==8.14.0
 moto==4.0.7
 netaddr==0.8.0
 networkx==2.4
+openapi-schema-validator==0.2.3
+openapi-spec-validator==0.4.0
 packaging==21.3
 pathlib2==2.3.7.post1
 pbr==5.4.5
@@ -85,7 +88,7 @@ Pygments==2.13.0
 PyJWT==2.4.0
 pylint==2.15.4
 pymsteams==0.2.2
-pyparsing==2.4.7
+pyparsing==3.0.9
 pyrsistent==0.16.0
 pytest==6.2.5
 python-dateutil==2.8.1
