@@ -19,6 +19,7 @@ from unittest.mock import MagicMock, Mock, patch
 from moto import mock_kms, mock_ssm
 from requests.exceptions import Timeout as ReqTimeout
 
+import collections
 from streamalert.alert_processor.outputs.aws import S3Output
 from streamalert.alert_processor.outputs.output_base import (
     OutputDispatcher, OutputProperty, OutputRequestFailure, StreamAlertOutput)

@@ -82,7 +82,6 @@ class TestAlertMerger:
         self.dynamo_mock.stop()
         self.lambda_mock.stop()
 
-    # patch the object main and logger for pytest
     @patch.object(main, 'LOGGER')
     def test_alert_generator(self, mock_logger):
         """Alert Merger - Sorted Alerts - Invalid Alerts are Logged"""

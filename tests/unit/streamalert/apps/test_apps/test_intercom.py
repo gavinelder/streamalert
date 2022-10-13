@@ -2,6 +2,7 @@ import os
 from unittest.mock import Mock, patch
 
 from moto import mock_ssm
+import collections
 
 from streamalert.apps._apps.intercom import IntercomApp
 from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params

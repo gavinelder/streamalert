@@ -19,6 +19,7 @@ from unittest.mock import Mock, call, mock_open, patch
 
 import requests
 from boxsdk.exception import BoxException
+import collections
 from moto import mock_ssm
 
 from streamalert.apps._apps.box import BoxApp
