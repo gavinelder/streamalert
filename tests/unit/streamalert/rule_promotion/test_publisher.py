@@ -15,8 +15,8 @@ limitations under the License.
 """
 from datetime import datetime, timedelta
 
-from mock import patch, PropertyMock
-from nose.tools import assert_equal, assert_raises
+import pytest
+from mock import PropertyMock, patch
 
 from streamalert.rule_promotion.publisher import StatsPublisher
 from streamalert.rule_promotion.statistic import StagingStatistic
@@ -66,10 +66,9 @@ class TestStatsPublisher:
             }
         }
         topic = self.publisher.formatted_sns_topic_arn(test_config)
-        assert_equal(
-            topic,
-            'arn:aws:sns:us-east-1:123456789012:unit-test_streamalert_rule_staging_stats'
-        )
+        assert (
+            topic ==
+            'arn:aws:sns:us-east-1:123456789012:unit-test_streamalert_rule_staging_stats')
 
     def test_formatted_sns_topic_arn_hard_coded(self):
         """StatsPublisher - Format SNS Topic, Hard-Coded"""
@@ -88,12 +87,12 @@ class TestStatsPublisher:
             }
         }
         topic = self.publisher.formatted_sns_topic_arn(test_config)
-        assert_equal(topic, 'arn:aws:sns:us-east-1:123456789012:foobar')
+        assert topic == 'arn:aws:sns:us-east-1:123456789012:foobar'
 
     def test_format_digest_no_stats(self):
         """StatsPublisher - Format Digest, No Stats"""
         digest = self.publisher._format_digest([])
-        assert_equal(digest, 'No currently staged rules to report on')
+        assert digest == 'No currently staged rules to report on'
 
     def test_format_digest(self):
         """StatsPublisher - Format Digest"""
@@ -112,7 +111,7 @@ class TestStatsPublisher:
 	- Alert Info:					n/a'''
         stats = list(self._get_fake_stats())
         digest = self.publisher._format_digest(stats)
-        assert_equal(digest, expected_digest)
+        assert digest == expected_digest
 
     @patch('streamalert.rule_promotion.publisher.StatsPublisher._publish_message')
     def test_query_alerts_none(self, publish_mock):
@@ -121,7 +120,7 @@ class TestStatsPublisher:
         stats[0].alert_count = 0
         with patch.object(self.publisher, '_athena_client', new_callable=PropertyMock) as mock:
             self.publisher.publish(stats)
-            assert_equal(stats[0].execution_id, None)
+            assert stats[0].execution_id == None
             mock.run_async_query.assert_not_called()
             publish_mock.assert_called_with(stats)
 
@@ -130,7 +129,7 @@ class TestStatsPublisher:
         stat = list(self._get_fake_stats(count=1))[0]
         with patch.object(self.publisher, '_athena_client', new_callable=PropertyMock) as mock:
             mock.run_async_query.side_effect = athena.AthenaQueryExecutionError()
-            assert_raises(athena.AthenaQueryExecutionError, self.publisher._query_alerts, stat)
+            pytest.raises(athena.AthenaQueryExecutionError, self.publisher._query_alerts, stat)
 
     def test_query_alerts(self):
         """StatsPublisher - Query Alerts"""
@@ -138,7 +137,7 @@ class TestStatsPublisher:
         execution_id = '678cc350-d4e1-4296-86d5-9351b7f92ed4'
         with patch.object(self.publisher, '_athena_client', new_callable=PropertyMock) as mock:
             mock.run_async_query.return_value = {'QueryExecutionId': execution_id}
-            assert_equal(self.publisher._query_alerts(stat), execution_id)
+            assert self.publisher._query_alerts(stat) == execution_id
 
     @patch('streamalert.rule_promotion.publisher.boto3')
     def test_publish_message(self, boto_mock):

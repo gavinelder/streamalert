@@ -13,18 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
 
 from boto3 import client
-from mock import Mock, patch, PropertyMock
+from mock import Mock, PropertyMock, patch
 from moto import mock_dynamodb2
-from nose.tools import assert_equal
 
 from streamalert.rule_promotion.promoter import RulePromoter
 from streamalert.rule_promotion.statistic import StagingStatistic
-from streamalert.shared import config, rule as rule_module
-from tests.unit.helpers.aws_mocks import MockAthenaClient, setup_mock_rules_table
+from streamalert.shared import config
+from streamalert.shared import rule as rule_module
+from tests.unit.helpers.aws_mocks import (MockAthenaClient,
+                                          setup_mock_rules_table)
 
 _RULES_TABLE = 'unit-test_streamalert_rules'
 
@@ -96,8 +97,8 @@ class TestRulePromoter:
                 'StagedUntil': 'staged_until_time'
             }
         }
-        assert_equal(self.promoter._get_staging_info(), True)
-        assert_equal(len(self.promoter._staging_stats), 1)
+        assert self.promoter._get_staging_info() == True
+        assert len(self.promoter._staging_stats) == 1
 
     @patch('streamalert.shared.rule_table.RuleTable.remote_rule_info', new_callable=PropertyMock)
     def test_get_staging_info_none(self, table_mock):
@@ -110,8 +111,8 @@ class TestRulePromoter:
                 'StagedUntil': 'staged_until_time'
             }
         }
-        assert_equal(self.promoter._get_staging_info(), False)
-        assert_equal(len(self.promoter._staging_stats), 0)
+        assert self.promoter._get_staging_info() == False
+        assert len(self.promoter._staging_stats) == 0
 
     @patch('streamalert.shared.athena.AthenaClient.query_result_paginator')
     def test_update_alert_count(self, athena_mock):
@@ -120,8 +121,8 @@ class TestRulePromoter:
 
         self.promoter._update_alert_count()
 
-        assert_equal(self.promoter._staging_stats['test_rule'].alert_count, 7)
-        assert_equal(self.promoter._staging_stats['test_rule_2'].alert_count, 5)
+        assert self.promoter._staging_stats['test_rule'].alert_count == 7
+        assert self.promoter._staging_stats['test_rule_2'].alert_count == 5
 
     @patch('streamalert.shared.rule_table.RuleTable.remote_rule_info', new_callable=PropertyMock)
     @patch('streamalert.rule_promotion.publisher.StatsPublisher.publish')
@@ -172,4 +173,4 @@ class TestRulePromoter:
         """RulePromoter - Rules Failing Promotion"""
         self.promoter._staging_stats['test_rule'].alert_count = 1
         self.promoter._staging_stats['test_rule_2'].alert_count = 0
-        assert_equal(self.promoter._rules_failing_promotion, ['test_rule'])
+        assert self.promoter._rules_failing_promotion == ['test_rule']

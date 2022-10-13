@@ -16,7 +16,6 @@ limitations under the License.
 import json
 
 import boto3
-
 from botocore.exceptions import ClientError, ParamValidationError
 
 

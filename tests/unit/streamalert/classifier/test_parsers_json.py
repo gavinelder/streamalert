@@ -17,7 +17,6 @@ limitations under the License.
 import json
 
 from mock import patch
-from nose.tools import assert_equal
 
 from streamalert.classifier.parsers import JSONParser
 
@@ -60,12 +59,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
 
         expected_result = [
             data
         ]
-        assert_equal(parser.invalid_parses, expected_result)
+        assert parser.invalid_parses == expected_result
 
     def test_non_string_input(self):
         """JSONParser - Non String Input"""
@@ -80,12 +79,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             record_data
         ]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_invalid_json_path(self):
         """JSONParser - Invalid JSON Path"""
@@ -103,12 +102,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
 
         expected_result = [
             record_data
         ]
-        assert_equal(parser.invalid_parses, expected_result)
+        assert parser.invalid_parses == expected_result
 
     def test_invalid_json(self):
         """JSONParser - Invalid Input"""
@@ -123,12 +122,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
 
         expected_result = [
             record_data
         ]
-        assert_equal(parser.invalid_parses, expected_result)
+        assert parser.invalid_parses == expected_result
 
     def test_envelope_keys_optional_values(self):
         """JSONParser - Default Values for Missing Envelope Keys"""
@@ -146,7 +145,7 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             {
@@ -159,7 +158,7 @@ class TestJSONParser:
                 }
             }
         ]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_regex_key_invalid_json(self):
         """JSONParser - Regex Key with Invalid JSON Object"""
@@ -176,12 +175,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
 
         expected_result = [
             data
         ]
-        assert_equal(parser.invalid_parses, expected_result)
+        assert parser.invalid_parses == expected_result
 
     def test_regex_key_json_list(self):
         """JSONParser - Regex Key with a List JSON Object"""
@@ -199,12 +198,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
 
         expected_result = [
             data
         ]
-        assert_equal(parser.invalid_parses, expected_result)
+        assert parser.invalid_parses == expected_result
 
     def test_regex_key_non_json(self):
         """JSONParser - Regex Key with Plaintext Input"""
@@ -222,12 +221,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
 
         expected_result = [
             data
         ]
-        assert_equal(parser.invalid_parses, expected_result)
+        assert parser.invalid_parses == expected_result
 
     @patch('logging.Logger.error')
     def test_optional_keys_missing_in_schema(self, log_mock):
@@ -264,7 +263,7 @@ class TestJSONParser:
         # get parsed data
         log_type = 'invaid_log'
         parser = JSONParser(options, log_type)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
         log_mock.assert_called_with(
             'Schema definition is not valid (%s):\n%s',
             log_type,
@@ -299,12 +298,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             expected_record
         ]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_multi_nested_json(self):
         """JSONParser - Multi-nested JSON"""
@@ -335,12 +334,12 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             expected_record
         ]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_json_regex_key_with_envelope(self):
         """JSONParser - Regex key with envelope"""
@@ -358,7 +357,7 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             {
@@ -371,7 +370,7 @@ class TestJSONParser:
                 }
             }
         ]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_json_regex_key(self):
         """JSONParser - Regex key"""
@@ -396,7 +395,7 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             {
@@ -405,7 +404,7 @@ class TestJSONParser:
             }
         ]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_embedded_json(self):
         """JSONParser - Embedded JSON"""
@@ -440,7 +439,7 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             {
@@ -453,7 +452,7 @@ class TestJSONParser:
             }
         ]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_embedded_json_invalid(self):
         """JSONParser - Embedded JSON, Invalid"""
@@ -487,13 +486,13 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
 
         expected_result = [
             invalid_data
         ]
 
-        assert_equal(parser.invalid_parses, expected_result)
+        assert parser.invalid_parses == expected_result
 
     def test_basic_json(self):
         """JSONParser - Non-nested JSON objects"""
@@ -513,13 +512,13 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             data
         ]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_optional_keys_json(self):
         """JSONParser - Optional top level keys"""
@@ -554,7 +553,7 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             {
@@ -570,7 +569,7 @@ class TestJSONParser:
             }
         ]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_nested_records_with_missing_keys(self):
         """JSONParser - Nested records with missing keys"""
@@ -603,7 +602,7 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_valid_result = [
             {
@@ -622,8 +621,8 @@ class TestJSONParser:
             }
         ]
 
-        assert_equal(parser.parsed_records, expected_valid_result)
-        assert_equal(parser.invalid_parses, expected_invalid_result)
+        assert parser.parsed_records == expected_valid_result
+        assert parser.invalid_parses == expected_invalid_result
 
     def test_optional_keys_with_json_path(self):
         """JSONParser - Optional top level keys and json path"""
@@ -663,7 +662,7 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             {
@@ -683,7 +682,7 @@ class TestJSONParser:
             }
         ]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_cloudtrail(self):
         """JSONParser - Cloudtrail JSON"""
@@ -768,11 +767,11 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = data['Records']
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_cloudwatch(self):
         """JSONParser - CloudWatch JSON with envelope keys"""
@@ -861,7 +860,7 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             {
@@ -907,7 +906,7 @@ class TestJSONParser:
                 }
             }
         ]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_inspec(self):
         """JSONParser - Inspec JSON"""
@@ -1000,13 +999,13 @@ class TestJSONParser:
 
         # get parsed data
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [
             control for prof in data['profiles'] for control in prof['controls']
         ]
 
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result
 
     def test_parse_record_copy(self):
         """JSONParser - Parse, Ensure Copy"""
@@ -1020,8 +1019,8 @@ class TestJSONParser:
         }
 
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
-        assert_equal(id(parser.parsed_records[0]) == id(record_data), False)
+        assert parser.parse(record_data) == True
+        assert (id(parser.parsed_records[0]) == id(record_data)) == False
 
     @patch('logging.Logger.debug')
     def test_extract_via_json_path_bad_json(self, log_mock):
@@ -1045,7 +1044,7 @@ class TestJSONParser:
 
         parser = JSONParser(options)
         result = parser._extract_via_json_path(record_data)
-        assert_equal(result, [('not json', False)])
+        assert result == [('not json', False)]
         log_mock.assert_any_call('Embedded json is invalid: %s',
                                  'Expecting value: line 1 column 1 (char 0)')
 
@@ -1071,7 +1070,7 @@ class TestJSONParser:
 
         parser = JSONParser(options)
         result = parser._extract_via_json_path(record_data)
-        assert_equal(result, [(['list of data'], False)])
+        assert result == [(['list of data'], False)]
         log_mock.assert_any_call('Embedded json is invalid: %s', 'record data is not a dictionary')
 
     def test_extract_via_json_regex_key_no_key(self):
@@ -1090,7 +1089,7 @@ class TestJSONParser:
 
         parser = JSONParser(options)
         result = parser._extract_via_json_regex_key(record_data)
-        assert_equal(result, False)
+        assert result == False
 
     def test_parse_record_not_dict_mismatch(self):
         """JSONParser - Parse record not in dict type and doesn't match schema"""
@@ -1103,7 +1102,7 @@ class TestJSONParser:
         record_data = "[{\"key\": \"value\"}]"
 
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), False)
+        assert parser.parse(record_data) == False
 
     def test_parse_record_not_dict_matched(self):
         """JSONParser - Parse record not in dict type but match the schema"""
@@ -1119,7 +1118,7 @@ class TestJSONParser:
         record_data = "[{\"key\": \"value\"}]"
 
         parser = JSONParser(options)
-        assert_equal(parser.parse(record_data), True)
+        assert parser.parse(record_data) == True
 
         expected_result = [{'key': 'value'}]
-        assert_equal(parser.parsed_records, expected_result)
+        assert parser.parsed_records == expected_result

@@ -15,13 +15,13 @@ limitations under the License.
 """
 # pylint: disable=protected-access,attribute-defined-outside-init,no-self-use,no-member
 import pymsteams
+from mock import MagicMock, Mock, call, patch
 from pymsteams import TeamsWebhookException
-from mock import MagicMock, Mock, patch, call
-from nose.tools import assert_equal, assert_false, assert_true
 
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs.teams import TeamsOutput
-from tests.unit.streamalert.alert_processor.helpers import get_alert, get_random_alert
+from tests.unit.streamalert.alert_processor.helpers import (get_alert,
+                                                            get_random_alert)
 
 
 @patch(
@@ -482,7 +482,7 @@ class TestTeamsOutput:
         record_section_mock.assert_called()
         record_section_mock.assert_called_with(alert.record)
         add_sections_mock.assert_called()
-        assert_equal(add_sections_mock.call_count, 1)
+        assert add_sections_mock.call_count == 1
         loaded_message.addSection.assert_called()
         loaded_message.addSection.assert_has_calls(
             [
@@ -548,7 +548,7 @@ class TestTeamsOutput:
 
         # Verify buttons
         add_buttons_mock.assert_called()
-        assert_equal(add_buttons_mock.call_count, 1)
+        assert add_buttons_mock.call_count == 1
 
     @patch('logging.Logger.info')
     @patch.object(TeamsOutput, '_format_message')
@@ -559,7 +559,7 @@ class TestTeamsOutput:
             send=Mock(return_value='Worked')
         )
 
-        assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
         # Tests
         log_mock.assert_called()
@@ -576,7 +576,7 @@ class TestTeamsOutput:
         message_mock.return_value = Mock(
             send=Mock(side_effect=exception)
         )
-        assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert not self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
         # Tests
         log_mock.assert_called()
@@ -595,11 +595,9 @@ class TestTeamsOutput:
         descriptor = "bad_descriptor"
 
         # Tests
-        assert_false(
-            self._dispatcher.dispatch(
+        assert not self._dispatcher.dispatch(
                 get_alert(), ":".join([self.SERVICE, descriptor])
             )
-        )
         log_mock.assert_called()
         log_mock.assert_has_calls(
             [

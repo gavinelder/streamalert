@@ -1,18 +1,15 @@
+import collections
 import os
 
 from mock import Mock, patch
 from moto import mock_ssm
-from nose.tools import (
-    assert_equal, assert_false, assert_count_equal, assert_is_none
-)
-# import requests
 
 from streamalert.apps._apps.intercom import IntercomApp
-from tests.unit.streamalert.apps.test_helpers import (
-    get_event,
-    put_mock_params
-)
+from tests.unit.streamalert.apps.test_helpers import get_event, put_mock_params
 from tests.unit.streamalert.shared.test_config import get_mock_lambda_context
+
+# import requests
+
 
 
 @mock_ssm
@@ -33,8 +30,7 @@ class TestIntercomApp:
 
     def test_required_auth_info(self):
         """IntercomApp - Required Auth Info"""
-        assert_count_equal(self._app._required_auth_info().keys(),
-                           {'token'})
+        assert collections.Counter(self._app._required_auth_info().keys()) == collections.Counter({'token'})
 
     @staticmethod
     def _get_sample_access_logs():
@@ -99,10 +95,10 @@ class TestIntercomApp:
             status_code=404,
             content='something went wrong')
 
-        assert_false(self._app._gather_logs())
+        assert not self._app._gather_logs()
 
         # The .json should be called on the response once, to return the response.
-        assert_equal(requests_mock.return_value.json.call_count, 1)
+        assert requests_mock.return_value.json.call_count == 1
 
     @patch('calendar.timegm')
     @patch('requests.get')
@@ -123,9 +119,9 @@ class TestIntercomApp:
             'created_at_after': 0
         }
 
-        assert_equal(len(gathered_logs), 2)
-        assert_false(self._app._more_to_poll)
-        assert_is_none(self._app._next_page)
+        assert len(gathered_logs) == 2
+        assert not self._app._more_to_poll
+        assert self._app._next_page is None
         requests_mock.assert_called_once_with(
             self._app._INTERCOM_LOGS_URL,
             headers=self.test_headers(),
@@ -152,9 +148,9 @@ class TestIntercomApp:
             'created_at_after': 0
         }
 
-        assert_equal(len(gathered_logs), 2)
-        assert_equal(self._app._more_to_poll, True)
-        assert_equal(self._app._next_page, '1234abc')
+        assert len(gathered_logs) == 2
+        assert self._app._more_to_poll == True
+        assert self._app._next_page == '1234abc'
         requests_mock.assert_called_once_with(
             self._app._INTERCOM_LOGS_URL,
             headers=self.test_headers(),
@@ -173,7 +169,7 @@ class TestIntercomApp:
 
         gathered_logs = self._app._gather_logs()
 
-        assert_equal(len(gathered_logs), 2)
+        assert len(gathered_logs) == 2
         requests_mock.assert_called_once_with(
             '567cde',
             headers=self.test_headers(),
@@ -191,7 +187,7 @@ class TestIntercomApp:
         )
 
         time_mock.return_value = 100
-        assert_equal(self._app._last_timestamp, 0)
+        assert self._app._last_timestamp == 0
 
         gathered_logs = self._app._gather_logs()
 
@@ -200,8 +196,8 @@ class TestIntercomApp:
             'created_at_after': 0
         }
 
-        assert_equal(len(gathered_logs), 2)
-        assert_equal(self._app._last_timestamp, 1537218403)
+        assert len(gathered_logs) == 2
+        assert self._app._last_timestamp == 1537218403
         requests_mock.assert_called_once_with(
             self._app._INTERCOM_LOGS_URL,
             headers=self.test_headers(),
@@ -228,8 +224,8 @@ class TestIntercomApp:
             'created_at_after': 1537218402
         }
 
-        assert_equal(len(gathered_logs), 1)
-        assert_equal(self._app._last_timestamp, 1537218403)
+        assert len(gathered_logs) == 1
+        assert self._app._last_timestamp == 1537218403
         requests_mock.assert_called_once_with(
             self._app._INTERCOM_LOGS_URL,
             headers=self.test_headers(),

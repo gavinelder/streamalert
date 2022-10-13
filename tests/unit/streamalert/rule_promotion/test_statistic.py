@@ -13,11 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
 
 from mock import patch
-from nose.tools import assert_equal
 
 from streamalert.rule_promotion.statistic import StagingStatistic
 
@@ -47,19 +46,19 @@ class TestStagingStatistic:
                           "(dt >= '2000-01-01-01' AND rule_name = 'test_rule') "
                           "GROUP BY rule_name")
 
-        assert_equal(query, expected_query)
+        assert query == expected_query
 
     def test_sql_where_fragment(self):
         """StagingStatistic - SQL Count Where Fragment"""
         expected_sql = ("(dt >= '2000-01-01-01' AND rule_name = 'test_rule')")
-        assert_equal(self.statistic.sql_where_fragment, expected_sql)
+        assert self.statistic.sql_where_fragment == expected_sql
 
     def test_sql_info_statement(self):
         """StagingStatistic - SQL Info Statement"""
         expected_sql = ("SELECT id, rule_name, created, cluster, log_source, source_entity, "
                         "record FROM alerts WHERE dt >= '2000-01-01-01' AND "
                         "rule_name = 'test_rule' ORDER BY created DESC")
-        assert_equal(self.statistic.sql_info_statement, expected_sql)
+        assert self.statistic.sql_info_statement == expected_sql
 
     def test_stringer_past(self):
         """StagingStatistic - Stringer, Past Staging"""
@@ -72,7 +71,7 @@ class TestStagingStatistic:
 	- Alert Count:					200
 	- Alert Info:					n/a'''
 
-        assert_equal(str(self.statistic), expected_string)
+        assert str(self.statistic) == expected_string
 
     def test_stringer_remaining(self):
         """StagingStatistic - Stringer, Staging Remaining"""
@@ -86,7 +85,7 @@ class TestStagingStatistic:
 	- Alert Info:					https://console.aws.amazon.com/athena/\
 home#query/history/678cc350-d4e1-4296-86d5-9351b7f92ed4'''
 
-        assert_equal(str(self.statistic), expected_string)
+        assert str(self.statistic) == expected_string
 
     def test_comp(self):
         """StagingStatistic - Comparison"""
@@ -99,7 +98,7 @@ home#query/history/678cc350-d4e1-4296-86d5-9351b7f92ed4'''
         )
         second_stat.alert_count = 100
 
-        assert_equal(self.statistic > second_stat, True)
+        assert (self.statistic > second_stat) == True
 
     def test_comp_no_alert_count(self):
         """StagingStatistic - Comparison when alert_count is default value"""
@@ -112,7 +111,7 @@ home#query/history/678cc350-d4e1-4296-86d5-9351b7f92ed4'''
         )
         second_stat.alert_count = 100
 
-        assert_equal(self.statistic > second_stat, False)
+        assert (self.statistic > second_stat) == False
 
         self.statistic._current_time += timedelta(days=2, hours=10)
         expected_string = '''\u25E6 test_rule
@@ -122,4 +121,4 @@ home#query/history/678cc350-d4e1-4296-86d5-9351b7f92ed4'''
 	- Alert Count:					unknown
 	- Alert Info:					n/a'''
 
-        assert_equal(str(self.statistic), expected_string)
+        assert str(self.statistic) == expected_string

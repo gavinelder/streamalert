@@ -21,9 +21,11 @@ jobs:
               ./tests/scripts/pylint.sh
           - name: Test
             command: |
-              ./tests/scripts/unit_tests.sh
               ./manage.py test rules
               ./manage.py test classifier
+          - name: Test with pytest
+            run: |
+              pytest
           - name: Docs
             command: |
               sphinx-build -W docs/source docs/build

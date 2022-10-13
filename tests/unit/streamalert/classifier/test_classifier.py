@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from collections import OrderedDict
 import os
+from collections import OrderedDict
 
+import pytest
 from mock import Mock, patch
-from nose.tools import assert_equal, assert_raises
 
 import streamalert.classifier.classifier as classifier_module
 from streamalert.classifier.classifier import Classifier
@@ -132,15 +132,15 @@ class TestClassifier:
 
     def test_config_property(self):
         """Classifier - Config Property"""
-        assert_equal(self._classifier._config, self._mock_conf())
+        assert self._classifier._config == self._mock_conf()
 
     def test_classified_payloads(self):
         """Classifier - Classified Payloads Property"""
-        assert_equal(self._classifier.classified_payloads, [])
+        assert self._classifier.classified_payloads == []
 
     def test_data_retention_enabled(self):
         """Classifier - Data Retention Enabled Property"""
-        assert_equal(self._classifier.data_retention_enabled, True)
+        assert self._classifier.data_retention_enabled == True
 
     def test_load_logs_for_resource(self):
         """Classifier - Load Logs for Resource"""
@@ -156,11 +156,11 @@ class TestClassifier:
         ])
 
         result = self._classifier._load_logs_for_resource(self._service_name, self._resource_name)
-        assert_equal(result, expected_result)
+        assert result == expected_result
 
     def test_load_logs_for_resource_invalid_service(self):
         """Classifier - Load Logs for Resource, Invalid Service"""
-        assert_raises(
+        pytest.raises(
             ConfigError,
             self._classifier._load_logs_for_resource,
             'invalid_service',
@@ -169,7 +169,7 @@ class TestClassifier:
 
     def test_load_logs_for_resource_invalid_resource(self):
         """Classifier - Load Logs for Resource, Invalid Resource"""
-        assert_raises(
+        pytest.raises(
             ConfigError,
             self._classifier._load_logs_for_resource,
             self._service_name,
@@ -186,11 +186,11 @@ class TestClassifier:
         parse_mock.return_value = mock_parser
 
         result = Classifier._process_log_schemas(payload_record, logs_config)
-        assert_equal(result, True)
+        assert result == True
         mock_parser.assert_called_with(
             logs_config[expected_log_type], log_type=expected_log_type
         )
-        assert_equal(payload_record.parser, mock_parser())
+        assert payload_record.parser == mock_parser()
 
     @patch('logging.Logger.debug')
     @patch.object(classifier_module, 'get_parser')
@@ -203,11 +203,11 @@ class TestClassifier:
         parse_mock.return_value = mock_parser
 
         result = Classifier._process_log_schemas(payload_record, logs_config)
-        assert_equal(result, True)
+        assert result == True
         mock_parser.assert_called_with(
             logs_config[expected_log_type], log_type=expected_log_type
         )
-        assert_equal(payload_record.parser, mock_parser())
+        assert payload_record.parser == mock_parser()
         log_mock.assert_any_call(
             'Failed to classify data with schema: %s', 'log_type_01:sub_type'
         )
@@ -222,8 +222,8 @@ class TestClassifier:
         parse_mock.return_value = mock_parser
 
         result = Classifier._process_log_schemas(payload_record, logs_config)
-        assert_equal(result, False)
-        assert_equal(payload_record.parser, None)
+        assert result == False
+        assert payload_record.parser == None
         log_mock.assert_any_call(
             'Failed to classify data with schema: %s', 'log_type_01:sub_type'
         )
@@ -248,7 +248,7 @@ class TestClassifier:
             normalizer_mock.normalize.assert_called_with(
                 payload_record.parsed_records[-1], 'foo:bar'
             )
-            assert_equal(self._classifier._payloads, [payload_record])
+            assert self._classifier._payloads == [payload_record]
             log_mock.assert_called_with(payload_record, 1)
 
     @patch('logging.Logger.error')
@@ -281,12 +281,12 @@ class TestClassifier:
     def test_log_bad_records(self):
         """Classifier - Log Bad Records"""
         self._classifier._log_bad_records(None, 2)
-        assert_equal(self._classifier._failed_record_count, 2)
+        assert self._classifier._failed_record_count == 2
 
     def test_log_bad_records_zero(self):
         """Classifier - Log Bad Records, None"""
         self._classifier._log_bad_records(None, 0)
-        assert_equal(self._classifier._failed_record_count, 0)
+        assert self._classifier._failed_record_count == 0
 
     @patch.object(classifier_module.MetricLogger, 'log_metric')
     def test_log_metrics(self, metric_mock):

@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import pytest
 from mock import Mock, patch
-from nose.tools import assert_equal, assert_false, assert_raises, assert_true
 
 from streamalert.shared.exceptions import ConfigError
-from streamalert.shared.normalize import Normalizer, NormalizedType
+from streamalert.shared.normalize import NormalizedType, Normalizer
 from tests.unit.streamalert.shared.test_utils import MOCK_RECORD_ID
 
 
@@ -138,7 +138,7 @@ class TestNormalizer:
         }
 
         results = Normalizer.match_types(self._test_record(), normalized_types)
-        assert_equal(results, expected_results)
+        assert results == expected_results
 
     @patch('uuid.uuid4', Mock(return_value=MOCK_RECORD_ID))
     def test_match_types_multiple(self):
@@ -190,7 +190,7 @@ class TestNormalizer:
         }
 
         results = Normalizer.match_types(self._test_record(), normalized_types)
-        assert_equal(results, expected_results)
+        assert results == expected_results
 
     @patch('uuid.uuid4', Mock(return_value=MOCK_RECORD_ID))
     def test_normalize(self):
@@ -242,7 +242,7 @@ class TestNormalizer:
             }
         }
 
-        assert_equal(record, expected_record)
+        assert record == expected_record
 
     @patch('uuid.uuid4', Mock(return_value=MOCK_RECORD_ID))
     def test_normalize_corner_case(self):
@@ -282,7 +282,7 @@ class TestNormalizer:
             }
         }
 
-        assert_equal(record, expected_record)
+        assert record == expected_record
 
     @patch('logging.Logger.debug')
     def test_normalize_none_defined(self, log_mock):
@@ -323,7 +323,7 @@ class TestNormalizer:
         }
 
         results = Normalizer.match_types(test_record, normalized_types)
-        assert_equal(results, expected_results)
+        assert results == expected_results
 
     @patch('uuid.uuid4', Mock(return_value=MOCK_RECORD_ID))
     def test_empty_value(self):
@@ -349,7 +349,7 @@ class TestNormalizer:
         }
 
         results = Normalizer.match_types(test_record, normalized_types)
-        assert_equal(results, expected_results)
+        assert results == expected_results
 
     def test_get_values_for_normalized_type(self):
         """Normalizer - Get Values for Normalized Type"""
@@ -366,7 +366,7 @@ class TestNormalizer:
             }
         }
 
-        assert_equal(Normalizer.get_values_for_normalized_type(record, 'ip_v4'), expected_result)
+        assert Normalizer.get_values_for_normalized_type(record, 'ip_v4') == expected_result
 
     def test_get_values_for_normalized_type_none(self):
         """Normalizer - Get Values for Normalized Type, None"""
@@ -375,12 +375,12 @@ class TestNormalizer:
             'streamalert_normalization': {}
         }
 
-        assert_equal(Normalizer.get_values_for_normalized_type(record, 'ip_v4'), set())
+        assert Normalizer.get_values_for_normalized_type(record, 'ip_v4') == set()
 
     def test_load_from_config_exist_types_config(self):
         """Normalizer - Load normalized_types from conf when it was loaded previously"""
         Normalizer._types_config = {'normalized_type1': {}}
-        assert_equal(Normalizer.load_from_config({'foo': 'bar'}), Normalizer)
+        assert Normalizer.load_from_config({'foo': 'bar'}) == Normalizer
 
     def test_load_from_config(self):
         """Normalizer - Load From Config"""
@@ -406,14 +406,14 @@ class TestNormalizer:
                 )
             }
         }
-        assert_equal(normalizer, Normalizer)
-        assert_equal(normalizer._types_config, expected_config)
+        assert normalizer == Normalizer
+        assert normalizer._types_config == expected_config
 
     def test_load_from_config_empty(self):
         """Normalizer - Load From Config, Empty"""
         normalizer = Normalizer.load_from_config({})
-        assert_equal(normalizer, Normalizer)
-        assert_equal(normalizer._types_config, None)
+        assert normalizer == Normalizer
+        assert normalizer._types_config == None
 
     def test_load_from_config_from_log_conf(self):
         """Normalizer - Load normalization config from "logs" field in the config"""
@@ -484,8 +484,8 @@ class TestNormalizer:
         }
 
         normalizer = Normalizer.load_from_config(config)
-        assert_equal(normalizer, Normalizer)
-        assert_equal(normalizer._types_config, expected_config)
+        assert normalizer == Normalizer
+        assert normalizer._types_config == expected_config
 
     def test_load_from_config_deprecate_normalized_types(self):
         """Normalizer - Load normalization config and deprecate conf/normalized_types.json
@@ -535,8 +535,8 @@ class TestNormalizer:
         }
 
         normalizer = Normalizer.load_from_config(config)
-        assert_equal(normalizer, Normalizer)
-        assert_equal(normalizer._types_config, expected_config)
+        assert normalizer == Normalizer
+        assert normalizer._types_config == expected_config
 
     def test_load_from_config_error(self):
         """Normalizer - Load normalization config raises ConfigError
@@ -558,7 +558,7 @@ class TestNormalizer:
                 }
             }
         }
-        assert_raises(ConfigError, Normalizer.load_from_config, config)
+        pytest.raises(ConfigError, Normalizer.load_from_config, config)
 
         config = {
             'logs': {
@@ -581,7 +581,7 @@ class TestNormalizer:
                 'other_log_type': {}
             }
         }
-        assert_raises(ConfigError, Normalizer.load_from_config, config)
+        pytest.raises(ConfigError, Normalizer.load_from_config, config)
 
     @patch('uuid.uuid4', Mock(return_value=MOCK_RECORD_ID))
     def test_load_from_config_with_flag(self):
@@ -646,7 +646,7 @@ class TestNormalizer:
             }
         }
 
-        assert_equal(record, expect_result)
+        assert record == expect_result
 
     @patch('uuid.uuid4', Mock(return_value=MOCK_RECORD_ID))
     def test_normalize_condition(self):
@@ -732,7 +732,7 @@ class TestNormalizer:
                 ]
             }
         }
-        assert_equal(record, expected_record)
+        assert record == expected_record
 
     def test_match_condition(self):
         """Normalizer - Test match condition with different conditions"""
@@ -742,43 +742,43 @@ class TestNormalizer:
             'path': ['account'],
             'is': '123456'
         }
-        assert_true(Normalizer._match_condition(record, condition))
+        assert Normalizer._match_condition(record, condition)
 
         condition = {
             'path': ['account'],
             'is_not': '123456'
         }
-        assert_false(Normalizer._match_condition(record, condition))
+        assert not Normalizer._match_condition(record, condition)
 
         condition = {
             'path': ['detail', 'awsRegion'],
             'contains': 'region'
         }
-        assert_true(Normalizer._match_condition(record, condition))
+        assert Normalizer._match_condition(record, condition)
 
         condition = {
             'path': ['detail', 'awsRegion'],
             'contains': 'not_region'
         }
-        assert_false(Normalizer._match_condition(record, condition))
+        assert not Normalizer._match_condition(record, condition)
 
         condition = {
             'path': ['detail', 'userIdentity', 'userName'],
             'not_contains': 'alice'
         }
-        assert_false(Normalizer._match_condition(record, condition))
+        assert not Normalizer._match_condition(record, condition)
 
         condition = {
             'path': ['sourceIPAddress'],
             'in': ['1.1.1.2', '1.1.1.3']
         }
-        assert_true(Normalizer._match_condition(record, condition))
+        assert Normalizer._match_condition(record, condition)
 
         condition = {
             'path': ['sourceIPAddress'],
             'not_in': ['1.1.1.2', '1.1.1.3']
         }
-        assert_false(Normalizer._match_condition(record, condition))
+        assert not Normalizer._match_condition(record, condition)
 
         # Only support extract one condition. The result is not quaranteed if multiple conditions
         # configured. In this test case, it is because 'not_in' condition is checked before
@@ -788,4 +788,4 @@ class TestNormalizer:
             'contains': 'amazonaws.com',
             'not_in': ['signin.amazonaws.com', 's3.amazonaws.com']
         }
-        assert_false(Normalizer._match_condition(record, condition))
+        assert not Normalizer._match_condition(record, condition)

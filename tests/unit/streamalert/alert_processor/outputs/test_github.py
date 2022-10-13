@@ -16,8 +16,7 @@ limitations under the License.
 # pylint: disable=protected-access,attribute-defined-outside-init,no-self-use
 import base64
 
-from mock import patch, Mock, MagicMock
-from nose.tools import assert_false, assert_true, assert_equal, assert_is_not_none
+from mock import MagicMock, Mock, patch
 
 from streamalert.alert_processor.outputs.github import GithubOutput
 from tests.unit.streamalert.alert_processor.helpers import get_alert
@@ -54,16 +53,16 @@ class TestGithubOutput:
         url_mock.return_value.status_code = 200
         url_mock.return_value.json.return_value = dict()
 
-        assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
-        assert_equal(url_mock.call_args[0][0],
+        assert (url_mock.call_args[0][0] ==
                      'https://api.github.com/repos/unit_test_org/unit_test_repo/issues')
-        assert_is_not_none(url_mock.call_args[1]['headers']['Authorization'])
+        assert url_mock.call_args[1]['headers']['Authorization'] is not None
 
         credentials = url_mock.call_args[1]['headers']['Authorization'].split(' ')[-1]
         decoded_username_password = base64.b64decode(credentials)
-        assert_equal(decoded_username_password, "{}:{}".format(self.CREDS['username'],
-                                                               self.CREDS['access_token']).encode())
+        assert decoded_username_password == "{}:{}".format(self.CREDS['username'],
+                                                               self.CREDS['access_token']).encode()
 
         log_mock.assert_called_with('Successfully sent alert to %s:%s',
                                     self.SERVICE, self.DESCRIPTOR)
@@ -75,9 +74,9 @@ class TestGithubOutput:
         url_mock.return_value.status_code = 200
         url_mock.return_value.json.return_value = dict()
 
-        assert_true(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
-        assert_equal(url_mock.call_args[1]['json']['labels'], ['label1', 'label2'])
+        assert url_mock.call_args[1]['json']['labels'] == ['label1', 'label2']
         log_mock.assert_called_with('Successfully sent alert to %s:%s',
                                     self.SERVICE, self.DESCRIPTOR)
 
@@ -89,14 +88,13 @@ class TestGithubOutput:
         url_mock.return_value.json.return_value = json_error
         url_mock.return_value.status_code = 400
 
-        assert_false(self._dispatcher.dispatch(get_alert(), self.OUTPUT))
+        assert not self._dispatcher.dispatch(get_alert(), self.OUTPUT)
 
         log_mock.assert_called_with('Failed to send alert to %s:%s', self.SERVICE, self.DESCRIPTOR)
 
     @patch('logging.Logger.error')
     def test_dispatch_bad_descriptor(self, log_mock):
         """GithubOutput - Dispatch Failure, Bad Descriptor"""
-        assert_false(
-            self._dispatcher.dispatch(get_alert(), ':'.join([self.SERVICE, 'bad_descriptor'])))
+        assert not self._dispatcher.dispatch(get_alert(), ':'.join([self.SERVICE, 'bad_descriptor']))
 
         log_mock.assert_called_with('Failed to send alert to %s:%s', self.SERVICE, 'bad_descriptor')
