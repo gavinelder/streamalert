@@ -16,8 +16,7 @@ jsonlines
 mock
 moto
 netaddr
-nose
-nose-timer
+pytest
 pathlib2
 policyuniverse
 pyfakefs

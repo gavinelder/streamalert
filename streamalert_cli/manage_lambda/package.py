@@ -47,7 +47,6 @@ class LambdaPackage:
         'netaddr==0.8.0',
         'requests==2.24.0',
         'pymsteams==0.1.13',
-        'idna==2.8',
     }
 
     def __init__(self, config):
@@ -85,11 +84,8 @@ class LambdaPackage:
 
         # Zip it all up
         # Build these in the top-level of the terraform directory as streamalert.zip
-        result = shutil.make_archive(
-            os.path.join(self.config.build_directory, self.PACKAGE_NAME),
-            'zip',
-            self.temp_package_path
-        )
+        result = shutil.make_archive(os.path.join(self.config.build_directory, self.PACKAGE_NAME),
+                                     'zip', self.temp_package_path)
 
         LOGGER.info('Successfully created package: %s', result)
 
@@ -106,7 +102,7 @@ class LambdaPackage:
             ignores (set=None): File globs to be ignored during the copying of the directory
         """
         # Copy the directory, skipping any files explicitly ignored
-        kwargs = {'ignore': shutil.ignore_patterns(*ignores)} if ignores else dict()
+        kwargs = {'ignore': shutil.ignore_patterns(*ignores)} if ignores else {}
         destination = destination or path
         destination = os.path.join(self.temp_package_path, destination)
         shutil.copytree(path, destination, **kwargs)
@@ -119,8 +115,7 @@ class LambdaPackage:
         """
         # Merge any custom libs needed by rules, etc
         libs_to_install = self.REQUIRED_LIBS.union(
-            set(self.config['global']['general'].get('third_party_libraries', []))
-        )
+            set(self.config['global']['general'].get('third_party_libraries', [])))
 
         LOGGER.info('Installing libraries: %s', ', '.join(libs_to_install))
         pip_command = ['pip', 'install']

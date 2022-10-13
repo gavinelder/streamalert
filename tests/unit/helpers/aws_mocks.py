@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from datetime import datetime
 import uuid
-from io import BytesIO
 import zipfile
+from datetime import datetime
+from io import BytesIO
 
 import boto3
 from botocore.exceptions import ClientError
@@ -45,7 +45,7 @@ class MockLambdaClient:
 
         return {
             'FunctionName': function_name,
-            'FunctionArn': 'arn:aws:lambda:region:account-id:function:{}'.format(function_name),
+            'FunctionArn': f'arn:aws:lambda:region:account-id:function:{function_name}',
             'Runtime': 'python3.7',
             'Role': 'string',
             'Handler': 'main.handler',
@@ -55,8 +55,7 @@ class MockLambdaClient:
             'MemorySize': 128,
             'LastModified': 'string',
             'CodeSha256': code_sha_256,
-            'Version': self.current_version + 1
-        }
+            'Version': self.current_version + 1}
 
 
 class MockAthenaClient:
@@ -64,6 +63,7 @@ class MockAthenaClient:
 
     class MockAthenaPaginator:
         """Mock class for paginating athena results"""
+
         def __init__(self, func, pages):
             self._func = func
             self._pages = pages
@@ -123,9 +123,9 @@ class MockAthenaClient:
 
         return query_execution
 
-    def get_query_results(self, **kwargs):  # pylint: disable=unused-argument
+    def get_query_results(self, **kwargs):    # pylint: disable=unused-argument
         """Get the results of a executed query"""
-        return {'ResultSet': {'Rows': self.results if self.results else []}}
+        return {'ResultSet': {'Rows': self.results or []}}
 
     def get_paginator(self, func_name):
         """Return a MockAthenaPaginator to yield results"""
