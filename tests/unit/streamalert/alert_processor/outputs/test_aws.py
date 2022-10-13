@@ -20,7 +20,7 @@ from email.mime.text import MIMEText
 from unittest.mock import MagicMock, Mock, patch
 
 import boto3
-from moto import mock_kinesis, mock_s3, mock_ses, mock_sns, mock_sqs
+from moto import mock_firehose, mock_s3, mock_ses, mock_sns, mock_sqs
 
 from streamalert.alert_processor.helpers import compose_alert
 from streamalert.alert_processor.outputs import aws as aws_outputs
@@ -58,7 +58,8 @@ class TestAWSOutput:
         assert formatted_config.get('unit_test_bucket') is not None
 
 
-@mock_kinesis
+@mock_firehose
+@patch.object(aws_outputs, 'boto3', MagicMock())
 class TestFirehoseOutput:
     """Test class for AWS Kinesis Firehose"""
     DESCRIPTOR = 'unit_test_delivery_stream'
