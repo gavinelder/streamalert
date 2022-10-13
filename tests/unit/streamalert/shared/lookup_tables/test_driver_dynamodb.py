@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 import pytest
 from botocore.exceptions import ReadTimeoutError
-from moto import mock_dynamodb2
+from moto import mock_dynamodb
 
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.drivers_factory import \
@@ -39,7 +39,7 @@ class TestDynamoDBDriver:
     def setup(self):
         """LookupTables - Setup S3 bucket mocking"""
         self.config = load_config('tests/unit/conf')
-        self._dynamodb_mock = mock_dynamodb2()
+        self._dynamodb_mock = mock_dynamodb()
         self._dynamodb_mock.start()
 
         self._driver = construct_persistence_driver(
@@ -244,7 +244,7 @@ class TestDynamoDBDriver_MultiTable:
         """LookupTables - Setup S3 bucket mocking"""
         self.config = load_config('tests/unit/conf')
 
-        self._dynamodb_mock = mock_dynamodb2()
+        self._dynamodb_mock = mock_dynamodb()
         self._dynamodb_mock.start()
 
         self._int_driver = construct_persistence_driver(

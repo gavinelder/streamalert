@@ -17,7 +17,7 @@ import json
 import zlib
 from unittest.mock import ANY, patch
 
-from moto import mock_dynamodb2, mock_s3
+from moto import mock_dynamodb, mock_s3
 
 from streamalert.shared.config import load_config
 from streamalert.shared.lookup_tables.core import LookupTables
@@ -38,7 +38,7 @@ class TestLookupTablesCore:
         self.s3_mock = mock_s3()
         self.s3_mock.start()
 
-        self.dynamodb_mock = mock_dynamodb2()
+        self.dynamodb_mock = mock_dynamodb()
         self.dynamodb_mock.start()
 
         self._put_mock_data()
