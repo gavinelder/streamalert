@@ -162,7 +162,7 @@ def get_role_name(region):
 
 @mock_lambda
 def create_lambda_function(function_name, region):
-    """Helper function to create mock lambda function""" 
+    """Helper function to create mock lambda function"""
     if function_name.find(':') != -1:
         function_name = function_name.split(':')[0]
 
