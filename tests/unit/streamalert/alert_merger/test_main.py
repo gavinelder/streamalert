@@ -18,7 +18,7 @@ import os
 from datetime import datetime, timedelta
 from unittest.mock import ANY, MagicMock, call, patch
 
-from moto import mock_dynamodb as mock_dynamodb, mock_lambda
+from moto import mock_dynamodb2, mock_lambda
 
 from streamalert.alert_merger import main
 from streamalert.shared.alert import Alert
@@ -60,7 +60,7 @@ class TestAlertMergeGroup:
 class TestAlertMerger:
     """Tests for merger/main.py:AlertMerger class"""
     @patch.dict(
-       'os.environ', {
+       os.environ, {
             'ALERT_PROCESSOR': _ALERT_PROCESSOR,
             'ALERT_PROCESSOR_TIMEOUT_SEC': str(_ALERT_PROCESSOR_TIMEOUT_SEC),
             'ALERTS_TABLE': _ALERTS_TABLE,
@@ -68,7 +68,7 @@ class TestAlertMerger:
         })
     def setup(self):
         """Alert Merger - Setup"""
-        self.dynamo_mock = mock_dynamodb()
+        self.dynamo_mock = mock_dynamodb2()
         self.lambda_mock = mock_lambda()
         self.dynamo_mock.start()
         self.lambda_mock.start()
