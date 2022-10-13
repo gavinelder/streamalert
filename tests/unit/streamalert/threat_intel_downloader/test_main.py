@@ -331,7 +331,7 @@ class TestThreatStream:
         batch_writer.__enter__.return_value.put_item.side_effect = err
 
         self.threatstream._write_to_dynamodb_table(intel)
-
+    #make this pytest
     @patch('boto3.client')
     def test_invoke_lambda_function(self, boto_mock):
         """ThreatStream - Invoke Lambda Function"""

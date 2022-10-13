@@ -15,7 +15,7 @@ limitations under the License.
 """
 from unittest.mock import Mock
 
-from nose.tools import nottest
+import pytest
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert_cli.test.event_file import TestEventFile
@@ -24,8 +24,9 @@ from tests.unit.streamalert_cli.test.helpers import (basic_test_event_data,
                                                      basic_test_file_json)
 
 # Keep nose from trying to treat these as tests
-TestEventFile = nottest(TestEventFile)
-TestResult = nottest(TestResult)
+TestEventFile = pytest.mark.nottest(TestEventFile)
+
+TestResult = pytest.mark.nottest(TestResult)
 
 
 class TestTestEventFile(fake_filesystem_unittest.TestCase):
@@ -76,11 +77,11 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         # pylint: disable=protected-access
         event = TestEventFile(self._DEFAULT_EVENT_PATH)
 
-        assert bool(event) == False
+        assert not bool(event)
 
         event._results.append(self._fake_result(True))
 
-        assert bool(event) == True
+        assert bool(event)
 
     def test_passed(self):
         """StreamAlert CLI - TestEventFile Passed"""
@@ -104,7 +105,7 @@ class TestTestEventFile(fake_filesystem_unittest.TestCase):
         value = list(event.load_file())
 
         assert len(value) == 1
-        assert event.error == None
+        assert event.error is None
 
     def test_load_file_invalid_json(self):
         """StreamAlert CLI - TestEventFile Load File, Invalid JSON"""

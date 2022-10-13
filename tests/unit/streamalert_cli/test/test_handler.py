@@ -19,7 +19,6 @@ from unittest import mock
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-from nose.tools import nottest
 from pyfakefs import fake_filesystem_unittest
 
 from streamalert.shared.config import load_config
@@ -28,15 +27,13 @@ from streamalert_cli.config import CLIConfig
 from streamalert_cli.test.handler import TestRunner
 from tests.unit.streamalert_cli.test.helpers import basic_test_file_json
 
-# Keep nose from trying to treat this as a test
-TestRunner = nottest(TestRunner)
-
+TestRunner = pytest.mark.nottest(TestRunner)
 
 class TestTestRunner(fake_filesystem_unittest.TestCase):
     """Test the TestEventFile class"""
     # pylint: disable=protected-access
 
-    TEST_CONFIG_PATH = 'tests/uwnit/conf'
+    TEST_CONFIG_PATH = 'tests/unit/conf'
     _DEFAULT_EVENT_PATH = 'rules/community/unit_test/file.json'
 
     def setUp(self):

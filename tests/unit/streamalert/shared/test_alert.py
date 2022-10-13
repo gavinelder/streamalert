@@ -15,7 +15,7 @@ limitations under the License.
 """
 import copy
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta 
 
 import pytest
 from streamalert.shared.alert import Alert, AlertCreationError

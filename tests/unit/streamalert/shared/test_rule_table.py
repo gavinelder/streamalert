@@ -239,7 +239,7 @@ class TestRuleTable:
         self.rule_table.update()
         assert len(self.rule_table._load_remote_state()) == 2
         item = self.rule_table._table.get_item(Key={'RuleName': rule_name})
-        assert item.get('Item') == None
+        assert item.get('Item') is None
         item = self.rule_table._table.get_item(Key={'RuleName': 'test_rule_02'})
         assert item['Item']['RuleName'] == 'test_rule_02'
 

@@ -15,13 +15,13 @@ limitations under the License.
 """
 from unittest.mock import patch
 
-from nose.tools import nottest
+
+import pytest
 
 from streamalert_cli.test.event import TestEvent
 from tests.unit.streamalert_cli.test.helpers import basic_test_event_data
 
-TestEvent = nottest(TestEvent)
-
+TestEvent = pytest.mark.nottest(TestEvent)
 
 class TestTestEvent:
     """Test the TestEvent class"""
@@ -55,7 +55,7 @@ class TestTestEvent:
 
     def test_override_record(self):
         """StreamAlert CLI - TestEvent Override Record` Property"""
-        assert self._default_event.override_record == None
+        assert self._default_event.override_record is None
 
     def test_description(self):
         """StreamAlert CLI - TestEvent Description Property"""
@@ -165,13 +165,13 @@ class TestTestEvent:
         """StreamAlert CLI - TestEvent Apply Service Template, S3"""
         s3_event = TestEvent(basic_test_event_data(service='s3'))
         result = s3_event._apply_service_template('')
-        assert ('s3' in result) == True
+        assert 's3' in result
 
     def test_apply_service_template_kinesis(self):
         """StreamAlert CLI - TestEvent Apply Service Template, Kinesis"""
         kinesis_event = TestEvent(basic_test_event_data(service='kinesis'))
         result = kinesis_event._apply_service_template('')
-        assert ('kinesis' in result) == True
+        assert 'kinesis' in result
 
     def test_apply_service_template_kinesis_compressed(self):
         """StreamAlert CLI - TestEvent Apply Service Template, Kinesis Compressed"""
@@ -185,13 +185,13 @@ class TestTestEvent:
         """StreamAlert CLI - TestEvent Apply Service Template, SNS"""
         sns_event = TestEvent(basic_test_event_data(service='sns'))
         result = sns_event._apply_service_template('')
-        assert ('Sns' in result) == True
+        assert 'Sns' in result
 
     def test_apply_service_template_apps(self):
         """StreamAlert CLI - TestEvent Apply Service Template, App"""
         app_event = TestEvent(basic_test_event_data(service='streamalert_app'))
         result = app_event._apply_service_template('')
-        assert ('streamalert_app' in result) == True
+        assert 'streamalert_app' in result
 
     def test_apply_helpers(self):
         """StreamAlert CLI - TestEvent Apply Helpers"""
