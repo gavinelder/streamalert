@@ -155,8 +155,8 @@ def create_lambda_function(function_name, region):
 
     boto3.client('lambda', region_name=region).create_function(
         FunctionName=function_name,
-        Runtime='python3.7',
-        Role='test-iam-role',
+        Runtime='python3.10',
+        Role='arn:aws:iam::123456789012:role/lambda_basic_execution',
         Handler='function.handler',
         Description='test lambda function',
         Timeout=3,
