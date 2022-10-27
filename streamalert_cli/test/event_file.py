@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import json
+import yaml
 
 from streamalert.shared.logger import get_logger
 from streamalert_cli.test.format import format_red, format_underline
@@ -79,9 +79,9 @@ class TestEventFile:
         """
         with open(self._full_path, encoding="utf-8") as test_event_file:
             try:
-                data = json.load(test_event_file)
+                data = yaml.safe_load(test_event_file)
             except (ValueError, TypeError):
-                self.error = 'Test event file is not valid JSON'
+                self.error = 'Test event file is not valid YAML'
                 return
 
             if not isinstance(data, list):

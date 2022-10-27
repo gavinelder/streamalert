@@ -399,7 +399,7 @@ class TestRunner:
         for root, _, test_event_files in os.walk(directory):
             if files := [
                     file for file in sorted(test_event_files)
-                    if os.path.splitext(file)[1] == '.json'
+                    if os.path.splitext(file)[1] == '.yml'
             ]:
                 yield root, files
 
